@@ -1,0 +1,58 @@
+[
+  {
+    "userId": "1",
+    "username": "User1",
+    "badges": [],
+    "color": "#b17500",
+    "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."
+  },
+  {
+    "userId": "2",
+    "username": "User2",
+    "badges": [],
+    "color": "#004f74",
+    "message": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+  },
+  {
+    "userId": "2",
+    "username": "User2",
+    "badges": [],
+    "color": "#004f74",
+    "message": "Proin sed libero enim sed faucibus turpis."
+  },
+  {
+    "userId": "1",
+    "username": "User1",
+    "badges": [],
+    "color": "#b17500",
+    "message": "Aenean pharetra magna ac placerat vestibulum lectus mauris."
+  },
+  {
+    "userId": "3",
+    "username": "User3",
+    "badges": [],
+    "color": "#cc5200",
+    "message": "Orci sagittis eu volutpat odio facilisis mauris sit amet. Tellus molestie nunc non blandit massa enim. "
+  },
+  {
+    "userId": "3",
+    "username": "User3",
+    "badges": [],
+    "color": "#cc5200",
+    "message": " Egestas pretium aenean pharetra magna ac placerat vestibulum lectus. Elementum eu facilisis sed odio morbi quis commodo odio aenean. Et sollicitudin ac orci phasellus egestas tellus rutrum. Nunc scelerisque viverra mauris in aliquam. Eu sem integer vitae justo eget magna. Aliquam malesuada bibendum arcu vitae."
+  },
+  {
+    "userId": "1",
+    "username": "User1",
+    "badges": [],
+    "color": "#b17500",
+    "message": "Massa eget egestas purus viverra. Morbi non arcu risus quis varius quam quisque."
+  },
+  {
+    "userId": "3",
+    "username": "User3",
+    "badges": [],
+    "color": "#cc5200",
+    "message": "Nunc scelerisque viverra mauris in aliquam. "
+  }
+]

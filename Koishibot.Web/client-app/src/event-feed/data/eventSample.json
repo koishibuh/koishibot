@@ -1,0 +1,57 @@
+[
+  {
+    "eventType": "Follow",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 1 has followed"
+  },
+  {
+    "eventType": "Raid",
+    "timestamp": "2024-07-12 16:27",
+    "message": "User 2 has raided with 6"
+  },
+  {
+    "eventType": "Raid",
+    "timestamp": "2024-06-20 17:01",
+    "message": "User 3 has raided with 71"
+  },
+  {
+    "eventType": "Subscription",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 2 has subscribed with Tier 1 sub for 6 months."
+  },
+  {
+    "eventType": "Follow",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 2 has followed"
+  },
+  {
+    "eventType": "Follow",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 5 has followed"
+  },
+  {
+    "eventType": "Subscription",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 2 has subscribed with Tier 1 sub for 6 months."
+  },
+  {
+    "eventType": "Subscription",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 2 has subscribed with Tier 1 sub for 6 months."
+  },
+  {
+    "eventType": "Follow",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 5 has followed"
+  },
+  {
+    "eventType": "Raid",
+    "timestamp": "2024-06-20 17:01",
+    "message": "User 3 has raided with 71"
+  },
+  {
+    "eventType": "Cheer",
+    "timestamp": "2024-07-18 16:27",
+    "message": "User 3 has cheered 20 bits"
+  }
+]

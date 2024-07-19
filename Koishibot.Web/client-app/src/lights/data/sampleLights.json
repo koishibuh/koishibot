@@ -1,0 +1,14 @@
+[
+  {
+    "lightName": "Light1",
+    "power": true,
+    "color": "rgb(234, 88, 12)",
+    "isSelected": false
+  },
+  {
+    "lightName": "Light2",
+    "power": false,
+    "color": "rgb(37, 99, 235)",
+    "isSelected": false
+  }
+]

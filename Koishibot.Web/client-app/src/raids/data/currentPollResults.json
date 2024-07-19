@@ -1,0 +1,16 @@
+{
+  "currentPollResults": [
+    {
+      "choice": "User",
+      "voteCount": 10
+    },
+    {
+      "choice": "user2",
+      "voteCount": 1
+    },
+    {
+      "choice": "user3",
+      "voteCount": 1
+    }
+  ]
+}

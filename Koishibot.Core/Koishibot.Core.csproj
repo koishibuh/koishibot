@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>8e3adefb-2f5f-4f02-b2a0-5c3f883565f6</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Persistence\Cache\Extensions\**" />
+    <EmbeddedResource Remove="Persistence\Cache\Extensions\**" />
+    <None Remove="Persistence\Cache\Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="FluentValidation" Version="11.9.2" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.68.0.3473" />
+    <PackageReference Include="MediatR" Version="12.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+		<PackageReference Include="OBSClient" Version="2.1.1" />
+		<PackageReference Include="Scrutor" Version="4.2.2" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.6.2" />
+		<PackageReference Include="TwitchLib.Api" Version="3.10.0-preview-9ccfdfb" />
+		<PackageReference Include="TwitchLib.Client" Version="4.0.0-preview-de39bd056dddc47d2907cb0602a0cf088aafb4b3" />
+		<PackageReference Include="TwitchLib.Communication" Version="2.0.1" />
+		<PackageReference Include="TwitchLib.EventSub.Core" Version="2.5.3-preview-e1a92de" />
+		<PackageReference Include="TwitchLib.EventSub.Websockets" Version="0.5.0-preview-abba5e7" />
+		<PackageReference Include="TwitchLib.PubSub" Version="4.0.0-preview-10721e305d3e0b2ac6c93bb75d44140ce38b1322" />
+		<PackageReference Include="Todoist.Net" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
+		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+</Project>

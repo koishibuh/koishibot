@@ -1,0 +1,14 @@
+[
+  {
+    "choice": "User1",
+    "voteCount": 2
+  },
+  {
+    "choice": "User2",
+    "voteCount": 0
+  },
+  {
+    "choice": "User3",
+    "voteCount": 0
+  }
+]

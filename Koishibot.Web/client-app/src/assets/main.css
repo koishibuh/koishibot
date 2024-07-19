@@ -1,0 +1,85 @@
+@import './base.css';
+
+html ::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  @apply text-xs;
+}
+
+main {
+  @apply text-white;
+}
+
+nav a,
+nav p {
+  @apply rounded bg-accent-one p-1 m-1 text-center;
+}
+
+nav p {
+  @apply bg-gray-500;
+}
+
+#main-box {
+  @apply text-white;
+}
+
+.primary-button {
+  @apply bg-accent-one hover:bg-primary rounded font-bold p-2 w-full;
+}
+
+.tooltip {
+  @apply relative inline-block;
+}
+
+.tooltip .tooltiptext {
+  @apply invisible bg-g text-center rounded-lg w-[100px] absolute bottom-4 -left-11 z-10 p-1;
+}
+
+.tooltip:hover .tooltiptext {
+  @apply visible;
+}
+
+h1 {
+  @apply text-lg;
+}
+
+input {
+  @apply h-10 border-2 p-2 border-black rounded;
+}
+
+.login-button {
+  @apply bg-accent-one hover:bg-primary rounded font-bold p-2;
+}
+
+.stroke {
+  @apply text-5xl font-bold  uppercase;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke-width: 2.5px;
+}
+
+.dandle-letter {
+  @apply w-[80px] h-[80px] rounded capitalize font-bold flex justify-center text-6xl text-black;
+  /*   text-shadow:
+    -2px -2px 50 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000; */
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke-width: 2.5px;
+}
+
+.dandle-keyboard {
+  @apply text-4xl w-[50px] h-[70px] rounded capitalize font-bold flex justify-center items-center;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke-width: 2px;
+}
+
+.toggle-button-l {
+  @apply bg-accent-one text-white font-bold border-r rounded-l p-2  hover:bg-accent-two disabled:bg-gray-600 disabled:text-gray-400;
+}
+
+.toggle-button-r {
+  @apply bg-accent-one text-white font-bold border-l rounded-r p-2 hover:bg-accent-two disabled:bg-gray-600 disabled:text-gray-400;
+}

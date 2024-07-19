@@ -1,0 +1,42 @@
+[
+  {
+    "name": "red",
+    "color": "rgb(220, 38, 38)",
+    "isActive": false
+  },
+  {
+    "name": "orange",
+    "color": "rgb(234, 88, 12)",
+    "isActive": false
+  },
+  {
+    "name": "yellow",
+    "color": "rgb(236, 174, 44)",
+    "isActive": false
+  },
+  {
+    "name": "green",
+    "color": "rgb(22, 163, 74)",
+    "isActive": false
+  },
+  {
+    "name": "blue",
+    "color": "rgb(37, 99, 235)",
+    "isActive": false
+  },
+  {
+    "name": "purple",
+    "color": "rgb(147, 51, 234)",
+    "isActive": false
+  },
+  {
+    "name": "pink",
+    "color": "rgb(236, 72, 153)",
+    "isActive": false
+  },
+  {
+    "name": "white",
+    "color": "rgb(255, 255, 255)",
+    "isActive": false
+  }
+]
