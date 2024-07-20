@@ -13,8 +13,8 @@ public partial record SignalrService(
 	IHubContext<SignalrHub, ISignalrHub> HubContext
 	): ISignalrService
 {
-	public async Task SendLog(string log, DateTime timestamp, SeverityLevel severityLevel) =>
-		await HubContext.Clients.All.ReceiveLog(log, timestamp, severityLevel);
+	public async Task SendLog(LogVm log) =>
+		await HubContext.Clients.All.ReceiveLog(log);
 
 	public async Task SendNotification(string content) => 
 		await HubContext.Clients.All.ReceiveNotification(content);
@@ -52,7 +52,7 @@ public partial record SignalrService(
 // == ⚫ SEND INTERFACE == //
 public partial interface ISignalrService
 {
-	Task SendLog(string log, DateTime timestamp, SeverityLevel severityLevel);
+	Task SendLog(LogVm log);
 	Task SendNotification(string content);
 	Task SendChatMessage(ChatMessageVm chatMessageVm);
 	Task SendStatusUpdate(ServiceStatusVm serviceStatusVM);
@@ -70,7 +70,7 @@ public partial interface ISignalrService
 
 public partial interface ISignalrHub
 {
-	Task ReceiveLog(string log, DateTime timestamp, SeverityLevel severityLevel);
+	Task ReceiveLog(LogVm log);
 	Task ReceiveNotification(string content);
 	Task ReceiveChatMessage(ChatMessageVm chatMessageVm);
 	Task ReceiveStatusUpdate(ServiceStatusVm serviceStatusVM);

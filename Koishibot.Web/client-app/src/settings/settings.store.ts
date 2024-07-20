@@ -3,14 +3,24 @@ import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
 import http from '@/api/http';
 import { useNotificationStore } from '@/common/notification.store';
+import { type ILog } from '@/settings/models/log-interface';
 
 export const useSettingsStore = defineStore('settingsStore', () => {
   const notificationStore = useNotificationStore();
+
+  const logMessages = ref<ILog[]>([]);
 
   const message = ref('');
 
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
+
+  signalRConnection?.on('ReceiveLog', (log: ILog) => {
+    console.log(log.level);
+    console.log(log.message);
+    console.log(log.timestamp);
+    logMessages.value.push(log);
+  });
 
   const UpdateObsConnection = async (enabled: boolean) => {
     try {
@@ -28,6 +38,7 @@ export const useSettingsStore = defineStore('settingsStore', () => {
 
   return {
     message,
+    logMessages,
     UpdateObsConnection
   };
 });

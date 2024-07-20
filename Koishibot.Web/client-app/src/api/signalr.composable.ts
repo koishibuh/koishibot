@@ -1,3 +1,4 @@
+import { type IServiceStatus } from '@/layout/service-status.interface';
 import {
   HubConnectionState,
   HubConnectionBuilder,
@@ -8,6 +9,8 @@ import { ref, computed } from 'vue';
 const signalRConnections = ref(new Map<string, HubConnection>());
 
 export const useSignalR = () => {
+  const signalRStatus = ref<IServiceStatus>({ name: 'SignalR', status: false });
+
   const signalRHubStatuses = computed(() => {
     const statuses = new Map<string, HubConnectionState>();
     signalRConnections.value.forEach((connection, hubName) => {
@@ -46,11 +49,13 @@ export const useSignalR = () => {
 
   const startSignalRConnection = async (connection: HubConnection): Promise<void> => {
     if (!connection) {
+      signalRStatus.value = { name: 'SignalR', status: false };
       throw new Error('No signalR connection found');
     }
     console.log('StartSignalRConnection', 'Starting SignalR connection');
     connection.keepAliveIntervalInMilliseconds = 1000;
     await connection.start();
+    signalRStatus.value = { name: 'SignalR', status: true };
   };
 
   const getConnectionByHub = (hubName: string): HubConnection | null => {
@@ -58,6 +63,7 @@ export const useSignalR = () => {
   };
 
   const reconnectHub = () => {
+    signalRStatus.value = { name: 'SignalR', status: false };
     signalRConnections.value.forEach(async (connection) => {
       if (connection.state === HubConnectionState.Disconnected) {
         await startSignalRConnection(connection as HubConnection);
@@ -67,6 +73,7 @@ export const useSignalR = () => {
   };
 
   return {
+    signalRStatus,
     createSignalRConnection,
     getConnectionByHub,
     reconnectHub,

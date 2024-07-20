@@ -2,6 +2,7 @@
 
 public enum ServiceName
 {
+	SignalR,
 	StreamOnline,
 	StreamerIrc,
 	BotIrc,

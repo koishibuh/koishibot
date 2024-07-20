@@ -28,13 +28,10 @@ export const useNotificationStore = defineStore('notification', () => {
   });
 
   function getStatusByName(serviceName: string): boolean {
-    console.log('test3');
     const result = serviceStatuses.value?.find((x) => x.name === serviceName);
     if (result) {
-      console.log('test2');
       return result.status;
     } else {
-      console.log('test');
       return false;
     }
   }

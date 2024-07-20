@@ -2,6 +2,7 @@
 
 public class ServiceStatus
 {
+	public bool SignalR { get; set; } = false;
 	public bool StreamerIrc { get; set; } = false;
 	public bool BotIrc { get; set; } = false;
 	public bool TwitchWebsocket { get; set; } = false;
