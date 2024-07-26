@@ -1,33 +1,33 @@
-﻿using Koishibot.Core.Features.Obs.Interfaces;
-namespace Koishibot.Core.Features.Obs.Controllers;
+﻿//using Koishibot.Core.Features.Obs.Interfaces;
+//namespace Koishibot.Core.Features.Obs.Controllers;
 
-// == ⚫ DELETE == //
+//// == ⚫ DELETE == //
 
-public class StopObsWebsocketController : ApiControllerBase
-{
-	[SwaggerOperation(Tags = ["OBS"])]
-	[HttpDelete("/api/obs/")]
-	public async Task<ActionResult> StopObsWebsocket()
-	{
-		await Mediator.Send(new StopObsWebsocketCommand());
-		return Ok();
-	}
-}
+//public class StopObsWebsocketController : ApiControllerBase
+//{
+//	[SwaggerOperation(Tags = ["OBS"])]
+//	[HttpDelete("/api/obs/")]
+//	public async Task<ActionResult> StopObsWebsocket()
+//	{
+//		await Mediator.Send(new StopObsWebsocketCommand());
+//		return Ok();
+//	}
+//}
 
-// == ⚫ COMMAND == //
+//// == ⚫ COMMAND == //
 
-public record StopObsWebsocketCommand() : IRequest;
+//public record StopObsWebsocketCommand() : IRequest;
 
-// == ⚫ HANDLER == //
+//// == ⚫ HANDLER == //
 
-public record StopObsWebsocketHandler(
-	IObsService ObsService
-	) : IRequestHandler<StopObsWebsocketCommand>
-{
+//public record StopObsWebsocketHandler(
+//	IObsService ObsService
+//	) : IRequestHandler<StopObsWebsocketCommand>
+//{
 
-	public async Task Handle
-			(StopObsWebsocketCommand c, CancellationToken cancel)
-	{
-		await ObsService.StopWebsocket();
-	}
-}
+//	public async Task Handle
+//			(StopObsWebsocketCommand c, CancellationToken cancel)
+//	{
+//		await ObsService.StopWebsocket();
+//	}
+//}

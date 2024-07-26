@@ -1,7 +1,4 @@
-﻿using Koishibot.Core.Features.AdBreak;
-using Koishibot.Core.Features.AdBreak.Interfaces;
-using Koishibot.Core.Features.TwitchAuthorization;
-using Scrutor;
+﻿using Scrutor;
 
 namespace Koishibot.Core.Configurations;
 
@@ -20,10 +17,10 @@ public static class ApplicationServiceCollection
 			cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 		});
 
-		services.AddSingleton<IOAuthTokensProcessor, OAuthTokensProcessor>();
-		services.AddTransient<IRefreshAccessTokenService, RefreshAccessTokenService>();
+		//services.AddSingleton<IOAuthTokensProcessor, OAuthTokensProcessor>();
+		//services.AddTransient<IRefreshAccessTokenService, RefreshAccessTokenService>();
 
-		services.AddSingleton<IPomodoroTimer, PomodoroTimer>();
+		//services.AddSingleton<IPomodoroTimer, PomodoroTimer>();
 
 		services.Scan(selector => selector.FromAssemblies(typeof(ApplicationServiceCollection).Assembly)
 		.AddClasses(false)

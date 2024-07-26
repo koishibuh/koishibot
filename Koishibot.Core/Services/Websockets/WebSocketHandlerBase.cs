@@ -4,12 +4,15 @@ namespace Koishibot.Core.Services.Websockets;
 
 public abstract class WebSocketHandlerBase
 {
+	public WebSocketState State => _socket.State;
 	private readonly ClientWebSocket _socket = new();
 	private readonly string _url;
-	private readonly CancellationToken _cancel;
 	private readonly byte _maxReconnectAttempts;
+	protected CancellationToken _cancel;
+
 	public event Func<Task>? Connected;
-	public event Action? ReconnectStarted;
+	public event Action? Reconnecting;
+	public event Action? OnDisconnectError;
 	public event Action<string>? MessageReceived;
 
 	protected WebSocketHandlerBase(string url, CancellationToken cancel, byte maxReconnectAttempts)
@@ -29,11 +32,11 @@ public abstract class WebSocketHandlerBase
 				await _socket.ConnectAsync(new Uri(_url), _cancel);
 				retryCount = 0;
 			}
-			catch (WebSocketException e)
+			catch (WebSocketException)
 			{
 				var delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount));
 				await Task.Delay(delay, _cancel);
-				ReconnectStarted?.Invoke();
+				Reconnecting?.Invoke();
 				retryCount++;
 			}
 		}
@@ -76,6 +79,7 @@ public abstract class WebSocketHandlerBase
 			if (e.Message ==
 					"The remote party closed the WebSocket connection without completing the close handshake.")
 			{
+				OnDisconnectError?.Invoke();
 				await Connect();
 			}
 		}
@@ -91,7 +95,8 @@ public abstract class WebSocketHandlerBase
 	{
 		if (_socket.State == WebSocketState.Open)
 		{
-			await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", _cancel);
+			await _socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", _cancel);
 		}
 	}
+
 }

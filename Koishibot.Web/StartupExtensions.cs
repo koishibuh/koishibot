@@ -2,7 +2,6 @@
 using Koishibot.Core.Configurations;
 using Koishibot.Core.Exceptions;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services;
 using Koishibot.Core.Services.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
@@ -103,6 +102,13 @@ public static class StartupExtensions
 			httpClient.BaseAddress = new Uri("https://wifij01us.magichue.net/app/");
 		});
 
+		builder.Services.AddHttpClient("Twitch", httpClient =>
+		{
+			httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/");
+		});
+
+		builder.Services.AddHttpClient("Default");
+
 
 		builder.Services.AddSerilog((services, lc) => lc
 		.ReadFrom.Configuration(builder.Configuration)
@@ -110,7 +116,7 @@ public static class StartupExtensions
 		//.Enrich.FromLogContext()
 		.WriteTo.Console());
 
-		builder.Services.AddHostedService<TwitchServicesWorker>();
+		//builder.Services.AddHostedService<TwitchServicesWorker>();
 
 		builder.Services.AddAppServices();
 		builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -156,10 +162,10 @@ public static class StartupExtensions
 			app.UseSwagger();
 			app.UseSwaggerUI();
 		}
-		else
-		{
-			app.UseHsts();
-		}
+		//else
+		//{
+		//	app.UseHsts();
+		//}
 
 		app.UseExceptionHandler();
 

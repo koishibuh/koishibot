@@ -1,8 +1,8 @@
-﻿using Koishibot.Core.Features.Polls.Events;
+﻿//using Koishibot.Core.Features.Polls.Events;
 
-namespace Koishibot.Core.Features.RaidSuggestions.Interfaces;
+//namespace Koishibot.Core.Features.RaidSuggestions.Interfaces;
 
-public interface IRaidPollProcessor
-{
-    Task Start(PollEndedEvent e);
-}
+//public interface IRaidPollProcessor
+//{
+//    Task Start(PollEndedEvent e);
+//}

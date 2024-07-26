@@ -8,7 +8,7 @@ public static class PersistenceServiceCollection
 		(this IServiceCollection services, IConfiguration configuration)
 	{
 		var connectionString = configuration.GetConnectionString("KoishibotConnectionString");
-		var serverVersion = new MySqlServerVersion(new Version(10, 3, 39));
+		var serverVersion = new MySqlServerVersion(new Version(10, 6, 18));
 
 		services.AddDbContext<KoishibotDbContext>(options =>
 			options.UseMySql(connectionString, serverVersion));

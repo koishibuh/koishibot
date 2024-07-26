@@ -1,48 +1,48 @@
-﻿using Koishibot.Core.Features.AdBreak.Extensions;
-using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.Raids.Enums;
-using Koishibot.Core.Features.RaidSuggestions.Extensions;
-namespace Koishibot.Core.Features.RaidSuggestions.Controllers;
+﻿//using Koishibot.Core.Features.AdBreak.Extensions;
+//using Koishibot.Core.Features.Common.Models;
+//using Koishibot.Core.Features.Raids.Enums;
+//using Koishibot.Core.Features.RaidSuggestions.Extensions;
+//namespace Koishibot.Core.Features.RaidSuggestions.Controllers;
 
-// == ⚫ DELETE == //
+//// == ⚫ DELETE == //
 
-public class CancelRaidSuggestionController : ApiControllerBase
-{
-	[SwaggerOperation(Tags = ["Outgoing Raid"])]
-	[HttpDelete("/api/raid/suggestions/")]
-	public async Task<ActionResult> CancelRaidSuggestion()
-	{
-		await Mediator.Send(new CancelRaidSuggestionsCommand());
-		return Ok();
-	}
-}
+//public class CancelRaidSuggestionController : ApiControllerBase
+//{
+//	[SwaggerOperation(Tags = ["Outgoing Raid"])]
+//	[HttpDelete("/api/raid/suggestions/")]
+//	public async Task<ActionResult> CancelRaidSuggestion()
+//	{
+//		await Mediator.Send(new CancelRaidSuggestionsCommand());
+//		return Ok();
+//	}
+//}
 
-// == ⚫ COMMAND == //
+//// == ⚫ COMMAND == //
 
-public record CancelRaidSuggestionsCommand() : IRequest;
+//public record CancelRaidSuggestionsCommand() : IRequest;
 
-// == ⚫ HANDLER == //
+//// == ⚫ HANDLER == //
 
-public record CancelRaidSuggestionHandler(
-	IAppCache Cache, IChatMessageService BotIrc,
-		ISignalrService Signalr
-		) : IRequestHandler<CancelRaidSuggestionsCommand>
-{
-	public async Task Handle
-			(CancelRaidSuggestionsCommand c, CancellationToken cancel)
-	{
-		Cache.DisableRaidSuggestions()
-				 .ClearRaidSuggestions();
+//public record CancelRaidSuggestionHandler(
+//	IAppCache Cache, IChatMessageService BotIrc,
+//		ISignalrService Signalr
+//		) : IRequestHandler<CancelRaidSuggestionsCommand>
+//{
+//	public async Task Handle
+//			(CancelRaidSuggestionsCommand c, CancellationToken cancel)
+//	{
+//		Cache.DisableRaidSuggestions()
+//				 .ClearRaidSuggestions();
 
-		// TODO: Store previous stream title/game to revert back to?
+//		// TODO: Store previous stream title/game to revert back to?
 
-		await BotIrc.RaidStatus(Code.RaidSuggestionCancelled);
+//		await BotIrc.RaidStatus(Code.RaidSuggestionCancelled);
 
-		var timer = new CurrentTimer();
-		timer.ClearTimer();
-		Cache.AddCurrentTimer(timer);
+//		var timer = new CurrentTimer();
+//		timer.ClearTimer();
+//		Cache.AddCurrentTimer(timer);
 
-		var timerVm = timer.ConvertToVm();
-		await Signalr.SendOverlayTimer(timerVm);
-	}
-}
+//		var timerVm = timer.ConvertToVm();
+//		await Signalr.SendOverlayTimer(timerVm);
+//	}
+//}

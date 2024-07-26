@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import type { IJwt } from '@/login/jwt.interface';
 import http from '@/api/http';
+import { type ITwitchOAuthToken } from './models/twitch-oauth-token.interface';
 
 export const useAuthenticationStore = defineStore('authentication-store', () => {
   const userData = ref<IJwt | null>();
@@ -24,7 +25,17 @@ export const useAuthenticationStore = defineStore('authentication-store', () => 
     http.setAuthorizationHeader(data.token);
   }
 
+  const refreshTwitchOAuthToken = async (code: string): Promise<ITwitchOAuthToken> => {
+    return await http.post('/api/twitch-auth/', { token: code });
+  };
+
+  const getTwitchOAuthToken = async (code: string) => {
+    return await http.post('/api/twitch-auth/token', { code: code });
+  };
+
   return {
-    loginUser
+    loginUser,
+    refreshTwitchOAuthToken,
+    getTwitchOAuthToken
   };
 });

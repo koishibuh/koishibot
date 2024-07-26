@@ -15,18 +15,20 @@ const checked = ref<Boolean>();
 
 async function connectBot() {
   store.notificationMessage = 'Connecting..';
-  connectResult.value = await http.post('/api/twitch-auth', null);
+  connectResult.value = await http.post('/api/twitch-auth', { token: refreshtoken.value });
 }
 
 async function getauthorization() {
   store.notificationMessage = 'Getting Authorization Link..';
-  oauthLink.value = await http.get('/api/twitch-auth');
+  oauthLink.value = await http.get('/api/twitch-auth/url');
 }
 
 async function testFeature() {
   console.log('Testing 1 2 3');
   test.value = await http.get('/api/test');
 }
+
+const refreshtoken = ref<string>('');
 
 /* async function submit(username: string) {
   await http.post('/api/twitchuser', { username: username });
@@ -57,6 +59,8 @@ watch(
   <h1>Connect Bot</h1>
   <div class="border-2 p-2 border-gray-500 rounded h-24">
     <div class="flex gap-2 w-full mb-2">
+      <label for="refreshtoken">Token</label>
+      <input type="password" v-model="refreshtoken" id="refreshtoken" class="text-black" />
       <button @click="connectBot()" class="w-1/2 primary-button">Connect (Refresh)</button>
       <button @click="getauthorization()" class="w-1/2 primary-button">
         Connect (Authorization)

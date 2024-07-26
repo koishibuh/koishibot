@@ -1,6 +1,4 @@
-﻿using Koishibot.Core.Features.Polls.Events;
-
-namespace Koishibot.Core.Features.Common.Models;
+﻿namespace Koishibot.Core.Features.Common.Models;
 
 public class CurrentTimer
 {
@@ -27,10 +25,10 @@ public class CurrentTimer
 		return this;
 	}
 
-	public CurrentTimer SetPomodoro(DateTimeOffset endsAt)
+	public CurrentTimer SetPomodoro(DateTimeOffset? endsAt)
 	{
 		Title = "Next Break";
-		EndsAt = endsAt;
+		EndsAt = endsAt ?? DateTimeOffset.Now;
 		return this;
 	}
 
@@ -41,12 +39,12 @@ public class CurrentTimer
 		return this;
 	}
 
-	public CurrentTimer SetPoll(PollStartedEvent e)
-	{
-		Title = "Poll";
-		EndsAt = DateTimeOffset.Now + e.Duration;
-		return this;
-	}
+	//public CurrentTimer SetPoll(PollStartedEvent e)
+	//{
+	//	Title = "Poll";
+	//	EndsAt = DateTimeOffset.Now + e.Duration;
+	//	return this;
+	//}
 
 	public CurrentTimer SetSuggestionPoll()
 	{

@@ -1,82 +1,87 @@
-﻿using Koishibot.Core.Features.Application;
-using System.Net;
-namespace Koishibot.Core.Features.TwitchAuthorization;
+﻿//using Koishibot.Core.Features.Application;
+//using System.Net;
+//namespace Koishibot.Core.Features.TwitchAuthorization;
 
-public record OAuthTokensProcessor(
-  ILogger<OAuthTokensProcessor> Log,
-  IOptions<Settings> Settings, ITwitchAPI TwitchApi,
-	IServiceScopeFactory ScopeFactory
-	) : IOAuthTokensProcessor
-{
-  public TwitchAppSettings TwitchApp => Settings.Value.TwitchAppSettings;
-	private HttpListener _listener = new HttpListener();
+//public record OAuthTokensProcessor(
+//	ILogger<OAuthTokensProcessor> Log,
+//	IOptions<Settings> Settings, ITwitchAPI TwitchApi,
+//	IServiceScopeFactory ScopeFactory
+//	) : IOAuthTokensProcessor
+//{
+//	public TwitchAppSettings TwitchApp => Settings.Value.TwitchAppSettings;
 
-	public async void StartListener()
-  {
-    _listener.Prefixes.Add(Settings.Value.TwitchAppSettings.RedirectUri);
+//	public async void StartListener()
+//	{
+//		var listener = new HttpListener();
 
-    _listener.Start();
-    Log.LogInformation("Listener for Oauth Code Started");
+//		listener.Prefixes.Add(Settings.Value.TwitchAppSettings.RedirectUri);
 
-		var timer = new Timer(state => CloseListener(), 
-			null, TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(2));
+//		listener.Start();
+//		Log.LogInformation("Listener for Oauth Code Started");
 
-		while (_listener.IsListening)
-		{
-			var context = await _listener.GetContextAsync();
-			var request = context.Request;
+//		var timer = new Timer(state => CloseListener(listener),
+//			null, TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(2));
 
-			var code = request.QueryString["code"];
+//		while (listener.IsListening)
+//		{
+//			Log.LogInformation("Listener is listening");
+//			var context = await listener.GetContextAsync();
+//			Log.LogInformation("Context created");
+//			var request = context.Request;
 
-			_listener.Stop();
-			Log.LogInformation("Listener Closed");
+//			var code = request.QueryString["code"];
 
-			await StoreAccessToken(code);
-			await StoreStreamerInfo();
+//			context.Response.Redirect("https://koishibot.elysiagriffin.com/bot/");
 
-			// Publish to UI that Connection is valid
+//			listener.Close();
+//			Log.LogInformation("Listener Closed");
 
-			using var scope = ScopeFactory.CreateScope();
-			var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+//			await StoreAccessToken(code);
+//			await StoreStreamerInfo();
 
-			await mediatr.Send(new StartupTwitchServicesCommand());
-		}
-	}
+//			// Publish to UI that Connection is valid
 
-	// == ⚫ == //
+//			using var scope = ScopeFactory.CreateScope();
+//			var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-	private void CloseListener()
-	{
-		if (_listener is not null && _listener.IsListening)
-		{
-			_listener.Stop();
-			Console.WriteLine("HttpListener stopped due to timeout");
-		}
-	}
+//			await mediatr.Send(new StartupTwitchServicesCommand());
+//		}
+//	}
 
-	public async Task StoreAccessToken(string? code)
-   {
-    if (code is null)
-    {
-        // publish oauth is invalid
-        return;
-    }
+//	// == ⚫ == //
 
-    var result = await TwitchApi.Auth.GetAccessTokenFromCodeAsync
-        (code, TwitchApp.ClientSecret, TwitchApp.RedirectUri);
+//	private void CloseListener(HttpListener listener)
+//	{
+//		if (listener is not null && listener.IsListening)
+//		{
+//			listener.Close();
+//			Console.WriteLine("HttpListener stopped due to timeout");
+//		}
+//	}
 
-    TwitchApi.Settings.AccessToken = result.AccessToken;
-    Settings.Value.StreamerTokens.SetExpirationTime(result.ExpiresIn);
-    Settings.Value.StreamerTokens.AccessToken = result.AccessToken;
-    Settings.Value.StreamerTokens.RefreshToken = result.RefreshToken;
-	}
+//	public async Task StoreAccessToken(string? code)
+//	{
+//		if (code is null)
+//		{
+//			// publish oauth is invalid
+//			return;
+//		}
 
-  public async Task StoreStreamerInfo()
-  {
-    var result = await TwitchApi.Helix.Users.GetUsersAsync();
-    var user = result.Users[0];
+//		var result = await TwitchApi.Auth.GetAccessTokenFromCodeAsync
+//				(code, TwitchApp.ClientSecret, TwitchApp.RedirectUri);
 
-    Settings.Value.StreamerTokens.Username = user.Login;
-    Settings.Value.StreamerTokens.UserId = user.Id;
-  }
-}
+//		TwitchApi.Settings.AccessToken = result.AccessToken;
+//		Settings.Value.StreamerTokens.SetExpirationTime(result.ExpiresIn);
+//		Settings.Value.StreamerTokens.AccessToken = result.AccessToken;
+//		Settings.Value.StreamerTokens.RefreshToken = result.RefreshToken;
+//	}
+
+//	public async Task StoreStreamerInfo()
+//	{
+//		var result = await TwitchApi.Helix.Users.GetUsersAsync();
+//		var user = result.Users[0];
+
+//		Settings.Value.StreamerTokens.Username = user.Login;
+//		Settings.Value.StreamerTokens.UserId = user.Id;
+//	}
+//}

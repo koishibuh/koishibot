@@ -1,45 +1,14 @@
 ﻿using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
-using TwitchLib.EventSub.Websockets.Core.EventArgs.Channel;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.AdBreak;
+using Koishibot.Core.Services.Twitch.Irc;
+using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Events;
-
-// == ⚫ EVENT SUB == //
-
-public class AdBreakStarted(
-	IOptions<Settings> Settings, EventSubWebsocketClient EventSubClient,
-	ITwitchAPI TwitchApi, IServiceScopeFactory ScopeFactory
-	) : IAdBreakStarted
-{
-	public async Task SetupHandler()
-	{
-		EventSubClient.ChannelAdBreakBegin += OnAdBreakStarted;
-		await SubToEvent();
-	}
-
-	public async Task SubToEvent()
-	{
-		await TwitchApi.CreateEventSubBroadcaster
-				("channel.ad_break.begin", "1", Settings);
-	}
-	
-	private async Task OnAdBreakStarted(object sender, ChannelAdBreakBeginArgs args)
-	{
-		if (Settings.Value.DebugMode is true) { return; }
-
-		using var scope = ScopeFactory.CreateScope();
-		var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
-
-		var seconds = args.Notification.Payload.Event.DurationSeconds;
-		var miliseconds = seconds * 1000;
-
-		await mediatr.Send(new AdBreakStartedCommand(miliseconds));
-	}
-}
 
 // == ⚫ COMMAND == //
 
-public record AdBreakStartedCommand(int AdLength) : IRequest;
+public record AdBreakStartedCommand(AdBreakBeginEvent args) : IRequest;
 
 // == ⚫ HANDLER == //
 
@@ -51,9 +20,12 @@ public record AdBreakStartedCommand(int AdLength) : IRequest;
 /// <returns></returns>
 /// <exception cref="NotImplementedException"></exception>
 public record AdBreakStartedHandler(
+	IOptions<Settings> Settings,
 	ILogger<AdBreakStartedHandler> Log,
-	IAppCache Cache, IChatMessageService BotIrc,
-	IPomodoroTimer PomodoroService, IAdsApi TwitchApi,
+	IAppCache Cache, ITwitchIrcService BotIrc,
+	IPomodoroTimer PomodoroService,
+	//IAdsApi TwitchApi,
+	ITwitchApiRequest TwitchApiRequest,
 	ISignalrService Signalr
 	) : IRequestHandler<AdBreakStartedCommand>
 {
@@ -62,30 +34,32 @@ public record AdBreakStartedHandler(
 	{
 		Log.LogInformation("Ad started");
 
-		await Signalr.SendAdStartedEvent(new AdBreakVm(command.AdLength, DateTime.Now));
+		await Signalr.SendAdStartedEvent(new AdBreakVm(command.args.DurationInSeconds, DateTime.Now));
 		// TODO: Post to UI Add started?
 
 		PomodoroService.CancelTimer();
 
 		await BotIrc.AdsStarted();
 
-		var adInfo = await TwitchApi.GetAdSchedule();
+		var parameters = new GetAdScheduleRequestParameters
+			{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
 
-		Log.LogInformation($"Ad started, delaying for {adInfo.AdDurationInSeconds}");
-		await Task.Delay(adInfo.AdDurationInSeconds);
+		var result = await TwitchApiRequest.GetAdSchedule(parameters);
+		var adInfo2 = result.ConvertToDto();
 
-		await BotIrc.AdsFinished();
+		Log.LogInformation($"Ad started, delaying for {adInfo2.AdDurationInSeconds}");
+		await Task.Delay(adInfo2.AdDurationInSeconds);
 
-		var currentTimer = Cache.GetCurrentTimer();
 
-		if (currentTimer.TimerExpired())
+		var currentTimer2 = Cache.GetCurrentTimer();
+		if (currentTimer2.TimerExpired())
 		{
-			await PomodoroService.StartTimer(adInfo);
+			await PomodoroService.StartTimer(adInfo2);
 		}
 		else
 		{
-			await Task.Delay(currentTimer.TimeRemaining());
-			await PomodoroService.StartTimer(adInfo);
+			await Task.Delay(currentTimer2.TimeRemaining());
+			await PomodoroService.StartTimer(adInfo2);
 		}
 	}
 }
@@ -94,13 +68,13 @@ public record AdBreakStartedHandler(
 
 public static class AdBreakChatReply
 {
-	public static async Task AdsStarted(this IChatMessageService irc)
+	public static async Task AdsStarted(this ITwitchIrcService irc)
 	{
 		var message = "Ads now playing, RIP";
 		await irc.BotSend(message);
 	}
 
-	public static async Task AdsFinished(this IChatMessageService irc)
+	public static async Task AdsFinished(this ITwitchIrcService irc)
 	{
 		var message = "Ad break done! Thank you for supporting the channel <3";
 		await irc.BotSend(message);

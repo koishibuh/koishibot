@@ -1,34 +1,34 @@
-﻿using Koishibot.Core.Configurations;
+﻿//using Koishibot.Core.Configurations;
 
-namespace Koishibot.Core.Features.ChatMessages.Controllers;
+//namespace Koishibot.Core.Features.ChatMessages.Controllers;
 
-// == ⚫ POST == //
+//// == ⚫ POST == //
 
-public class SendChatMessageController : ApiControllerBase
-{
-	[HttpPost("/api/chat")]
-	public async Task<ActionResult> SendChatMessage
-		([FromBody] SendChatMessageCommand command)
-	{
-		await Mediator.Send(command);
-		return Ok();
-	}
-}
+//public class SendChatMessageController : ApiControllerBase
+//{
+//	[HttpPost("/api/chat")]
+//	public async Task<ActionResult> SendChatMessage
+//		([FromBody] SendChatMessageCommand command)
+//	{
+//		await Mediator.Send(command);
+//		return Ok();
+//	}
+//}
 
-// == ⚫ COMMAND == //
+//// == ⚫ COMMAND == //
 
-public record SendChatMessageCommand(
-	string Message
-	) : IRequest;
+//public record SendChatMessageCommand(
+//	string Message
+//	) : IRequest;
 
-// == ⚫ HANDLER == //
+//// == ⚫ HANDLER == //
 
-public record SendChatMessageHandler(
-	StreamerTwitchClient StreamerClient, ISignalrService Signalr
-	) : IRequestHandler<SendChatMessageCommand>
-{
-	public async Task Handle(SendChatMessageCommand c, CancellationToken cancel)
-	{
-		await StreamerClient.SendMessageAsync("elysiagriffin", c.Message);
-	}
-}
+//public record SendChatMessageHandler(
+//	StreamerTwitchClient StreamerClient, ISignalrService Signalr
+//	) : IRequestHandler<SendChatMessageCommand>
+//{
+//	public async Task Handle(SendChatMessageCommand c, CancellationToken cancel)
+//	{
+//		await StreamerClient.SendMessageAsync("elysiagriffin", c.Message);
+//	}
+//}

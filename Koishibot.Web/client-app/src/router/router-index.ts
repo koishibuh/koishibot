@@ -15,6 +15,7 @@ import SettingsPage from '@/settings/SettingsPage.vue';
 import LightsPage from '@/lights/LightsPage.vue';
 import ChannelPointPage from '@/channel-points/ChannelPointPage.vue';
 import DandlePage from '@/dandle/DandlePage.vue';
+import AuthenticatePage from '@/login/AuthenticatePage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,6 +30,11 @@ const router = createRouter({
           path: '',
           name: 'Home',
           component: HomePage
+        },
+        {
+          path: '/authenticate',
+          name: 'authenticate',
+          component: AuthenticatePage
         },
         {
           path: '/poll',

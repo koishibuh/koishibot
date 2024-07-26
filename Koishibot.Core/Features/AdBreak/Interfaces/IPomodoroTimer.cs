@@ -1,10 +1,10 @@
-﻿using Koishibot.Core.Features.AdBreak.Models;
+﻿using Koishibot.Core.Features.AdBreak.Controllers;
 
 namespace Koishibot.Core.Features.AdBreak.Interfaces;
 
 public interface IPomodoroTimer
 {
 	Task GetAdSchedule();
-	Task StartTimer(AdBreakInfo adInfo);
+	Task StartTimer(AdScheduleDto adInfo);
 	void CancelTimer();
 }

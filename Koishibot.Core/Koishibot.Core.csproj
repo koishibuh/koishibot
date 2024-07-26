@@ -40,6 +40,9 @@
 
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="Services\Twitch\EventSubs\ResponseModels\StreamStatus\Enums\" />
+    <Folder Include="Services\Twitch\EventSubs\ResponseModels\Subscriptions\Enums\" />
+    <Folder Include="Services\TwitchEventSub\Models\" />
   </ItemGroup>
 
 </Project>

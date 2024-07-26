@@ -15,7 +15,7 @@ public class SignalrHub : Hub<ISignalrHub>
 	public override async Task OnConnectedAsync()
 	{
 		await Clients.Client(Context.ConnectionId).ReceiveLog(
-			new LogVm($"SignalR is now connected", DateTime.Now, "i"));
+			new LogVm($"SignalR is now connected", "i"));
 
 		await _cache.UpdateServiceStatus(ServiceName.SignalR, true);
 

@@ -5,34 +5,45 @@
 public class RefreshAccessTokenController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Twitch Oauth"])]
-	[HttpPut("/api/twitch-auth")]
-	public async Task<ActionResult> RefreshAccessToken()
+	[HttpPost("/api/twitch-auth")]
+	public async Task<ActionResult> RefreshAccessToken
+		([FromBody] RefreshAccessTokenCommand command)
 	{
-		await Mediator.Send(new RefreshAccessTokenCommand());
+		await Mediator.Send(command);
 		return Ok();
 	}
 }
 
 // == ⚫ COMMAND == //
 
-public record RefreshAccessTokenCommand() : IRequest;
+public record RefreshAccessTokenCommand(string Token) : IRequest;
 
 // == ⚫ HANDLER == //
 
 public record RefreshAccessTokenHandler(
-		IRefreshAccessTokenService RefreshAccessTokenService
+		//IRefreshAccessTokenService RefreshAccessTokenService,
+		//ITwitchEventSubHub TwitchEventSubHub,
+		//IStreamerIrcHub StreamerIrc, IBotIrcHub BotIrc
 		) : IRequestHandler<RefreshAccessTokenCommand>
 {
 	public async Task Handle
 			(RefreshAccessTokenCommand command, CancellationToken cancel)
 	{
-		try
-		{
-			await RefreshAccessTokenService.Start();
-		}
-		catch (Exception ex)
-		{
-			throw new Exception("Unable to refresh tokens", ex);
-		}
+	//	try
+	//	{
+	//		var result = await RefreshAccessTokenService.StartWithToken(command.Token);
+	//		if (result)
+	//		{
+	//			await Task.WhenAll(
+	//				TwitchEventSubHub.Start(),
+	//				StreamerIrc.Start(),
+	//				BotIrc.Start()
+	//				);
+	//		}
+	//	}
+	//	catch (Exception ex)
+	//	{
+	//		throw new Exception("Unable to refresh tokens", ex);
+	//	}
 	}
 }
