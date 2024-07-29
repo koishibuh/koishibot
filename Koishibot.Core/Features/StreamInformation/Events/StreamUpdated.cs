@@ -5,11 +5,6 @@ using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelUpdate;
 
 namespace Koishibot.Core.Features.StreamInformation.Events;
 
-// == ⚫ COMMAND == //
-
-public record StreamUpdatedCommand(ChannelUpdatedEvent args) : IRequest;
-
-
 // == ⚫ HANDLER == //
 
 /// <summary>
@@ -18,25 +13,37 @@ public record StreamUpdatedCommand(ChannelUpdatedEvent args) : IRequest;
 /// <para>Event sent to <see cref="StreamInfoUpdatedEventHandler"/></para>
 /// </summary>
 public record StreamUpdatedHandler(
-	IAppCache Cache, ISignalrService Signalr,
-	ILogger<StreamUpdatedHandler> Log
+	IAppCache Cache, 
+	ISignalrService Signalr
 	) : IRequestHandler<StreamUpdatedCommand>
 {
 	public async Task Handle
 		(StreamUpdatedCommand command, CancellationToken cancellationToken)
 	{
-		var e = new StreamInfo(
-			new TwitchUserDto(
-				command.args.BroadcasterId,
-				command.args.BroadcasterLogin,
-				command.args.BroadcasterName),
-				command.args.StreamTitle,
-				command.args.CategoryName,
-				command.args.CategoryId);
+		var streamInfo = command.ConvertToDto();
 
-		Cache.UpdateStreamInfo(e);
+		Cache.UpdateStreamInfo(streamInfo);
 
-		var infoVm = e.ConvertToVm();
+		var infoVm = streamInfo.ConvertToVm();
 		await Signalr.SendStreamInfo(infoVm);
+		await Signalr.SendLog(new LogVm("Updated stream info", "Info"));
 	}
 }
+
+// == ⚫ COMMAND == //
+
+public record StreamUpdatedCommand(ChannelUpdatedEvent e) : IRequest
+{
+	public StreamInfo ConvertToDto()
+	{
+		return new StreamInfo(
+			new TwitchUserDto(
+				e.BroadcasterId,
+				e.BroadcasterLogin,
+				e.BroadcasterName),
+				e.StreamTitle,
+				e.CategoryName,
+				e.CategoryId);
+	}
+}
+

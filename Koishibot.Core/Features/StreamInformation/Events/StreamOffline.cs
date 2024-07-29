@@ -10,10 +10,6 @@ using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.StreamInformation;
 
-// == ⚫ COMMAND == //
-
-public record StreamOfflineCommand() : IRequest;
-
 // == ⚫ HANDLER == //
 
 /// <summary>
@@ -21,7 +17,8 @@ public record StreamOfflineCommand() : IRequest;
 /// </summary>
 public record StreamOfflineHandler(
 	IOptions<Settings> Settings,
-	IObsService ObsService, IAppCache Cache, ITwitchApiRequest TwitchApiRequest,
+	IObsService ObsService, IAppCache Cache, 
+	ITwitchApiRequest TwitchApiRequest,
 	KoishibotDbContext Database, ITwitchIrcService BotIrc
 	) : IRequestHandler<StreamOfflineCommand>
 {
@@ -35,13 +32,7 @@ public record StreamOfflineHandler(
 
 		var todaysStream = Cache.GetCurrentTwitchStream();
 
-		var parameters = new GetVideosRequestParameters
-		{
-			BroadcasterId = StreamerId,
-			ItemsPerPage = "1",
-			VideoType = VideoType.Archive
-		};
-
+		var parameters = command.CreateParameters(StreamerId);
 		var response = await TwitchApiRequest.GetVideos(parameters);
 		// Check if this can be null or empty
 
@@ -54,7 +45,7 @@ public record StreamOfflineHandler(
 			todaysStream.CalculateStreamDuration();
 		}
 
-			await Database.AddStream(todaysStream);
+		await Database.AddStream(todaysStream);
 
 		// Todo: Clear Stream Session from Cache?
 		// Todo: Disable any channel points
@@ -66,5 +57,20 @@ public record StreamOfflineHandler(
 		// Clear timer?
 
 		await BotIrc.BotSend("Stream is over, thanks for hanging out!");
+	}
+}
+
+// == ⚫ COMMAND == //
+
+public record StreamOfflineCommand() : IRequest
+{
+	public GetVideosRequestParameters CreateParameters(string streamerId)
+	{
+		return new GetVideosRequestParameters
+		{
+			BroadcasterId = streamerId,
+			ItemsPerPage = "1",
+			VideoType = VideoType.Archive
+		};
 	}
 }
