@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Features.AdBreak.Controllers;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Features.AdBreak.Models;
+using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Converters;
 using System.Text.Json;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -47,11 +48,33 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 public class GetAdScheduleRequestParameters
 {
 	/// <summary>
-	/// Provided broadcaster_id must match the user_id in the auth token.
+	/// Provided broadcaster_id must match the user_id in the auth token.<br/>
+	/// REQUIRED
 	/// </summary>
 	[JsonPropertyName("broadcaster_id")]
 	public string BroadcasterId { get; set; } = null!;
 }
+
+//public record GetAdScheduleRequestParameters(
+//	/// <summary>
+//	/// Provided broadcaster_id must match the user_id in the auth token.
+//	/// </summary>
+//	[property: JsonPropertyName("broadcaster_id")]
+//	string BroadcasterId
+//	);
+
+//public record GetAdScheduleRequestParameters(
+//		[property: JsonPropertyName("broadcaster_id")]
+//	string BroadcasterId
+//	)
+//{
+//	/// <summary>
+//	/// Provided broadcaster_id must match the user_id in the auth token.
+//	///</summary>
+
+//	public string BroadcasterId { get; init; } = BroadcasterId;
+//}
+
 
 // == ⚫ RESPONSE BODY == //
 
@@ -79,7 +102,7 @@ public class AdScheduleData
 	///(RFC3339 format converted to DateTimeOffset, set to Jan 1 1970 if empty)
 	///</summary>
 	[JsonPropertyName("snooze_refresh_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset GainNextSnoozeAt { get; set; }
 
 	///<summary>
@@ -88,7 +111,7 @@ public class AdScheduleData
 	///(RFC3339 format converted to DateTimeOffset, set to Jan 1 1970 if empty)
 	///</summary>
 	[JsonPropertyName("next_ad_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset NextAdScheduledAt { get; set; }
 
 	///<summary>
@@ -105,7 +128,7 @@ public class AdScheduleData
 	///(RFC3339 format converted to DateTimeOffset, set to Jan 1 1970 if empty)
 	///</summary>
 	[JsonPropertyName("last_ad_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset LastAdPlayedAt { get; set; }
 
 	///<summary>
@@ -125,6 +148,7 @@ public class AdScheduleData
 			LastAdPlayedAt,
 			RemainingPrerollFreeTimeInSeconds);
 	}
+
 	public bool NextAdTimeStillValid()
 	{
 		return DateTimeOffset.UtcNow < NextAdScheduledAt;

@@ -5,7 +5,7 @@
 
 //public partial record StreamInfoApi(
 //	ILogger<StreamInfoApi> Log,
-//	ITwitchAPI TwitchApi, 
+//	ITwitchAPI TwitchApi,
 //	IOptions<Settings> Settings,
 //	IRefreshAccessTokenService TokenProcessor
 //	) : IStreamInfoApi

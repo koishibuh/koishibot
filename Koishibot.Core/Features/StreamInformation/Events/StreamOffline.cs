@@ -1,112 +1,70 @@
-﻿//using Koishibot.Core.Features.AttendanceLog.Extensions;
-//using Koishibot.Core.Features.Common;
-//using Koishibot.Core.Features.Common.Models;
-//using Koishibot.Core.Features.Obs.Interfaces;
-//using Koishibot.Core.Features.RaidSuggestions.Extensions;
-//using Koishibot.Core.Features.StreamInformation.Extensions;
-//using Koishibot.Core.Features.StreamInformation.Interfaces;
-//using Koishibot.Core.Persistence;
-//using Koishibot.Core.Persistence.Cache.Enums;
-//using TwitchLib.Api.Core.Enums;
-//using TwitchLib.EventSub.Websockets.Core.EventArgs.Stream;
-//namespace Koishibot.Core.Features.StreamInformation;
+﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Obs.Interfaces;
+using Koishibot.Core.Features.RaidSuggestions.Extensions;
+using Koishibot.Core.Features.StreamInformation.Extensions;
+using Koishibot.Core.Persistence;
+using Koishibot.Core.Persistence.Cache.Enums;
+using Koishibot.Core.Services.Twitch.Enums;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.TwitchApi.Models;
+namespace Koishibot.Core.Features.StreamInformation;
 
-//// == ⚫ EVENT SUB == //
+// == ⚫ COMMAND == //
 
-//public class StreamOffline(
-//	IOptions<Settings> Settings,
-//	EventSubWebsocketClient EventSubClient,
-//	ITwitchAPI TwitchApi,
-//	IServiceScopeFactory ScopeFactory
-//	) : IStreamOffline
-//{
-//	public async Task SetupMethod()
-//	{
-//		EventSubClient.StreamOffline += OnStreamOffline;
-//		await SubToEvent();
-//	}
+public record StreamOfflineCommand() : IRequest;
 
-//	public async Task SubToEvent()
-//	{
-//		await TwitchApi.CreateEventSubBroadcaster("stream.offline", "1", Settings);
-//	}
+// == ⚫ HANDLER == //
 
-//	private async Task OnStreamOffline(object sender, StreamOfflineArgs args)
-//	{
-//		using var scope = ScopeFactory.CreateScope();
-//		var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+/// <summary>
+/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamoffline">Stream Offline EventSub Documentation</see></para>
+/// </summary>
+public record StreamOfflineHandler(
+	IOptions<Settings> Settings,
+	IObsService ObsService, IAppCache Cache, ITwitchApiRequest TwitchApiRequest,
+	KoishibotDbContext Database, ITwitchIrcService BotIrc
+	) : IRequestHandler<StreamOfflineCommand>
+{
+	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
-//		await mediatr.Send(new StreamOfflineCommand());
-//	}
-//}
+	public async Task Handle(StreamOfflineCommand command, CancellationToken cancel)
+	{
+		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, false);
 
-//// == ⚫ COMMAND == //
+		await ObsService.StopWebsocket();
 
-//public record StreamOfflineCommand() : IRequest;
+		var todaysStream = Cache.GetCurrentTwitchStream();
 
-//// == ⚫ HANDLER == //
+		var parameters = new GetVideosRequestParameters
+		{
+			BroadcasterId = StreamerId,
+			ItemsPerPage = "1",
+			VideoType = VideoType.Archive
+		};
 
-///// <summary>
-///// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamoffline">Stream Offline EventSub Documentation</see></para>
-///// </summary>
-///// <param name="sender"></param>
-///// <param name="e"></param>
-//public record StreamOfflineHandler(
-//	IOptions<Settings> Settings,
-//	IObsService ObsService, IAppCache Cache, IStreamInfoApi TwitchApi,
-//	KoishibotDbContext Database, IChatMessageService BotIrc
-//	) : IRequestHandler<StreamOfflineCommand>
-//{
-//	public string StreamerId => Settings.Value.StreamerTokens.UserId;
+		var response = await TwitchApiRequest.GetVideos(parameters);
+		// Check if this can be null or empty
 
-//	public async Task Handle(StreamOfflineCommand command, CancellationToken cancel)
-//	{
-//		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, false);
+		if (response.Data.Count > 0 && response.Data[0].VideoId == todaysStream.StreamId)
+		{
+			todaysStream.Duration = response.Data[0].Duration;
+		}
+		else
+		{
+			todaysStream.CalculateStreamDuration();
+		}
 
-//		await ObsService.StopWebsocket();
+			await Database.AddStream(todaysStream);
 
-//		var todaysStream = Cache.GetCurrentTwitchStream();
+		// Todo: Clear Stream Session from Cache?
+		// Todo: Disable any channel points
 
-//		var result = await TwitchApi.GetRecentVod(StreamerId);
-//		if (result is not null && result.VideoId == todaysStream.StreamId)
-//		{
-//			todaysStream.ConvertStringToTimeSpan(result.Duration);
-//			await Database.AddStream(todaysStream);
-//		}
-//		else
-//		{
-//			todaysStream.CalculateStreamDuration();
-//			await Database.AddStream(todaysStream);
-//		}
+		Cache
+			.ClearAttendanceCache()
+			.ClearRaidSuggestions();
 
-//		// Todo: Clear Stream Session from Cache?
-//		// Todo: Disable any channel points
+		// Clear timer?
 
-//		Cache
-//			.ClearAttendanceCache()
-//			.ClearRaidSuggestions();
-
-//		// Clear timer?
-
-//		await BotIrc.BotSend("Stream is over, thanks for hanging out!");
-//	}
-//}
-
-//// == ⚫ TWITCH API == //
-
-//public partial record StreamInfoApi : IStreamInfoApi
-//{
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#get-videos">Get Videos Documentation</see>
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task<RecentVod?> GetRecentVod(string userId)
-//	{
-//		await TokenProcessor.EnsureValidToken();
-
-//		var result = await TwitchApi.Helix.Videos.GetVideosAsync
-//			(userId: userId, first: 1, type: VideoType.Archive);
-
-//		return result.FindRecentVod();
-//	}
-//}
+		await BotIrc.BotSend("Stream is over, thanks for hanging out!");
+	}
+}

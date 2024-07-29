@@ -2,6 +2,7 @@
 using Koishibot.Core.Configurations;
 using Koishibot.Core.Exceptions;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Services;
 using Koishibot.Core.Services.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
@@ -116,7 +117,7 @@ public static class StartupExtensions
 		//.Enrich.FromLogContext()
 		.WriteTo.Console());
 
-		//builder.Services.AddHostedService<TwitchServicesWorker>();
+		builder.Services.AddHostedService<TwitchServicesWorker>();
 
 		builder.Services.AddAppServices();
 		builder.Services.AddInfrastructureServices(builder.Configuration);

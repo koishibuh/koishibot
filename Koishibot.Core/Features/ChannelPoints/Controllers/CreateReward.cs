@@ -1,138 +1,122 @@
-﻿//using Koishibot.Core.Features.ChannelPoints.Extensions;
-//using Koishibot.Core.Features.ChannelPoints.Interfaces;
-//using Koishibot.Core.Features.ChannelPoints.Models;
-//using Koishibot.Core.Persistence;
-//using Koishibot.Core.Services.TwitchEventSub.Extensions;
+﻿using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.TwitchApi.Models;
 
-//namespace Koishibot.Core.Features.ChannelPoints;
+namespace Koishibot.Core.Features.ChannelPoints;
 
-//// == ⚫ POST  == //
+// == ⚫ POST  == //
 
-//public class CreateChannelPointRewardController : ApiControllerBase
-//{
-//	[SwaggerOperation(Tags = new[] { "Point Reward" })]
-//	[HttpPost("/api/point-reward/twitch")]
-//	public async Task<ActionResult> CreateChannelPointReward
-//			([FromBody] CreateRewardCommand e)
-//	{
-//		var result = await Mediator.Send(e);
-//		return Ok(result);
-//	}
-//}
+public class CreateChannelPointRewardController : ApiControllerBase
+{
+	[SwaggerOperation(Tags = ["Point Reward"])]
+	[HttpPost("/api/point-reward/twitch")]
+	public async Task<ActionResult> CreateChannelPointReward
+		([FromBody] CreateRewardCommand e)
+	{
+		await Mediator.Send(e);
+		return Ok();
+	}
+}
 
-//// == ⚫ COMMAND  == //
+// == ⚫ HANDLER  == //
 
-//public record CreateRewardCommand(
-//	string Title,
-//	string Prompt,
-//	int Cost,
-//	string BackgroundColor,
-//	bool IsEnabled,
-//	bool IsUserInputRequired,
-//	bool IsMaxPerStreamEnabled,
-//	int MaxPerStream,
-//	bool IsMaxPerUserPerStreamEnabled,
-//	int MaxPerUserPerStream,
-//	bool IsGlobalCooldownEnabled,
-//	int GlobalCooldownSeconds,
-//	bool ShouldRedemptionsSkipRequestQueue
-//	) : IRequest<int>
-//{
-//	public CreateCustomRewardsRequest CreateCustomRewardRequest()
-//	{
-//		return new CreateCustomRewardsRequest
-//		{
-//			Title = Title,
-//			Cost = Cost,
-//			IsEnabled = IsEnabled,
-//			IsUserInputRequired = IsUserInputRequired,
-//			Prompt = Prompt,
-//			BackgroundColor = BackgroundColor,
-//			IsMaxPerStreamEnabled = IsMaxPerStreamEnabled,
-//			MaxPerStream = MaxPerStream,
-//			IsMaxPerUserPerStreamEnabled = IsMaxPerUserPerStreamEnabled,
-//			MaxPerUserPerStream = MaxPerUserPerStream,
-//			IsGlobalCooldownEnabled = IsGlobalCooldownEnabled,
-//			GlobalCooldownSeconds = GlobalCooldownSeconds,
-//			ShouldRedemptionsSkipRequestQueue = ShouldRedemptionsSkipRequestQueue
-//		};
-//	}
+/// <summary>
+/// Takes request from client
+/// Sends to API via ChannelPointsApi
+/// Saves result to DB
+/// https://dashboard.twitch.tv/u/elysiagriffin/viewer-rewards/channel-points/rewards
+/// </summary>
+public record CreateRewardHandler(
+	IOptions<Settings> Settings,
+	KoishibotDbContext Database,
+	ITwitchApiRequest TwitchApiRequest
+	) : IRequestHandler<CreateRewardCommand>
+{
+	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
-//	public async Task<bool> IsRewardNameUnique(KoishibotDbContext database)
-//	{
-//		var result = await database.ChannelPointRewards
-//			.FirstOrDefaultAsync(p => p.Title == Title);
+	public async Task Handle
+		(CreateRewardCommand command, CancellationToken cancel)
+	{
+		var parameters = command.CreateParameters(StreamerId);
+		var body = command.CreateRequestBody();
 
-//		return result is null;
-//	}
-//}
+		await TwitchApiRequest.CreateCustomReward(parameters, body);
 
-//// == ⚫ HANDLER  == //
+		// Get confirmation from RewardCreated EventSub
+	}
+}
 
-///// <summary>
-///// Takes request from client
-///// Sends to API via ChannelPointsApi
-///// Saves result to DB
-///// https://dashboard.twitch.tv/u/elysiagriffin/viewer-rewards/channel-points/rewards
-///// </summary>
-//public record CreateRewardHandler(
-//	IChannelPointsApi ChannelPointsApi,
-//	KoishibotDbContext Database
-//	)	: IRequestHandler<CreateRewardCommand, int>
-//{
-//	public async Task<int> Handle
-//		(CreateRewardCommand c, CancellationToken cancel)
-//	{
-//		var reward = await ChannelPointsApi.CreateCustomReward(c);
-//		return await Database.UpdateReward(reward);
-//		// TODO: Return VM?
-//	}
-//}
+// == ⚫ COMMAND  == //
 
-//// == ⚫ VALIDATOR == //
+public record CreateRewardCommand(
+	string Title,
+	string Prompt,
+	int Cost,
+	string BackgroundColor,
+	bool IsEnabled,
+	bool IsUserInputRequired,
+	bool IsMaxPerStreamEnabled,
+	int MaxPerStream,
+	bool IsMaxPerUserPerStreamEnabled,
+	int MaxPerUserPerStream,
+	bool IsGlobalCooldownEnabled,
+	int GlobalCooldownSeconds,
+	bool ShouldRedemptionsSkipRequestQueue
+	) : IRequest
+{
+	public CreateCustomRewardRequestBody CreateRequestBody()
+	{
+		return new CreateCustomRewardRequestBody
+		{
+			Title = Title,
+			Cost = Cost,
+			IsEnabled = IsEnabled,
+			IsUserInputRequired = IsUserInputRequired,
+			Prompt = Prompt,
+			BackgroundColor = BackgroundColor,
+			IsMaxPerStreamEnabled = IsMaxPerStreamEnabled,
+			MaxPerStream = MaxPerStream,
+			IsMaxPerUserPerStreamEnabled = IsMaxPerUserPerStreamEnabled,
+			MaxPerUserPerStream = MaxPerUserPerStream,
+			IsGlobalCooldownEnabled = IsGlobalCooldownEnabled,
+			GlobalCooldownSeconds = GlobalCooldownSeconds,
+			ShouldRedemptionsSkipRequestQueue = ShouldRedemptionsSkipRequestQueue
+		};
+	}
 
-//public class CreateRewardValidator
-//		: AbstractValidator<CreateRewardCommand>
-//{
-//	public KoishibotDbContext Database { get; }
+	public async Task<bool> IsRewardNameUnique(KoishibotDbContext database)
+	{
+		var result = await database.ChannelPointRewards
+			.FirstOrDefaultAsync(p => p.Title == Title);
 
-//	public CreateRewardValidator(KoishibotDbContext context)
-//	{
-//		Database = context;
+		return result is null;
+	}
 
-//		RuleFor(p => p.Title)
-//			.NotEmpty();
+	public CreateCustomRewardRequestParameters CreateParameters(string streamerId) 
+		=> new CreateCustomRewardRequestParameters{ BroadcasterId = streamerId };
+}
 
-//		RuleFor(p => p)
-//				.MustAsync(IsRewardNameUnique)
-//				.WithMessage("Reward name already exists");
-//	}
+// == ⚫ VALIDATOR == //
 
-//	private async Task<bool> IsRewardNameUnique
-//			(CreateRewardCommand command, CancellationToken cancel)
-//	{
-//		return await command.IsRewardNameUnique(Database);
-//	}
-//}
+public class CreateRewardValidator
+		: AbstractValidator<CreateRewardCommand>
+{
+	public KoishibotDbContext Database { get; }
 
-//// == ⚫ TWITCH API == //
+	public CreateRewardValidator(KoishibotDbContext context)
+	{
+		Database = context;
 
-//public partial record ChannelPointsApi : IChannelPointsApi
-//{
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#create-custom-rewards">Create Custom Reward Documentation</see><br/>
-//	/// Title 45 character max, unique
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task<ChannelPointReward> CreateCustomReward(CreateRewardCommand dto)
-//	{
-//		await TokenProcessor.EnsureValidToken();
+		RuleFor(p => p.Title)
+			.NotEmpty();
 
-//		var reward = dto.CreateCustomRewardRequest();
-//		var result = await TwitchApi.Helix.ChannelPoints.CreateCustomRewardsAsync(StreamerId, reward);
+		RuleFor(p => p)
+				.MustAsync(IsRewardNameUnique)
+				.WithMessage("Reward name already exists");
+	}
 
-//		return result is null || result.Data.Length == 0
-//			? throw new Exception("Unable to create channel point reward")
-//			: result.ConvertToEntity();
-//	}
-//}
+	private async Task<bool> IsRewardNameUnique
+			(CreateRewardCommand command, CancellationToken cancel)
+	{
+		return await command.IsRewardNameUnique(Database);
+	}
+}

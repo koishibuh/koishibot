@@ -1,6 +1,5 @@
 ﻿//using Koishibot.Core.Features.Common;
 //using Koishibot.Core.Features.Common.Models;
-//using Koishibot.Core.Services.TwitchEventSub.Extensions;
 //using TwitchLib.Api.Core.Enums;
 
 //namespace Koishibot.Core.Features.Shoutouts;

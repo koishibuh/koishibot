@@ -3,26 +3,11 @@ using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
-using System.Text.RegularExpressions;
 
 namespace Koishibot.Core.Features.StreamInformation.Extensions;
 public static class StreamInfoExtensions
 {
-	// MODEL
 
-	public static TwitchStream ConvertStringToTimeSpan(this TwitchStream stream, string duration)
-	{
-		var formattedDuration = Regex.Replace(duration, @"[hms]", m => m.Value switch
-		{
-			"h" => ":",
-			"m" => ":",
-			"s" => string.Empty,
-			_ => throw new InvalidOperationException("Invalid duration format")
-		});
-
-		stream.Duration = TimeSpan.Parse(formattedDuration);
-		return stream;
-	}
 
 	// CACHE
 

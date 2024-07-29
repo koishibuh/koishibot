@@ -2,15 +2,15 @@
 
 public enum CacheName
 {
-  ServiceStatus,
+	ServiceStatus,
 	StreamSessions,
 	StreamEvents,
-  StreamInfo,
-  CurrentTimer,
+	StreamInfo,
+	CurrentTimer,
 	CurrentPoll,
-  Users,
+	Users,
 	Dandle,
-  DragonEggQuest,
-  Raid,
+	DragonEggQuest,
+	Raid,
 	LedLights
 }

@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
+using System.Text.Json;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 partial record TwitchApiRequest : ITwitchApiRequest
@@ -9,7 +10,7 @@ partial record TwitchApiRequest : ITwitchApiRequest
 	/// Gets the list of broadcasters that the user follows and that are streaming live.<br/>
 	/// Required Scopes: user:read:follows<br/>
 	/// </summary>
-	public async Task GetFollowedLiveStreams
+	public async Task<GetFollowedLiveStreamsResponse> GetFollowedLiveStreams
 		(GetFollowedLiveStreamsRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
@@ -17,6 +18,11 @@ partial record TwitchApiRequest : ITwitchApiRequest
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetFollowedLiveStreamsResponse>(response)
+			?? throw new Exception("Failed to deserialize response");
+
+		return result;
 	}
 }
 

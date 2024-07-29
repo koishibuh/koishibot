@@ -13,4 +13,3 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
 global using Swashbuckle.AspNetCore.Annotations;
 global using System.Text.Json.Serialization;
-global using TwitchLib.Api.Interfaces;

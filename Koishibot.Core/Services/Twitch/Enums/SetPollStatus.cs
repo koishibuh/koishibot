@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
 
 //TERMINATED — The poll was terminated before its scheduled end.
 //ARCHIVED — The poll has been archived and is no longer visible on the channel.
 
+[JsonConverter(typeof(SetPollStatusEnumConverter))]
 public enum SetPollStatus
 {
 	Terminate,

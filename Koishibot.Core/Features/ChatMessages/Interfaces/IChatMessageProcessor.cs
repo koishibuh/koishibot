@@ -4,5 +4,5 @@ namespace Koishibot.Core.Features.ChatMessages.Interfaces;
 
 public interface IChatMessageProcessor
 {
-	Task Start(ChatMessageEvent e);
+	Task Start(ChatMessageDto e);
 }

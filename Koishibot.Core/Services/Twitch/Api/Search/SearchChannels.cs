@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Converters;
 using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
@@ -138,6 +139,6 @@ public class SearchedChannelData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("started_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartedAt { get; set; }
 }

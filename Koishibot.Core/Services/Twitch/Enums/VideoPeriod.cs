@@ -1,7 +1,8 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
 
+
+[JsonConverter(typeof(VideoPeriodEnumConverter))]
 public enum VideoPeriod
 {
 	All = 1,

@@ -1,6 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Features.StreamInformation.Models;
+using Koishibot.Core.Services.Twitch.Converters;
+using Koishibot.Core.Services.Twitch.Enums;
 
 namespace Koishibot.Core.Services.Twitch.Common;
 
@@ -17,19 +17,19 @@ public class LivestreamData
 	///The ID of the user that’s broadcasting the stream.
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string UserId { get; set; }
+	public string BroadcasterId { get; set; }
 
 	///<summary>
 	///The user’s login name.
 	///</summary>
 	[JsonPropertyName("user_login")]
-	public string UserLogin { get; set; }
+	public string BroadcasterLogin { get; set; }
 
 	///<summary>
 	///The user’s display name.
 	///</summary>
 	[JsonPropertyName("user_name")]
-	public string UserName { get; set; }
+	public string BroadcasterName { get; set; }
 
 	///<summary>
 	///The ID of the category or game being played.
@@ -68,7 +68,7 @@ public class LivestreamData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("started_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(DateTimeOffsetRFC3339Converter))]
 	public DateTimeOffset StartedAt { get; set; }
 
 	///<summary>
@@ -83,7 +83,7 @@ public class LivestreamData
 	///Replace the width and height placeholders in the URL ({width}x{height}) with the size of the image you want, in pixels.
 	///</summary>
 	[JsonPropertyName("thumbnail_url")]
-	public string ThumbnailUrl { get; set; }
+	public string? ThumbnailUrl { get; set; }
 
 	///<summary>
 	///The tags applied to the stream.
@@ -96,4 +96,11 @@ public class LivestreamData
 	///</summary>
 	[JsonPropertyName("is_mature")]
 	public bool IsMature { get; set; }
+
+
+	public LiveStreamInfo ConvertToDto()
+	{
+		return new LiveStreamInfo(
+			BroadcasterId, VideoId, GameId, GameName, StreamTitle, ViewerCount, StartedAt, ThumbnailUrl);
+	}
 }

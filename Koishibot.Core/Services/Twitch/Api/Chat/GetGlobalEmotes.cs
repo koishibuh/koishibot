@@ -1,6 +1,5 @@
 ﻿using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Enums;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -29,7 +28,7 @@ public class GetGlobalEmotesResponse
 	///The list of global emotes.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<GetGlobalEmotesData> Data { get; set; }
+	public List<GetGlobalEmotesData>? Data { get; set; }
 }
 
 public class GetGlobalEmotesData
@@ -38,14 +37,14 @@ public class GetGlobalEmotesData
 	///An ID that identifies this emote.
 	///</summary>
 	[JsonPropertyName("id")]
-	public string Id { get; set; }
+	public string? Id { get; set; }
 
 	///<summary>
 	///The name of the emote.<br/>
 	///This is the name that viewers type in the chat window to get the emote to appear.
 	///</summary>
 	[JsonPropertyName("name")]
-	public string Name { get; set; }
+	public string? Name { get; set; }
 
 	///<summary>
 	///The image URLs for the emote. <br/>
@@ -53,7 +52,7 @@ public class GetGlobalEmotesData
 	///NOTE: You should use the templated URL in the template field to fetch the image instead of using these URLs.
 	///</summary>
 	[JsonPropertyName("images")]
-	public ImageSizes Images { get; set; }
+	public ImageSizes? Images { get; set; }
 
 	///<summary>
 	///The formats that the emote is available in.<br/>
@@ -61,29 +60,26 @@ public class GetGlobalEmotesData
 	///If the emote is available as a static PNG and an animated GIF, the array contains static and animated.<br/>
 	///</summary>
 	[JsonPropertyName("format")]
-	[JsonConverter(typeof(EmoteFormatEnumConverter))]
-	public List<EmoteFormat> Format { get; set; }
+	public List<EmoteFormat>? Format { get; set; }
 
 	///<summary>
 	///The sizes that the emote is available in.</br>
 	///</summary>
 	[JsonPropertyName("scale")]
-	[JsonConverter(typeof(ImageScaleEnumConverter))]
-	public List<ImageScale> Scale { get; set; }
+	public List<ImageScale>? Scale { get; set; }
 
 	///<summary>
 	///The background themes that the emote is available in. 
 	///</summary>
 	[JsonPropertyName("theme_mode")]
-	[JsonConverter(typeof(ThemeModeEnumConverter))]
-	public List<ThemeMode> ThemeMode { get; set; }
+	public List<ThemeMode>? ThemeMode { get; set; }
 
 	///<summary>
 	///A templated URL.<br/>
-	///Use the values from the id, format, scale, and theme_mode fields to replace the like-named placeholder strings in the templated URL to create a CDN (content delivery network) URL that you use to fetch the emote.<br/>
+	///Use the values from the id, format, scale, and theme_mode fields to replace the like-named placeholder string?s in the templated URL to create a CDN (content delivery network) URL that you use to fetch the emote.<br/>
 	///For information about what the template looks like and how to use it to fetch emotes, see Emote CDN URL format.<br/>
 	///You should use this template instead of using the URLs in the images object.
 	///</summary>
 	[JsonPropertyName("template")]
-	public string Template { get; set; }
+	public string? Template { get; set; }
 }

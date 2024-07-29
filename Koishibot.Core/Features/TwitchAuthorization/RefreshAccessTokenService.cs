@@ -1,116 +1,56 @@
-﻿//using Newtonsoft.Json;
+﻿using Koishibot.Core.Features.TwitchAuthorization.Enums;
+using Koishibot.Core.Features.TwitchAuthorization.Models;
+using Newtonsoft.Json;
 
-//namespace Koishibot.Core.Features.TwitchAuthorization;
+namespace Koishibot.Core.Features.TwitchAuthorization;
+public record RefreshAccessTokenService(
+	IOptions<Settings> Settings,
+	IHttpClientFactory HttpClientFactory
+	) : IRefreshAccessTokenService
+{
+	public async Task Start()
+	{
+		var httpClient = HttpClientFactory.CreateClient("Default");
+		var uri = new Uri("https://id.twitch.tv/oauth2/token");
 
-//public record RefreshAccessTokenService(
-//	IOptions<Settings> Settings,
-//	//ITwitchAPI TwitchApi,
-//	ILogger<RefreshAccessTokenService> Log,
-//	IHttpClientFactory HttpClientFactory
-//	) : IRefreshAccessTokenService
-//{
+		var requestContent = CreateRequestContent();
 
+		using var response = await httpClient.PostAsync(uri, requestContent);
+		var content = await response.Content.ReadAsStringAsync();
 
-//	public async Task<bool> StartWithToken(string token)
-//	{
-//		try
-//		{
-//			var clientSecret = Settings.Value.TwitchAppSettings.ClientSecret;
+		var result = JsonConvert.DeserializeObject<ClientCredentialsTokenResponse>(content)
+			?? throw new Exception("An error occurred while generating a twitch token.");
 
-//			var result = await TwitchApi.Auth.RefreshAuthTokenAsync(token, clientSecret);
+		SaveTokens(result);
 
-//			if (result is null)
-//			{
-//				// return bad request
-//				return false;
-//			}
+#if DEBUG
+		SaveSettingsToJson();
+#endif
+	}
 
-//			TwitchApi.Settings.AccessToken = result.AccessToken;
-//			Settings.Value.StreamerTokens.SetExpirationTime(result.ExpiresIn);
-//			Settings.Value.StreamerTokens.AccessToken = result.AccessToken;
-//			Settings.Value.StreamerTokens.RefreshToken = result.RefreshToken;
+	public FormUrlEncodedContent CreateRequestContent()
+	{
+		return new FormUrlEncodedContent(
+		[
+			new("client_id", Settings.Value.TwitchAppSettings.ClientId),
+			new("client_secret", Settings.Value.TwitchAppSettings.ClientSecret),
+			new("grant_type", GrantType.RefreshToken.ConvertToString()),
+			new("refresh_token", Settings.Value.StreamerTokens.RefreshToken)
+		]);
+	}
 
-//#if DEBUG
-//			SaveSettingsToJson();
-//#endif
+	public void SaveTokens(ClientCredentialsTokenResponse response)
+	{
+		Settings.Value.StreamerTokens.SetExpirationTime(response.ExpiresIn);
+		Settings.Value.StreamerTokens.AccessToken = response.AccessToken;
+		Settings.Value.StreamerTokens.RefreshToken = response.RefreshToken;
+	}
 
-//			return true;
-//		}
-//		catch (Exception ex)
-//		{
-//			Log.LogError(ex, "Unable to refresh Oauth Tokens");
-//			return false;
-//		}
-//	}
-
-
-//	public async Task<bool> Start()
-//	{
-//		try
-//		{
-//			var clientSecret = Settings.Value.TwitchAppSettings.ClientSecret;
-//			var refreshToken = Settings.Value.StreamerTokens.RefreshToken;
-
-//			var result = await TwitchApi.Auth.RefreshAuthTokenAsync(refreshToken, clientSecret);
-
-//			if (result is null)
-//			{
-//				// return bad request
-//				return false;
-//			}
-
-//			TwitchApi.Settings.AccessToken = result.AccessToken;
-//			Settings.Value.StreamerTokens.SetExpirationTime(result.ExpiresIn);
-//			Settings.Value.StreamerTokens.AccessToken = result.AccessToken;
-//			Settings.Value.StreamerTokens.RefreshToken = result.RefreshToken;
-
-//#if DEBUG
-//			SaveSettingsToJson();
-//#endif
-
-//			return true;
-//		}
-//		catch (Exception ex)
-//		{
-//			Log.LogError(ex, "Unable to refresh Oauth Tokens");
-//			return false;
-//		}
-
-//	}
-
-//	public void SaveSettingsToJson()
-//	{
-//		var wrapper = new { AppSettings = Settings.Value };
-//		wrapper.AppSettings.TwitchEventSubSessionId = "";
-//		var updatedSettings = JsonConvert.SerializeObject(wrapper, Formatting.Indented);
-//		File.WriteAllText("ASettings/settings.json", updatedSettings);
-//	}
-
-//	public async Task EnsureValidToken()
-//	{
-//		//Log.LogInformation("Checking token");
-//		var StreamerTokens = Settings.Value.StreamerTokens;
-
-//		var result = StreamerTokens.HasTokenExpired();
-//		if (result is true)
-//		{
-//			Log.LogInformation("Getting a new refresh token");
-//			await Start();
-//		}
-//	}
-
-//	public async Task EnsureValidOnStartup()
-//	{
-//		var StreamerTokens = Settings.Value.StreamerTokens;
-//		var result = StreamerTokens.HasTokenExpired();
-//		if (result is true)
-//		{
-//			Log.LogInformation("Getting a new refresh token");
-//			await Start();
-//		}
-//		else
-//		{
-//			TwitchApi.Settings.AccessToken = StreamerTokens.AccessToken;
-//		}
-//	}
-//}
+	public void SaveSettingsToJson()
+	{
+		var wrapper = new { AppSettings = Settings.Value };
+		wrapper.AppSettings.TwitchEventSubSessionId = "";
+		var updatedSettings = JsonConvert.SerializeObject(wrapper, Formatting.Indented);
+		File.WriteAllText("ASettings/settings.json", updatedSettings);
+	}
+}

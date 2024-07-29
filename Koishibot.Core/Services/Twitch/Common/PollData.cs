@@ -1,6 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch.Converters;
+using Koishibot.Core.Services.Twitch.Enums;
 namespace Koishibot.Core.Services.Twitch.Common;
 
 public class PollData
@@ -44,17 +43,17 @@ public class PollData
 	[JsonPropertyName("choices")]
 	public List<Choice> Choices { get; set; }
 
-	///<summary>
-	///Not used; will be set to false.
-	///</summary>
-	[JsonPropertyName("bits_voting_enabled")]
-	public bool BitsVotingEnabled { get; set; }
+	/////<summary>
+	/////Not used; will be set to false.
+	/////</summary>
+	//[JsonPropertyName("bits_voting_enabled")]
+	//public bool BitsVotingEnabled { get; set; }
 
-	///<summary>
-	///Not used; will be set to 0.
-	///</summary>
-	[JsonPropertyName("bits_per_vote")]
-	public int BitsPerVote { get; set; }
+	/////<summary>
+	/////Not used; will be set to 0.
+	/////</summary>
+	//[JsonPropertyName("bits_per_vote")]
+	//public int BitsPerVote { get; set; }
 
 	///<summary>
 	///A Boolean value that indicates whether viewers may cast additional votes using Channel Points.
@@ -72,8 +71,8 @@ public class PollData
 	///The poll's status.
 	///</summary>
 	[JsonPropertyName("status")]
-	[JsonConverter(typeof(PollApiStatusEnumConverter))]
-	public PollApiStatus Status { get; set; }
+	[JsonConverter(typeof(PollStatusEnumConverter))]
+	public PollStatus Status { get; set; }
 
 	///<summary>
 	///The length of time (in seconds) that the poll will run for.
@@ -86,7 +85,7 @@ public class PollData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("started_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartedAt { get; set; }
 
 	///<summary>
@@ -95,7 +94,7 @@ public class PollData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("ended_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset EndedAt { get; set; }
 
 }
@@ -106,14 +105,14 @@ public class Choice
 	///An ID that identifies this choice.
 	///</summary>
 	[JsonPropertyName("id")]
-	public string ChoiceId { get; set; }
+	public string ChoiceId { get; set; } = null!;
 
 	///<summary>
 	///The choice's title.<br/>
 	///The title may contain a maximum of 25 characters.
 	///</summary>
 	[JsonPropertyName("title")]
-	public string ChoiceTitle { get; set; }
+	public string Title { get; set; } = null!;
 
 	///<summary>
 	///The total number of votes cast for this choice.
@@ -127,9 +126,9 @@ public class Choice
 	[JsonPropertyName("channel_points_votes")]
 	public int ChannelPointsVotes { get; set; }
 
-	///<summary>
-	///Not used; will be set to 0.
-	///</summary>
-	[JsonPropertyName("bits_votes")]
-	public int BitsVotes { get; set; }
+	/////<summary>
+	/////Not used; will be set to 0.
+	/////</summary>
+	//[JsonPropertyName("bits_votes")]
+	//public int BitsVotes { get; set; }
 }

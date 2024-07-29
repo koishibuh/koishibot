@@ -1,91 +1,80 @@
-﻿//using Koishibot.Core.Features.Polls.Extensions;
-//using Koishibot.Core.Features.Polls.Interfaces;
-//using Koishibot.Core.Features.Polls.Models;
-//using Koishibot.Core.Features.RaidSuggestions.Models;
-//using Koishibot.Core.Services.TwitchEventSub.Extensions;
-//using TwitchLib.EventSub.Websockets.Core.EventArgs.Channel;
+﻿using Koishibot.Core.Features.Polls.Extensions;
+using Koishibot.Core.Features.Polls.Models;
+using Koishibot.Core.Features.RaidSuggestions.Models;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Polls;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+namespace Koishibot.Core.Features.Polls.Events;
 
-//namespace Koishibot.Core.Features.Polls.Events;
+// == ⚫ HANDLER == //
 
-//// == ⚫ EVENT SUB == //
+/// <summary>
+/// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelpollprogress">Channel Poll Progress</see>
+/// </summary>
+public record VoteReceivedHandler(
+	IAppCache Cache,
+	ITwitchIrcService BotIrc,
+	ISignalrService Signalr
+	) : IRequestHandler<PollVoteReceivedCommand>
+{
+	public async Task Handle(PollVoteReceivedCommand command, CancellationToken cancel)
+	{
+		var poll = command.CreateDto();
+		Cache.AddPoll(poll);
 
-//public class VoteRecieved(
-//	IOptions<Settings> Settings,
-//	EventSubWebsocketClient EventSubClient,
-//	ITwitchAPI TwitchApi,
-//	IServiceScopeFactory ScopeFactory
-//	) : IVoteRecieved
-//{
-//	public async Task SetupHandler()
-//	{
-//		EventSubClient.ChannelPollProgress += OnVoteReceived;
-//		await SubToEvent();
-//	}
+		var pollVm = poll.ConvertToVm();
+		await Signalr.SendPoll(pollVm);
 
-//	public async Task SubToEvent()
-//	{
-//		await TwitchApi.CreateEventSubBroadcaster
-//			("channel.poll.progress", "1", Settings);
-//	}
+		//Update Overlay that vote was received
+		if (command.IsRaidPoll())
+		{
+			var raidPollVm = new RaidPollVm().Set(poll.Choices);
+			await Signalr.SendRaidPollVote(raidPollVm);
+		}
+	}
+}
 
-//	private async Task OnVoteReceived(object sender, ChannelPollProgressArgs args)
-//	{
-//		using var scope = ScopeFactory.CreateScope();
-//		var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+// == ⚫  == //
 
-//		await mediatr.Send(new VoteReceivedCommand(args));
-//	}
-//}
+public record VoteReceivedEvent(
+	string Id,
+	string Title,
+	DateTimeOffset StartedAt,
+	DateTimeOffset EndingAt,
+	Dictionary<string, int> Choices) : INotification
+{
+	public TimeSpan Duration => StartedAt - EndingAt;
 
-//// == ⚫ COMMAND == //
+	public bool IsRaidPoll()
+	{
+		return Title == "Who should we raid?";
+	}
+}
 
-//public record VoteReceivedCommand
-//	(ChannelPollProgressArgs args) : IRequest;
+// == ⚫ COMMAND == //
 
-//// == ⚫ HANDLER == //
+public record PollVoteReceivedCommand
+	(PollProgressEvent e) : IRequest
+{
+	public CurrentPoll CreateDto()
+	{
+		var pollChoices = e.Choices?
+		.GroupBy(choice => choice.Title)
+		.ToDictionary(group => group.Key, group => group.Sum(choice => choice.Votes));
 
-///// <summary>
-///// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelpollprogress">Channel Poll Progress</see>
-///// </summary>
-///// <param name="sender"></param>
-///// <param name="e"></param>
-//public record VoteReceivedHandler
-//		(IAppCache Cache, IChatMessageService BotIrc,
-//		ISignalrService Signalr
-//		) : IRequestHandler<VoteReceivedCommand>
-//{
-//	public async Task Handle(VoteReceivedCommand command, CancellationToken cancel)
-//	{
-//		var e = command.args.ConvertToEvent();
+		return new CurrentPoll
+		{
+			Id = e.PollId,
+			Title = e.Title,
+			StartedAt = e.StartedAt,
+			EndingAt = e.EndsAt,
+			Duration = e.EndsAt - e.StartedAt,
+			Choices = pollChoices
+		};
+	}
+	public bool IsRaidPoll()
+	{
+		return e.Title == "Who should we raid?";
+	}
 
-//		var poll = new CurrentPoll().ConvertFromEvent(e);
-//		Cache.AddPoll(poll);
+};
 
-//		var pollVm = poll.ConvertToVm();
-//		await Signalr.SendPoll(pollVm);
-
-//		// Update Overlay that vote was received
-//		if (e.IsRaidPoll())
-//		{
-//			var raidPollVm = new RaidPollVm().Set(e.Choices);
-//			await Signalr.SendRaidPollVote(raidPollVm);
-//		}
-//	}
-//}
-
-//// == ⚫  == //
-
-//public record VoteReceivedEvent(
-//	string Id,
-//	string Title,
-//	DateTimeOffset StartedAt,
-//	DateTimeOffset EndingAt,
-//	Dictionary<string, int> Choices) : INotification
-//{
-//	public TimeSpan Duration => StartedAt - EndingAt;
-
-//	public bool IsRaidPoll()
-//	{
-//		return Title == "Who should we raid?";
-//	}
-//}

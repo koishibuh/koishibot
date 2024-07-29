@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
 
+[JsonConverter(typeof(SubTierEnumConverter))]
 public enum SubTier
 {
 	Tier1 = 1, // Or Prime

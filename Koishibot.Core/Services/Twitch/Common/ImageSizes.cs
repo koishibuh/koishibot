@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Koishibot.Core.Services.Twitch.Common;
+﻿namespace Koishibot.Core.Services.Twitch.Common;
 
 public class ImageSizes
 {

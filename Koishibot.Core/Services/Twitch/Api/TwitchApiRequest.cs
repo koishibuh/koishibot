@@ -1,4 +1,7 @@
-﻿namespace Koishibot.Core.Services.TwitchApi.Models;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
+
+namespace Koishibot.Core.Services.TwitchApi.Models;
 public partial record TwitchApiRequest(
 	ITwitchApiClient TwitchApiClient
 	) : ITwitchApiRequest {}
@@ -20,7 +23,7 @@ public interface ITwitchApiRequest
 	// CHANNEL POINTS
 	Task CreateCustomReward(CreateCustomRewardRequestParameters parameters, CreateCustomRewardRequestBody requestBody);
 	Task DeleteCustomReward(DeleteCustomRewardRequestParameters parameters);
-	Task GetCustomRewards(GetCustomRewardsParameters parameters);
+	Task<List<CustomRewardData>>GetCustomRewards(GetCustomRewardsParameters parameters);
 	Task UpdateCustomReward(UpdateCustomRewardRequestParameters parameters, UpdateCustomRewardRequestBody requestBody);
 	Task GetRewardRedemptions(GetRewardRedemptionsRequestParameters parameters);
 	Task UpdateRedemptionStatus(UpdateRedemptionStatusRequestParameters parameters, UpdateRedemptionStatusRequestBody requestBody);
@@ -29,7 +32,7 @@ public interface ITwitchApiRequest
 	Task EditChannelInfo(EditChannelInfoRequestParameters parameters, EditChannelInfoRequestBody requestBody);
 	Task GetChannelEditors(GetChannelEditorsRequestParameters parameters);
 	Task GetChannelEmotes(GetChannelEmotesRequestParameters parameters);
-	Task GetChannelInfo(GetChannelInfoQueryParameters parameters);
+	Task<List<ChannelInfoData>> GetChannelInfo(GetChannelInfoQueryParameters parameters);
 	Task GetFollowedChannels(GetFollowedChannelsRequestParamaters parameters);
 	Task GetFollowers(GetFollowersRequestParameters parameters);
 	
@@ -39,7 +42,7 @@ public interface ITwitchApiRequest
 
 	// CHAT
 	Task GetChannelChatBadges(GetChannelChatBadgesParameters parameters);
-	Task GetChatSettings(GetChatSettingsRequestParameters parameters);
+	Task<ChatSettingsData> GetChatSettings(GetChatSettingsRequestParameters parameters);
 	Task GetChatters(GetChattersRequestParameters parameters);
 	Task GetEmoteSets(GetEmoteSetsRequestParameters parameters);
 	Task GetGlobalChatBadges(GetChannelChatBadgesParameters parameters);
@@ -51,7 +54,11 @@ public interface ITwitchApiRequest
 
 	// CLIPS
 	Task CreateClip(CreateClipRequestParameters parameters);
-	Task GetClips(GetClipsRequestParameters parameters);
+	Task<GetClipsResponse> GetClips(GetClipsRequestParameters parameters);
+
+	// EVENTSUB
+	Task CreateEventSubSubscription(List<CreateEventSubSubscriptionRequestBody> requestBody);
+	//Task<CreateEventSubSubscriptionResponse> CreateEventSubSubscription(CreateEventSubSubscriptionRequestBody requestBody);
 
 	// GAMES
 	Task GetGames(GetGamesRequestParameters parameters);
@@ -98,7 +105,7 @@ public interface ITwitchApiRequest
 	// SCHEDULE
 	Task CreateStreamScheduleSegement(CreateStreamScheduleSegmentRequestParameters parameters, CreateStreamScheduleSegementRequestBody requestBody);
 	Task DeleteStreamScheduleSegment(DeleteStreamScheduleSegmentRequestParameters parameters);
-	Task GetStreamSchedule(GetChannelStreamScheduleRequestParameters parameters);
+	Task<GetChannelStreamScheduleResponse> GetStreamSchedule(GetChannelStreamScheduleRequestParameters parameters);
 	Task UpdateStreamSchedule(UpdateStreamScheduleRequestParameters parameters);
 	Task UpdateStreamScheduleSegment(UpdateStreamScheduleSegmentRequestParameters parameters, UpdateStreamScheduleSegmentRequestBody requestBody);
 	
@@ -108,8 +115,8 @@ public interface ITwitchApiRequest
 
 	// STREAMS
 	Task CreateStreamMarker(CreateStreamMarkerRequestBody requestBody);
-	Task GetFollowedLiveStreams(GetFollowedLiveStreamsRequestParameters parameters);
-	Task GetLiveStreams(GetStreamsRequestParameters parameters);
+	Task<GetFollowedLiveStreamsResponse> GetFollowedLiveStreams(GetFollowedLiveStreamsRequestParameters parameters);
+	Task<GetLiveStreamsResponse> GetLiveStreams(GetLiveStreamsRequestParameters parameters);
 	Task GetStreamMarkers(GetStreamMarkersRequestParameters parameters);
 
 	// SUBSCRIPTIONS
@@ -119,12 +126,12 @@ public interface ITwitchApiRequest
 	// USERS
 	Task BlockUser(BlockUserRequestParameters parameters);
 	Task GetUserBlocklist(GetUserBlockListRequestParameters parameters);
-	Task GetUsers(GetUsersRequestParameters parameters);
+	Task<List<UserData>> GetUsers(GetUsersRequestParameters parameters);
 	Task UnblockUser(UnblockUserRequestParameters parameters);
 
 	// VIDEOS
 	Task DeleteVideos(DeleteVideosRequestParameters parameters);
-	Task GetVideos(GetVideosRequestParameters parameters);
+	Task<GetVideosResponse> GetVideos(GetVideosRequestParameters parameters);
 
 	// WHISPERS
 	Task SendWhisper(SendWhisperRequestParameters parameters, SendWhisperRequestBody requestBody);

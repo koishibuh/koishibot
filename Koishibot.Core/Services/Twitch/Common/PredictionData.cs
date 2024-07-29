@@ -1,5 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch.Converters;
+using Koishibot.Core.Services.Twitch.Enums;
 
 namespace Koishibot.Core.Services.Twitch.Common;
 public class PredictionData
@@ -64,7 +64,7 @@ public class PredictionData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public string? CreatedAt { get; set; }
 
 	///<summary>
@@ -73,7 +73,7 @@ public class PredictionData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("ended_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public string? EndedAt { get; set; }
 
 	///<summary>
@@ -82,7 +82,7 @@ public class PredictionData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("locked_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public string? LockedAt { get; set; }
 }
 
@@ -126,7 +126,7 @@ public class Outcome
 	///</summary>
 	[JsonPropertyName("color")]
 	[JsonConverter(typeof(PredictionColorEnumConverter))]
-	public PredictionColor Color { get; set; }
+	public PredictionColor? Color { get; set; }
 }
 
 public class TopPredictor

@@ -53,26 +53,3 @@ public record UpdateStreamInfoHandler(
 		await TwitchApiRequest.EditChannelInfo(parameters, body);
 	}
 }
-
-// == ⚫ TWITCH API  == //
-
-//public record UpdateStreamInfoApi(
-//	ITwitchAPI TwitchApi, IOptions<Settings> Settings,
-//	IRefreshAccessTokenService TokenProcessor
-//	) : IUpdateStreamInfoApi
-//{
-//	public string StreamerId => Settings.Value.StreamerTokens.UserId;
-
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#modify-channel-information">Modify Channel Info Documentation</see>
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task UpdateStreamTitle(string title)
-//	{
-//		await TokenProcessor.EnsureValidToken();
-
-//		var update = new ModifyChannelInformationRequest { Title = title };
-
-//		await TwitchApi.Helix.Channels.ModifyChannelInformationAsync(StreamerId, update);
-//	}
-//}

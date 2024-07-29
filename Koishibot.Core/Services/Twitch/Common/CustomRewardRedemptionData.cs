@@ -1,5 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch.Converters;
+using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Common;
 
@@ -66,7 +66,7 @@ public class CustomRewardRedemptionData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("redeemed_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset RedeemedAt { get; set; }
 
 	///<summary>

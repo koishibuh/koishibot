@@ -1,6 +1,4 @@
-﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
-using Koishibot.Core.Features.Common;
-using Koishibot.Core.Features.TwitchUsers.Extensions;
+﻿using Koishibot.Core.Features.TwitchUsers.Extensions;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;

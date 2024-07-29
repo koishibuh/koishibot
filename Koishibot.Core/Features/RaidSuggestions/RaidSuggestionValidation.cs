@@ -1,124 +1,90 @@
-﻿//using Koishibot.Core.Features.Common;
-//using Koishibot.Core.Features.Raids.Enums;
-//using Koishibot.Core.Features.RaidSuggestions.Extensions;
-//using Koishibot.Core.Features.RaidSuggestions.Interfaces;
-//using Koishibot.Core.Features.RaidSuggestions.Models;
-//using Koishibot.Core.Features.StreamInformation.Models;
-//using Koishibot.Core.Features.TwitchUsers.Models;
-//namespace Koishibot.Core.Features.RaidSuggestions;
+﻿using Koishibot.Core.Features.Raids.Enums;
+using Koishibot.Core.Features.RaidSuggestions.Extensions;
+using Koishibot.Core.Features.RaidSuggestions.Interfaces;
+using Koishibot.Core.Features.RaidSuggestions.Models;
+using Koishibot.Core.Features.TwitchUsers.Models;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.TwitchApi.Models;
+namespace Koishibot.Core.Features.RaidSuggestions;
 
-//public record RaidSuggestionValidation(IChatMessageService BotIrc,
-//		IAppCache Cache, IRaidSuggestionsApi TwitchApi
-//		) : IRaidSuggestionValidation
-//{
-//	public async Task Start(TwitchUser suggestedBy, string suggestedStreamer)
-//	{
-//		var details = (suggestedBy.Name, suggestedStreamer);
+public record RaidSuggestionValidation(
+	IOptions<Settings> Settings,
+	ITwitchIrcService BotIrc,
+	IAppCache Cache, 
+	ITwitchApiRequest TwitchApiRequest
+		) : IRaidSuggestionValidation
+{
+	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
-//		if (suggestedStreamer is "elysiagriffin")
-//		{
-//			await BotIrc.PostSuggestionResult(Code.CantSuggestMe, details);
-//			return;
-//		}
+	public async Task Start(TwitchUser suggestedBy, string suggestedStreamer)
+	{
+		var details = (suggestedBy.Name, suggestedStreamer);
 
-//		var raidSuggestions = Cache.GetRaidSuggestions();
+		if (suggestedStreamer is "elysiagriffin")
+		{
+			await BotIrc.PostSuggestionResult(Code.CantSuggestMe, details);
+			return;
+		}
 
-//		if (raidSuggestions.StreamerAlreadySuggested(suggestedStreamer))
-//		{
-//			await BotIrc.PostSuggestionResult(Code.DupeSuggestion, details);
-//			return;
-//		}
+		var raidSuggestions = Cache.GetRaidSuggestions();
 
-//		var streamerInfo = await TwitchApi.GetUserInfoByLogin(suggestedStreamer);
-//		if (streamerInfo is null)
-//		{
-//			await BotIrc.PostSuggestionResult(Code.NotValidUser, details);
-//			return;
-//		}
+		if (raidSuggestions.StreamerAlreadySuggested(suggestedStreamer))
+		{
+			await BotIrc.PostSuggestionResult(Code.DupeSuggestion, details);
+			return;
+		}
 
-//		var liveStream = await TwitchApi.GetLiveStream(streamerInfo.TwitchId);
-//		if (liveStream is null)
-//		{
-//			await BotIrc.PostSuggestionResult(Code.StreamerOffline, details);
-//			return;
-//		}
+		var userParameters = new GetUsersRequestParameters
+		{
+			UserIds = new List<string> { suggestedStreamer }
+		};
+		var streamerInfo = await TwitchApiRequest.GetUsers(userParameters);
 
-//		if (liveStream.StreamerOverMaxViewerCount(100))
-//		{
-//			await BotIrc.PostSuggestionResult(Code.MaxViewerCount, details);
-//		}
-//		else if (await TwitchApi.IsChatRestricted(liveStream.TwitchUserId))
-//		{
-//			await BotIrc.PostSuggestionResult(Code.ChatIsRestricted, details);
-//		}
-//		else
-//		{
-//			var suggestion = new RaidSuggestion()
-//					.Set(suggestedBy, streamerInfo, liveStream);
+		if (streamerInfo is null)
+		{
+			await BotIrc.PostSuggestionResult(Code.NotValidUser, details);
+			return;
+		}
 
-//			raidSuggestions.Add(suggestion);
-//			Cache.Add(raidSuggestions);
+		var liveStreamParameters = new GetLiveStreamsRequestParameters
+		{
+			UserIds = new List<string> { streamerInfo[0].Id },
+			First = 1
+		};
+		var liveStreamResponse = await TwitchApiRequest.GetLiveStreams(liveStreamParameters);
+		if (liveStreamResponse.Data.Count == 0)
+		{
+			await BotIrc.PostSuggestionResult(Code.StreamerOffline, details);
+			return;
+		}
 
-//			await BotIrc.PostSuggestionResult(Code.SuggestionSuccessful, details);
-//		}
-//	}
-//}
+		var liveStream = liveStreamResponse.Data[0].ConvertToDto();
+		if (liveStream.StreamerOverMaxViewerCount(100))
+		{
+			await BotIrc.PostSuggestionResult(Code.MaxViewerCount, details);
+			return;
+		}
 
-//// == ⚫ TWITCH API == //
+		var settingsParameters = new GetChatSettingsRequestParameters
+		{
+			BroadcasterId = liveStream.TwitchUserId
+		};
 
-//public partial record RaidSuggestionsApi : IRaidSuggestionsApi
-//{
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#get-streams">Get Streams Documentation</see><br/>
-//	/// Id, UserId, UserLogin, UserName, GameId, GameName <br/>
-//	/// Type, Title, Tags, ViewerCount, StartedAt, Language<br/>
-//	/// ThumbnailUrl, TagIds, IsMature<br/>
-//	/// If stream is offline, streams will return null.
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task<LiveStreamInfo?> GetLiveStream(string streamerId)
-//	{
-//		await TokenProcessor.EnsureValidToken();
-//		var streamerIds = new List<string> { streamerId };
+		var chatSettingsResponse = await TwitchApiRequest.GetChatSettings(settingsParameters);
 
-//		var result = await TwitchApi.Helix.Streams.GetStreamsAsync(first: 1, userIds: streamerIds);
-//		if (result is null || result.Streams.Length == 0)
-//		{
-//			Log.LogError("Stream is offline");
-//			return null;
-//		}
+		if (chatSettingsResponse.FollowerMode == true || chatSettingsResponse.SubscriberMode == true)
+		{
+			await BotIrc.PostSuggestionResult(Code.ChatIsRestricted, details);
+			return;
+		}
+		
+			var suggestion = new RaidSuggestion()
+					.Set(suggestedBy, streamerInfo[0].CreateDto(), liveStream);
 
-//		return result.ConvertToDto();
-//	}
+			raidSuggestions.Add(suggestion);
+			Cache.Add(raidSuggestions);
 
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#get-followed-channels">Get Followed Streams Documentation</see><br/>
-//	/// Gets a list of broadcasters that I'm following that are currently live
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task<List<FollowingLiveStreamInfo>> GetFollowedLiveStreams()
-//	{
-//		await TokenProcessor.EnsureValidToken();
-
-//		var results = await TwitchApi.Helix.Streams.GetFollowedStreamsAsync(StreamerId);
-//		return results is null || results.Data.Length == 0
-//			? throw new Exception("Unable to get Followed Live Streams from Api")
-//			: results.ConvertToDto();
-//	}
-
-
-//	/// <summary>
-//	/// <see href="	https://dev.twitch.tv/docs/api/reference/#get-chat-settings">Get Chat Settings Documentation</see>
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task<bool> IsChatRestricted(string userId)
-//	{
-//		await TokenProcessor.EnsureValidToken();
-
-//		var result = await TwitchApi.Helix.Chat.GetChatSettingsAsync(userId, userId);
-
-//		return result.Data.Length == 0
-//			? true
-//			: result.IsCheckRestricted();
-//	}
-//}
+			await BotIrc.PostSuggestionResult(Code.SuggestionSuccessful, details);
+		
+	}
+}

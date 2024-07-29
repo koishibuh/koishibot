@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.TwitchApi.Models;
@@ -28,26 +29,29 @@ public class EndPollRequestBody
 {
 	///<summary>
 	///The ID of the broadcaster that’s running the poll.<br/>
-	///This ID must match the user ID in the user access token.
+	///This ID must match the user ID in the user access token.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
-	public string BroadcasterId { get; set; }
+	public string BroadcasterId { get; set; } = null!;
 
 	///<summary>
-	///The ID of the poll to update.
+	///The ID of the poll to update.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("id")]
-	public string PollId { get; set; }
+	public string PollId { get; set; } = null!;
 
 	///<summary>
 	///The status to set the poll to.<br/>
 	///Possible case-sensitive values are:<br/>
 	///TERMINATED — Ends the poll before the poll is scheduled to end. The poll remains publicly visible.<br/>
-	///ARCHIVED — Ends the poll before the poll is scheduled to end, and then archives it so it's no longer publicly visible.
+	///ARCHIVED — Ends the poll before the poll is scheduled to end, and then archives it so it's no longer publicly visible.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("status")]
 	[JsonConverter(typeof(SetPollStatusEnumConverter))]
-	public SetPollStatus Status { get; set; }
+	public SetPollStatus PollStatus { get; set; }
 }
 
 // == ⚫ RESPONSE BODY == //

@@ -1,6 +1,8 @@
-﻿namespace Koishibot.Core.Features.Dandle.Models;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
 
-public class DandleWord
+namespace Koishibot.Core.Features.Dandle.Models;
+
+public class DandleWord : IEntity
 {
 	public int Id { get; set; }
 	public string Word { get; set; } = null!;

@@ -13,6 +13,6 @@ public static class ObsActions
 	public static async Task StartBreak(this IObsService obs)
 	{
 		await obs.ChangeScene("🌙 BRB");
-		//await obs.EnableTimer();
+		await obs.EnableTimer();
 	}
 }

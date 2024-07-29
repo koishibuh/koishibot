@@ -1,80 +1,51 @@
-﻿//using Koishibot.Core.Features.ChannelPoints.Interfaces;
-//using Koishibot.Core.Features.TwitchUsers.Interfaces;
-//using Koishibot.Core.Features.TwitchUsers.Models;
-//using Koishibot.Core.Services.TwitchEventSub.Extensions;
-//using TwitchLib.EventSub.Websockets.Core.EventArgs.Channel;
-//namespace Koishibot.Core.Features.ChannelPoints.Events;
+﻿using Koishibot.Core.Features.ChannelPoints.Interfaces;
+using Koishibot.Core.Features.ChannelPoints.Models;
+using Koishibot.Core.Features.TwitchUsers.Interfaces;
+using Koishibot.Core.Features.TwitchUsers.Models;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelPoints;
+namespace Koishibot.Core.Features.ChannelPoints.Events;
 
-//// == ⚫ EVENT SUB == //
+// == ⚫ HANDLER == //
 
-//public record RewardRedeemed(
-//	IOptions<Settings> Settings,
-//	EventSubWebsocketClient EventSubClient,
-//	ITwitchAPI TwitchApi,
-//	IServiceScopeFactory ScopeFactory
-//		) : IRewardRedeemed
-//{
-//	public async Task SetupHandler()
-//	{
-//		EventSubClient.ChannelPointsCustomRewardRedemptionAdd
-//				+= OnRedeemedReward;
-//		await SubToEvent();
-//	}
-//	public async Task SubToEvent()
-//	{
-//		await TwitchApi.CreateEventSubBroadcaster
-//				("channel.channel_points_custom_reward_redemption.add", "1", Settings);
-//	}
+/// <summary>
+/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionadd">ChannelPoints Custom Reward Redeemed EventSub</see></para>
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+public record RewardRedeemedHandler(
+	ITwitchUserHub TwitchUserHub,
+	IDragonEggQuestService DragonEggQuestService
+	) : IRequestHandler<RedeemedRewardCommand>
+{
+	public async Task Handle
+		(RedeemedRewardCommand command, CancellationToken cancellationToken)
+	{
+		var reward = command.ConvertToDto();
 
-//	private async Task OnRedeemedReward
-//		(object sender, ChannelPointsCustomRewardRedemptionArgs args)
-//	{
-//		using var scope = ScopeFactory.CreateScope();
-//		var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+		var user = await TwitchUserHub.Start(reward.User);
 
-//		await mediatr.Send(new RedeemedRewardCommand(args));
-//	}
-//}
+		if (reward.Title == "Dragon Egg Quest")
+		{
+			await DragonEggQuestService.GetResult(user, reward.RedeemedAt);
+		}
+	}
+}
 
-//// == ⚫ COMMAND == //
+// == ⚫ COMMAND == //
 
-//public record RedeemedRewardCommand
-//	(ChannelPointsCustomRewardRedemptionArgs args) : IRequest;
-
-//// == ⚫ HANDLER == //
-
-///// <summary>
-///// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionadd">ChannelPoints Custom Reward Redeemed EventSub</see></para>
-///// </summary>
-///// <param name="sender"></param>
-///// <param name="e"></param>
-//public record RewardRedeemedHandler(
-//		ITwitchUserHub TwitchUserHub,
-//		IDragonEggQuestService DragonEggQuestService
-//	) : IRequestHandler<RedeemedRewardCommand>
-//{
-//	public async Task Handle
-//		(RedeemedRewardCommand command, CancellationToken cancellationToken)
-//	{
-//		var e = command.args.ConvertToChannelPointRedeemedEvent();
-
-//		var user = await TwitchUserHub.Start(e.User);
-
-//		if (e.RewardTitle == "Dragon Egg Quest")
-//		{
-//			await DragonEggQuestService.GetResult(user, e.RedeemedAt);
-//		}
-//	}
-
-//}
-
-//public record RedeemedRewardEvent(
-//				TwitchUserDto User,
-//				string Message,
-//				DateTimeOffset RedeemedAt,
-//				string RewardTitle,
-//				string RewardId,
-//				string RewardDescription,
-//				string RewardFullfillmentStatus,
-//				int RewardCost
-//				 );
+public record RedeemedRewardCommand
+	(RewardRedemptionAddedEvent e) : IRequest
+{
+	public RedeemedRewardDto ConvertToDto()
+	{
+		return new RedeemedRewardDto(
+			new TwitchUserDto(e.ViewerId, e.ViewerLogin, e.ViewerName),
+			e.UserInput,
+			e.RedeemedAt,
+			e.Reward?.Title,
+			e.Reward?.Id,
+			e.Reward?.Description,
+			e.Status.ToString(),
+			e.Reward?.Cost);
+	}
+};

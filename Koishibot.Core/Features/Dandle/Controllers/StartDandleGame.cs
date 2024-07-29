@@ -1,54 +1,56 @@
-﻿//using Koishibot.Core.Persistence;
-//namespace Koishibot.Core.Features.Dandle.Controllers;
+﻿using Koishibot.Core.Features.Dandle.Extensions;
+using Koishibot.Core.Features.Dandle.Models;
+using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+namespace Koishibot.Core.Features.Dandle.Controllers;
 
-//// == ⚫ POST  == //
+// == ⚫ POST  == //
 
-//public class StartDandleGameController : ApiControllerBase
-//{
-//	[SwaggerOperation(Tags = new[] { "Dandle" })]
-//	[HttpPost("/api/dandle")]
-//	public async Task<ActionResult> StartDandleGame()
-//	{
-//		var result =  await Mediator.Send(new StartDandleGameCommand());
-//		return Ok(result);
-//	}
-//}
+public class StartDandleGameController : ApiControllerBase
+{
+	[SwaggerOperation(Tags = ["Dandle"])]
+	[HttpPost("/api/dandle")]
+	public async Task<ActionResult> StartDandleGame()
+	{
+		var result = await Mediator.Send(new StartDandleGameCommand());
+		return Ok(result);
+	}
+}
 
-//// == ⚫ COMMAND  == //
+// == ⚫ HANDLER  == //
 
-//public record StartDandleGameCommand() : IRequest<string>;
+/// <summary>
+/// 
+/// </summary>
+public record StartDandleGameHandler(
+	IAppCache Cache, KoishibotDbContext Database,
+	ITwitchIrcService BotIrc,
+	ISignalrService Signalr, ILogger<StartDandleGameHandler> Log
+	) : IRequestHandler<StartDandleGameCommand, string>
+{
+	public async Task<string> Handle
+		(StartDandleGameCommand c, CancellationToken cancel)
+	{
+		if (Cache.DandleIsEnabled()) { return "Dandle not enabled"; }
 
-//// == ⚫ HANDLER  == //
+		var dandleDictionary = await Database.GetDandleWords();
 
-///// <summary>
-///// 
-///// </summary>
-//public record StartDandleGameHandler(
-//	IAppCache Cache, KoishibotDbContext Database,
-//	//IChatMessageService BotIrc,
-//	ISignalrService Signalr, ILogger<StartDandleGameHandler> Log
-//	) : IRequestHandler<StartDandleGameCommand, string>
-//{
-//	public async Task<string> Handle
-//		(StartDandleGameCommand c, CancellationToken cancel)
-//	{
-//		//if (Cache.DandleIsEnabled()) { return "Dandle not enabled"; }
+		var dandleInfo = new DandleGame()
+			.SetNewGame()
+			.LoadDictionary(dandleDictionary)
+			.SelectRandomWord();
 
-//		//var dandleDictionary = await Database.GetDandleWords();
+		Log.LogInformation($"Selected Dandle word is '{dandleInfo.TargetWord.Word}'");
 
-//		//var dandleInfo = new DandleGame()
-//		//	.SetNewGame()
-//		//	.LoadDictionary(dandleDictionary)
-//		//	.SelectRandomWord();
+		Cache.UpdateDandle(dandleInfo);
+		Cache.EnableDandle();
 
-//		//Log.LogInformation($"Selected Dandle word is '{dandleInfo.TargetWord.Word}'");
+		await Signalr.EnableDandleOverlay();
+		await BotIrc.PostDandleGameStarted();
+		return dandleInfo.TargetWord.Word;
+	}
+}
 
-//		//Cache.UpdateDandle(dandleInfo);
-//		//Cache.EnableDandle();
+// == ⚫ COMMAND  == //
 
-//		//await Signalr.EnableDandleOverlay();
-//		//await BotIrc.PostDandleGameStarted();
-//		//return dandleInfo.TargetWord.Word;
-//		return "";
-//	}
-//}
+public record StartDandleGameCommand() : IRequest<string>;

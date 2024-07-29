@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 // == ⚫ POST == //
@@ -18,7 +19,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		var url = "raids";
 		var query = parameters.ObjectQueryFormatter();
 
-		var response = await TwitchApiClient.SendRequest(method, url, query);
+		await TwitchApiClient.SendRequest(method, url, query);
 	}
 }
 
@@ -28,13 +29,15 @@ public class StartRaidRequestParameters
 {
 	///<summary>
 	///The ID of the broadcaster that’s sending the raiding party.<br/>
-	///This ID must match the user ID in the user access token.
+	///This ID must match the user ID in the user access token.<br/>
+	///REQUIRED.
 	///</summary>
 	[JsonPropertyName("from_broadcaster_id")]
 	public string SendingBroadcasterId { get; set; } = null!;
 
 	///<summary>
-	///The ID of the broadcaster to raid.
+	///The ID of the broadcaster to raid.<br/>
+	///REQUIRED.
 	///</summary>
 	[JsonPropertyName("to_broadcaster_id")]
 	public string ReceivingBroadcasterId { get; set; } = null!;

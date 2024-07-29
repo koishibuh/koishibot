@@ -1,62 +1,56 @@
-﻿//using Koishibot.Core.Features.Common;
-//using Koishibot.Core.Features.Polls.Models;
-//namespace Koishibot.Core.Features.Polls;
+﻿using Koishibot.Core.Services.TwitchApi.Models;
+namespace Koishibot.Core.Features.Polls;
 
-//// == ⚫ POST == //
+// == ⚫ POST == //
 
-//public class CreatePollController : ApiControllerBase
-//{
-//	[SwaggerOperation(Tags = ["Polls"])]
-//	[HttpPost("/api/polls/twitch")]
-//	public async Task<ActionResult> CreatePoll
-//		([FromBody] CreatePollCommand command)
-//	{
-//		await Mediator.Send(command);
-//		return Ok();
-//	}
-//}
+public class CreatePollController : ApiControllerBase
+{
+	[SwaggerOperation(Tags = ["Polls"])]
+	[HttpPost("/api/polls/twitch")]
+	public async Task<ActionResult> CreatePoll
+		([FromBody] CreatePollCommand command)
+	{
+		await Mediator.Send(command);
+		return Ok();
+	}
+}
 
-//// == ⚫ COMMAND == //
+// == ⚫ HANDLER == //
 
-//public record CreatePollCommand(
-//	string Title,
-//	List<string> Choices,
-//	int Duration
-//	) : IRequest;
+public record CreatePollHandler(
+	IOptions<Settings> Settings,
+	ITwitchApiRequest TwitchApiRequest
+	) : IRequestHandler<CreatePollCommand>
+{
+	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
+	public async Task Handle(CreatePollCommand command, CancellationToken cancel)
+	{
+		var body = command.CreateRequestBody(StreamerId);
+		await TwitchApiRequest.CreatePoll(body);
 
-//// == ⚫ HANDLER == //
+		// Get response from StreamPollBegin Eventsub
+	}
+}
 
-//public record CreatePollHandler(
-//	ITwitchPollApi CreatePollApi
-//	) : IRequestHandler<CreatePollCommand>
-//{
-//	public async Task Handle(CreatePollCommand c, CancellationToken cancel)
-//	{
-//		var poll = new PendingPoll();
-//		poll.Set(c);
+// == ⚫ COMMAND == //
 
-//		await CreatePollApi.StartPoll(poll);
-//	}
-//}
-
-//// == ⚫ TWITCH API == //
-
-//public partial record TwitchPollApi : ITwitchPollApi
-//{
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#create-poll">Create Poll Documentation</see>
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task<string?> StartPoll(PendingPoll pendingPoll)
-//	{
-//		await TokenProcessor.EnsureValidToken();
-
-//		var request = pendingPoll.CreatePollRequest(StreamerId);
-
-//		var result = await TwitchApi.Helix.Polls.CreatePollAsync(request);
-//		return result is null || result.Data.Length == 0
-//			? throw new Exception("Error while trying to Create A Poll via Api")
-//			: result.Data[0].Id;
-//	}
-//}
+public record CreatePollCommand(
+	string Title,
+	List<string> Choices,
+	int Duration
+	) : IRequest
+{
+	public CreatePollRequestBody CreateRequestBody(string streamerId)
+	{
+		return new CreatePollRequestBody
+		{
+			BroadcasterId = streamerId,
+			PollTitle = Title,
+			Choices = Choices
+				.Select(title => title )
+				.ToList(),
+			DurationInSeconds = Duration
+		};
+	}
+};

@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -11,13 +12,18 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// Gets the broadcaster’s chat settings.<br/>
 	/// Required Scopes: User Access Token<br/>
 	/// </summary>
-	public async Task GetChatSettings(GetChatSettingsRequestParameters parameters)
+	public async Task<ChatSettingsData> GetChatSettings(GetChatSettingsRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "chat/settings";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetChatSettingsResponse>(response)
+		?? throw new Exception("Failed to deserialize response");
+
+		return result.Data[0];
 	}
 }
 

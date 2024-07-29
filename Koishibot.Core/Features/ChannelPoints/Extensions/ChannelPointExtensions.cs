@@ -2,6 +2,7 @@
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
+using Koishibot.Core.Services.Twitch.Common;
 
 namespace Koishibot.Core.Features.ChannelPoints.Extensions;
 public static class ChannelPointExtensions
@@ -111,12 +112,12 @@ public static class ChannelPointExtensions
 	}
 
 	public static async Task<List<ChannelPointReward>> AddRewards
-		(this KoishibotDbContext database, List<ChannelPointReward> rewards)
+		(this KoishibotDbContext database, List<CustomRewardData> rewards)
 	{
 		foreach (var reward in rewards)
 		{
 			var result = await database.ChannelPointRewards
-				.Where(x => x.TwitchId == reward.TwitchId).FirstOrDefaultAsync();
+				.Where(x => x.TwitchId == reward.RewardId).FirstOrDefaultAsync();
 			if (result is null)
 			{
 				database.Add(reward);
@@ -129,15 +130,15 @@ public static class ChannelPointExtensions
 				result.BackgroundColor = reward.BackgroundColor;
 				result.IsEnabled = reward.IsEnabled;
 				result.IsUserInputRequired = reward.IsUserInputRequired;
-				result.IsMaxPerStreamEnabled = reward.IsMaxPerStreamEnabled;
-				result.MaxPerStream = reward.MaxPerStream;
-				result.IsMaxPerUserPerStreamEnabled = reward.IsMaxPerUserPerStreamEnabled;
-				result.MaxPerUserPerStream = reward.MaxPerUserPerStream;
-				result.IsGlobalCooldownEnabled = reward.IsGlobalCooldownEnabled;
-				result.GlobalCooldownSeconds = reward.GlobalCooldownSeconds;
+				result.IsMaxPerStreamEnabled = reward.MaxPerStreamSetting.IsEnabled;
+				result.MaxPerStream = reward.MaxPerStreamSetting.MaxPerStream;
+				result.IsMaxPerUserPerStreamEnabled = reward.MaxPerUserPerStreamSetting.IsEnabled;
+				result.MaxPerUserPerStream = reward.MaxPerUserPerStreamSetting.MaxPerUserPerStream;
+				result.IsGlobalCooldownEnabled = reward.GlobalCooldownSetting.IsEnabled;
+				result.GlobalCooldownSeconds = reward.GlobalCooldownSetting.GlobalCooldownSeconds;
 				result.IsPaused = reward.IsPaused;
 				result.ShouldRedemptionsSkipRequestQueue = reward.ShouldRedemptionsSkipRequestQueue;
-				result.ImageUrl = reward.ImageUrl;
+				result.ImageUrl = reward.CustomImage is null ? reward.DefaultImage.Url4X : reward.CustomImage.Url4X;
 
 				database.Update(result);
 			}

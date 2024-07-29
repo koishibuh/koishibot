@@ -27,5 +27,4 @@ public static class TimerExtensions
 	{
 		await signalr.SendOverlayTimer(vm);
 	}
-
 }

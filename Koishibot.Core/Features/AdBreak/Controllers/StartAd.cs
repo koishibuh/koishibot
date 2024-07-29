@@ -30,14 +30,19 @@ public record StartAdHandler(
 	public async Task<StartAdDto> Handle
 		(StartAdCommand command, CancellationToken cancel)
 	{
-		var requestBody = new StartAdRequestBody
-		{
-			BroadcasterId = Settings.Value.StreamerTokens.UserId,
-			AdLength = AdLength.ThreeMinutes
-		};
+		var requestBody = CreateRequest(AdLength.ThreeMinutes);
 
 		var result = await TwitchApiRequest.StartAd(requestBody);
 		return result.ConvertToDto();
+	}
+
+	public StartAdRequestBody CreateRequest(AdLength length)
+	{
+		return new StartAdRequestBody
+		{
+			BroadcasterId = Settings.Value.StreamerTokens.UserId,
+			AdLength = length
+		};
 	}
 }
 

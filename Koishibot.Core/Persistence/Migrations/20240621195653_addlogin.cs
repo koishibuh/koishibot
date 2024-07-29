@@ -1,13 +1,12 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Koishibot.Core.Migrations
 {
-    /// <inheritdoc />
-    public partial class addlogin : Migration
+	/// <inheritdoc />
+	public partial class addlogin : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

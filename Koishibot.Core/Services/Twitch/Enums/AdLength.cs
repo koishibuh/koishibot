@@ -1,12 +1,11 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
 
-
+[JsonConverter(typeof(AdLengthEnumConverter))]
 public enum AdLength
 {
-	ThirtySeconds,
+	ThirtySeconds = 1,
 	OneMinute,
 	OneMinueThirtySeconds,
 	TwoMinutes,

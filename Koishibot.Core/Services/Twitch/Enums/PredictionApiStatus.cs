@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
 
@@ -8,6 +7,7 @@ namespace Koishibot.Core.Services.Twitch.Enums;
 // LOCKED — The broadcaster locked the Prediction, which means viewers can no longer make predictions.
 // RESOLVED — The winning outcome was determined and the Channel Points were distributed to the viewers who predicted the correct outcome.
 
+[JsonConverter(typeof(PredictionApiStatusEnumConverter))]
 public enum PredictionApiStatus
 {
 	Active = 1,

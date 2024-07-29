@@ -1,6 +1,8 @@
-﻿using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Converters;
+using Koishibot.Core.Services.Twitch.Enums;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -13,13 +15,18 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// If nothing is specified, request returns info about the user in the access token.
 	/// Required Scopes: User Access Token<br/>
 	/// </summary>
-	public async Task GetUsers(GetUsersRequestParameters parameters)
+	public async Task<List<UserData>> GetUsers(GetUsersRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "users";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetUsersResponse>(response)
+			?? throw new Exception("Failed to deserialize response");
+
+		return result.Users;
 	}
 }
 
@@ -64,7 +71,7 @@ public class UserData
 	public string Id { get; set; }
 
 	///<summary>
-	///The user’s login name.
+	///The user’s login name. (Lowercase)
 	///</summary>
 	[JsonPropertyName("login")]
 	public string Login { get; set; }
@@ -73,13 +80,12 @@ public class UserData
 	///The user’s display name.
 	///</summary>
 	[JsonPropertyName("display_name")]
-	public string DisplayName { get; set; }
+	public string Name { get; set; }
 
 	///<summary>
 	///The type of user. 
 	///</summary>
 	[JsonPropertyName("type")]
-	[JsonConverter(typeof(UserTypeEnumConverter))]
 	public UserType Type { get; set; }
 
 	///<summary>
@@ -93,7 +99,7 @@ public class UserData
 	///The user’s description of their channel.
 	///</summary>
 	[JsonPropertyName("description")]
-	public string Description { get; set; }
+	public string ChannelDescription { get; set; }
 
 	///<summary>
 	///A URL to the user’s profile image.
@@ -127,6 +133,11 @@ public class UserData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
-	public string CreatedAt { get; set; }
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
+	public DateTimeOffset CreatedAt { get; set; }
+
+	public UserInfo CreateDto()
+	{
+		return new UserInfo(Id, Login, Name, BroadcasterType.ToString(), ChannelDescription, ProfileImageUrl);
+	}
 }

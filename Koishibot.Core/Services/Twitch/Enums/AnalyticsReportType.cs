@@ -1,7 +1,8 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
+
+[JsonConverter(typeof(AnalyticReportTypeEnumConverter))]
 public enum AnalyticsReportType
 {
 	OverviewV2 = 1

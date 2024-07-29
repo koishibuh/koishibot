@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
 
+[JsonConverter(typeof(ThemeModeEnumConverter))]
 public enum ThemeMode
 {
 	Dark = 1,
@@ -13,7 +13,7 @@ public enum ThemeMode
 public class ThemeModeEnumConverter : JsonConverter<ThemeMode>
 {
 	public override ThemeMode Read
-									(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		var value = reader.GetString();
 		return value switch
@@ -25,7 +25,7 @@ public class ThemeModeEnumConverter : JsonConverter<ThemeMode>
 	}
 
 	public override void Write
-									(Utf8JsonWriter writer, ThemeMode value, JsonSerializerOptions options)
+		(Utf8JsonWriter writer, ThemeMode value, JsonSerializerOptions options)
 	{
 		var mappedValue = value switch
 		{

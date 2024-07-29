@@ -4,6 +4,7 @@ using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.Supports.Models;
+using Koishibot.Core.Services.TwitchApi.Models;
 
 namespace Koishibot.Core.Features.TwitchUsers.Models;
 
@@ -57,6 +58,14 @@ public class TwitchUser
 	public TwitchUser Set(UserInfo userDto)
 	{
 		TwitchId = userDto.TwitchId;
+		Login = userDto.Login;
+		Name = userDto.Name;
+		return this;
+	}
+
+	public TwitchUser Set(UserData userDto)
+	{
+		TwitchId = userDto.Id;
 		Login = userDto.Login;
 		Name = userDto.Name;
 		return this;

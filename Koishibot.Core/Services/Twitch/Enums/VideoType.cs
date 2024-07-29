@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
 
@@ -8,6 +7,7 @@ namespace Koishibot.Core.Services.Twitch.Enums;
 //highlight — Highlight reels of past streams.
 //upload — External videos that the broadcaster uploaded using the Video Producer.
 
+[JsonConverter(typeof(VideoTypeEnumConverter))]
 public enum VideoType
 {
 	All = 1,

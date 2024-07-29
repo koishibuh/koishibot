@@ -1,6 +1,7 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
+using Koishibot.Core.Services.Twitch.Converters;
 using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
 using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
@@ -90,7 +91,7 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("event_timestamp")]
-		[JsonConverter(typeof(DateTimeOffsetConverter))]
+		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset EventTimestamp { get; set; }
 
 		///<summary>
@@ -127,7 +128,7 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("cooldown_end_time")]
-		[JsonConverter(typeof(DateTimeOffsetConverter))]
+		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset CooldownEndTime { get; set; }
 
 		///<summary>
@@ -135,7 +136,7 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("expires_at")]
-		[JsonConverter(typeof(DateTimeOffsetConverter))]
+		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset ExpiresAt { get; set; }
 
 		///<summary>
@@ -167,7 +168,7 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("started_at")]
-		[JsonConverter(typeof(DateTimeOffsetConverter))]
+		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset StartedAt { get; set; }
 
 		///<summary>

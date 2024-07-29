@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
 
+[JsonConverter(typeof(ChatDelayEnumConverter))]
 public enum ChatDelay
 {
-	TwoSecondDelay,
+	TwoSecondDelay = 1,
 	FourSecondDelay,
 	SixSecondDelay
 }

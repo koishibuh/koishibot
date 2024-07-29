@@ -1,44 +1,49 @@
-﻿//using Koishibot.Core.Features.ChannelPoints.Interfaces;
-//using TwitchLib.Api.Helix.Models.ChannelPoints.UpdateCustomReward;
+﻿using Koishibot.Core.Services.TwitchApi.Models;
 
-//namespace Koishibot.Core.Features.ChannelPoints;
+namespace Koishibot.Core.Features.ChannelPoints;
 
-//public partial record ChannelPointsApi(IOptions<Settings> Settings,
-//	ITwitchAPI TwitchApi, IRefreshAccessTokenService TokenProcessor,
-//	ILogger<ChannelPointsApi> Log) : IChannelPointsApi
-//{
-//	public string StreamerId = Settings.Value.StreamerTokens.UserId;
+public record ChannelPointsApi(IOptions<Settings> Settings,
+	ITwitchApiRequest TwitchApiRequest,
+	ILogger<ChannelPointsApi> Log) : IChannelPointsApi
+{
+	/// <summary>
+	/// <see href="https://dev.twitch.tv/docs/api/reference/#update-custom-reward">Update Custom Reward Api Documentation</see>
+	/// </summary>
+	/// <returns></returns>
+	public async Task UpdateCustomRewardStatus(string rewardTwitchId, bool status)
+	{
 
+		var parameters = new UpdateCustomRewardRequestParameters
+		{
+			BroadcasterId = Settings.Value.StreamerTokens.UserId,
+			RewardId = rewardTwitchId
+		};
 
+		var body = new UpdateCustomRewardRequestBody
+		{
+			IsEnabled = true,
+			IsPaused = status
+		};
 
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#update-custom-reward">Update Custom Reward Api Documentation</see>
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task UpdateCustomRewardStatus(string rewardTwitchId, bool status)
-//	{
-//		await TokenProcessor.EnsureValidToken();
+		await TwitchApiRequest.UpdateCustomReward(parameters, body);
+	}
 
-//		var rewardRequest = new UpdateCustomRewardRequest
-//		{
-//			IsEnabled = true,
-//			IsPaused = status
-//		};
+	public async Task EnableRedemption(string rewardTwitchId)
+	{
+		await UpdateCustomRewardStatus(rewardTwitchId, false);
+	}
 
-//		var result = await TwitchApi.Helix.ChannelPoints.UpdateCustomRewardAsync(StreamerId, rewardTwitchId, rewardRequest);
-//		if (result is null)
-//			throw new Exception("Unable to update channel point reward status from Api");
+	public async Task DisableRedemption(string rewardTwitchId)
+	{
+		await UpdateCustomRewardStatus(rewardTwitchId, true);
+	}
+}
 
-//		Log.LogInformation($"Pause Status for Channel Point Reward '{result.Data[0].Title}' has been set to {result.Data[0].IsPaused}");
-//	}
+// == ⚫ INTERFACE == //
 
-//	public async Task EnableRedemption(string rewardTwitchId)
-//	{
-//		await UpdateCustomRewardStatus(rewardTwitchId, false);
-//	}
-
-//	public async Task DisableRedemption(string rewardTwitchId)
-//	{
-//		await UpdateCustomRewardStatus(rewardTwitchId, true);
-//	}
-//}
+public interface IChannelPointsApi
+{
+	Task UpdateCustomRewardStatus(string rewardTwitchId, bool status);
+	Task EnableRedemption(string rewardTwitchId);
+	Task DisableRedemption(string rewardTwitchId);
+}

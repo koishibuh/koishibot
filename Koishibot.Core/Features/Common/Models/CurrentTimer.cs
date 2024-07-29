@@ -39,7 +39,7 @@ public class CurrentTimer
 		return this;
 	}
 
-	//public CurrentTimer SetPoll(PollStartedEvent e)
+	//public CurrentTimer SetPoll(CurrentPoll e)
 	//{
 	//	Title = "Poll";
 	//	EndsAt = DateTimeOffset.Now + e.Duration;

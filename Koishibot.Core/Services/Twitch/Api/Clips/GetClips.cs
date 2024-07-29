@@ -1,6 +1,7 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
+using Koishibot.Core.Services.Twitch.Converters;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -11,13 +12,18 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// ets one or more video clips that were captured from streams.<br/>
 	/// Required Scopes: User Access Token<br/>
 	/// </summary>
-	public async Task GetClips(GetClipsRequestParameters parameters)
+	public async Task<GetClipsResponse> GetClips(GetClipsRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "clips";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetClipsResponse>(response)
+			?? throw new Exception("Failed to deserialize response");
+
+		return result;
 	}
 }
 
@@ -27,17 +33,18 @@ public class GetClipsRequestParameters
 {
 	///<summary>
 	///An ID that identifies the broadcaster whose video clips you want to get.<br/>
-	///Use this parameter to get clips that were captured from the broadcaster’s streams.
+	///Use this parameter to get clips that were captured from the broadcaster’s streams.<br/>
+	///REQUIRED.
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
-	public string BroadcasterId { get; set; }
+	public string BroadcasterId { get; set; } = null!;
 
 	///<summary>
 	///An ID that identifies the game whose clips you want to get.<br/>
 	///Use this parameter to get clips that were captured from streams that were playing this game.
 	///</summary>
 	[JsonPropertyName("game_id")]
-	public string GameId { get; set; }
+	public string? GameId { get; set; }
 
 	///<summary>
 	///An ID that identifies the clip to get.<br/>
@@ -46,7 +53,7 @@ public class GetClipsRequestParameters
 	///The API ignores duplicate IDs and IDs that aren’t found.
 	///</summary>
 	[JsonPropertyName("id")]
-	public string Id { get; set; }
+	public string? ClipId { get; set; }
 
 	///<summary>
 	///The start date used to filter clips.<br/>
@@ -54,7 +61,8 @@ public class GetClipsRequestParameters
 	///Specify the date and time in RFC3339 format.
 	///</summary>
 	[JsonPropertyName("started_at")]
-	public string StartedAt { get; set; }
+	[JsonConverter(typeof(DateTimeRFC3339Converter))]
+	public DateTime StartedAt { get; set; }
 
 	///<summary>
 	///The end date used to filter clips.<br/>
@@ -63,14 +71,15 @@ public class GetClipsRequestParameters
 	///Specify the date and time in RFC3339 format.
 	///</summary>
 	[JsonPropertyName("ended_at")]
-	public string EndedAt { get; set; }
+	[JsonConverter(typeof(DateTimeRFC3339Converter))]
+	public DateTime EndedAt { get; set; }
 
 	///<summary>
 	///The maximum number of clips to return per page in the response.<br/>
 	///The minimum page size is 1 clip per page and the maximum is 100. The default is 20.
 	///</summary>
 	[JsonPropertyName("first")]
-	public int First { get; set; }
+	public int ResultsPerPage { get; set; }
 
 	///<summary>
 	///The cursor used to get the previous page of results.<br/>
@@ -198,7 +207,7 @@ public class ClipData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]	
 	public DateTimeOffset CreatedAt { get; set; }
 
 	///<summary>

@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Converters;
+using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -74,7 +75,7 @@ public class GetCheermotesResponse
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("last_updated")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset LastUpdated { get; set; }
 
 	///<summary>

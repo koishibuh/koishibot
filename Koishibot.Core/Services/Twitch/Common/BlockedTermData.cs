@@ -1,4 +1,4 @@
-﻿using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch.Converters;
 using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Common;
@@ -34,7 +34,7 @@ public class BlockedTermData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 
 	///<summary>
@@ -44,7 +44,7 @@ public class BlockedTermData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("updated_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset LastDeniedAt { get; set; }
 
 	///<summary>
@@ -53,7 +53,7 @@ public class BlockedTermData
 	///This field is null if the term was added manually or was permanently blocked by AutoMod.
 	///</summary>
 	[JsonPropertyName("expires_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public string ExpiresAt { get; set; }
 
 }

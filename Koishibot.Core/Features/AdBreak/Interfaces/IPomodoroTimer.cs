@@ -1,4 +1,4 @@
-﻿using Koishibot.Core.Features.AdBreak.Controllers;
+﻿using Koishibot.Core.Features.AdBreak.Models;
 
 namespace Koishibot.Core.Features.AdBreak.Interfaces;
 

@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AdBreak.Controllers;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Converters;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.TwitchApi.Models;
@@ -60,7 +61,7 @@ public class SnoozeNextAdResponse
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("snooze_refresh_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset GainNextSnoozeAt { get; set; }
 
 	///<summary>
@@ -68,7 +69,7 @@ public class SnoozeNextAdResponse
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("next_ad_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset NextAdScheduledAt { get; set; }
 
 

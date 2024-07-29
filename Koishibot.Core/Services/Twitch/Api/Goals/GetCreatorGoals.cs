@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.EventSubs.Converters;
-using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelGoal.Enums;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Converters;
+using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
@@ -102,6 +103,6 @@ public class CreatorGoalData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 }

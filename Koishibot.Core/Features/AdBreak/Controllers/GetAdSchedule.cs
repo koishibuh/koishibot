@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Services.TwitchApi.Models;
+﻿using Koishibot.Core.Features.AdBreak.Models;
+using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Controllers;
 
 // == ⚫ GET == //
@@ -9,50 +10,35 @@ public class GetAdScheduleController : ApiControllerBase
 	[HttpGet("/api/ads/twitch")]
 	public async Task<ActionResult> GetAdSchedule()
 	{
-		var result = await Mediator.Send(new GetAdScheduleCommand());
+		var result = await Mediator.Send(new GetAdScheduleQuery());
 		return Ok(result);
 	}
 }
 
 // == ⚫ QUERY == //
 
-public record GetAdScheduleCommand()
-	: IRequest<AdScheduleDto>;
+public record GetAdScheduleQuery(): IRequest<AdScheduleDto>;
 
 // == ⚫ HANDLER == //
 
 public record GetAdScheduleHandler(
 	IOptions<Settings> Settings,
 	ITwitchApiRequest TwitchApiRequest
-) : IRequestHandler<GetAdScheduleCommand, AdScheduleDto>
+) : IRequestHandler<GetAdScheduleQuery, AdScheduleDto>
 {
 	public async Task<AdScheduleDto> Handle
-		(GetAdScheduleCommand command, CancellationToken cancel)
+		(GetAdScheduleQuery query, CancellationToken cancel)
 	{
-		var parameters = new GetAdScheduleRequestParameters
-		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
-
+		var parameters = CreateParameters();
 		var result = await TwitchApiRequest.GetAdSchedule(parameters);
 		return result.ConvertToDto();
 	}
-}
 
-// == ⚫ DTO == //
-
-public record AdScheduleDto(
-	int AvailableSnoozeCount,
-	DateTimeOffset GainNextSnoozeAt,
-	DateTimeOffset NextAdScheduledAt,
-	TimeSpan AdDurationInSeconds,
-	DateTimeOffset LastAdPlayedAt,
-	int RemainingPrerollFreeTimeInSeconds
-	)
-{
-	/// <summary>
-	/// Offset by 1 minute 
-	/// </summary>
-	public TimeSpan CalculateAdjustedTimeUntilNextAd()
+	public GetAdScheduleRequestParameters CreateParameters()
 	{
-		return NextAdScheduledAt - (DateTimeOffset.UtcNow - TimeSpan.FromMinutes(1));	
+		return new GetAdScheduleRequestParameters
+		{
+			BroadcasterId = Settings.Value.StreamerTokens.UserId
+		};
 	}
 }

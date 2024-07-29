@@ -11,5 +11,4 @@ public record TwitchUserDto(
 		// Todo: Tolower
 		return Name == "koishibuh" || Name == "StreamElements";
 	}
-
 }

@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Converters;
 using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
@@ -66,7 +67,7 @@ public class CreatedStreamMarkerData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public string CreatedAt { get; set; }
 
 	///<summary>

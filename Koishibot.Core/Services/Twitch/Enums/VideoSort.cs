@@ -1,11 +1,11 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
 
 //time— Sort the results in descending order by when they were created(i.e., latest video first).
 //trending — Sort the results in descending order by biggest gains in viewership(i.e., highest trending video first).
 //views — Sort the results in descending order by most views(i.e., highest number of views first).
 
+[JsonConverter(typeof(VideoSortEnumConverter))]
 public enum VideoSort
 {
 	Time = 1,

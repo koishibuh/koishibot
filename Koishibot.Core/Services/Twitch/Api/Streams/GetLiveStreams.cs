@@ -1,6 +1,7 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Enums;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -13,19 +14,24 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// Because viewers come and go during a stream, it’s possible to find duplicate or missing streams in the list as you page through the results.<br/>
 	/// Required Scopes: User Access Token<br/>
 	/// </summary>
-	public async Task GetLiveStreams(GetStreamsRequestParameters parameters)
+	public async Task<GetLiveStreamsResponse> GetLiveStreams(GetLiveStreamsRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "streams";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetLiveStreamsResponse>(response)
+			?? throw new Exception("Failed to deserialize response");
+
+		return result;
 	}
 }
 
 // == ⚫ REQUEST QUERY PARAMETERS == //
 
-public class GetStreamsRequestParameters
+public class GetLiveStreamsRequestParameters
 {
 	///<summary>
 	///A user ID used to filter the list of streams.<br/>
@@ -97,7 +103,7 @@ public class GetStreamsRequestParameters
 
 // == ⚫ RESPONSE BODY == //
 
-public class GetStreamsResponse
+public class GetLiveStreamsResponse
 {
 	///<summary>
 	///The list of streams.

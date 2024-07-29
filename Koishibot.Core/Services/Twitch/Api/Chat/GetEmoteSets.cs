@@ -1,6 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Enums;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -32,7 +32,7 @@ public class GetEmoteSetsRequestParameters
 	/// The response contains only the IDs that were found and ignores duplicate IDs.
 	///</summary>
 	[JsonPropertyName("emote_set_id")]
-	public string EmoteSetId { get; set; }
+	public string? EmoteSetId { get; set; }
 }
 
 // == ⚫ RESPONSE BODY == //
@@ -47,7 +47,7 @@ public class GetEmoteSetsResponse
 	///Each set contains one or more emoticons.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<GetEmoteSetsData> Data { get; set; }
+	public List<GetEmoteSetsData>? Data { get; set; }
 }
 
 public class GetEmoteSetsData
@@ -57,14 +57,14 @@ public class GetEmoteSetsData
 	///An ID that uniquely identifies this emote.
 	///</summary>
 	[JsonPropertyName("id")]
-	public string Id { get; set; }
+	public string? Id { get; set; }
 
 	///<summary>
 	///The name of the emote.<br/>
 	///This is the name that viewers type in the chat window to get the emote to appear.
 	///</summary>
 	[JsonPropertyName("name")]
-	public string Name { get; set; }
+	public string? Name { get; set; }
 
 	///<summary>
 	///The image URLs for the emote. <br/>
@@ -78,20 +78,19 @@ public class GetEmoteSetsData
 	///The type of emote.
 	///</summary>
 	[JsonPropertyName("emote_type")]
-	[JsonConverter(typeof(EmoteTypeEnumConverter))]
 	public EmoteType EmoteType { get; set; }
 
 	///<summary>
 	///An ID that identifies the emote set that the emote belongs to.
 	///</summary>
 	[JsonPropertyName("emote_set_id")]
-	public string EmoteSetId { get; set; }
+	public string? EmoteSetId { get; set; }
 
 	///<summary>
 	///The ID of the broadcaster who owns the emote.
 	///</summary>
 	[JsonPropertyName("owner_id")]
-	public string OwnerId { get; set; }
+	public string? OwnerId { get; set; }
 
 	///<summary>
 	///The formats that the emote is available in.<br/>
@@ -99,29 +98,29 @@ public class GetEmoteSetsData
 	///If the emote is available as a static PNG and an animated GIF, the array contains static and animated.<br/>
 	///</summary>
 	[JsonPropertyName("format")]
-	[JsonConverter(typeof(EmoteFormatEnumConverter))]
-	public List<EmoteFormat> Format { get; set; }
+	//[JsonConverter(typeof(EmoteFormatEnumConverter))]
+	//[JsonConverter(typeof(ListJsonConverter<EmoteFormat, EmoteFormatEnumConverter>))]
+	//[JsonStringEnum<EmoteFormat>]
+	public List<EmoteFormat>? Format { get; set; }
 
 	///<summary>
 	///The sizes that the emote is available in.</br>
 	///</summary>
 	[JsonPropertyName("scale")]
-	[JsonConverter(typeof(ImageScaleEnumConverter))]
 	public List<ImageScale> Scale { get; set; }
 
 	///<summary>
 	///The background themes that the emote is available in. 
 	///</summary>
 	[JsonPropertyName("theme_mode")]
-	[JsonConverter(typeof(ThemeModeEnumConverter))]
 	public List<ThemeMode> ThemeMode { get; set; }
 
 	///<summary>
 	///A templated URL.<br/>
-	///Use the values from the id, format, scale, and theme_mode fields to replace the like-named placeholder strings in the templated URL to create a CDN (content delivery network) URL that you use to fetch the emote.<br/>
+	///Use the values from the id, format, scale, and theme_mode fields to replace the like-named placeholder string?s in the templated URL to create a CDN (content delivery network) URL that you use to fetch the emote.<br/>
 	///For information about what the template looks like and how to use it to fetch emotes, see Emote CDN URL format.<br/>
 	///You should use this template instead of using the URLs in the images object.
 	///</summary>
 	[JsonPropertyName("template")]
-	public string Template { get; set; }
+	public string? Template { get; set; }
 }

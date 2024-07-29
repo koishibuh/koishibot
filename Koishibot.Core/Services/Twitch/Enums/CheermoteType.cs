@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
 
@@ -8,6 +7,8 @@ namespace Koishibot.Core.Services.Twitch.Enums;
 //channel_custom — A broadcaster-defined Cheermote.
 //display_only — Do not use; for internal use only.
 //sponsored — A sponsor-defined Cheermote. When used, the sponsor adds additional Bits to the amount that the user cheered. For example, if the user cheered Terminator100, the broadcaster might receive 110 Bits, which includes the sponsor's 10 Bits contribution.
+
+[JsonConverter(typeof(CheermoteTypeEnumConverter))]
 public enum CheermoteType
 {
 	GlobalFirstParty = 1,

@@ -1,8 +1,8 @@
 ﻿using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
-using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.AdBreak;
-using Koishibot.Core.Services.Twitch.Irc;
+using Koishibot.Core.Services.Twitch.EventSubs.AdBreak;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Events;
 
@@ -15,16 +15,12 @@ public record AdBreakStartedCommand(AdBreakBeginEvent args) : IRequest;
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelad_breakbegin">Channel Ad Break Begin</see>
 /// </summary>
-/// <param name="sender"></param>
-/// <param name="args"></param>
-/// <returns></returns>
 /// <exception cref="NotImplementedException"></exception>
 public record AdBreakStartedHandler(
 	IOptions<Settings> Settings,
 	ILogger<AdBreakStartedHandler> Log,
 	IAppCache Cache, ITwitchIrcService BotIrc,
 	IPomodoroTimer PomodoroService,
-	//IAdsApi TwitchApi,
 	ITwitchApiRequest TwitchApiRequest,
 	ISignalrService Signalr
 	) : IRequestHandler<AdBreakStartedCommand>
@@ -41,15 +37,13 @@ public record AdBreakStartedHandler(
 
 		await BotIrc.AdsStarted();
 
-		var parameters = new GetAdScheduleRequestParameters
-			{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
+		var parameters = CreateParameters();
 
 		var result = await TwitchApiRequest.GetAdSchedule(parameters);
 		var adInfo2 = result.ConvertToDto();
 
 		Log.LogInformation($"Ad started, delaying for {adInfo2.AdDurationInSeconds}");
 		await Task.Delay(adInfo2.AdDurationInSeconds);
-
 
 		var currentTimer2 = Cache.GetCurrentTimer();
 		if (currentTimer2.TimerExpired())
@@ -61,6 +55,12 @@ public record AdBreakStartedHandler(
 			await Task.Delay(currentTimer2.TimeRemaining());
 			await PomodoroService.StartTimer(adInfo2);
 		}
+	}
+
+	public GetAdScheduleRequestParameters CreateParameters()
+	{
+		return new GetAdScheduleRequestParameters
+		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
 	}
 }
 

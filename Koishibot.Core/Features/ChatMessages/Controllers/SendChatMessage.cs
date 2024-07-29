@@ -1,34 +1,68 @@
-﻿//using Koishibot.Core.Configurations;
+﻿using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.TwitchApi.Models;
 
-//namespace Koishibot.Core.Features.ChatMessages.Controllers;
+namespace Koishibot.Core.Features.ChatMessages.Controllers;
 
-//// == ⚫ POST == //
+// == ⚫ POST == //
 
-//public class SendChatMessageController : ApiControllerBase
-//{
-//	[HttpPost("/api/chat")]
-//	public async Task<ActionResult> SendChatMessage
-//		([FromBody] SendChatMessageCommand command)
-//	{
-//		await Mediator.Send(command);
-//		return Ok();
-//	}
-//}
+public class SendChatMessageController : ApiControllerBase
+{
+	[HttpPost("/api/chat")]
+	public async Task<ActionResult> SendChatMessage
+		([FromBody] SendChatMessageCommand command)
+	{
+		await Mediator.Send(command);
+		return Ok();
+	}
+}
 
-//// == ⚫ COMMAND == //
+// == ⚫ HANDLER == //
 
-//public record SendChatMessageCommand(
-//	string Message
-//	) : IRequest;
+public record SendChatMessageHandler(
+	IOptions<Settings> Settings,
+	ITwitchIrcService StreamerClient,
+	ITwitchApiRequest TwitchApiRequest
+	) : IRequestHandler<SendChatMessageCommand>
+{
+	public string StreamerId = Settings.Value.StreamerTokens.UserId;
 
-//// == ⚫ HANDLER == //
+	public async Task Handle(SendChatMessageCommand command, CancellationToken cancel)
+	{
+		var body = command.CreateRequest(StreamerId);
+		await TwitchApiRequest.SendChatMessage(body);
+	}
+}
 
-//public record SendChatMessageHandler(
-//	StreamerTwitchClient StreamerClient, ISignalrService Signalr
-//	) : IRequestHandler<SendChatMessageCommand>
-//{
-//	public async Task Handle(SendChatMessageCommand c, CancellationToken cancel)
-//	{
-//		await StreamerClient.SendMessageAsync("elysiagriffin", c.Message);
-//	}
-//}
+// == ⚫ COMMAND == //
+
+public record SendChatMessageCommand(
+	string Message
+	) : IRequest
+{
+	public SendChatMessageRequestBody CreateRequest(string streamerId)
+	{
+		return new SendChatMessageRequestBody
+		{
+			BroadcasterId = streamerId,
+			SenderId = streamerId,
+			Message = Message
+		};
+	}
+}
+
+
+// == ⚫ VALIDATOR == //
+
+public class SendChatMessageValidator
+		: AbstractValidator<SendChatMessageCommand>
+{
+	public KoishibotDbContext Database { get; }
+
+	public SendChatMessageValidator()
+	{
+		RuleFor(p => p.Message)
+			.NotEmpty()
+			.MaximumLength(500);
+	}
+}

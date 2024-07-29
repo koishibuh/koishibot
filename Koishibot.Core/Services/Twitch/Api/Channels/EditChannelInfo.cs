@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -21,6 +22,8 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
 		await TwitchApiClient.SendRequest(method, url, query, body);
+
+		// ChannelInfoUpdated EventSub
 	}
 }
 

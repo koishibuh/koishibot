@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
 
+[JsonConverter(typeof(EmoteTypeEnumConverter))]
 public enum EmoteType
 {
 	BitsTier = 1,

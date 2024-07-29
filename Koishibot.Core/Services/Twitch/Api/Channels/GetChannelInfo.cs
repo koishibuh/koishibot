@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.Enums;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Enums;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -10,13 +11,18 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// Gets information about one or more channels.<br/>
 	/// Required Scopes: User Access Token<br/>
 	/// </summary>
-	public async Task GetChannelInfo(GetChannelInfoQueryParameters parameters)
+	public async Task<List<ChannelInfoData>> GetChannelInfo(GetChannelInfoQueryParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "channels";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetChannelInfoResponse>(response)
+			?? throw new Exception("Failed to deserialize response");
+
+		return result.ChannelInfos;
 	}
 }
 
@@ -28,30 +34,31 @@ public class GetChannelInfoQueryParameters
 	///The ID of the broadcaster whose channel you want to get.<br/>
 	///To specify more than one ID, include this parameter for each broadcaster you want to get.<br/>
 	///For example, broadcaster_id=1234 broadcaster_id=5678. You may specify a maximum of 100 IDs.<br/>
-	///The API ignores duplicate IDs and IDs that are not found.
+	///The API ignores duplicate IDs and IDs that are not found.<br/>
+	///REQUIRED.
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
-	public List<string> BroadcasterId { get; set; }
+	public List<string> BroadcasterIds { get; set; } = null!;
 }
 
 
 // == ⚫ RESPONSE BODY == //
 
-//public class ChannelInfoDataResponse
-//{
-//	///<summary>
-//	/// A list that contains information about the specified channels.<br/>
-//	/// The list is empty if the specified channels weren’t found.
-//	///</summary>
-//	[JsonPropertyName("data")]
-//	public List<ChannelInfoData> ChannelInfos { get; set; }
-//}
-
-// <summary>
-// <see href="https://dev.twitch.tv/docs/api/reference/#get-channel-information">Twitch Documentation</see><br/>
-// Gets information about one or more channels.<br/>
-// </summary>
 public class GetChannelInfoResponse
+{
+	///<summary>
+	/// A list that contains information about the specified channels.<br/>
+	/// The list is empty if the specified channels weren’t found.
+	///</summary>
+	[JsonPropertyName("data")]
+	public List<ChannelInfoData> ChannelInfos { get; set; }
+}
+
+///<summary>
+///<see href = "https://dev.twitch.tv/docs/api/reference/#get-channel-information" > Twitch Documentation</see><br/>
+///Gets information about one or more channels.<br/>
+///</summary>
+public class ChannelInfoData
 {
 	///<summary>
 	///An ID that uniquely identifies the broadcaster.
@@ -84,21 +91,21 @@ public class GetChannelInfoResponse
 	///The value is an empty string if the broadcaster has never played a game.
 	///</summary>
 	[JsonPropertyName("game_name")]
-	public string GameName { get; set; } = string.Empty;
+	public string CategoryName { get; set; } = string.Empty;
 
 	///<summary>
 	///An ID that uniquely identifies the game that the broadcaster is playing or last played.<br/>
 	///The value is an empty string if the broadcaster has never played a game.
 	///</summary>
 	[JsonPropertyName("game_id")]
-	public string GameId { get; set; } = string.Empty;
+	public string CategoryId { get; set; } = string.Empty;
 
 	///<summary>
 	///The title of the stream that the broadcaster is currently streaming or last streamed.<br/>
 	///The value is an empty string if the broadcaster has never streamed.
 	///</summary>
 	[JsonPropertyName("title")]
-	public string Title { get; set; } = string.Empty;
+	public string StreamTitle { get; set; } = string.Empty;
 
 	///<summary>
 	///The value of the broadcaster’s stream delay setting, in seconds.<br/>

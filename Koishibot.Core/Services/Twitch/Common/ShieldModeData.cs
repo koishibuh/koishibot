@@ -1,4 +1,4 @@
-﻿using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch.Converters;
 
 namespace Koishibot.Core.Services.Twitch.Common;
 
@@ -38,6 +38,6 @@ public class ShieldModeData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("last_activated_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset LastActivatedAt { get; set; }
 }

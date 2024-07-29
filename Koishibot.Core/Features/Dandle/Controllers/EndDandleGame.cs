@@ -1,43 +1,44 @@
-﻿//using Koishibot.Core.Features.Dandle.Extensions;
-//namespace Koishibot.Core.Features.Dandle.Controllers;
+﻿using Koishibot.Core.Features.Dandle.Extensions;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+namespace Koishibot.Core.Features.Dandle.Controllers;
 
-//// == ⚫ DELETE  == //
+// == ⚫ DELETE  == //
 
-//public class EndDandleGameController : ApiControllerBase
-//{
-//	[SwaggerOperation(Tags = new[] { "Dandle" })]
-//	[HttpDelete("/api/dandle")]
-//	public async Task<ActionResult> EndDandleGame()
-//	{
-//		await Mediator.Send(new EndDandleGameCommand());
-//		return Ok();
-//	}
-//}
+public class EndDandleGameController : ApiControllerBase
+{
+	[SwaggerOperation(Tags = ["Dandle"])]
+	[HttpDelete("/api/dandle")]
+	public async Task<ActionResult> EndDandleGame()
+	{
+		await Mediator.Send(new EndDandleGameCommand());
+		return Ok();
+	}
+}
 
-//// == ⚫ COMMAND  == //
+// == ⚫ HANDLER  == //
 
-//public record EndDandleGameCommand() : IRequest;
+/// <summary>
+/// 
+/// </summary>
+public record EndDandleGameHandler(
+	IAppCache Cache,
+	ITwitchIrcService BotIrc,
+	ISignalrService Signalr
+	) : IRequestHandler<EndDandleGameCommand>
+{
+	public async Task Handle
+		(EndDandleGameCommand c, CancellationToken cancel)
+	{
+		Cache.ResetDandle();
+		Cache.DisableDandle();
 
-//// == ⚫ HANDLER  == //
+		await Signalr.ClearDandleBoard();
 
-///// <summary>
-///// 
-///// </summary>
-//public record EndDandleGameHandler(
-//	IAppCache Cache, 
-//	IChatMessageService BotIrc,
-//	ISignalrService Signalr
-//	) : IRequestHandler<EndDandleGameCommand>
-//{
-//	public async Task Handle
-//		(EndDandleGameCommand c, CancellationToken cancel)
-//	{
-//		Cache.ResetDandle();
-//		Cache.DisableDandle();
+		await Signalr.DisableDandleOverlay();
+		await BotIrc.PostDandleGameEnded();
+	}
+}
 
-//		await Signalr.ClearDandleBoard();
+// == ⚫ COMMAND  == //
 
-//		await Signalr.DisableDandleOverlay();
-//		await BotIrc.PostDandleGameEnded();
-//	}
-//}
+public record EndDandleGameCommand() : IRequest;

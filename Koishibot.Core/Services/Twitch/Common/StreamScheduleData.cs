@@ -1,4 +1,4 @@
-﻿using Koishibot.Core.Services.Twitch.EventSubs.Converters;
+﻿using Koishibot.Core.Services.Twitch.Converters;
 using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Common;
@@ -49,7 +49,7 @@ public class StreamSegmentsData
 	///The UTC date and time (in RFC3339 format) of when the broadcast starts.
 	///</summary>
 	[JsonPropertyName("start_time")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartTime
 	{ get; set; }
 
@@ -57,7 +57,7 @@ public class StreamSegmentsData
 	///The UTC date and time (in RFC3339 format) of when the broadcast ends.
 	///</summary>
 	[JsonPropertyName("end_time")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset EndTime { get; set; }
 
 	///<summary>
@@ -72,7 +72,7 @@ public class StreamSegmentsData
 	///otherwise, it’s set to null.
 	///</summary>
 	[JsonPropertyName("canceled_until")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CanceledUntil { get; set; }
 
 	///<summary>

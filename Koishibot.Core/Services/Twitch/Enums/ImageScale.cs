@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
 
+[JsonConverter(typeof(ImageScaleEnumConverter))]
 public enum ImageScale
 {
 	Small_28px,

@@ -1,7 +1,9 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
+using Koishibot.Core.Services.Twitch.Converters;
 using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.EventSubs.Converters;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json.Converters;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -16,13 +18,18 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// Required Scopes: User Access Token
 	/// </summary>
 
-	public async Task GetVideos(GetVideosRequestParameters parameters)
+	public async Task<GetVideosResponse> GetVideos(GetVideosRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "videos";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetVideosResponse>(response)
+			?? throw new Exception("Failed to deserialize response");
+
+		return result;
 	}
 }
 
@@ -30,21 +37,21 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 
 public class GetVideosRequestParameters
 {
-	///<summary>
+		///<summary>
 	///A list of IDs that identify the videos you want to get.<br/>
 	///To get more than one video, include this parameter for each video you want to get. For example, id=1234 id=5678.<br/>
 	///You may specify a maximum of 100 IDs. The endpoint ignores duplicate IDs and IDs that weren't found (if there's at least one valid ID).
-	///The id, user_id, and game_id parameters are mutually exclusive.
+	///The id, user_id, and game_id parameters are mutually exclusive.<br/>
 	///</summary>
 	[JsonPropertyName("id")]
-	public string Id { get; set; } = null!;
+	public List<string>? VideoIds { get; set; }
 
 	///<summary>
 	///The ID of the user whose list of videos you want to get.<br/>
-	///The id, user_id, and game_id parameters are mutually exclusive.
+	///The id, user_id, and game_id parameters are mutually exclusive.<br/>
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string UserId { get; set; } = null!;
+	public string? BroadcasterId { get; set; } 
 
 	///<summary>
 	///A category or game ID.<br/>
@@ -53,7 +60,7 @@ public class GetVideosRequestParameters
 	///The id, user_id, and game_id parameters are mutually exclusive.
 	///</summary>
 	[JsonPropertyName("game_id")]
-	public string? GameId { get; set; } = null!;
+	public string? CategoryId { get; set; } 
 
 	///<summary>
 	///A filter used to filter the list of videos by the language that the video owner broadcasts in.<br/>
@@ -71,7 +78,7 @@ public class GetVideosRequestParameters
 	///</summary>
 	[JsonPropertyName("period")]
 	[JsonConverter(typeof(VideoPeriodEnumConverter))]
-	public VideoPeriod? Period { get; set; }
+	public VideoPeriod? TimeRange { get; set; }
 
 	///<summary>
 	///The order to sort the returned videos in.<br/>
@@ -80,7 +87,7 @@ public class GetVideosRequestParameters
 	///</summary>
 	[JsonPropertyName("sort")]
 	[JsonConverter(typeof(VideoSortEnumConverter))]
-	public VideoSort? Sort { get; set; }
+	public VideoSort? SortVideosBy { get; set; }
 
 	///<summary>
 	///A filter used to filter the list of videos by the video's type.<br/>
@@ -89,7 +96,7 @@ public class GetVideosRequestParameters
 	///</summary>
 	[JsonPropertyName("type")]
 	[JsonConverter(typeof(VideoTypeEnumConverter))]
-	public VideoType? Type { get; set; }
+	public VideoType? VideoType { get; set; }
 
 	///<summary>
 	///The maximum number of items to return per page in the response.<br/>
@@ -97,7 +104,7 @@ public class GetVideosRequestParameters
 	///Specify this parameter only if you specify the game_id or user_id query parameter.
 	///</summary>
 	[JsonPropertyName("first")]
-	public string? First { get; set; }
+	public string? ItemsPerPage { get; set; }
 
 	///<summary>
 	///The cursor used to get the next page of results.<br/>
@@ -105,7 +112,7 @@ public class GetVideosRequestParameters
 	///Specify this parameter only if you specify the user_id query parameter.
 	///</summary>
 	[JsonPropertyName("after")]
-	public string? After { get; set; }
+	public string? PaginationAfter { get; set; }
 
 	///<summary>
 	///The cursor used to get the previous page of results.<br/>
@@ -113,7 +120,7 @@ public class GetVideosRequestParameters
 	///Specify this parameter only if you specify the user_id query parameter.
 	///</summary>
 	[JsonPropertyName("before")]
-	public string? Before { get; set; }
+	public string? PaginationBefore { get; set; }
 }
 
 // == ⚫ RESPONSE BODY == //
@@ -141,7 +148,7 @@ public class VideoData
 	///An ID that identifies the video.
 	///</summary>
 	[JsonPropertyName("id")]
-	public string Id { get; set; }
+	public string VideoId { get; set; }
 
 	///<summary>
 	///The ID of the stream that the video originated from if the video's type is "archive;"<br/>
@@ -154,19 +161,19 @@ public class VideoData
 	///The ID of the broadcaster that owns the video.
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string UserId { get; set; }
+	public string BroadcasterId { get; set; }
 
 	///<summary>
 	///The broadcaster's login name.
 	///</summary>
 	[JsonPropertyName("user_login")]
-	public string UserLogin { get; set; }
+	public string BroadcasterLogin { get; set; }
 
 	///<summary>
 	///The broadcaster's display name.
 	///</summary>
 	[JsonPropertyName("user_name")]
-	public string UserName { get; set; }
+	public string BroadcasterName { get; set; }
 
 	///<summary>
 	///The video's title.
@@ -185,7 +192,7 @@ public class VideoData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 
 	///<summary>
@@ -193,7 +200,7 @@ public class VideoData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("published_at")]
-	[JsonConverter(typeof(DateTimeOffsetConverter))]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset PublishedAt { get; set; }
 
 	///<summary>
@@ -236,14 +243,15 @@ public class VideoData
 	///</summary>
 	[JsonPropertyName("type")]
 	[JsonConverter(typeof(VideoTypeEnumConverter))]
-	public VideoType Type { get; set; }
+	public VideoType VideoType { get; set; }
 
 	///<summary>
 	///The video's length in ISO 8601 duration format.<br/>
 	///For example, 3m21s represents 3 minutes, 21 seconds.
 	///</summary>
 	[JsonPropertyName("duration")]
-	public string Duration { get; set; }
+	[JsonConverter(typeof(IsoDateTimeConverter))]
+	public TimeSpan Duration { get; set; }
 
 	///<summary>
 	///The segments that Twitch Audio Recognition muted; otherwise, null.

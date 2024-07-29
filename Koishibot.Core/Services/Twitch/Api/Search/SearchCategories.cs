@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Koishibot.Core.Services.Twitch;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 // == ⚫ GET == //

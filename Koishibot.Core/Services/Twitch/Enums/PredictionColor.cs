@@ -1,9 +1,8 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.Twitch.Enums;
 
-
+[JsonConverter(typeof(PredictionColorEnumConverter))]
 public enum PredictionColor
 {
 	Pink = 1,

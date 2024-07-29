@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
+
+[JsonConverter(typeof(BanReasonEnumConverter))]
 public enum BanReason
 {
 	Harassment = 1,

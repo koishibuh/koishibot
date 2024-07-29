@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -16,6 +17,12 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
 		var response = await TwitchApiClient.SendRequest(method, url, body);
+
+		var result = JsonSerializer.Deserialize<SendChatMessageResponse>(response)
+				?? throw new Exception("Failed to deserialize response");
+
+		if (result.Data[0]?.WasSent == false)
+			throw new Exception($"Message was not sent because: {result.Data[0].DropReason.DropMessage}");
 	}
 }
 

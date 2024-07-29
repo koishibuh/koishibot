@@ -1,6 +1,4 @@
-﻿using Koishibot.Core.Features.RaidSuggestions.Interfaces;
-
-namespace Koishibot.Core.Features.StreamInformation.Models;
+﻿namespace Koishibot.Core.Features.StreamInformation.Models;
 
 public record LiveStreamInfo(
 string TwitchUserId,
@@ -9,7 +7,7 @@ string GameId,
 string GameName,
 string Title,
 int ViewerCount,
-DateTime StartedAt,
+DateTimeOffset StartedAt,
 string ThumbnailUrl
 )
 {

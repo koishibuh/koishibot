@@ -1,48 +1,61 @@
-﻿//using Koishibot.Core.Features.Polls.Events;
-//using Koishibot.Core.Features.Polls.Extensions;
-//using Koishibot.Core.Features.Polls.Models;
-//using Koishibot.Core.Features.Raids.Enums;
-//using Koishibot.Core.Features.RaidSuggestions.Extensions;
-//using Koishibot.Core.Features.RaidSuggestions.Interfaces;
-//namespace Koishibot.Core.Features.RaidSuggestions;
+﻿using Koishibot.Core.Features.Polls.Extensions;
+using Koishibot.Core.Features.Polls.Models;
+using Koishibot.Core.Features.Raids.Enums;
+using Koishibot.Core.Features.RaidSuggestions.Extensions;
+using Koishibot.Core.Features.RaidSuggestions.Interfaces;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Polls;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+namespace Koishibot.Core.Features.RaidSuggestions;
 
-//// == ⚫ == //
+// == ⚫ == //
 
-//public record RaidPollProcessor(
-//		IAppCache Cache, IChatMessageService BotIrc,
-//		ISignalrService Signalr
-//		) : IRaidPollProcessor
-//{
-//	public async Task Start(PollEndedEvent e)
-//	{
-//		var random = new Random();
+public record RaidPollProcessor(
+		IAppCache Cache, ITwitchIrcService BotIrc,
+		ISignalrService Signalr
+		) : IRaidPollProcessor
+{
+	public async Task Start(PollEndedEvent e)
+	{
+		var random = new Random();
 
-//		var pollResults = e.Choices
-//			.OrderByDescending(pr => pr.Value)
-//			.ThenBy(pr => random.Next())
-//			.Select(pr => pr.Key)
-//			.ToList();
+		var pollResults = e.Choices
+			.OrderByDescending(pr => pr.Votes)
+			.ThenBy(pr => random.Next())
+			.Select(pr => pr.Title)
+			.ToList();
 
-//		var raidTargetName = pollResults.First();
-//		pollResults.Remove(raidTargetName);
+		var raidTargetName = pollResults.First();
+		pollResults.Remove(raidTargetName);
 
-//		var poll = new CurrentPoll().ConvertFromEvent(e);
+		var pollChoices = e.Choices?
+		.GroupBy(choice => choice.Title)
+		.ToDictionary(group => group.Key, group => group.Sum(choice => choice.Votes));
 
-//		Cache.AddPoll(poll);
+		
+		var poll = new CurrentPoll{
+			Id = e.PollId, 
+			Title = e.Title, 
+			StartedAt = e.StartedAt, 
+			EndingAt = e.EndedAt,
+			Duration = (e.StartedAt - e.EndedAt),
+			Choices = pollChoices
+		};
 
-//		var raidCandidates = Cache.GetRaidCandidates();
+		Cache.AddPoll(poll);
 
-//		var raidTarget = raidCandidates.GetCandidateByName(raidTargetName);
+		var raidCandidates = Cache.GetRaidCandidates();
 
-//		raidCandidates.Remove(raidTarget);
+		var raidTarget = raidCandidates.GetCandidateByName(raidTargetName);
 
-//		Cache.AddRaidTarget(raidTarget);
+		raidCandidates.Remove(raidTarget);
 
-//		// TODO: Have it display the raid poll winner on overlay
+		Cache.AddRaidTarget(raidTarget);
 
-//		await BotIrc.RaidTarget
-//				(Code.WinningRaidTarget, raidTarget.SuggestedByUser.Name, raidTarget.Streamer.Name);
+		// TODO: Have it display the raid poll winner on overlay
 
-//		await Signalr.SendRaidOverlayStatus(false);
-//	}
-//}
+		await BotIrc.RaidTarget
+				(Code.WinningRaidTarget, raidTarget.SuggestedByUser.Name, raidTarget.Streamer.Name);
+
+		await Signalr.SendRaidOverlayStatus(false);
+	}
+}

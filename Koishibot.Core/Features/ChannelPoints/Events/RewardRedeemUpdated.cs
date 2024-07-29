@@ -1,64 +1,33 @@
-﻿//using Koishibot.Core.Features.ChannelPoints.Interfaces;
-//using Koishibot.Core.Features.TwitchUsers.Interfaces;
-//using TwitchLib.EventSub.Websockets.Core.EventArgs.Channel;
+﻿using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.TwitchUsers.Interfaces;
+using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelPoints;
 
-//namespace Koishibot.Core.Features.ChannelPoints.Events;
+namespace Koishibot.Core.Features.ChannelPoints.Events;
 
+// == ⚫ HANDLER == //
 
-//// == ⚫ EVENT SUB == //
+/// <summary>
+/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionupdate">Twitch Documentation</see></para>
+/// </summary>
+public record RewardRedeemUpdatedHandler(
+	ITwitchUserHub TwitchUserHub,
+	KoishibotDbContext Database,
+	ISignalrService Signalr
+	) : IRequestHandler<RedeemedRewardUpdatedCommand>
+{
+	public async Task Handle
+		(RedeemedRewardUpdatedCommand command, CancellationToken cancel)
+	{
+		// TODO: Save to DB
 
-//public record RewardRedeemUpdated(
-//	IOptions<Settings> Settings,
-//	EventSubWebsocketClient EventSubClient,
-//	ITwitchAPI TwitchApi,
-//		IServiceScopeFactory ScopeFactory
-//	) : IRewardRedeemUpdated
-//{
-//	public async Task SetupHandler()
-//	{
-//		EventSubClient.ChannelPointsCustomRewardRedemptionUpdate
-//				+= OnRedeemedRewardUpdated;
-//		await SubToEvent();
-//	}
-//	public async Task SubToEvent()
-//	{
-//		await TwitchApi.CreateEventSubBroadcaster
-//				("channel.channel_points_custom_reward_redemption.update", "1", Settings);
-//	}
+		await Signalr.SendLog(new LogVm($"{command.args.Reward.Title} has been updated", "Info"));
 
-//	private async Task OnRedeemedRewardUpdated
-//		(object sender, ChannelPointsCustomRewardRedemptionArgs args)
-//	{
-//		using var scope = ScopeFactory.CreateScope();
-//		var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+		await Task.CompletedTask;
+	}
+}
 
-//		await mediatr.Send(new RedeemedRewardUpdatedCommand(args));
-//	}
+// == ⚫ COMMAND == //
 
-//}
-
-//// == ⚫ COMMAND == //
-
-//public record RedeemedRewardUpdatedCommand
-//	(ChannelPointsCustomRewardRedemptionArgs args) : IRequest;
-
-
-//// == ⚫ HANDLER == //
-
-///// <summary>
-///// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionupdate">ChannelPoints Custom Reward Redeem Updated EventSub</see></para>
-///// </summary>
-///// <param name="sender"></param>
-///// <param name="e"></param>
-//public record RewardRedeemUpdatedHandler(
-//		ITwitchUserHub TwitchUserHub,
-//		ILogger<RewardRedeemUpdatedHandler> Log
-//	) : IRequestHandler<RedeemedRewardUpdatedCommand>
-//{
-//	public async Task Handle
-//		(RedeemedRewardUpdatedCommand command, CancellationToken cancel)
-//	{
-//		Log.LogInformation($"OnChannelPointsRedeemUpdated");
-//		await Task.CompletedTask;
-//	}
-//}
+public record RedeemedRewardUpdatedCommand
+	(RewardRedemptionUpdatedEvent args) : IRequest;

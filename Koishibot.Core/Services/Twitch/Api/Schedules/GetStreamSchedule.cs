@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
+using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -11,13 +12,18 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// You can get the entire schedule or specific segments of the schedule.<br/>
 	/// Required Scopes: User Access Token<br/>
 	/// </summary>
-	public async Task GetStreamSchedule(GetChannelStreamScheduleRequestParameters parameters)
+	public async Task<GetChannelStreamScheduleResponse> GetStreamSchedule(GetChannelStreamScheduleRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "schedule";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+
+		var result = JsonSerializer.Deserialize<GetChannelStreamScheduleResponse>(response)
+			?? throw new Exception("Failed to deserialize response");
+
+		return result;
 	}
 }
 
@@ -26,7 +32,8 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 public class GetChannelStreamScheduleRequestParameters
 {
 	///<summary>
-	///The ID of the broadcaster that owns the streaming schedule you want to get.
+	///The ID of the broadcaster that owns the streaming schedule you want to get.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
 	public string BroadcasterId { get; set; }
@@ -37,7 +44,7 @@ public class GetChannelStreamScheduleRequestParameters
 	///For example, id=1234 id=5678. You may specify a maximum of 100 IDs.
 	///</summary>
 	[JsonPropertyName("id")]
-	public string ScheduleSegementId { get; set; }
+	public string? ScheduleSegementId { get; set; }
 
 	///<summary>
 	///The timestamp that identifies when in the broadcaster’s schedule to start returning segments.<br/>
@@ -45,21 +52,21 @@ public class GetChannelStreamScheduleRequestParameters
 	///Specify the date and time in RFC3339 format (for example, 2022-09-01T00:00:00Z).
 	///</summary>
 	[JsonPropertyName("start_time")]
-	public string StartTime { get; set; }
+	public string? StartTime { get; set; }
 
 	///<summary>
 	///The maximum number of items to return per page in the response.<br/>
 	///The minimum page size is 1 item per page and the maximum is 25 items per page. The default is 20.
 	///</summary>
 	[JsonPropertyName("first")]
-	public int First { get; set; }
+	public int? First { get; set; }
 
 	///<summary>
 	///The cursor used to get the next page of results.<br/>
 	///The Pagination object in the response contains the cursor’s value.
 	///</summary>
 	[JsonPropertyName("after")]
-	public string After { get; set; }
+	public string? PaginationAfter { get; set; }
 }
 
 // == ⚫ RESPONSE BODY == //

@@ -1,6 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch.Converters;
 
 namespace Koishibot.Core.Services.Twitch.Common;
+
+// API RESPONSE OBJECT
 public class CustomRewardData
 {
 	///<summary>
@@ -31,13 +33,13 @@ public class CustomRewardData
 	///The title of the reward.
 	///</summary>
 	[JsonPropertyName("title")]
-	public string RewardTitle { get; set; }
+	public string Title { get; set; }
 
 	///<summary>
 	///The prompt shown to the viewer when they redeem the reward if user input is required (see the is_user_input_required field).
 	///</summary>
 	[JsonPropertyName("prompt")]
-	public string Prompt { get; set; }
+	public string Description { get; set; }
 
 	///<summary>
 	///The cost of the reward in Channel Points.
@@ -50,7 +52,7 @@ public class CustomRewardData
 	///This field is set to null if the broadcaster didn’t upload images.
 	///</summary>
 	[JsonPropertyName("image")]
-	public ImageSizes Image { get; set; }
+	public ImageSizes CustomImage { get; set; }
 
 
 	///<summary>
@@ -136,6 +138,7 @@ public class CustomRewardData
 	///(Converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("cooldown_expires_at")]
+	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CooldownExpiresAt { get; set; }
 }
 

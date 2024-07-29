@@ -30,11 +30,16 @@ public record SnoozeAdHandler(
 	public async Task<SnoozeNextAdDto> Handle
 		(SnoozeNextAdCommand command, CancellationToken cancel)
 	{
-		var parameters = new SnoozeNextAdRequestParameters
-		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
+		var parameters = CreateParameters();
 
 		var result = await TwitchApiRequest.SnoozeNextAd(parameters);
 		return result.ConvertToDto();
+	}
+
+	public SnoozeNextAdRequestParameters CreateParameters()
+	{
+		return new SnoozeNextAdRequestParameters
+		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
 	}
 }
 
@@ -44,4 +49,4 @@ public record SnoozeNextAdDto(
 	int AvailableSnoozeCount,
 	DateTimeOffset? GainNextSnoozeAt,
 	DateTimeOffset? NextAdScheduledAt
-	);
+);

@@ -1,5 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 // == ⚫ POST == //
@@ -20,7 +20,9 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		var query = parameters.ObjectQueryFormatter();
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
-		var response = await TwitchApiClient.SendRequest(method, url, query, body);
+		await TwitchApiClient.SendRequest(method, url, query, body);
+
+		// Get result from EventSub
 	}
 }
 
@@ -33,7 +35,7 @@ public class CreateCustomRewardRequestParameters
 	///This ID must match the user ID found in the OAuth token.
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
-	public string BroadcasterId { get; set; }
+	public string BroadcasterId { get; set; } = null!;
 
 }
 
@@ -152,8 +154,9 @@ public class CreateCustomRewardRequestBody
 public class CreateCustomRewardResponse
 {
 	///<summary>
+	/// <see href="https://dev.twitch.tv/docs/api/reference/#create-custom-rewards">Twitch Documentation</see><br/>
 	///A list that contains the single custom reward you created.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<CustomRewardData> CustomRewardData { get; set; }
+	public List<CustomRewardData> Data { get; set; }
 }

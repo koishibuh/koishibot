@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
@@ -18,7 +18,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		var url = "raids";
 		var query = parameters.ObjectQueryFormatter();
 
-		var response = await TwitchApiClient.SendRequest(method, url, query);
+		await TwitchApiClient.SendRequest(method, url, query);
 	}
 }
 
@@ -28,8 +28,9 @@ public class CancelRaidRequestParameters
 {
 	///<summary>
 	///The ID of the broadcaster that initiated the raid.<br/>
-	///This ID must match the user ID in the user access token.
+	///This ID must match the user ID in the user access token.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
-	public string BroadcasterId { get; set; }
+	public string BroadcasterId { get; set; } = null!;
 }

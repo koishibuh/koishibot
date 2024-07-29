@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.Twitch.Enums;
 
 //day — A day spans from 00:00:00 on the day specified in started_at and runs through 00:00:00 of the next day.
@@ -8,6 +7,7 @@ namespace Koishibot.Core.Services.Twitch.Enums;
 //year — A year spans from 00:00:00 on the first day of the year specified in started_at and runs through 00:00:00 of the first day of the next year.
 //all — Default.The lifetime of the broadcaster's channel.
 
+[JsonConverter(typeof(PeriodEnumConverter))]
 public enum Period
 {
 	Day = 1,
@@ -23,7 +23,7 @@ public enum Period
 public class PeriodEnumConverter : JsonConverter<Period>
 {
 	public override Period Read
-									(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		var value = reader.GetString();
 		return value switch
@@ -33,11 +33,12 @@ public class PeriodEnumConverter : JsonConverter<Period>
 			"month" => Period.Month,
 			"year" => Period.Year,
 			"all" => Period.All,
+			_ => throw new JsonException()
 		};
 	}
 
 	public override void Write
-									(Utf8JsonWriter writer, Period value, JsonSerializerOptions options)
+		(Utf8JsonWriter writer, Period value, JsonSerializerOptions options)
 	{
 		var mappedValue = value switch
 		{

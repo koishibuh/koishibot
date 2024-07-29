@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json.Serialization;
 

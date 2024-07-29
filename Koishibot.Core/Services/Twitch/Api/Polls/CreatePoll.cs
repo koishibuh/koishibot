@@ -1,5 +1,5 @@
-﻿using Koishibot.Core.Services.Twitch.Common;
-using System.Text.Json.Serialization;
+﻿using Koishibot.Core.Services.Twitch;
+using Koishibot.Core.Services.Twitch.Common;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 // == ⚫ POST == //
@@ -18,7 +18,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		var url = "polls";
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
-		var response = await TwitchApiClient.SendRequest(method, url, body);
+		await TwitchApiClient.SendRequest(method, url, body);
 	}
 }
 
@@ -28,7 +28,8 @@ public class CreatePollRequestBody
 {
 	///<summary>
 	///The ID of the broadcaster that’s running the poll.<br/>
-	///This ID must match the user ID in the user access token.
+	///This ID must match the user ID in the user access token.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
 	public string BroadcasterId { get; set; }
@@ -36,28 +37,32 @@ public class CreatePollRequestBody
 	///<summary>
 	///The question that viewers will vote on.<br/>
 	///For example, What game should I play next?<br/>
-	///The question may contain a maximum of 60 characters.
+	///The question may contain a maximum of 60 characters.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("title")]
 	public string PollTitle { get; set; }
 
 	///<summary>
 	///A list of choices that viewers may choose from.<br/>
-	///The list must contain a minimum of 2 choices and up to a maximum of 5 choices.
+	///The list must contain a minimum of 2 choices and up to a maximum of 5 choices.<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("choices")]
-	public List<ChoiceTitle> Choices { get; set; }
+	public List<string> Choices { get; set; }
 
 	///<summary>
 	///The length of time (in seconds) that the poll will run for.<br/>
-	///The minimum is 15 seconds and the maximum is 1800 seconds (30 minutes).
+	///The minimum is 15 seconds and the maximum is 1800 seconds (30 minutes).<br/>
+	///REQUIRED
 	///</summary>
 	[JsonPropertyName("duration")]
 	public int DurationInSeconds { get; set; }
 
 	///<summary>
 	///A Boolean value that indicates whether viewers may cast additional votes using Channel Points.<br/>
-	///If true, the viewer may cast more than one vote but each additional vote costs the number of Channel Points specified in channel_points_per_vote. The default is false (viewers may cast only one vote). For information about Channel Points, see Channel Points Guide.
+	///If true, the viewer may cast more than one vote but each additional vote costs the number of Channel Points specified in channel_points_per_vote.<br/>
+	///The default is false (viewers may cast only one vote).
 	///</summary>
 	[JsonPropertyName("channel_points_voting_enabled")]
 	public bool ChannelPointsVotingEnabled { get; set; }
@@ -71,17 +76,16 @@ public class CreatePollRequestBody
 	public int ChannelPointsPerVote { get; set; }
 }
 
-public class ChoiceTitle
-{
+//public class ChoiceTitle
+//{
+//	///<summary>
+//	///One of the choices the viewer may select.<br/>
+//	///The choice may contain a maximum of 25 characters.
+//	///</summary>
+//	[JsonPropertyName("title")]
+//	public string Title { get; set; }
 
-	///<summary>
-	///One of the choices the viewer may select.<br/>
-	///The choice may contain a maximum of 25 characters.
-	///</summary>
-	[JsonPropertyName("title")]
-	public string Title { get; set; }
-
-}
+//}
 
 // == ⚫ RESPONSE BODY == //
 

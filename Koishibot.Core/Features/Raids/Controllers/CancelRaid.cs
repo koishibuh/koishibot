@@ -1,62 +1,53 @@
-﻿//using Koishibot.Core.Features.AdBreak.Extensions;
-//using Koishibot.Core.Features.Common;
-//using Koishibot.Core.Features.Common.Models;
-//using Koishibot.Core.Features.Raids.Enums;
-//using Koishibot.Core.Features.Raids.Interfaces;
-//using Koishibot.Core.Features.RaidSuggestions;
-//namespace Koishibot.Core.Features.Raids;
+﻿using Koishibot.Core.Features.AdBreak.Extensions;
+using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.TwitchApi.Models;
+namespace Koishibot.Core.Features.Raids;
 
-//// == ⚫ DELETE == //
+// == ⚫ DELETE == //
 
-//public class CancelRaidController : ApiControllerBase
-//{
-//	[SwaggerOperation(Tags = ["Outgoing Raid"])]
-//	[HttpDelete("/api/raid/twitch")]
-//	public async Task<ActionResult> CancelRaid()
-//	{
-//		await Mediator.Send(new CancelRaidCommand());
-//		return Ok();
-//	}
-//}
+public class CancelRaidController : ApiControllerBase
+{
+	[SwaggerOperation(Tags = ["Outgoing Raid"])]
+	[HttpDelete("/api/raid/twitch")]
+	public async Task<ActionResult> CancelRaid()
+	{
+		await Mediator.Send(new CancelRaidCommand());
+		return Ok();
+	}
+}
 
-//// == ⚫ COMMAND == //
+// == ⚫ COMMAND == //
 
-//public record CancelRaidCommand() : IRequest;
+public record CancelRaidCommand() : IRequest;
 
-//// == ⚫ HANDLER == //
+// == ⚫ HANDLER == //
 
-//public record CancelRaidHandler(
-//	IRaidApi RaidApi, IChatMessageService BotIrc,
-//	IAppCache Cache, ISignalrService Signalr
-//	) : IRequestHandler<CancelRaidCommand>
-//{
-//	public async Task Handle
-//					(CancelRaidCommand command, CancellationToken cancel)
-//	{
-//		await RaidApi.CancelRaid();
-//		await BotIrc.RaidStatus(Code.RaidCancelled);
+public record CancelRaidHandler(
+	IOptions<Settings> Settings,
+	ITwitchApiRequest TwitchApiRequest,
+	ITwitchIrcService BotIrc,
+	IAppCache Cache, ISignalrService Signalr
+	) : IRequestHandler<CancelRaidCommand>
+{
+	public async Task Handle
+					(CancelRaidCommand command, CancellationToken cancel)
+	{
+		var parameters = new CancelRaidRequestParameters
+		{
+			BroadcasterId = Settings.Value.StreamerTokens.UserId
+		};
 
-//		var timer = new CurrentTimer();
-//		timer.ClearTimer();
-//		Cache.AddCurrentTimer(timer);
 
-//		var timerVm = timer.ConvertToVm();
-//		await Signalr.UpdateTimerOverlay(timerVm);
-//	}
-//}
+		await TwitchApiRequest.CancelRaid(parameters);
 
-//// == ⚫ TWITCH API == //
+		//await BotIrc.RaidStatus(Code.RaidCancelled);
 
-//public partial record RaidApi : IRaidApi
-//{
-//	/// <summary>
-//	/// <see href="https://dev.twitch.tv/docs/api/reference/#cancel-a-raid"/>Cancel A Raid</see>
-//	/// </summary>
-//	/// <returns></returns>
-//	public async Task CancelRaid()
-//	{
-//		await TokenProcessor.EnsureValidToken();
+		var timer = new CurrentTimer();
+		timer.ClearTimer();
+		Cache.AddCurrentTimer(timer);
 
-//		await TwitchApi.Helix.Raids.CancelRaidAsync(StreamerId);
-//	}
-//}
+		var timerVm = timer.ConvertToVm();
+		await Signalr.UpdateTimerOverlay(timerVm);
+	}
+}
