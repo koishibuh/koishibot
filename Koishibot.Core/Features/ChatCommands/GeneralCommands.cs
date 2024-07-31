@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Features.ChatCommands.Interface;
+﻿using Koishibot.Core.Features.ChatCommands.Enums;
+using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Polls.Enums;
 using Koishibot.Core.Features.Polls.Interfaces;
@@ -23,19 +24,16 @@ public record GeneralCommands(
 			case "codetime":
 				return true;
 
-			case "later":
-				await TodoistService.CreateTask
-					(new TodoistTaskDto(cc.User.Name, cc.Message, TaskType.Later));
+			case Command.Later:
+				await TodoistService.CreateTask(Command.Later, cc.User.Name, cc.Message);
 				return true;
 
-			case "bug":
-				await TodoistService.CreateTask
-					(new TodoistTaskDto(cc.User.Name, cc.Message, TaskType.Bug));
+			case Command.Bug:
+				await TodoistService.CreateTask(Command.Bug, cc.User.Name, cc.Message);
 				return true;
 
-			case "idea":
-				await TodoistService.CreateTask
-					(new TodoistTaskDto(cc.User.Name, cc.Message, TaskType.Idea));
+			case Command.Idea:
+				await TodoistService.CreateTask(Command.Idea, cc.User.Name, cc.Message);
 				return true;
 
 			default:

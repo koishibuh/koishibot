@@ -4,5 +4,5 @@ namespace Koishibot.Core.Features.Todoist.Interface;
 
 public interface ITodoistService
 {
-	Task CreateTask(TodoistTaskDto taskDTO);
+	Task CreateTask(string command, string username, string taskMessage);
 }

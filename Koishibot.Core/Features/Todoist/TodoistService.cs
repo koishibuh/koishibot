@@ -1,10 +1,16 @@
-﻿using Koishibot.Core.Features.ChatCommands;
+﻿using HandlebarsDotNet;
+using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Enums;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Supports.Controllers;
 using Koishibot.Core.Features.Todoist.Enums;
 using Koishibot.Core.Features.Todoist.Interface;
 using Koishibot.Core.Features.Todoist.Models;
+using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using System.Reflection.Emit;
+using System.Security;
 using Todoist.Net;
 using Todoist.Net.Models;
 namespace Koishibot.Core.Features.Todoist;
@@ -12,48 +18,52 @@ namespace Koishibot.Core.Features.Todoist;
 // == ⚫ SERVICE == //
 
 public record TodoistService(
-	ITodoistClient TodoistClient, 
-	ITwitchIrcService BotIrc,
+	IAppCache Cache,
+	ITodoistClient TodoistClient,
+	KoishibotDbContext Database,
 	IChatReplyService ChatReply
 	) : ITodoistService
 {
-	public async Task CreateTask(TodoistTaskDto todoistTask)
+	public async Task CreateTask(string command, string username, string taskMessage)
 	{
-		var (label, command)  = todoistTask.Type switch
-		{
-			TaskType.Later => ("\U0001f7e3 @Twitch", Command.TodoistLater),
-			TaskType.Bug => ("\U0001f41b @TwitchBot", Command.TodoistBug),
-			TaskType.Idea => ("\u2B50 @TwitchBot", Command.TodoistIdea),
-			_ => ("\U0001f7e3 @Twitch", Command.TodoistLater)
-		};
+		var todoistMessage = await GetTaskMessageFromStorage(command);
 
-		var taskMessage =
-			$"{label} {todoistTask.Username}: {todoistTask.Message} Today";
+		var template = Handlebars.Compile(todoistMessage);
+		var generatedText = template(new UserMessageData(username, taskMessage));
 
-		var task = new QuickAddItem(taskMessage);
+		var task = new QuickAddItem(generatedText);
 		await TodoistClient.Items.QuickAddAsync(task);
 
 		// Todo: Publish a message that task has been added
 
-		await ChatReply.Start(command, new UserData(todoistTask.Username), PermissionLevel.Everyone);
+		await ChatReply.Start(command, new UserData(username), PermissionLevel.Everyone);
 	}
-}
 
-// == ⚫ CHAT REPLY == //
+	// == ⚫ == //
 
-public static class TodoistChatReply
-{
-	public static async Task PostTodoistReply
-		(this ITwitchIrcService irc, TaskType type, string username)
+	public async Task<string> GetTaskMessageFromStorage(string command)
 	{
-		var message = type switch
+		var todoistMessage = command switch
 		{
-			TaskType.Later => $"{username}, thanks for the reminder!",
-			TaskType.Bug => $"{username}, thanks for the bug report! SQUASH THE BUG!",
-			TaskType.Idea => $"{username}, thanks for the stream suggestion!",
-			_ => $"Something bork on PostTodoistReply lol"
+			Command.Idea => "taskidea",
+			Command.Bug => "taskbug",
+			Command.Later => "tasklater",
+			_ => "tasklaster"
 		};
 
-		await irc.BotSend(message);
+		var result = Cache.GetCommand(todoistMessage, PermissionLevel.Everyone);
+
+		if (result is null)
+		{
+			var databaseResult = await Database.GetCommand(todoistMessage)
+				?? throw new Exception("Command not found");
+
+			Cache.AddCommand(databaseResult);
+
+			var successful = databaseResult.TryGetValue(todoistMessage, out result);
+			if (successful is false) throw new Exception("Command not found");
+		}
+
+		return result.Message;
 	}
 }

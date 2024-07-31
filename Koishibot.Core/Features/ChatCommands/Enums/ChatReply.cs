@@ -7,7 +7,7 @@ public class Command
 	public const string AdCompleted = "adCompleted";
 	public const string ChannelUpdated = "channelUpdated";
 
-	public const string TodoistLater = "later";
-	public const string TodoistBug = "bug";
-	public const string TodoistIdea = "idea";
+	public const string Later = "later";
+	public const string Bug = "bug";
+	public const string Idea = "idea";
 }
