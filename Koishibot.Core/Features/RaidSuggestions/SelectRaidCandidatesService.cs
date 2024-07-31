@@ -87,7 +87,7 @@ public record SelectRaidCandidatesService(
 			{
 				SuggestedByUser = me!,
 				Streamer = new UserInfo(x.Id, x.Login, x.Name, x.BroadcasterType.ToString(), x.ChannelDescription, x.ProfileImageUrl),
-				StreamInfo = new LiveStreamInfo(streamer1.BroadcasterId, streamer1.VideoId, streamer1.GameId, streamer1.GameName, streamer1.StreamTitle, streamer1.ViewerCount, streamer1.StartedAt, streamer1.ThumbnailUrl)
+				StreamInfo = new LiveStreamInfo(streamer1.BroadcasterId, streamer1.VideoId, streamer1.CategoryId, streamer1.CategoryName, streamer1.StreamTitle, streamer1.ViewerCount, streamer1.StartedAt, streamer1.ThumbnailUrl)
 			};
 
 			raidSuggestionList.Add(aSuggestion);

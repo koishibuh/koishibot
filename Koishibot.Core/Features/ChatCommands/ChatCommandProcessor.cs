@@ -20,6 +20,9 @@ public record ChatCommandProcessor(
 		{
 			Processed = await DandleCommands.Process(c);
 			if (Processed is true) { return; }
+
+			Processed = await GeneralCommands.Process(c);
+			if (Processed is true) { return; }
 		}
 		else
 		{

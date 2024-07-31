@@ -80,7 +80,6 @@ public record TwitchIrcService(
 
 	public async Task OnMessageReceived(string irc, string message)
 	{
-
 		if (message.IsPingMessage())
 		{
 			await BotIrc!.SendMessage("PONG :tmi.twitch.tv");
@@ -112,7 +111,7 @@ public record TwitchIrcService(
 	{
 		if (BotIrc is not null)
 		{
-			await BotIrc.SendMessage(message);
+			await BotIrc.SendMessageToChat(message);
 		}
 	}
 

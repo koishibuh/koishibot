@@ -29,6 +29,7 @@ public abstract class WebSocketHandlerBase
 		{
 			try
 			{
+				// TODO: Websocket is already open
 				await _socket.ConnectAsync(new Uri(_url), _cancel);
 				retryCount = 0;
 			}

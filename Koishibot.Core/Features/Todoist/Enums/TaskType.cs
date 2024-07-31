@@ -2,7 +2,7 @@
 
 public enum TaskType
 {
-	Reminder = 1,
+	Later = 1,
 	Bug,
 	Idea
 }

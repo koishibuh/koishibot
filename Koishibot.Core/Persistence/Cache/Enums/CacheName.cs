@@ -12,5 +12,6 @@ public enum CacheName
 	Dandle,
 	DragonEggQuest,
 	Raid,
-	LedLights
+	LedLights,
+	Commands
 }

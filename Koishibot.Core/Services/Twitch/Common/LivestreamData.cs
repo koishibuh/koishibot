@@ -35,13 +35,13 @@ public class LivestreamData
 	///The ID of the category or game being played.
 	///</summary>
 	[JsonPropertyName("game_id")]
-	public string GameId { get; set; }
+	public string CategoryId { get; set; }
 
 	///<summary>
 	///The ID of the category or game being played.
 	///</summary>
 	[JsonPropertyName("game_name")]
-	public string GameName { get; set; }
+	public string CategoryName { get; set; }
 
 	///<summary>
 	///The type of stream. Possible values are:live<br/>
@@ -101,6 +101,6 @@ public class LivestreamData
 	public LiveStreamInfo ConvertToDto()
 	{
 		return new LiveStreamInfo(
-			BroadcasterId, VideoId, GameId, GameName, StreamTitle, ViewerCount, StartedAt, ThumbnailUrl);
+			BroadcasterId, VideoId, CategoryId, CategoryName, StreamTitle, ViewerCount, StartedAt, ThumbnailUrl);
 	}
 }

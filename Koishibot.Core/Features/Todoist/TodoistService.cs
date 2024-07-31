@@ -1,4 +1,7 @@
-﻿using Koishibot.Core.Features.Todoist.Enums;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Enums;
+using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Todoist.Enums;
 using Koishibot.Core.Features.Todoist.Interface;
 using Koishibot.Core.Features.Todoist.Models;
 using Koishibot.Core.Services.Twitch.Irc.Interfaces;
@@ -10,17 +13,18 @@ namespace Koishibot.Core.Features.Todoist;
 
 public record TodoistService(
 	ITodoistClient TodoistClient, 
-	ITwitchIrcService BotIrc
+	ITwitchIrcService BotIrc,
+	IChatReplyService ChatReply
 	) : ITodoistService
 {
 	public async Task CreateTask(TodoistTaskDto todoistTask)
 	{
-		var label = todoistTask.Type switch
+		var (label, command)  = todoistTask.Type switch
 		{
-			TaskType.Reminder => "\U0001f7e3 @Twitch",
-			TaskType.Bug => "\U0001f41b @TwitchBot",
-			TaskType.Idea => "\u2B50 @TwitchBot",
-			_ => "\U0001f7e3 @Twitch"
+			TaskType.Later => ("\U0001f7e3 @Twitch", Command.TodoistLater),
+			TaskType.Bug => ("\U0001f41b @TwitchBot", Command.TodoistBug),
+			TaskType.Idea => ("\u2B50 @TwitchBot", Command.TodoistIdea),
+			_ => ("\U0001f7e3 @Twitch", Command.TodoistLater)
 		};
 
 		var taskMessage =
@@ -30,7 +34,8 @@ public record TodoistService(
 		await TodoistClient.Items.QuickAddAsync(task);
 
 		// Todo: Publish a message that task has been added
-		await BotIrc.PostTodoistReply(todoistTask.Type, todoistTask.Username);
+
+		await ChatReply.Start(command, new UserData(todoistTask.Username), PermissionLevel.Everyone);
 	}
 }
 
@@ -43,7 +48,7 @@ public static class TodoistChatReply
 	{
 		var message = type switch
 		{
-			TaskType.Reminder => $"{username}, thanks for the reminder!",
+			TaskType.Later => $"{username}, thanks for the reminder!",
 			TaskType.Bug => $"{username}, thanks for the bug report! SQUASH THE BUG!",
 			TaskType.Idea => $"{username}, thanks for the stream suggestion!",
 			_ => $"Something bork on PostTodoistReply lol"

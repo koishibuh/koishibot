@@ -34,7 +34,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasIndex("TimerGroupsId");
 
-                    b.ToTable("ChatCommandTimerGroup");
+                    b.ToTable("ChatCommandTimerGroup", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ApplicationAuthentication.Models.AppLogin", b =>
@@ -222,7 +222,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChatCommands");
+                    b.ToTable("ChatCommands", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandName", b =>
@@ -244,7 +244,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasIndex("ChatCommandId");
 
-                    b.ToTable("CommandNames");
+                    b.ToTable("CommandNames", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.TimerGroup", b =>
@@ -267,7 +267,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimerGroups");
+                    b.ToTable("TimerGroups", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Dandle.Models.DandleResult", b =>

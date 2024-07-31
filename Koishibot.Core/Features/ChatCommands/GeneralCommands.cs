@@ -25,7 +25,7 @@ public record GeneralCommands(
 
 			case "later":
 				await TodoistService.CreateTask
-					(new TodoistTaskDto(cc.User.Name, cc.Message, TaskType.Reminder));
+					(new TodoistTaskDto(cc.User.Name, cc.Message, TaskType.Later));
 				return true;
 
 			case "bug":
