@@ -15,10 +15,6 @@ public class GetAdScheduleController : ApiControllerBase
 	}
 }
 
-// == ⚫ QUERY == //
-
-public record GetAdScheduleQuery(): IRequest<AdScheduleDto>;
-
 // == ⚫ HANDLER == //
 
 public record GetAdScheduleHandler(
@@ -26,19 +22,21 @@ public record GetAdScheduleHandler(
 	ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<GetAdScheduleQuery, AdScheduleDto>
 {
+	public string StreamerId = Settings.Value.StreamerTokens.UserId;
+
 	public async Task<AdScheduleDto> Handle
 		(GetAdScheduleQuery query, CancellationToken cancel)
 	{
-		var parameters = CreateParameters();
+		var parameters = query.CreateParameters(StreamerId);
 		var result = await TwitchApiRequest.GetAdSchedule(parameters);
 		return result.ConvertToDto();
 	}
-
-	public GetAdScheduleRequestParameters CreateParameters()
-	{
-		return new GetAdScheduleRequestParameters
-		{
-			BroadcasterId = Settings.Value.StreamerTokens.UserId
-		};
-	}
 }
+
+// == ⚫ QUERY == //
+
+public record GetAdScheduleQuery() : IRequest<AdScheduleDto>
+{
+	public GetAdScheduleRequestParameters CreateParameters(string streamerId) 
+		=> new GetAdScheduleRequestParameters	{BroadcasterId = streamerId };
+};

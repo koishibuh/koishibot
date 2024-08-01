@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Services.TwitchApi.Models;
-
 namespace Koishibot.Core.Features.AdBreak.Controllers;
 
 // == ⚫ PATCH == //
@@ -15,11 +14,6 @@ public class SnoozeNextAdController : ApiControllerBase
 	}
 }
 
-// == ⚫ QUERY == //
-
-public record SnoozeNextAdCommand()
-	: IRequest<SnoozeNextAdDto>;
-
 // == ⚫ HANDLER == //
 
 public record SnoozeAdHandler(
@@ -27,21 +21,26 @@ public record SnoozeAdHandler(
 	ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<SnoozeNextAdCommand, SnoozeNextAdDto>
 {
+	public string StreamerId = Settings.Value.StreamerTokens.UserId;
+
 	public async Task<SnoozeNextAdDto> Handle
 		(SnoozeNextAdCommand command, CancellationToken cancel)
 	{
-		var parameters = CreateParameters();
+		var parameters = command.CreateParameters(StreamerId);
 
 		var result = await TwitchApiRequest.SnoozeNextAd(parameters);
 		return result.ConvertToDto();
 	}
-
-	public SnoozeNextAdRequestParameters CreateParameters()
-	{
-		return new SnoozeNextAdRequestParameters
-		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
-	}
 }
+
+// == ⚫ QUERY == //
+
+public record SnoozeNextAdCommand()
+	: IRequest<SnoozeNextAdDto>
+{
+	public SnoozeNextAdRequestParameters CreateParameters(string streamerId)
+		=> new SnoozeNextAdRequestParameters { BroadcasterId = streamerId };
+};
 
 // == ⚫ DTO == //
 

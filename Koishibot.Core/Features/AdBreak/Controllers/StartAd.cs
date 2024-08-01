@@ -15,11 +15,6 @@ public class StartAdController : ApiControllerBase
 	}
 }
 
-// == ⚫ QUERY == //
-
-public record StartAdCommand()
-	: IRequest<StartAdDto>;
-
 // == ⚫ HANDLER == //
 
 public record StartAdHandler(
@@ -27,24 +22,27 @@ public record StartAdHandler(
 	ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<StartAdCommand, StartAdDto>
 {
+	public string StreamerId = Settings.Value.StreamerTokens.UserId;
+
 	public async Task<StartAdDto> Handle
 		(StartAdCommand command, CancellationToken cancel)
 	{
-		var requestBody = CreateRequest(AdLength.ThreeMinutes);
+		// Todo: Have the length of ad change from UI
+		var requestBody = command.CreateRequest(StreamerId, AdLength.ThreeMinutes);
 
 		var result = await TwitchApiRequest.StartAd(requestBody);
 		return result.ConvertToDto();
 	}
-
-	public StartAdRequestBody CreateRequest(AdLength length)
-	{
-		return new StartAdRequestBody
-		{
-			BroadcasterId = Settings.Value.StreamerTokens.UserId,
-			AdLength = length
-		};
-	}
 }
+
+// == ⚫ COMMAND == //
+
+public record StartAdCommand()
+	: IRequest<StartAdDto>
+{
+	public StartAdRequestBody CreateRequest(string streamerId, AdLength length)
+		=> new StartAdRequestBody { BroadcasterId = streamerId, AdLength = length };
+};
 
 // == ⚫ DTO == //
 

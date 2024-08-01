@@ -51,10 +51,9 @@ public record PomodoroTimer(
 		var pomoTimer = new CurrentTimer().SetPomodoro(adInfo.NextAdScheduledAt);
 		Cache.AddCurrentTimer(pomoTimer);
 
-		var pomoTimerVm = pomoTimer.ConvertToVm();
-		await Signalr.UpdateTimerOverlay(pomoTimerVm);
+		await UpdateOverlayTimer(pomoTimer);
+		await SendLog(adInfo);
 
-		Log.LogInformation($"Pomdoro Delaying for {adInfo.CalculateAdjustedTimeUntilNextAd()} minutes", adInfo);
 		timer = Toolbox.CreateTimer(adInfo.CalculateAdjustedTimeUntilNextAd(), () => SwitchToBreak());
 		timer.Start();
 	}
@@ -82,5 +81,17 @@ public record PomodoroTimer(
 		{
 			throw new Exception("Timer is null");
 		}
+	}
+
+	public async Task UpdateOverlayTimer(CurrentTimer timer)
+	{
+		var pomoTimerVm = timer.ConvertToVm();
+		await Signalr.UpdateTimerOverlay(pomoTimerVm);
+	}
+
+	public async Task SendLog(AdScheduleDto adInfo)
+	{
+		await Signalr.SendLog
+			(new LogVm($"Pomdoro Delaying for {adInfo.CalculateAdjustedTimeUntilNextAd()} minutes", "Info"));
 	}
 }

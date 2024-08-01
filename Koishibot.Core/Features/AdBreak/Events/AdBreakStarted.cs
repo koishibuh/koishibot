@@ -3,13 +3,10 @@ using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.AdBreak;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Events;
-
-// == ⚫ COMMAND == //
-
-public record AdBreakStartedCommand(AdBreakBeginEvent args) : IRequest;
 
 // == ⚫ HANDLER == //
 
@@ -19,50 +16,64 @@ public record AdBreakStartedCommand(AdBreakBeginEvent args) : IRequest;
 /// <exception cref="NotImplementedException"></exception>
 public record AdBreakStartedHandler(
 	IOptions<Settings> Settings,
-	ILogger<AdBreakStartedHandler> Log,
-	IAppCache Cache, IChatReplyService ChatReplyService,
+	IAppCache Cache, 
+	IChatReplyService ChatReplyService,
 	IPomodoroTimer PomodoroService,
 	ITwitchApiRequest TwitchApiRequest,
 	ISignalrService Signalr
 	) : IRequestHandler<AdBreakStartedCommand>
 {
+	public string StreamerId = Settings.Value.StreamerTokens.UserId;
+
 	public async Task Handle
 		(AdBreakStartedCommand command, CancellationToken cancel)
 	{
-		Log.LogInformation("Ad started");
-
-		await Signalr.SendAdStartedEvent(new AdBreakVm(command.args.DurationInSeconds, DateTime.Now));
+		await UpdateOverlayTimer(command);
 		// TODO: Post to UI Add started?
 
 		PomodoroService.CancelTimer();
 
 		await ChatReplyService.App(Command.AdNowPlaying);
 
-		var parameters = CreateParameters();
+		var adInfo = await GetAdScheduleFromTwitch(command);
 
-		var result = await TwitchApiRequest.GetAdSchedule(parameters);
-		var adInfo2 = result.ConvertToDto();
-
-		Log.LogInformation($"Ad started, delaying for {adInfo2.AdDurationInSeconds}");
-		await Task.Delay(adInfo2.AdDurationInSeconds);
+		await Signalr.SendLog(new LogVm($"Ad started, delaying for {adInfo.AdDurationInSeconds}", "Info"));
+		await Task.Delay(adInfo.AdDurationInSeconds);
 
 		await ChatReplyService.App(Command.AdCompleted);
 
-		var currentTimer2 = Cache.GetCurrentTimer();
-		if (currentTimer2.TimerExpired())
+		var currentTimer = Cache.GetCurrentTimer();
+		if (currentTimer.TimerExpired())
 		{
-			await PomodoroService.StartTimer(adInfo2);
+			await PomodoroService.StartTimer(adInfo);
 		}
 		else
 		{
-			await Task.Delay(currentTimer2.TimeRemaining());
-			await PomodoroService.StartTimer(adInfo2);
+			await Task.Delay(currentTimer.TimeRemaining());
+			await PomodoroService.StartTimer(adInfo);
 		}
 	}
 
-	public GetAdScheduleRequestParameters CreateParameters()
+	// == ⚫ == //
+
+	public async Task UpdateOverlayTimer(AdBreakStartedCommand command)
 	{
-		return new GetAdScheduleRequestParameters
-		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
+		var adBreakVm = new AdBreakVm(command.args.DurationInSeconds, DateTime.Now);
+		await Signalr.SendAdStartedEvent(adBreakVm);
+	}
+
+	public async Task<AdScheduleDto> GetAdScheduleFromTwitch(AdBreakStartedCommand command)
+	{
+		var parameters = command.CreateParameters(StreamerId);
+		var result = await TwitchApiRequest.GetAdSchedule(parameters);
+		return result.ConvertToDto();
 	}
 }
+
+// == ⚫ COMMAND == //
+
+public record AdBreakStartedCommand(AdBreakBeginEvent args) : IRequest
+{
+	public GetAdScheduleRequestParameters CreateParameters(string streamerId)
+		=> new GetAdScheduleRequestParameters { BroadcasterId = streamerId };
+};

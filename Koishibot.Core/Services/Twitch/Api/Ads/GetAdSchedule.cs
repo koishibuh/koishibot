@@ -55,27 +55,6 @@ public class GetAdScheduleRequestParameters
 	public string BroadcasterId { get; set; } = null!;
 }
 
-//public record GetAdScheduleRequestParameters(
-//	/// <summary>
-//	/// Provided broadcaster_id must match the user_id in the auth token.
-//	/// </summary>
-//	[property: JsonPropertyName("broadcaster_id")]
-//	string BroadcasterId
-//	);
-
-//public record GetAdScheduleRequestParameters(
-//		[property: JsonPropertyName("broadcaster_id")]
-//	string BroadcasterId
-//	)
-//{
-//	/// <summary>
-//	/// Provided broadcaster_id must match the user_id in the auth token.
-//	///</summary>
-
-//	public string BroadcasterId { get; init; } = BroadcasterId;
-//}
-
-
 // == ⚫ RESPONSE BODY == //
 
 /// <summary>
@@ -137,6 +116,8 @@ public class AdScheduleData
 	///</summary>
 	[JsonPropertyName("preroll_free_time")]
 	public int RemainingPrerollFreeTimeInSeconds { get; set; }
+
+	// == ⚫  == //
 
 	public AdScheduleDto ConvertToDto()
 	{
