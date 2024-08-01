@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.AttendanceLog.Enums;
-using Koishibot.Core.Features.AttendanceLog.Interfaces;
+﻿using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatMessages.Models;
 namespace Koishibot.Core.Features.ChatCommands;
@@ -28,35 +27,35 @@ public record AttendanceCommands(
 			case "streak":
 			case "streaks":
 				await AttendanceStreakService.GetUsersAttendanceStreak
-							(Code.CurrentStreak, c.User);
+							("streak", "🔥", c.User);
 				return true;
 
 			case "steak":
 			case "steaks":
 				await AttendanceStreakService.GetUsersAttendanceStreak
-							(Code.CurrentSteak, c.User);
+							("steak", "🥩", c.User);
 				return true;
 
 			case "topstreaks":
 			case "topstreak":
 				await AttendanceStreakService.GetTopAttendanceStreaks
-							(Code.TopStreaks);
+							("Streaks", "🔥");
 				return true;
 
 			case "topsteaks":
 			case "topsteak":
 				await AttendanceStreakService.GetTopAttendanceStreaks
-							(Code.TopSteaks);
+							("Steaks", "🥩");
 				return true;
 
 			case "pbstreak":
 				await AttendanceStreakService.GetUsersAttendanceStreak
-							(Code.PBStreak, c.User);
+							("streak", "🔥", c.User);
 				return true;
 
 			case "pbsteak":
 				await AttendanceStreakService.GetUsersAttendanceStreak
-							(Code.PBSteak, c.User);
+							("steak", "🥩", c.User);
 				return true;
 
 			default: return false;

@@ -2,14 +2,17 @@
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.AttendanceLog.Models;
+using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 namespace Koishibot.Core.Features.AttendanceLog;
 
 public record AttendanceProcessor(
 	KoishibotDbContext Database,
-	ITwitchIrcService BotIrc, IAppCache Cache
+	IChatReplyService ChatReplyService,
+	IAppCache Cache
 	) : IAttendanceProcessor
 {
 	public async Task Start(TwitchUser user)
@@ -24,7 +27,9 @@ public record AttendanceProcessor(
 			attendance = new Attendance().Set(user);
 
 			await Database.UpdateAttendance(attendance);
-			await BotIrc.PostAttendanceLogged(Code.StreakStarted, attendance);
+
+			var data = new UsernameData(user.Name);
+			await ChatReplyService.App(Command.StreakStarted, data);	
 		}
 		else // Attendance record found
 		{
@@ -38,18 +43,18 @@ public record AttendanceProcessor(
 
 			if (attendance.OptedOutFromStreaks())
 			{
-				await BotIrc.PostAttendanceCount
-					(Code.Attendance, user.Name, attendance.AttendanceCount);
+				var data = new UserCountData(user.Name, attendance.AttendanceCount);
+				await ChatReplyService.Start(Command.Attendance, data, PermissionLevel.Everyone);
 			}
 			else if (attendance.NewStreakStarted())
 			{
-				await BotIrc.PostAttendanceLogged
-					(Code.StreakStarted, attendance);
+				var data = new UsernameData(user.Name);
+				await ChatReplyService.App(Command.StreakStarted, data);
 			}
 			else
 			{
-				await BotIrc.PostAttendanceLogged
-					(Code.StreakContinued, attendance);
+				var data = new UserCountData(user.Name, attendance.AttendanceCount);
+				await ChatReplyService.App(Command.StreakContinued, data);
 			}
 		}
 	}

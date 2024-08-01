@@ -22,7 +22,3 @@ public record GuessData(
 	int Number,
 	string Word,
 	string Emoji);
-
-public record UserVoteData(
-	string User,
-	string Number);

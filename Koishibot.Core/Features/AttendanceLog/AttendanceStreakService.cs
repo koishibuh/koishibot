@@ -1,27 +1,33 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Enums;
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.AttendanceLog.Interfaces;
+using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 namespace Koishibot.Core.Features.AttendanceLog;
 
 public record AttendanceStreakService(
-		KoishibotDbContext Database,
-		ITwitchIrcService BotIrc
+	KoishibotDbContext Database,
+	IChatReplyService ChatReplyService
 	) : IAttendanceStreakService
 {
-	public async Task GetUsersAttendanceStreak(Code code, TwitchUser user)
+	public async Task GetUsersAttendanceStreak(string word, string emoji, TwitchUser user)
 	{
 		var result = await Database.GetAttendanceStreakByUserId(user.Id);
-		await BotIrc.PostStreakCount(code, user.Name, result);
+		var data = new UserCountStreakData(user.Name, result, word, emoji);
+
+		await ChatReplyService.Start(Command.CurrentStreak, data, PermissionLevel.Everyone);
 	}
 
-	public async Task GetTopAttendanceStreaks(Code code)
+	public async Task GetTopAttendanceStreaks(string word, string emoji)
 	{
 		var topStreaks = await Database.GetTopAttendanceStreaks(10);
-		var result = topStreaks.CreateTopStreaksList(code);
-		await BotIrc.PostTopStreaks(result);
+		var result = topStreaks.CreateTopStreaksList();
+
+		var data = new TopAttendanceData(emoji, word, result);
+		await ChatReplyService.Start(Command.Attendance, data, PermissionLevel.Everyone);
 	}
 
 	public async Task GetUserAttendanceCount(TwitchUser user)
@@ -29,14 +35,16 @@ public record AttendanceStreakService(
 		var result = await Database.GetAttendanceByUserId(user.Id);
 		if (result is null) { return; }
 
-		var code = result.StreakOrAttendanceMessage();
-		await BotIrc.PostAttendanceCount(code, user.Name, result.AttendanceCount);
+		var data = new UserCountData(user.Name, result.AttendanceCount);
+		await ChatReplyService.Start(Command.Attendance, data, PermissionLevel.Everyone);
 	}
 
-	public async Task GetUsersBestStreak(Code code, TwitchUser user)
+	public async Task GetUsersBestStreak(string word, string emoji, TwitchUser user)
 	{
 		var result = await Database.GetUsersPersonalBestStreak(user.Id);
-		await BotIrc.PostStreakCount(code, user.Name, result);
+		var data = new UserCountStreakData(user.Name, result, word, emoji);
+
+		await ChatReplyService.Start(Command.PBStreak, data, PermissionLevel.Everyone);
 	}
 
 	public async Task ResetAttendanceStreaks()

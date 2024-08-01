@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.AttendanceLog.Enums;
-using Koishibot.Core.Features.AttendanceLog.Models;
+﻿using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
@@ -12,13 +11,9 @@ public static class AttendanceExtensions
 {
 	// MODELS
 
-	public static string CreateTopStreaksList(this List<AttendanceStreak> attendances, Code code)
+	public static string CreateTopStreaksList(this List<AttendanceStreak> attendances)
 	{
-		var message = code is Code.TopStreaks
-			? "🔥 Current Top Streaks:"
-			: "🥩 Current Top Steaks:";
-
-		return message + string.Join(" ", attendances.Select((viewer, index) =>
+		return string.Join(" ", attendances.Select((viewer, index) =>
 				$"{index + 1}. {viewer.Username} ({viewer.StreakCount})"));
 	}
 

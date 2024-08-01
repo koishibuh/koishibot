@@ -3,6 +3,7 @@ using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Enums;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Todoist.Interface;
 using Koishibot.Core.Persistence;
 using Todoist.Net;
@@ -30,7 +31,7 @@ public record TodoistService(
 
 		// Todo: Publish a message that task has been added
 
-		await ChatReply.Start(command, new UserData(username), PermissionLevel.Everyone);
+		await ChatReply.Start(command, new UsernameData(username), PermissionLevel.Everyone);
 	}
 
 	// == ⚫ == //

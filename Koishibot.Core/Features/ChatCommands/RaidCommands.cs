@@ -1,7 +1,7 @@
 ﻿
 using Koishibot.Core.Features.ChatCommands.Interface;
-using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
@@ -15,7 +15,7 @@ public record RaidCommands(
 {
 	public async Task Process(ChatMessageDto cc)
 	{
-		var user = new UserData(cc.User.Name);
+		var user = new UsernameData(cc.User.Name);
 
 
 		if (Cache.RaidSuggestionDisabled())
