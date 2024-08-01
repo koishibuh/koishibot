@@ -1,8 +1,9 @@
-﻿using Koishibot.Core.Features.AdBreak.Extensions;
+﻿using Koishibot.Core.Features.AdBreak.Enums;
+using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
+using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Services.Twitch.EventSubs.AdBreak;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Events;
 
@@ -19,7 +20,7 @@ public record AdBreakStartedCommand(AdBreakBeginEvent args) : IRequest;
 public record AdBreakStartedHandler(
 	IOptions<Settings> Settings,
 	ILogger<AdBreakStartedHandler> Log,
-	IAppCache Cache, ITwitchIrcService BotIrc,
+	IAppCache Cache, IChatReplyService ChatReplyService,
 	IPomodoroTimer PomodoroService,
 	ITwitchApiRequest TwitchApiRequest,
 	ISignalrService Signalr
@@ -35,7 +36,7 @@ public record AdBreakStartedHandler(
 
 		PomodoroService.CancelTimer();
 
-		await BotIrc.AdsStarted();
+		await ChatReplyService.App(Command.AdNowPlaying);
 
 		var parameters = CreateParameters();
 
@@ -44,6 +45,8 @@ public record AdBreakStartedHandler(
 
 		Log.LogInformation($"Ad started, delaying for {adInfo2.AdDurationInSeconds}");
 		await Task.Delay(adInfo2.AdDurationInSeconds);
+
+		await ChatReplyService.App(Command.AdCompleted);
 
 		var currentTimer2 = Cache.GetCurrentTimer();
 		if (currentTimer2.TimerExpired())
@@ -61,22 +64,5 @@ public record AdBreakStartedHandler(
 	{
 		return new GetAdScheduleRequestParameters
 		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
-	}
-}
-
-// == ⚫ CHAT RESPONSE == //
-
-public static class AdBreakChatReply
-{
-	public static async Task AdsStarted(this ITwitchIrcService irc)
-	{
-		var message = "Ads now playing, RIP";
-		await irc.BotSend(message);
-	}
-
-	public static async Task AdsFinished(this ITwitchIrcService irc)
-	{
-		var message = "Ad break done! Thank you for supporting the channel <3";
-		await irc.BotSend(message);
 	}
 }

@@ -3,14 +3,8 @@ using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Enums;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
-using Koishibot.Core.Features.Supports.Controllers;
-using Koishibot.Core.Features.Todoist.Enums;
 using Koishibot.Core.Features.Todoist.Interface;
-using Koishibot.Core.Features.Todoist.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
-using System.Reflection.Emit;
-using System.Security;
 using Todoist.Net;
 using Todoist.Net.Models;
 namespace Koishibot.Core.Features.Todoist;
@@ -45,10 +39,10 @@ public record TodoistService(
 	{
 		var todoistMessage = command switch
 		{
-			Command.Idea => "taskidea",
-			Command.Bug => "taskbug",
-			Command.Later => "tasklater",
-			_ => "tasklaster"
+			Command.Idea => "task-idea",
+			Command.Bug => "task-bug",
+			Command.Later => "task-later",
+			_ => "task-later"
 		};
 
 		var result = Cache.GetCommand(todoistMessage, PermissionLevel.Everyone);

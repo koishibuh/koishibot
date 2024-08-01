@@ -14,7 +14,7 @@ namespace Koishibot.Core.Features.Raids.Events;
 
 public record AddOutgoingRaidHandler(
 	IAppCache Cache, ITwitchApiRequest TwitchApiRequest,
-		IChatReplyService ChatReplyService,
+	IChatReplyService ChatReplyService,
 	KoishibotDbContext Database
 	) : IRequestHandler<OutgoingRaidCommand>
 {

@@ -1,12 +1,13 @@
-﻿using Koishibot.Core.Features.AdBreak.Events;
+﻿using Koishibot.Core.Features.AdBreak.Enums;
+using Koishibot.Core.Features.AdBreak.Events;
 using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
+using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.Obs.Interfaces;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak;
 
@@ -15,7 +16,7 @@ namespace Koishibot.Core.Features.AdBreak;
 public record PomodoroTimer(
 	IOptions<Settings> Settings,
 	ILogger<PomodoroTimer> Log,
-	ITwitchIrcService BotIrc,
+	IChatReplyService ChatReplyService,
 	IObsService ObsService,
 	ISignalrService Signalr, IAppCache Cache,
 	ITwitchApiRequest TwitchApiRequest
@@ -60,7 +61,7 @@ public record PomodoroTimer(
 
 	public async void SwitchToBreak()
 	{
-		await BotIrc.PostMandatoryBreak();
+		await ChatReplyService.App(Command.PomdoroBreak);
 		await ObsService.StartBreak();
 
 		var breakTimer = new CurrentTimer().SetBreak();
@@ -81,20 +82,5 @@ public record PomodoroTimer(
 		{
 			throw new Exception("Timer is null");
 		}
-	}
-}
-
-// == ⚫ CHAT RESPONSE == //
-
-public static class PomodoroTimerChatReply
-{
-	public static async Task PostMandatoryBreak(this ITwitchIrcService irc)
-	{
-		var message = "🍅 Mandatory Break! 🍅 " +
-			"We've been sitting at the PC for awhile, time for a self care break: " +
-			"rest your eyes, stretch those legs, and stay hydrated! " +
-			"Or enjoy a game of !Dandle with chat (WIP). BE BACK SOON!";
-
-		await irc.BotSend(message);
 	}
 }
