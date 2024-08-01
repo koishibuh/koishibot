@@ -1,14 +1,16 @@
-﻿using Koishibot.Core.Features.Dandle.Extensions;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Dandle.Enums;
+using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Dandle.Interfaces;
 using Koishibot.Core.Features.Dandle.Models;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 
 namespace Koishibot.Core.Features.Dandle;
 
 // TODO: uppercase letters from guesses
 public record DandleResultsProcessor(
 	IAppCache Cache, ISignalrService Signalr,
-	ITwitchIrcService BotIrc, ILogger<DandleResultsProcessor> Log,
+	IChatReplyService ChatReplyService, 
+	ILogger<DandleResultsProcessor> Log,
 	IDandleWordService DandleWordService
 	) : IDandleResultsProcessor
 {
@@ -57,7 +59,9 @@ public record DandleResultsProcessor(
 
 			await Signalr.SendDandleScore(scores);
 			await Signalr.SendDandleTimer(new DandleTimerVm("Solved!", 0, 0));
-			await BotIrc.BotSend($"Congrats on solving the word '{dandleInfo.TargetWord.Word}'");
+
+			var data = new WordData(dandleInfo.TargetWord.Word);
+			await ChatReplyService.App(Command.SolvedWord, data);
 
 			await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
 
@@ -87,7 +91,9 @@ public record DandleResultsProcessor(
 
 				await Signalr.SendDandleTimer(new DandleTimerVm("!Guess A Word", 0, 0));
 				Cache.OpenDandleSuggestions();
-				await BotIrc.BotSend($"Temp: Round {dandleInfo.GameRound}: Dandle suggestions open again");
+
+				var data = new NumberData(dandleInfo.GameRound);
+				await ChatReplyService.App(Command.NextRound, data);
 			}
 			else
 			{
@@ -105,7 +111,10 @@ public record DandleResultsProcessor(
 
 				await Signalr.SendDandleScore(scores);
 				await Signalr.SendDandleTimer(new DandleTimerVm("Better luck next time!", 0, 0));
-				await BotIrc.BotSend($"Game over 😭 The word to solve was '{dandleInfo.TargetWord.Word}'");
+
+				var data = new WordData(dandleInfo.TargetWord.Word);
+				await ChatReplyService.App(Command.GameLost, data);
+
 				await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
 
 				Cache.DisableDandle();
@@ -386,8 +395,8 @@ public record DandleResultsProcessor(
 			}
 		}
 
-		var chatMessage = $"Round {dandleInfo.GameRound}'s guess was {chatWord} {chatColorBlock}";
-		await BotIrc.BotSend(chatMessage);
+		var data = new GuessData(dandleInfo.GameRound, chatWord, chatColorBlock);
+		await ChatReplyService.App(Command.GuessResult, data);
 
 		// store updated targetwordpoints
 		dandleInfo.TargetWord.Letters = scoredTargetLetters;

@@ -1,16 +1,17 @@
-﻿using Koishibot.Core.Features.ChatMessages.Models;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Dandle.Interfaces;
 using Koishibot.Core.Features.Dandle.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Newtonsoft.Json;
 namespace Koishibot.Core.Features.Dandle;
 
 public record DandleWordService(
 	KoishibotDbContext Database,
-	ITwitchIrcService BotIrc,
+	IChatReplyService ChatReplyService,
 	IHttpClientFactory HttpClientFactory
 	) : IDandleWordService
 {
@@ -19,13 +20,13 @@ public record DandleWordService(
 	{
 		if (c.Message.Length != 5)
 		{
-			await BotIrc.DandleWordLengthIncorrect();
+			await ChatReplyService.App(Command.InvalidLength);
 			return;
 		}
 
 		if (Toolbox.StringContainsNonLetters(c.Message))
 		{
-			await BotIrc.DandleWordNotValid();
+			await ChatReplyService.App(Command.InvalidWord);
 			return;
 		}
 
@@ -34,13 +35,16 @@ public record DandleWordService(
 
 		if (result is not null)
 		{
-			await BotIrc.DandleWordExists(c.Message);
+			var data = new WordData(result.Word);
+			await ChatReplyService.App(Command.WordExists, data);
 		}
 		else
 		{
-			var word = new DandleWord().Set(c.Message);
-			await Database.UpdateDandleWord(word);
-			await BotIrc.DandleWordCreated(c.Message);
+			var dandleWord = new DandleWord().Set(c.Message);
+			await Database.UpdateDandleWord(dandleWord);
+
+			var data = new WordData(dandleWord.Word);
+			await ChatReplyService.App(Command.WordAdded);
 		}
 	}
 
@@ -50,11 +54,13 @@ public record DandleWordService(
 		if (word is not null)
 		{
 			await Database.RemoveDandleWord(word);
-			await BotIrc.DandleWordDeleted(c.Message);
+			var data = new WordData(word.Word);
+			await ChatReplyService.App(Command.WordRemoved, data);
 		}
 		else
 		{
-			await BotIrc.BotSend($"Unable to remove the word '{c.Message}', not found in Dandle Dictionary");
+			var data = new WordData(c.Message);
+			await ChatReplyService.App(Command.WordNotFound, data);
 		}
 	}
 
@@ -69,47 +75,16 @@ public record DandleWordService(
 
 			var definition = JsonConvert.DeserializeObject<List<DandleDefinition>>(responseBody);
 
-			if (definition.Count > 0)
+			if (definition is not null && definition.Count > 0)
 			{
-				await BotIrc.BotSend($"{definition[0]?.Word}: {definition[0]?.Meanings[0]?.Definitions[0].Definition}");
+				var data = new WordDefineData(definition[0]?.Word, definition[0]?.Meanings[0]?.Definitions[0].Definition);
+
+				await ChatReplyService.App(Command.Definition, data);
 			}
 		}
 		else
 		{
-			await BotIrc.BotSend($"Definition for {word} not found");
+			await ChatReplyService.App(Command.NoDefinition);
 		}
-	}
-}
-
-
-public static class DandleWordChatReply
-{
-	public static async Task DandleWordLengthIncorrect
-	(this ITwitchIrcService botIrc)
-	{
-		await botIrc.BotSend($"Word needs to be 5 characters long to be added to the Dandle dictionary");
-	}
-
-	public static async Task DandleWordExists
-		(this ITwitchIrcService botIrc, string word)
-	{
-		await botIrc.BotSend($"'{word}' already exists in the Dandle Dictionary");
-	}
-	public static async Task DandleWordNotValid
-	(this ITwitchIrcService botIrc)
-	{
-		await botIrc.BotSend($"Dandle words cannot contain numbers or punctuation");
-	}
-
-	public static async Task DandleWordCreated
-	(this ITwitchIrcService botIrc, string word)
-	{
-		await botIrc.BotSend($"Successfully added the word '{word}' to the Dandle Dictionary");
-	}
-
-	public static async Task DandleWordDeleted
-(this ITwitchIrcService botIrc, string word)
-	{
-		await botIrc.BotSend($"Succesfully yeeted the word '{word}' from the Dandle Dictionary");
 	}
 }

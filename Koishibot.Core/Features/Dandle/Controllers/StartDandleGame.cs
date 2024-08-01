@@ -1,7 +1,8 @@
-﻿using Koishibot.Core.Features.Dandle.Extensions;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Dandle.Enums;
+using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Dandle.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 namespace Koishibot.Core.Features.Dandle.Controllers;
 
 // == ⚫ POST  == //
@@ -24,7 +25,7 @@ public class StartDandleGameController : ApiControllerBase
 /// </summary>
 public record StartDandleGameHandler(
 	IAppCache Cache, KoishibotDbContext Database,
-	ITwitchIrcService BotIrc,
+	IChatReplyService ChatReplyService,
 	ISignalrService Signalr, ILogger<StartDandleGameHandler> Log
 	) : IRequestHandler<StartDandleGameCommand, string>
 {
@@ -46,7 +47,7 @@ public record StartDandleGameHandler(
 		Cache.EnableDandle();
 
 		await Signalr.EnableDandleOverlay();
-		await BotIrc.PostDandleGameStarted();
+		await ChatReplyService.App(Command.NewGame);
 		return dandleInfo.TargetWord.Word;
 	}
 }

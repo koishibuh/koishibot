@@ -1,14 +1,15 @@
-﻿using Koishibot.Core.Features.Common;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Dandle.Interfaces;
 using Koishibot.Core.Features.Dandle.Models;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 
 namespace Koishibot.Core.Features.Dandle;
 
 public record DandleTimer(
 	IAppCache Cache, ISignalrService Signalr,
-	ITwitchIrcService BotIrc, ILogger<DandleTimer> Log,
+	IChatReplyService ChatReplyService, ILogger<DandleTimer> Log,
 	IDandleResultsProcessor DandleVoteProcessor
 	) : IDandleTimer
 {
@@ -64,7 +65,9 @@ public record DandleTimer(
 			Cache.OpenDandleVoting();
 
 			var wordString = dandleInfo.CreateDandleWordString();
-			await BotIrc.PostDandleNowVoting(wordString, VotingSeconds);
+
+			var data = new WordsTimeData(wordString, VotingSeconds);
+			await ChatReplyService.App(Command.NowVoting, data);	
 
 			await Signalr.SendDandleGuessChoices(dandleInfo.CreatePollChoiceVm());
 			await Signalr.SendDandleTimer(new DandleTimerVm("Now Voting", 0, VotingSeconds));

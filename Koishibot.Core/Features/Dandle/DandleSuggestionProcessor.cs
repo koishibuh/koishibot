@@ -2,7 +2,6 @@
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Dandle.Interfaces;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 
 namespace Koishibot.Core.Features.Dandle;
 
@@ -12,7 +11,7 @@ namespace Koishibot.Core.Features.Dandle;
 /// <param name="Cache"></param>
 /// <param name="Signalr"></param>
 public record DandleSuggestionProcessor(
-	ITwitchIrcService BotIrc, IDandleTimer DandleTimer,
+	IDandleTimer DandleTimer,
 	IAppCache Cache, ILogger<DandleSuggestionProcessor> Log,
 	ISignalrService Signalr
 	) : IDandleSuggestionProcessor

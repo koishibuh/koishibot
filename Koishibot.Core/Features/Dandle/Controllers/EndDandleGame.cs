@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Features.Dandle.Extensions;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Dandle.Enums;
+using Koishibot.Core.Features.Dandle.Extensions;
 namespace Koishibot.Core.Features.Dandle.Controllers;
 
 // == ⚫ DELETE  == //
@@ -22,7 +23,7 @@ public class EndDandleGameController : ApiControllerBase
 /// </summary>
 public record EndDandleGameHandler(
 	IAppCache Cache,
-	ITwitchIrcService BotIrc,
+	IChatReplyService ChatReplyService,
 	ISignalrService Signalr
 	) : IRequestHandler<EndDandleGameCommand>
 {
@@ -35,7 +36,7 @@ public record EndDandleGameHandler(
 		await Signalr.ClearDandleBoard();
 
 		await Signalr.DisableDandleOverlay();
-		await BotIrc.PostDandleGameEnded();
+		await ChatReplyService.App(Command.GameOver);
 	}
 }
 

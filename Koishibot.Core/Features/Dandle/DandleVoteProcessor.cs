@@ -1,11 +1,14 @@
-﻿using Koishibot.Core.Features.ChatMessages.Models;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.ChatMessages.Models;
+using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Features.Dandle.Models;
 namespace Koishibot.Core.Features.Dandle;
 
 public record DandleVoteProcessor(
 	ILogger<DandleVoteProcessor> Log,
-	ITwitchIrcService BotIrc,
+	IChatReplyService ChatReplyService,
 	IAppCache Cache, ISignalrService Signalr
 	) : IDandleVoteProcessor
 {
@@ -16,7 +19,9 @@ public record DandleVoteProcessor(
 
 		if (index > 3 || index < 1)
 		{
-			await BotIrc.BotSend("Not a valid vote number");
+			var data = new UserVoteData(c.User.Name, c.Message);
+			await ChatReplyService.App(Command.InvalidVote, data);
+
 			Log.LogInformation("Not a valid vote number");
 			return;
 		}
@@ -27,7 +32,8 @@ public record DandleVoteProcessor(
 
 		if (dandleInfo.UserAlreadyVoted(c.User, index))
 		{
-			await BotIrc.BotSend($"{c.User.Name}, you have already voted");
+			var data = new UserData(c.User.Name);
+			await ChatReplyService.App(Command.AlreadyVoted, data);
 			Log.LogInformation("User has already voted");
 			return;
 		}
