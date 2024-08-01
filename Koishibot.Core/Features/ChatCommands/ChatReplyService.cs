@@ -8,15 +8,24 @@ namespace Koishibot.Core.Features.ChatCommands;
 public record ChatReplyService(
 	IAppCache Cache,
 	ITwitchIrcService TwitchIrc,
-	KoishibotDbContext Database) : IChatReplyService
+	IServiceScopeFactory ScopeFactory
+	) : IChatReplyService
 {
+
+	public KoishibotDbContext CreateScopedDatabase()
+	{
+		using var scope = ScopeFactory.CreateScope();
+		return scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+	}
+
 	public async Task Start<T>(string command, T data, PermissionLevel permission)
 	{
 		var result = Cache.GetCommand(command, permission);
 
 		if (result is null)
 		{
-			var databaseResult = await Database.GetCommand(command)
+			var database = CreateScopedDatabase();
+			var databaseResult = await database.GetCommand(command)
 				?? throw new Exception("Command not found");
 
 			Cache.AddCommand(databaseResult);
@@ -39,7 +48,8 @@ public record ChatReplyService(
 
 		if (result is null)
 		{
-			var databaseResult = await Database.GetCommand(command)
+			var database = CreateScopedDatabase();
+			var databaseResult = await database.GetCommand(command)
 				?? throw new Exception("Command not found");
 
 			Cache.AddCommand(databaseResult);
@@ -57,7 +67,8 @@ public record ChatReplyService(
 
 		if (result is null)
 		{
-			var databaseResult = await Database.GetCommand(command)
+			var database = CreateScopedDatabase();
+			var databaseResult = await database.GetCommand(command)
 				?? throw new Exception("Command not found");
 
 			Cache.AddCommand(databaseResult);

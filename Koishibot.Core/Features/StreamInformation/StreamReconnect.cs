@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.AdBreak.Interfaces;
-using Koishibot.Core.Features.AttendanceLog.Extensions;
+﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.Obs.Interfaces;
 using Koishibot.Core.Features.StreamInformation.Extensions;
@@ -14,7 +13,7 @@ public record StreamReconnectCommand() : INotification;
 public record StreamReconnectHandler(
 	IAppCache Cache,
 	//IStreamSessionService StreamSessionService,
-	IObsService ObsService, IPomodoroTimer AdBreakService,
+	IObsService ObsService, 
 	IChannelPointStatusService ChannelPointStatusService
 	) : INotificationHandler<StreamReconnectCommand>
 {
@@ -30,6 +29,6 @@ public record StreamReconnectHandler(
 
 		//await StreamSessionService.CreateOrReloadStreamSession();
 
-		await AdBreakService.GetAdSchedule();
+		//await AdBreakService.GetAdSchedule();
 	}
 }

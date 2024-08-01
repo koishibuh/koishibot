@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Features.AdBreak.Extensions;
-using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.Common.Models;
@@ -13,10 +12,10 @@ namespace Koishibot.Core.Features.StreamInformation.Events;
 /// <summary>
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamonline">Stream Online EventSub Documentation</see></para>
 /// </summary>
-public record StreamOnlineHandler
-	(IAppCache Cache, ISignalrService Signalr,
+public record StreamOnlineHandler(
+	IAppCache Cache, ISignalrService Signalr,
 	IStreamSessionService StreamSessionService,
-	IObsService ObsService, IPomodoroTimer AdBreakService,
+	IObsService ObsService,
 	IChannelPointStatusService ChannelPointStatusService
 	) : IRequestHandler<StreamOnlineCommand>
 {
