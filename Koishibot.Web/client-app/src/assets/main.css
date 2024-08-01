@@ -26,7 +26,7 @@ nav p {
 }
 
 .primary-button {
-  @apply bg-accent-one hover:bg-primary rounded font-bold p-2 w-full;
+  @apply bg-accent-one hover:bg-primary rounded font-bold p-2 w-full disabled:bg-gray-600 disabled:text-gray-400;
 }
 
 .tooltip {
@@ -46,7 +46,7 @@ h1 {
 }
 
 input {
-  @apply h-10 border-2 p-2 border-black rounded;
+  @apply h-10 border-2 p-2 border-black rounded text-black;
 }
 
 .login-button {

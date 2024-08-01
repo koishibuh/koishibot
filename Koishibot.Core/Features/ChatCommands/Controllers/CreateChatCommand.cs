@@ -10,9 +10,9 @@ public class CreateChatCommandController : ApiControllerBase
 	[SwaggerOperation(Tags = ["Commands"])]
 	[HttpPost("/api/commands")]
 	public async Task<ActionResult> CreateChatCommand
-		([FromBody] CreateChatCommand e)
+		([FromBody] CreateChatCommandRequest e)
 	{
-		var result = await Mediator.Send(e);
+		var result = await Mediator.Send(e.Request);
 		return Ok(result);
 	}
 }
@@ -39,30 +39,38 @@ public record CreateChatCommandHandler(
 
 // == ⚫ COMMAND  == //
 
+public record CreateChatCommandRequest(
+	CreateChatCommand Request);
+
+
 public record CreateChatCommand
 (
+	List<CommandNameVm> CommandNames,
 	string? Description,
 	bool Enabled,
 	string Message,
 	PermissionLevel PermissionLevel,
-	int UserCooldownSeconds,
-	int GlobalCooldownSeconds,
-	List<int> CommandNameIds,
+	int UserCooldownMinutes,
+	int GlobalCooldownMinutes,
 	List<int>? TimerGroupIds
 ) : IRequest<int>
 {
 	public ChatCommand ConvertToModel()
 	{
+		var timerGroups = TimerGroupIds is not null 
+			? TimerGroupIds.Select(x => new TimerGroup { Id = x }).ToList()
+			: null;
+
 		return new ChatCommand
 		{
 			Description = Description ?? string.Empty,
 			Enabled = Enabled,
 			Message = Message,
 			Permissions = PermissionLevel,
-			UserCooldown = TimeSpan.FromMinutes(UserCooldownSeconds),
-			GlobalCooldown = TimeSpan.FromMinutes(GlobalCooldownSeconds),
-			CommandNames = CommandNameIds.Select(x => new CommandName { Id = x }).ToList(),
-			TimerGroups = TimerGroupIds.Count > 0 ? TimerGroupIds.Select(x => new TimerGroup { Id = x }).ToList() : null
+			UserCooldown = TimeSpan.FromMinutes(UserCooldownMinutes),
+			GlobalCooldown = TimeSpan.FromMinutes(GlobalCooldownMinutes),
+			CommandNames = CommandNames.Select(x => new CommandName { Id = x.Id, Name = x.Name }).ToList(),
+			TimerGroups = timerGroups
 		};
 	}
 };
@@ -70,23 +78,23 @@ public record CreateChatCommand
 
 // == ⚫ VALIDATOR == //
 
-public class CreateChatCommandValidator
-		: AbstractValidator<CreateChatCommand>
+public class CreateChatCommandRequestValidator
+		: AbstractValidator<CreateChatCommandRequest>
 {
 	public KoishibotDbContext Database { get; }
 
-	public CreateChatCommandValidator(KoishibotDbContext context)
+	public CreateChatCommandRequestValidator(KoishibotDbContext context)
 	{
 		Database = context;
 
-		RuleFor(p => p.Message)
+		RuleFor(p => p.Request.Message)
 			.NotEmpty()
 			.MaximumLength(500);
 
-		RuleFor(p => p.PermissionLevel)
+		RuleFor(p => p.Request.PermissionLevel)
 			.NotEmpty();
 
-		RuleFor(p => p.CommandNameIds)
+		RuleFor(p => p.Request.CommandNames)
 			.NotEmpty();
 	}
 }
