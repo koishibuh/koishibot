@@ -1,8 +1,8 @@
 ﻿using Koishibot.Core.Features.AdBreak.Extensions;
+using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.Raids.Enums;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 namespace Koishibot.Core.Features.RaidSuggestions.Controllers;
 
 // == ⚫ DELETE == //
@@ -25,19 +25,20 @@ public record CancelRaidSuggestionsCommand() : IRequest;
 // == ⚫ HANDLER == //
 
 public record CancelRaidSuggestionHandler(
-	IAppCache Cache, ITwitchIrcService BotIrc,
-		ISignalrService Signalr
-		) : IRequestHandler<CancelRaidSuggestionsCommand>
+	IAppCache Cache, 
+	IChatReplyService ChatReplyService,
+	ISignalrService Signalr
+	) : IRequestHandler<CancelRaidSuggestionsCommand>
 {
 	public async Task Handle
 			(CancelRaidSuggestionsCommand c, CancellationToken cancel)
 	{
 		Cache.DisableRaidSuggestions()
-				 .ClearRaidSuggestions();
+					.ClearRaidSuggestions();
 
 		// TODO: Store previous stream title/game to revert back to?
 
-		await BotIrc.RaidStatus(Code.RaidSuggestionCancelled);
+		await ChatReplyService.App(Command.RaidSuggestionsCancelled);
 
 		var timer = new CurrentTimer();
 		timer.ClearTimer();

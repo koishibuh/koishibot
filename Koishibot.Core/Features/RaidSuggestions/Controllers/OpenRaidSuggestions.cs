@@ -1,6 +1,7 @@
-﻿using Koishibot.Core.Features.RaidSuggestions.Extensions;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
+using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.RaidSuggestions;
 
@@ -26,7 +27,7 @@ public record OpenRaidSuggestionsCommand() : IRequest;
 public record OpenRaidSuggestionsHandler(
 	IOptions<Settings> Settings,
 	ITwitchApiRequest TwitchApiRequest,
-	ITwitchIrcService BotIrc,
+	IChatReplyService ChatReplyService,
 	IAppCache Cache, 
 	//IRaidSuggestionsApi TwitchApi,
 	ISelectRaidCandidatesService SelectRaidCandidates, ISignalrService Signalr
@@ -37,7 +38,7 @@ public record OpenRaidSuggestionsHandler(
 	{
 		Cache.EnableRaidSuggestions();
 
-		await BotIrc.PostRaidSuggestionsOpen();
+		await ChatReplyService.App(Command.SuggestionsNowOpen);
 
 		//await TwitchApi.UpdateStreamTitle("Ending Soon! Searching for Raid Target");
 

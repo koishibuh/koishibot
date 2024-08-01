@@ -1,28 +1,29 @@
-﻿using Koishibot.Core.Features.Raids.Enums;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.RaidSuggestions;
 
 public record RaidSuggestionValidation(
 	IOptions<Settings> Settings,
-	ITwitchIrcService BotIrc,
-	IAppCache Cache, 
-	ITwitchApiRequest TwitchApiRequest
+	IAppCache Cache,
+	ITwitchApiRequest TwitchApiRequest,
+	IChatReplyService ChatReplyService
 		) : IRaidSuggestionValidation
 {
 	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
 	public async Task Start(TwitchUser suggestedBy, string suggestedStreamer)
 	{
-		var details = (suggestedBy.Name, suggestedStreamer);
+		var data = new UserStreamerData(suggestedBy.Name, suggestedStreamer);
+
 
 		if (suggestedStreamer is "elysiagriffin")
 		{
-			await BotIrc.PostSuggestionResult(Code.CantSuggestMe, details);
+			await ChatReplyService.App(Command.CantSuggestMe, data);
 			return;
 		}
 
@@ -30,7 +31,7 @@ public record RaidSuggestionValidation(
 
 		if (raidSuggestions.StreamerAlreadySuggested(suggestedStreamer))
 		{
-			await BotIrc.PostSuggestionResult(Code.DupeSuggestion, details);
+			await ChatReplyService.App(Command.DupeSuggestion, data);
 			return;
 		}
 
@@ -42,7 +43,7 @@ public record RaidSuggestionValidation(
 
 		if (streamerInfo is null)
 		{
-			await BotIrc.PostSuggestionResult(Code.NotValidUser, details);
+			await ChatReplyService.App(Command.NotValidUser, data);
 			return;
 		}
 
@@ -54,14 +55,14 @@ public record RaidSuggestionValidation(
 		var liveStreamResponse = await TwitchApiRequest.GetLiveStreams(liveStreamParameters);
 		if (liveStreamResponse.Data.Count == 0)
 		{
-			await BotIrc.PostSuggestionResult(Code.StreamerOffline, details);
+			await ChatReplyService.App(Command.StreamerOffline, data);
 			return;
 		}
 
 		var liveStream = liveStreamResponse.Data[0].ConvertToDto();
 		if (liveStream.StreamerOverMaxViewerCount(100))
 		{
-			await BotIrc.PostSuggestionResult(Code.MaxViewerCount, details);
+			await ChatReplyService.App(Command.MaxViewerCount, data);
 			return;
 		}
 
@@ -74,17 +75,16 @@ public record RaidSuggestionValidation(
 
 		if (chatSettingsResponse.FollowerMode == true || chatSettingsResponse.SubscriberMode == true)
 		{
-			await BotIrc.PostSuggestionResult(Code.ChatIsRestricted, details);
+			await ChatReplyService.App(Command.RestrictedChat, data);
 			return;
 		}
-		
-			var suggestion = new RaidSuggestion()
-					.Set(suggestedBy, streamerInfo[0].CreateDto(), liveStream);
 
-			raidSuggestions.Add(suggestion);
-			Cache.Add(raidSuggestions);
+		var suggestion = new RaidSuggestion()
+				.Set(suggestedBy, streamerInfo[0].CreateDto(), liveStream);
 
-			await BotIrc.PostSuggestionResult(Code.SuggestionSuccessful, details);
-		
+		raidSuggestions.Add(suggestion);
+		Cache.Add(raidSuggestions);
+
+		await ChatReplyService.App(Command.SuggestionSuccessful, data);
 	}
 }

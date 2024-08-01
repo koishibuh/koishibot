@@ -1,27 +1,26 @@
-﻿using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.Raids.Enums;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Extensions;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.RaidSuggestions;
 
 public record SelectRaidCandidatesService(
-	
 	IOptions<Settings> Settings,
 	IAppCache Cache,
-		ITwitchApiRequest TwitchApiRequest,
-		ITwitchIrcService BotIrc,
-		ISignalrService Signalr
-		) : ISelectRaidCandidatesService
+	ITwitchApiRequest TwitchApiRequest,
+	IChatReplyService ChatReplyService,
+	ISignalrService Signalr
+	) : ISelectRaidCandidatesService
 {
 	public async Task Start()
 	{
 		Cache.UpdateStatusToVoting();
-		await BotIrc.RaidStatus(Code.SuggestionsClosed);
+		await ChatReplyService.App(Command.VotingSoon);
 
 		var suggestions = Cache.GetRaidSuggestions();
 		if (suggestions.Count is 0)
@@ -77,9 +76,9 @@ public record SelectRaidCandidatesService(
 
 		var result1 = await TwitchApiRequest.GetUsers(userParameters);
 
-		var raidSuggestionList = new List<RaidSuggestion>();	
+		var raidSuggestionList = new List<RaidSuggestion>();
 
-		foreach (var streamer1 in selectedSuggestions) 
+		foreach (var streamer1 in selectedSuggestions)
 		{
 			var x = result1.Where(x => x.Id == streamer1.BroadcasterId).FirstOrDefault();
 

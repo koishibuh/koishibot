@@ -1,33 +1,34 @@
-﻿using Koishibot.Core.Features.ChatCommands.Interface;
+﻿
+using Koishibot.Core.Features.ChatCommands.Interface;
+using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
-using Koishibot.Core.Features.Raids.Enums;
-using Koishibot.Core.Features.RaidSuggestions;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 namespace Koishibot.Core.Features.ChatCommands;
 
-public record RaidCommands(IAppCache Cache,
-	ITwitchIrcService BotIrc,
+public record RaidCommands(
+	IAppCache Cache,
+	IChatReplyService ChatReplyService,
 	IRaidSuggestionValidation StreamerValidation
 	) : IRaidCommands
 {
 	public async Task Process(ChatMessageDto cc)
 	{
+		var user = new UserData(cc.User.Name);
+
+
 		if (Cache.RaidSuggestionDisabled())
 		{
-			await BotIrc.RaidStatus
-				(Code.NotCurrentlyRaiding);
+			await ChatReplyService.App(Command.StreamNotOver);
 		}
 		else if (Cache.UpdateStatusToVoting())
 		{
-			await BotIrc.PostSuggestionResult
-				(Code.RaidSuggestionsClosed, (cc.User.Name, ""));
+			await ChatReplyService.App(Command.RaidSuggestionsClosed, user);
 		}
 		else if (cc.SuggestionCommandEmpty())
 		{
-			await BotIrc.PostSuggestionResult
-				(Code.NoSuggestionMade, (cc.User.Name, ""));
+			await ChatReplyService.App(Command.NoSuggestionMade, user);
 		}
 		else
 		{

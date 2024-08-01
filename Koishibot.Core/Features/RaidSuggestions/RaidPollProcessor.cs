@@ -1,16 +1,18 @@
-﻿using Koishibot.Core.Features.Polls.Extensions;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Polls.Extensions;
 using Koishibot.Core.Features.Polls.Models;
-using Koishibot.Core.Features.Raids.Enums;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
+using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Polls;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 namespace Koishibot.Core.Features.RaidSuggestions;
 
 // == ⚫ == //
 
 public record RaidPollProcessor(
-		IAppCache Cache, ITwitchIrcService BotIrc,
+		IAppCache Cache,
+		IChatReplyService ChatReplyService,
 		ISignalrService Signalr
 		) : IRaidPollProcessor
 {
@@ -53,8 +55,9 @@ public record RaidPollProcessor(
 
 		// TODO: Have it display the raid poll winner on overlay
 
-		await BotIrc.RaidTarget
-				(Code.WinningRaidTarget, raidTarget.SuggestedByUser.Name, raidTarget.Streamer.Name);
+		var data = new UserStreamerData(raidTarget.SuggestedByUser.Name, raidTarget.Streamer.Name);
+
+		await ChatReplyService.App(Command.RaidTarget, data);
 
 		await Signalr.SendRaidOverlayStatus(false);
 	}
