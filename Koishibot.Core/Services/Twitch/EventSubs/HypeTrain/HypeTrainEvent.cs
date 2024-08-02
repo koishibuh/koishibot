@@ -8,6 +8,7 @@ namespace Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.HypeTrain;
 /// When a Hype Train begins on the specified channel.<br/>
 /// Required Scopes: channel:read:hype_train<br/><br/>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelhype_trainend">Twitch Documentation</see><br/>
+/// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-reference/#hype-train-end-event">Reference</see><br/>
 /// When a Hype Train ends on the specified channel. <br/>
 /// Required Scopes: channel:read:hype_train
 /// </summary>

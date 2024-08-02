@@ -5,5 +5,6 @@ public enum StreamEventType
 	Cheer,
 	Raid,
 	GiftSub,
-	Sub
+	Sub,
+	HypeTrain
 }
