@@ -24,8 +24,9 @@ public class TwitchUser
 	public IList<ChannelPointRedemption> RedeemedChannelPointRewards { get; set; } = [];
 	public IList<ChannelFollow> ChannelFollows { get; set; } = [];
 	public IList<TwitchCheer> Cheers { get; set; } = [];
-	//public IList<Subscription> Subscriptions { get; set; } = [];
-	//public IList<GiftSubscription> GiftedSubscriptions { get; set; } = [];
+	public IList<Subscription> Subscriptions { get; set; } = [];
+	public IList<GiftSubscription> GiftedSubscriptions { get; set; } = [];
+	public SupportTotal? SupportTotal { get; set; }
 
 	// == ⚫ == //
 

@@ -28,6 +28,9 @@ public class KoishibotDbContext : DbContext
 	public DbSet<ChatCommand> ChatCommands => Set<ChatCommand>();
 	public DbSet<TimerGroup> TimerGroups => Set<TimerGroup>();
 	public DbSet<CommandName> CommandNames => Set<CommandName>();
+	public DbSet<Subscription> Subscriptions => Set<Subscription>();
+	public DbSet<GiftSubscription> GiftSubscriptions => Set<GiftSubscription>();
+	public DbSet<SupportTotal> SupportTotals => Set<SupportTotal>();
 
 	public KoishibotDbContext(DbContextOptions<KoishibotDbContext> options)
 		: base(options)

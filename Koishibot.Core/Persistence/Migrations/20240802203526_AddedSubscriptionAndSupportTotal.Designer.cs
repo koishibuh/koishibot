@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koishibot.Core.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
-    partial class KoishibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240802203526_AddedSubscriptionAndSupportTotal")]
+    partial class AddedSubscriptionAndSupportTotal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

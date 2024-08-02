@@ -3,5 +3,7 @@ public enum StreamEventType
 {
 	Follow,
 	Cheer,
-	Raid
+	Raid,
+	GiftSub,
+	Sub
 }

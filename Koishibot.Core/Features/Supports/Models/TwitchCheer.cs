@@ -1,13 +1,16 @@
-﻿using Koishibot.Core.Features.TwitchUsers.Models;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common.Enums;
+using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 
 namespace Koishibot.Core.Features.Supports.Models;
-public class TwitchCheer
+public class TwitchCheer : IEntity
 {
 	public int Id { get; set; }
-	public DateTimeOffset Timestamp { get; set; }	
-	public int UserId { get; set; }	
-	public int BitsAmount { get; set; }	
+	public DateTimeOffset Timestamp { get; set; }
+	public int UserId { get; set; }
+	public int BitsAmount { get; set; }
 	public string Message { get; set; } = string.Empty;
 
 	// == ⚫ NAVIGATION == //
@@ -30,5 +33,15 @@ public class TwitchCheer
 	{
 		context.Add(this);
 		await context.SaveChangesAsync();
+	}
+
+	public StreamEventVm CreateVm(string username)
+	{
+		return new StreamEventVm
+		{
+			EventType = StreamEventType.Cheer,
+			Timestamp = Timestamp.ToString("yyyy-MM-dd HH:mm"),
+			Message = $"{username} has cheered {BitsAmount}"
+		};
 	}
 }

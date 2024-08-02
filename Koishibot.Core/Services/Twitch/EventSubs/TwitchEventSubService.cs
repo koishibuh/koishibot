@@ -234,7 +234,7 @@ public record TwitchEventSubService(
 		await Send(new ModeratorRemovedCommand(args.Payload.Event));
 
 		TwitchEventSub.OnPowerUpRedeemed += async args =>
-			await Send(new PowerUpReceivedCommand(args.Payload.Event));
+			await Send(new AutoRewardRedeemedCommand(args.Payload.Event));
 
 		TwitchEventSub.OnChannelPointsCustomRewardCreated += async args =>
 			await Send(new PointRewardCreatedCommand(args.Payload.Event));

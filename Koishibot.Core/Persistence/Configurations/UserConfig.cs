@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Models;
+using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -35,5 +36,19 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 			.WithOne(p => p.TwitchUser)
 			.HasForeignKey(p => p.UserId)
 			.IsRequired();
+
+		builder.HasMany(p => p.Subscriptions)
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired();
+
+		builder.HasMany(p => p.GiftedSubscriptions)
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired();
+
+		builder.HasOne(p => p.SupportTotal)
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey<SupportTotal>(p => p.UserId);
 	}
 }

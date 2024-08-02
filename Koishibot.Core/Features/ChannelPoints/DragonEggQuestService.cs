@@ -106,7 +106,7 @@ public record DragonEggQuestService(
 
 			await Database.UpdateRedemption(redemption);
 
-			var data = new UserCountData(user.Name, successRange.Attempts)
+			var data = new UserCountData(user.Name, successRange.Attempts);
 			await ChatReplyService.App(Command.DragonEggQuestFailed, data);
 		}
 	}
