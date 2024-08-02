@@ -2,16 +2,17 @@
 using Koishibot.Core.Features.ChannelPoints.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.ChannelPoints.Models;
+using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 namespace Koishibot.Core.Features.ChannelPoints;
 
 public record DragonEggQuestService(
 	ILogger<DragonEggQuestService> Log,
 	IAppCache Cache, KoishibotDbContext Database,
-	ITwitchIrcService BotIrc, IChannelPointsApi ChannelPointsApi
+	IChatReplyService ChatReplyService, IChannelPointsApi ChannelPointsApi
 	) : IDragonEggQuestService
 {
 	public async Task Initialize()
@@ -35,7 +36,7 @@ public record DragonEggQuestService(
 				.UpdateDragonEggQuestServiceStatus(true);
 
 			await ChannelPointsApi.EnableRedemption(reward.TwitchId);
-			await BotIrc.DragonEggStatus(Code.DragonEggQuestEnabled);
+			await ChatReplyService.App(Command.DragonEggQuestEnabled);
 			return;
 		}
 
@@ -51,7 +52,7 @@ public record DragonEggQuestService(
 
 			Cache.AddDragonEggQuest(quest);
 
-			await BotIrc.DragonEggStatus(Code.DragonEggQuestEnabled);
+			await ChatReplyService.App(Command.DragonEggQuestEnabled);
 		}
 	}
 
@@ -61,7 +62,7 @@ public record DragonEggQuestService(
 	{
 		if (Cache.DragonEggQuestClosed())
 		{
-			await BotIrc.DragonEggStatus(Code.DragonEggQuestDisabled);
+			await ChatReplyService.App(Command.DragonEggQuestDisabled);
 			return;
 		}
 
@@ -83,7 +84,9 @@ public record DragonEggQuestService(
 				.AddDragonEggQuest(quest)
 				.DisableDragonEggQuestService();
 
-			await BotIrc.PostDragonEggResult(Code.Successful, user, (successRange.Attempts + 1));
+			var data = new UserCountData(user.Name, (successRange.Attempts + 1));
+
+			await ChatReplyService.App(Command.DragonEggQuestSuccessful, data);
 
 			var redemption = new ChannelPointRedemption()
 				.Set(reward, user, redeemedAt, true);
@@ -102,7 +105,9 @@ public record DragonEggQuestService(
 				.Set(reward, user, redeemedAt, false);
 
 			await Database.UpdateRedemption(redemption);
-			await BotIrc.PostDragonEggResult(Code.Fail, user, successRange.Attempts);
+
+			var data = new UserCountData(user.Name, successRange.Attempts)
+			await ChatReplyService.App(Command.DragonEggQuestFailed, data);
 		}
 	}
 
@@ -113,50 +118,5 @@ public record DragonEggQuestService(
 				|| today.DayOfWeek == DayOfWeek.Friday
 				|| today.DayOfWeek == DayOfWeek.Saturday
 				|| today.DayOfWeek == DayOfWeek.Sunday;
-	}
-}
-
-// == ⚫ CHAT REPLIES == //
-
-public static class ChannelPointChatReply
-{
-	// == ⚫  == //
-
-	public static async Task PostDragonEggResult
-			(this ITwitchIrcService irc, Code code, TwitchUser user, int count)
-	{
-		var message = code switch
-		{
-			Code.Successful
-				=> $"On the {count} attempt, {user.Name}'s Dragon Egg Quest was successful! " +
-					$"Please choose: Alpine, Desert, Coast, Forest, Jungle, or Volcano",
-
-			Code.Fail
-				=> $"{user.Name} found an egg nest! However they were chased away by Momma Dragon " +
-					$"and returned empty handed. There has been {count} quest attempts today",
-
-			_ => $"Something bork here for DragonEggQuest lol"
-		};
-
-		await irc.BotSend(message);
-	}
-
-	// == ⚫  == //
-
-	public static async Task DragonEggStatus
-			(this ITwitchIrcService irc, Code code)
-	{
-		var message = code switch
-		{
-			Code.DragonEggQuestEnabled
-				=> $"It's a good day to explore for Dragon Eggs! (Dragon Egg Quest has been enabled!)",
-
-			Code.DragonEggQuestDisabled
-				=> $"Sorry adventurer, today is not a day for dragon egg questin'! (Why is this bork?)",
-
-			_ => $"Something bork for PostDragonEggStatus lol"
-		};
-
-		await irc.BotSend(message);
 	}
 }

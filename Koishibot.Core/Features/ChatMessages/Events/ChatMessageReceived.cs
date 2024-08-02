@@ -5,7 +5,6 @@ using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatMessage;
 namespace Koishibot.Core.Features.ChatMessages.Events;
 
-public record ChatMessageReceivedCommand(ChatMessageReceivedEvent args) : IRequest;
 
 
 /// <summary>
@@ -13,16 +12,15 @@ public record ChatMessageReceivedCommand(ChatMessageReceivedEvent args) : IReque
 /// Publish to UI, Log User, Save Attendance if Enabled, Check Command
 /// </summary>
 public record ChatMessageReceived(
-		IOptions<Settings> Settings,
-		IAppCache Cache,
-		ISignalrService Signalr,
-		IChatCommandProcessor ChatCommandProcessor,
-		ITwitchUserHub TwitchUserHub
-		) : IRequestHandler<ChatMessageReceivedCommand>
+	IOptions<Settings> Settings,
+	IAppCache Cache,
+	ISignalrService Signalr,
+	IChatCommandProcessor ChatCommandProcessor,
+	ITwitchUserHub TwitchUserHub
+	) : IRequestHandler<ChatMessageReceivedCommand>
 {
-
 	public async Task Handle
-			(ChatMessageReceivedCommand command, CancellationToken cancel)
+		(ChatMessageReceivedCommand command, CancellationToken cancel)
 	{
 		var chatVm = command.args.ConvertToVm();
 		await Signalr.SendChatMessage(chatVm);
@@ -68,3 +66,13 @@ public record ChatMessageReceived(
 		}
 	}
 }
+
+// == ⚫ COMMAND == //
+
+public record ChatMessageReceivedCommand(
+	ChatMessageReceivedEvent args
+	) : IRequest
+{
+
+};
+
