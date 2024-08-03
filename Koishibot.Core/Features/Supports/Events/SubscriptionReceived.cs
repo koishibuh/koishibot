@@ -70,7 +70,7 @@ public record SubscriptionReceivedCommand(
 		{
 			EventType = StreamEventType.Sub,
 			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
-			Message = $"{e.SubscriberName} has resubscribed at {e.Tier} for 1 month"
+			Message = $"{e.SubscriberName} has subscribed at {e.Tier} for 1 month"
 		};
 	}
 };

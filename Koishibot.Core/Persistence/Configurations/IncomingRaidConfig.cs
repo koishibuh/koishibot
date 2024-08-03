@@ -16,7 +16,7 @@ public class IncomingRaidConfig
 
 		builder.Property(p => p.TwitchStreamId);
 
-		builder.Property(p => p.RaidedAt);
+		builder.Property(p => p.Timestamp);
 
 		builder.Property(p => p.RaidedByUserId);
 

@@ -29,7 +29,7 @@ public record GetEventFeedHandler(
 	public async Task<List<StreamEventVm>> Handle
 		(GetEventFeedCommand command, CancellationToken cancel)
 	{
-		// get follow & raid
+		// get follow, raid, cheers, subs
 		return await Database.GetRecentStreamEvents();
 	}
 }
@@ -57,19 +57,61 @@ public static class GetEventFeedExtensions
 		var raids = await database.IncomingRaids
 			.AsNoTracking()
 			.Include(x => x.RaidedByUser)
-			.OrderByDescending(f => f.RaidedAt)
+			.OrderByDescending(f => f.Timestamp)
 			.Take(50)
 			.Select(f => new StreamEventVm
 			{
 				EventType = StreamEventType.Raid,
-				Timestamp = f.RaidedAt.ToString("yyyy-MM-dd HH:mm"),
+				Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
 				Message = $"{f.RaidedByUser.Name} has raided with {f.ViewerCount}"
+			})
+			.ToListAsync();
+
+		var cheers = await database.Cheers
+			.AsNoTracking()
+			.Include(x => x.TwitchUser)
+			.OrderByDescending(f => f.Timestamp)
+			.Take(50)
+			.Select(f => new StreamEventVm
+			{
+				EventType = StreamEventType.Cheer,
+				Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+				Message = $"{f.TwitchUser.Name} has cheered {f.BitsAmount}"
+			})
+			.ToListAsync();
+
+		var subs = await database.Subscriptions
+			.AsNoTracking()
+			.Include(x => x.TwitchUser)
+			.OrderByDescending(f => f.Timestamp)
+			.Take(50)
+			.Select(f => new StreamEventVm
+			{
+				EventType = StreamEventType.Sub,
+				Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+				Message = $"{f.TwitchUser.Name} has subscribed at {f.Tier} for 1 month"
+			})
+			.ToListAsync();
+
+		var giftsub = await database.GiftSubscriptions
+			.AsNoTracking()
+			.Include(x => x.TwitchUser)
+			.OrderByDescending(f => f.Timestamp)
+			.Take(50)
+			.Select(f => new StreamEventVm
+			{
+				EventType = StreamEventType.Sub,
+				Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+				Message = $"{f.TwitchUser.Name} has gifted {f.Total} {f.Tier} subs!"
 			})
 			.ToListAsync();
 
 		var list = new List<StreamEventVm>();
 		list.AddRange(follows);
 		list.AddRange(raids);
+		list.AddRange(cheers);
+		list.AddRange(subs);
+		list.AddRange(giftsub);
 		var updatedList = list.OrderByDescending(x => x.Timestamp).ToList();
 		return updatedList;
 	}
