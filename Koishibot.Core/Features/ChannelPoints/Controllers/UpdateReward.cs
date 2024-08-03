@@ -7,7 +7,7 @@ namespace Koishibot.Core.Features.ChannelPoints;
 public class UpdateChannelPointRewardController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Point Reward"])]
-	[HttpPatch("/api/point-reward/twitch")]
+	[HttpPatch("/api/point-rewards/twitch")]
 	public async Task<ActionResult> UpdateChannelPointReward
 			([FromBody] UpdateRewardCommand e)
 	{

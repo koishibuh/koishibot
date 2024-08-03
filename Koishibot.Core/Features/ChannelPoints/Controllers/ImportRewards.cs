@@ -9,7 +9,7 @@ namespace Koishibot.Core.Features.ChannelPoints;
 public class ImportChannelPointRewardsController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Point Reward"])]
-	[HttpGet("/api/point-reward/twitch")]
+	[HttpGet("/api/point-rewards/twitch")]
 	public async Task<ActionResult> ImportChannelPointRewardsFromTwitch()
 	{
 		var result = await Mediator.Send(new ImportRewardsQuery());

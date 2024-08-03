@@ -1,0 +1,38 @@
+[
+  {
+    "twitchId": "1",
+    "title": "Reward Test 1",
+    "description": "The first test reward",
+    "cost": 10,
+    "backgroundColor": "#FFFFFF",
+    "isEnabled": true,
+    "isUserInputRequired": false,
+    "isMaxPerStreamEnabled": false,
+    "maxPerStream": 0,
+    "isMaxPerUserPerStreamEnabled": false,
+    "maxPerUserPerStream": 0,
+    "isGlobalCooldownEnabled": true,
+    "globalCooldownSeconds": 30,
+    "isPaused": false,
+    "shouldRedemptionsSkipRequestQueue": true,
+    "imageUrl": "imageurl.png"
+  },
+  {
+    "twitchId": "2",
+    "title": "Reward Test 2",
+    "description": "The second test reward",
+    "cost": 100,
+    "backgroundColor": "#FFFFFF",
+    "isEnabled": false,
+    "isUserInputRequired": true,
+    "isMaxPerStreamEnabled": false,
+    "maxPerStream": 0,
+    "isMaxPerUserPerStreamEnabled": false,
+    "maxPerUserPerStream": 0,
+    "isGlobalCooldownEnabled": true,
+    "globalCooldownSeconds": 30,
+    "isPaused": false,
+    "shouldRedemptionsSkipRequestQueue": true,
+    "imageUrl": "imageurl.png"
+  }
+]

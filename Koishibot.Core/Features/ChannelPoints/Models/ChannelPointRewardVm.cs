@@ -1,12 +1,12 @@
 ﻿namespace Koishibot.Core.Features.ChannelPoints.Models;
 
 public record ChannelPointRewardVm(
-	int Id,
+	string TwitchId,
 	string Title,
 	int Cost,
 	bool IsEnabled,
 	bool IsUserInputRequired,
-	string Prompt,
+	string Description,
 	string BackgroundColor,
 	bool IsMaxPerStreamEnabled,
 	int MaxPerStream,
@@ -14,5 +14,7 @@ public record ChannelPointRewardVm(
 	int MaxPerUserPerStream,
 	bool IsGlobalCooldownEnabled,
 	int GlobalCooldownSeconds,
-	bool SkipRequestQueue
+	bool IsPaused,
+	bool SkipRequestQueue,
+	string ImageUrl
 );

@@ -149,12 +149,37 @@ public static class ChannelPointExtensions
 		return database.ChannelPointRewards.ToList();
 	}
 
+	public static async Task<List<ChannelPointRewardVm>> GetChannelPointRewards
+		(this KoishibotDbContext database)
+	{
+		return await database.ChannelPointRewards
+			.AsNoTracking()
+			.Select(x => new ChannelPointRewardVm(
+				x.TwitchId,
+				x.Title,
+				x.Cost,
+				x.IsEnabled,
+				x.IsUserInputRequired,
+				x.Description,
+				x.BackgroundColor,
+				x.IsMaxPerStreamEnabled,
+				x.MaxPerStream,
+				x.IsMaxPerUserPerStreamEnabled,
+				x.MaxPerUserPerStream,
+				x.IsGlobalCooldownEnabled,
+				x.GlobalCooldownSeconds,
+				x.IsPaused,
+				x.ShouldRedemptionsSkipRequestQueue,
+				x.ImageUrl
+				)).ToListAsync();
+	}
+
 	public static List<ChannelPointRewardVm> ConvertToVm(this List<ChannelPointReward> rewards)
 	{
 		return rewards
 			.Select(reward => new ChannelPointRewardVm
 			(
-				reward.Id,
+				reward.TwitchId,
 				reward.Title,
 				reward.Cost,
 				reward.IsEnabled,
@@ -167,7 +192,9 @@ public static class ChannelPointExtensions
 				reward.MaxPerUserPerStream,
 				reward.IsGlobalCooldownEnabled,
 				reward.GlobalCooldownSeconds,
-				reward.ShouldRedemptionsSkipRequestQueue
+				reward.IsPaused,
+				reward.ShouldRedemptionsSkipRequestQueue,
+				reward.ImageUrl
 			))
 			.ToList();
 	}
