@@ -6,6 +6,7 @@ using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.Dandle;
 using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.Obs.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
@@ -19,7 +20,8 @@ public record PomodoroTimer(
 	IChatReplyService ChatReplyService,
 	IObsService ObsService,
 	ISignalrService Signalr, IAppCache Cache,
-	ITwitchApiRequest TwitchApiRequest
+	ITwitchApiRequest TwitchApiRequest,
+	IDandleService DandleService
 	) : IPomodoroTimer
 {
 	private CancellationTokenSource _cancelToken = new();
@@ -62,6 +64,8 @@ public record PomodoroTimer(
 	{
 		await ChatReplyService.App(Command.PomdoroBreak);
 		await ObsService.StartBreak();
+
+		await DandleService.StartGame();
 
 		var breakTimer = new CurrentTimer().SetBreak();
 		Cache.AddCurrentTimer(breakTimer);
