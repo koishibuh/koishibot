@@ -9,8 +9,9 @@ namespace Koishibot.Core.Features.Dandle;
 // == ⚫ SERVICE == //
 
 public record DandleService(
-	IAppCache Cache, KoishibotDbContext Database,
+	IAppCache Cache,
 	IChatReplyService ChatReplyService,
+	IServiceScopeFactory ServiceScopeFactory,
 	ISignalrService Signalr, ILogger<StartDandleGameHandler> Log
 	) : IDandleService
 {
@@ -18,7 +19,10 @@ public record DandleService(
 	{
 		if (Cache.DandleIsEnabled()) { return; }
 
-		var dandleDictionary = await Database.GetDandleWords();
+		using var scope = ServiceScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+
+		var dandleDictionary = await database.GetDandleWords();
 
 		var dandleInfo = new DandleGame()
 			.SetNewGame()

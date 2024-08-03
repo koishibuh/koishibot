@@ -65,6 +65,7 @@ public record PomodoroTimer(
 		await ChatReplyService.App(Command.PomdoroBreak);
 		await ObsService.StartBreak();
 
+		
 		await DandleService.StartGame();
 
 		var breakTimer = new CurrentTimer().SetBreak();
