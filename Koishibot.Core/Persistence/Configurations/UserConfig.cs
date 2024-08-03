@@ -23,6 +23,8 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 
 		builder.Property(p => p.Name);
 
+		builder.Property(p => p.PermissionLevel);
+
 		builder.HasOne(p => p.Attendance)
 			.WithOne(p => p.User)
 			.HasForeignKey<Attendance>(p => p.UserId);

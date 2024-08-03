@@ -22,8 +22,9 @@ public enum PermissionLevel
 	App = 1,
 	Broadcaster = 2,
 	Mod = 3,
-	Vip = 4,
-	Everyone = 5
+	Koi = 4,
+	Everyone = 5,
+	Ignore = 6
 }
 
 public class TimerGroup : IEntity
@@ -63,8 +64,9 @@ public class PermissionLevelEnumConverter : JsonConverter<PermissionLevel>
 			"App" => PermissionLevel.App,
 			"Broadcaster" => PermissionLevel.Broadcaster,
 			"Mod" => PermissionLevel.Mod,
-			"Vip" => PermissionLevel.Vip,
+			"Koi" => PermissionLevel.Koi,
 			"Everyone" => PermissionLevel.Everyone,
+			"Ignore" => PermissionLevel.Ignore,
 			_ => throw new JsonException()
 		};
 	}
@@ -77,8 +79,9 @@ public class PermissionLevelEnumConverter : JsonConverter<PermissionLevel>
 			PermissionLevel.App => "App",
 			PermissionLevel.Broadcaster => "Broadcaster",
 			PermissionLevel.Mod => "Mod",
-			PermissionLevel.Vip => "Vip",
+			PermissionLevel.Koi => "Koi",
 			PermissionLevel.Everyone => "Everyone",
+			PermissionLevel.Ignore => "Ignore",
 			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 		};
 		if (writer.CurrentDepth.Equals(1))

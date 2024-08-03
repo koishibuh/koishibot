@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Models;
+using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
@@ -14,6 +15,7 @@ public class TwitchUser
 	public string TwitchId { get; set; } = null!;
 	public string Login { get; set; } = string.Empty;
 	public string Name { get; set; } = null!;
+	public PermissionLevel PermissionLevel { get; set; } = PermissionLevel.Everyone;
 
 	// NAVIGATION
 
@@ -32,9 +34,9 @@ public class TwitchUser
 
 	// == ⚫ == //
 
-	public bool IsOnBlocklist()
+	public bool IsIgnored()
 	{
-		return Login == "koishibuh" || Login == "honestdanbot";
+		return PermissionLevel == PermissionLevel.Ignore;
 	}
 
 	public bool ChangedUsername(string currentName)
@@ -55,6 +57,7 @@ public class TwitchUser
 		TwitchId = userDto.TwitchId;
 		Login = userDto.Login;
 		Name = userDto.Name;
+		PermissionLevel = PermissionLevel.Everyone;
 		return this;
 	}
 
@@ -71,6 +74,7 @@ public class TwitchUser
 		TwitchId = userDto.Id;
 		Login = userDto.Login;
 		Name = userDto.Name;
+		PermissionLevel = PermissionLevel.Everyone;
 		return this;
 	}
 }

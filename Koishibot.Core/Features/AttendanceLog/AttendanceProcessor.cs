@@ -17,7 +17,7 @@ public record AttendanceProcessor(
 {
 	public async Task Start(TwitchUser user)
 	{
-		if (user.IsOnBlocklist()) { return; }
+		if (user.IsIgnored()) { return; }
 
 		if (Cache.AttendanceDisabled()) { return; }
 
