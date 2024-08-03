@@ -55,5 +55,10 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 		.WithOne(p => p.TwitchUser)
 		.HasForeignKey(p => p.UserId)
 		.IsRequired(false);
+
+		builder.HasMany(p => p.SETips)
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired(false);
 	}
 }

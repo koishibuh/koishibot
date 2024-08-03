@@ -1,6 +1,7 @@
 ﻿using Koishibot.Core.Features.Lights;
 using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.Obs.Interfaces;
+using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.EventSubs;
 using Koishibot.Core.Services.Twitch.Irc;
@@ -45,6 +46,7 @@ public static class InfrastructureServiceCollection
 		services.AddSingleton<ITwitchIrcService, TwitchIrcService>();
 		services.AddSingleton<ITwitchEventSubService, TwitchEventSubService>();
 		services.AddSingleton<ITwitchApiClient, TwitchApiClient>();
+		services.AddSingleton<IStreamElementsService, StreamElementsService>();
 		services.AddSingleton<ILightService, LightService>();	
 
 

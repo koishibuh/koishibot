@@ -8,7 +8,7 @@ public record GoogleCalendarApi(IGoogleService GoogleService) : IGoogleCalendarA
 	public async Task<IList<Event>> GetEvents(string calendarId)
 	{
 		var request = GoogleService.GetGoogleCalendar().Events.List(calendarId);
-		request.TimeMin = DateTime.Now;
+		request.TimeMaxDateTimeOffset = DateTime.Now;
 		request.ShowDeleted = false;
 		request.SingleEvents = true;
 		request.MaxResults = 10;

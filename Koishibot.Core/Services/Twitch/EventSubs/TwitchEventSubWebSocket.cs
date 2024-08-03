@@ -35,13 +35,13 @@ namespace Koishibot.Core.Services.Twitch.EventSubs;
 public class TwitchEventSubWebSocket : WebSocketHandlerBase
 {
 	public TwitchEventSubWebSocket(
-			string url,
+		string url,
 		IOptions<Settings> Settings,
-			CancellationToken cancellationToken,
-			byte maxReconnectAttempts,
-			List<EventSubSubscriptionType> eventSubs,
-			ITwitchApiRequest twitchApiRequest
-			) : base(url, cancellationToken, maxReconnectAttempts)
+		CancellationToken cancellationToken,
+		byte maxReconnectAttempts,
+		List<EventSubSubscriptionType> eventSubs,
+		ITwitchApiRequest twitchApiRequest
+	) : base(url, cancellationToken, maxReconnectAttempts)
 	{
 		_settings = Settings;
 		_twitchApiRequest = twitchApiRequest;

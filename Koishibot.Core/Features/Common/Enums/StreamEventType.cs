@@ -7,5 +7,6 @@ public enum StreamEventType
 	GiftSub,
 	Sub,
 	HypeTrain,
-	Kofi
+	Kofi,
+	SETip
 }

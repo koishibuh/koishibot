@@ -99,5 +99,4 @@ public abstract class WebSocketHandlerBase
 			await _socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", _cancel);
 		}
 	}
-
 }

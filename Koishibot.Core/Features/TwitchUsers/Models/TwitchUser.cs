@@ -27,6 +27,7 @@ public class TwitchUser
 	public IList<Subscription> Subscriptions { get; set; } = [];
 	public IList<GiftSubscription> GiftedSubscriptions { get; set; } = [];
 	public IList<Kofi> KofiSupport { get; set; } = [];
+	public IList<SETip> SETips { get; set; } = [];
 	public SupportTotal? SupportTotal { get; set; }
 
 	// == ⚫ == //
