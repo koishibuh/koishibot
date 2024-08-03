@@ -1,5 +1,12 @@
-﻿using Newtonsoft.Json;
-
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common.Enums;
+using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.Supports.Models;
+using Koishibot.Core.Features.TwitchUsers.Extensions;
+using Koishibot.Core.Features.TwitchUsers.Models;
+using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.Kofi;
+using System.Text.Json;
 namespace Koishibot.Core.Features.Supports.Controllers;
 
 
@@ -18,7 +25,7 @@ public class ProcessKofiController : ApiControllerBase
 	[HttpPost("/api/kofi")]
 	public async Task<ActionResult> ProcessKofi([FromForm] string data)
 	{
-		var kofiData = JsonConvert.DeserializeObject<Data>(data)
+		var kofiData = JsonSerializer.Deserialize<KofiEvent>(data)
 			?? throw new Exception("KofiData is null");
 
 		if (kofiData.VerificationToken != _settings.Value.KofiVerificationToken)
@@ -31,74 +38,63 @@ public class ProcessKofiController : ApiControllerBase
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public class ProcessKofiCommand : IRequest
-{
-	public Data Data { get; set; }
-}
-
-public class Data
-{
-	public string VerificationToken { get; set; } = string.Empty;
-	public string MessageId { get; set; } = string.Empty;
-	public string Timestamp { get; set; } = string.Empty;
-	public KofiType Type { get; set; }
-	public bool IsPublic { get; set; }
-	public string FromName { get; set; } = string.Empty;
-	public string? Message { get; set; }
-	public string Amount { get; set; } = string.Empty;
-	public string Url { get; set; } = string.Empty;
-	public string Email { get; set; } = string.Empty;
-	public string Currency { get; set; } = string.Empty;
-	public bool IsSubscriptionPayment { get; set; }
-	public bool IsFirstSubscriptionPayment { get; set; }
-	public string KofiTransactionId { get; set; } = string.Empty;
-	public List<ShopItem>? ShopItems { get; set; }
-	public string? TierName { get; set; }
-	public ShippingInfo? Shipping { get; set; }
-}
-
-public class ShopItem
-{
-	public string DirectLinkCode { get; set; } = string.Empty;
-	public string VariationName { get; set; } = string.Empty;
-	public int Quantity { get; set; }
-
-}
-
-public class ShippingInfo
-{
-	public string FullName { get; set; } = string.Empty;
-	public string StreetAddress { get; set; } = string.Empty;
-	public string City { get; set; } = string.Empty;
-	public string StateOrProvince { get; set; } = string.Empty;
-	public string PostalCode { get; set; } = string.Empty;
-	public string Country { get; set; } = string.Empty;
-	public string CountryCode { get; set; } = string.Empty;
-	public string Telephone { get; set; } = string.Empty;
-}
-
-public enum KofiType
-{
-	Donation,
-	Subscription,
-	Commission,
-	ShopOrder
-}
-
 // == ⚫ HANDLER == //
 
 public record ProcessKofiHandler(
-
+	KoishibotDbContext Database,
+	ISignalrService Signalr
 		) : IRequestHandler<ProcessKofiCommand>
 {
 	public async Task Handle
 			(ProcessKofiCommand command, CancellationToken cancel)
 	{
-		// save to database
-		// update overlay
-		var test = command.Data.Timestamp;
-		await Task.CompletedTask;
+		var userLogin = command.GetUserlogin();
+		var user = await Database.GetUserByLogin(userLogin);
+
+		var kofi = command.CreateModel(user);
+		await Database.UpdateEntry(kofi);
+
+		var kofiVm = command.CreateVm();
+		await Signalr.SendStreamEvent(kofiVm);
+		
+		// Update overlay bar
+	}
+}
+
+// == ⚫ COMMAND == //
+
+public class ProcessKofiCommand : IRequest
+{
+	public KofiEvent Data { get; set; }
+
+	public string GetUserlogin()
+	{
+		return Data.FromName.ToLower();
+	}
+
+	public Kofi CreateModel(TwitchUser? user)
+	{
+		return new Kofi
+		{
+			KofiTransactionId = Data.KofiTransactionId,
+			Timestamp = Data.Timestamp,
+			TransactionUrl = Data.Url,
+			KofiType = Data.Type,
+			UserId = user is not null ? user.Id : null,
+			Username = Data.FromName,
+			Message = Data.Message ?? string.Empty,
+			Currency = Data.Currency,
+			Amount = Data.Amount
+		};
+	}
+
+	public StreamEventVm CreateVm()
+	{
+		return new StreamEventVm
+		{
+			EventType = StreamEventType.Kofi,
+			Timestamp = Data.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+			Message = $"{Data.FromName} tipped {Data.Amount} via Kofi"
+		};
 	}
 }

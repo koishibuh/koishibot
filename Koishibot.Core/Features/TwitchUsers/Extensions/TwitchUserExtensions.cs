@@ -48,6 +48,13 @@ public static class TwitchUserExtension
 				.FirstOrDefaultAsync(tu => tu.TwitchId == twitchId);
 	}
 
+	public static async Task<TwitchUser?> GetUserByLogin
+		(this KoishibotDbContext context, string userlogin)
+	{
+		return await context.Users
+			.FirstOrDefaultAsync(x => x.Login == userlogin);
+	}
+
 	public static async Task<TwitchUser> UpdateUser
 	(this KoishibotDbContext database, TwitchUser user)
 	{
