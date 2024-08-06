@@ -40,7 +40,7 @@ public record TwitchIrcService(
 		BotIrc.Connected += async () => await OnConnected("bot", bot.AccessToken, bot.Username);
 		BotIrc.MessageReceived += async message => await OnMessageReceived("bot", message);
 		BotIrc.Reconnecting += async () => await OnReconnecting();
-		BotIrc.OnDisconnectError += async () => await OnDisconnectError();
+		BotIrc.Error += async message => await OnDisconnectError(message);
 
 		await BotIrc.Connect();
 	}
@@ -131,7 +131,7 @@ public record TwitchIrcService(
 
 
 
-	public async Task OnDisconnectError()
+	public async Task OnDisconnectError(string message)
 	{
 		await Cache.UpdateServiceStatus(ServiceName.BotIrc, false);
 		await SignalrService.SendLog(new LogVm("Twitch IRC disconnected", "Warning"));

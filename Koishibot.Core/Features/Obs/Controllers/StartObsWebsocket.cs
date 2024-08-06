@@ -1,12 +1,11 @@
-﻿using Koishibot.Core.Features.Obs.Interfaces;
-namespace Koishibot.Core.Features.Obs.Controllers;
+﻿namespace Koishibot.Core.Features.Obs.Controllers;
 
 // == ⚫ POST == //
 
 public class StartObsWebsocketController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["OBS"])]
-	[HttpPost("/api/obs/")]
+	[HttpPost("/api/obs/connection")]
 	public async Task<ActionResult> StartObsWebsocket()
 	{
 		await Mediator.Send(new StartObsWebsocketCommand());
@@ -21,12 +20,13 @@ public record StartObsWebsocketCommand() : IRequest;
 // == ⚫ HANDLER == //
 
 public record StartObsWebsocketHandler(
-	IObsService ObsService
+	//IObsService ObsService
+	IObsService ObsServiceNew
 	) : IRequestHandler<StartObsWebsocketCommand>
 {
 	public async Task Handle
 			(StartObsWebsocketCommand c, CancellationToken cancel)
 	{
-		await ObsService.StartWebsocket();
+		await ObsServiceNew.CreateWebSocket(cancel);
 	}
 }

@@ -2,7 +2,7 @@
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.Obs.Interfaces;
+using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
 namespace Koishibot.Core.Features.StreamInformation.Events;
@@ -15,7 +15,7 @@ namespace Koishibot.Core.Features.StreamInformation.Events;
 public record StreamOnlineHandler(
 	IAppCache Cache, ISignalrService Signalr,
 	IStreamSessionService StreamSessionService,
-	IObsService ObsService,
+	IObsService ObsServiceNew,
 	IChannelPointStatusService ChannelPointStatusService
 	) : IRequestHandler<StreamOnlineCommand>
 {
@@ -25,7 +25,7 @@ public record StreamOnlineHandler(
 			.ClearAttendanceCache()
 			.UpdateStreamStatusOnline();
 
-		await ObsService.StartWebsocket();
+		await ObsServiceNew.CreateWebSocket(cancel);
 
 		var timer = new CurrentTimer().SetStartingSoon();
 		Cache.AddCurrentTimer(timer);

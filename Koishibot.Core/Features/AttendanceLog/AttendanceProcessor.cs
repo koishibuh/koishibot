@@ -35,6 +35,8 @@ public record AttendanceProcessor(
 		{
 			if (attendance.WasAlreadyRecordedToday()) { return; }
 
+			
+
 			attendance
 				.UpdateStreakCount(Cache.GetLastMandatoryStreamDate())
 				.SetLastUpdatedDate();

@@ -1,11 +1,11 @@
 export interface IChannelPointReward {
   twitchId: string;
   title: string;
-  description: string;
   cost: number;
-  backgroundColor: string;
   isEnabled: boolean;
   isUserInputRequired: boolean;
+  description: string;
+  backgroundColor: string;
   isMaxPerStreamEnabled: boolean;
   maxPerStream: number;
   isMaxPerUserPerStreamEnabled: boolean;

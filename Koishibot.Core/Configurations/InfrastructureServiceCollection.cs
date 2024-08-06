@@ -1,13 +1,11 @@
 ﻿using Koishibot.Core.Features.Lights;
 using Koishibot.Core.Features.Obs;
-using Koishibot.Core.Features.Obs.Interfaces;
 using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.EventSubs;
 using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Microsoft.Extensions.Configuration;
-using OBSStudioClient;
 using Todoist.Net;
 
 namespace Koishibot.Core.Configurations;
@@ -25,8 +23,10 @@ public static class InfrastructureServiceCollection
 		//	return twitchApi;
 		//});
 
-		services.AddSingleton(s => new ObsClient());
-		services.AddTransient<IObsService, ObsService>();
+
+		//services.AddTransient<IObsService, ObsService>();
+
+		services.AddSingleton<IObsService, ObsService>();
 		
 		//services.AddSingleton(s => new StreamerTwitchClient());
 		//services.AddSingleton(s => new BotTwitchClient());

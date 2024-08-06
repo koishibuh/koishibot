@@ -23,7 +23,7 @@ public record StreamElementsService(
 
 		StreamElements.OnAuthenticated += async () => await OnAuthenticated();
 		StreamElements.OnUnauthorized += async () => await OnUnauthorized();
-		StreamElements.OnDisconnectError += async () => await OnDisconnected();
+		StreamElements.Error += async message => await OnDisconnected(message);
 
 		StreamElements.OnTipReceived += async message => await OnTipReceived(message);
 
@@ -36,7 +36,7 @@ public record StreamElementsService(
 	public async Task OnUnauthorized() => await Signalr.SendLog
 		(new LogVm("StreamElements Websocket Unauthorized", "Info"));
 
-	private async Task OnDisconnected() => await Signalr.SendLog
+	private async Task OnDisconnected(string message) => await Signalr.SendLog
 		(new LogVm("StreamElements Websocket Disconnected", "Info"));
 
 	public async Task OnTipReceived(StreamElementsEvent e)

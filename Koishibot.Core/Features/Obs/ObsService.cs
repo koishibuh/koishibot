@@ -1,125 +1,126 @@
-﻿using Koishibot.Core.Features.Obs.Interfaces;
+﻿using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Persistence.Cache.Enums;
-using OBSStudioClient;
-using OBSStudioClient.Enums;
-using System.ComponentModel;
-
+using Koishibot.Core.Services.OBS;
+using Koishibot.Core.Services.OBS.Common;
+using Koishibot.Core.Services.OBS.Scenes;
+using System.Text.Json;
 namespace Koishibot.Core.Features.Obs;
 
-public record ObsService
-	(IOptions<Settings> Settings, IAppCache Cache,
-	ObsClient ObsClient, ILogger<ObsService> Log) : IObsService
+public record ObsService(
+		IAppCache Cache,
+		IOptions<Settings> Settings,
+		ISignalrService Signalr,
+		ILogger<ObsService> Log) : IObsService
 {
-	public ObsSettings ObsSettings => Settings.Value.ObsSettings;
-	public bool StreamConnected = false;
-	public string LastScene = "🌙 BRB";
+	public CancellationToken? Cancel { get; set; }
+	public ObsWebSocket ObsWebSocket { get; set; }
+
+	private JsonSerializerOptions _options =
+			new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 
-	public async Task StartWebsocket()
+	public async Task CreateWebSocket(CancellationToken cancel)
 	{
-		try
-		{
-			ObsClient.ConnectionClosed += OnConnectionClosed;
-			ObsClient.PropertyChanged += OnPropertyChanged;
-			await ObsClient.ConnectAsync(false, ObsSettings.Password, ObsSettings.WebsocketUrl);
-		}
-		catch (Exception ex)
-		{
-			Log.LogError("There was an issue starting ObsWebsocket: {ex}", ex); 
-		}
+		ObsWebSocket = new ObsWebSocket(
+				$"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}",
+				Settings, cancel, 3);
+
+		await SetupEventHandlers();
+		await ObsWebSocket.Connect();
 	}
 
-	public async Task StopWebsocket()
+	public async Task SetupEventHandlers()
 	{
-		ObsClient.Disconnect(); 
-		ObsClient.Dispose(); 
-		
+		if (ObsWebSocket is null) { return; }
+
+		ObsWebSocket.Connected += async () => await Connected();
+		ObsWebSocket.OnConnected += async () => await OnAuthorized();
+		ObsWebSocket.Error += async (error) => await Error(error);
+
+		ObsWebSocket.Disconnected += async () => await OnDisconnected();
+
+		ObsWebSocket.OnSceneListReceived += async args => await OnSceneReceived(args);
+
+	}
+
+
+
+	public async Task Disconnect()
+	{
+		if (ObsWebSocket is null) { return; }
+		await ObsWebSocket.Disconnect();
+	}
+
+	public async Task OnAuthorized()
+	{
+		await SendRequest(ObsRequestStrings.GetSceneList);
+	}
+
+	public async Task Connected()
+	{
+		await Signalr.SendLog(new LogVm("Obs WebSocket Connected", "Info"));
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, true);
+	}
+
+	public async Task Error(string error)
+	{
 		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, false);
-		Log.LogInformation($"Obs Websocket closed.");
+		Log.LogInformation(error);
 	}
 
-	public async Task ChangeScene(string sceneName)
+	public async Task OnDisconnected()
 	{
-		try
-		{
-			await ObsClient.SetCurrentProgramScene(sceneName);
-			Log.LogInformation($"Obs changing scenes.");
-		}
-		catch
-		{
-			Log.LogError("Unable to switch OBS scenes");
-		}
+		await Signalr.SendLog(new LogVm("Obs WebSocket Disconnected", "Info"));
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, false);
 	}
 
-	public async Task ChangeBrowserSource(string sourceName, string url)
+	public async Task OnSceneReceived(ObsResponse<GetSceneListResponse> args)
 	{
-		// https://github.com/obs-websocket-community-projects/obs-websocket-js/discussions/319
-		// Todo: Needs testing
-		await ObsClient.SetInputSettings("nameofsource", new Dictionary<string, object> { { "url", "theurl" } });
-		Log.LogInformation($"Obs updated browser source.");
+		// Save to Database
+		await Signalr.SendLog(new LogVm("Scene", "Info"));
 	}
 
-	public async Task SwitchToLastScene()
+
+
+	public async Task SendRequest(string type)
 	{
-		await ObsClient.SetCurrentProgramScene(LastScene);
-		Log.LogInformation($"Obs switching to last scene.");
+		if (ObsWebSocket is null) { return; }
+
+		await ObsWebSocket.SendRequest(type);
 	}
 
-	public async Task EnableTimer()
-	{
-		await ObsClient.SetSourceFilterEnabled("BRB Timer", "Start", true);
-		Log.LogInformation($"Enabled OBS timer");
-	}
+	//public async Task SendRequest<T>(ObsRequest<T> request) where T : class
+	//{
+	//	try
+	//	{
+	//		var message = JsonSerializer.Serialize(request, _options);
+	//		await ObsWebSocket.SendMessage(message);
+	//	}
+	//	catch (Exception)
+	//	{
 
-	public async Task EnableStartStreamTimer()
-	{
-		await ObsClient.SetSourceFilterEnabled("Start Stream Timer", "Start", true);
-		Log.LogInformation($"Enabled Start Stream timer");
-	}
+	//		throw;
+	//	}
+	//}
+	//public async Task EnableTimer()
+	//{
+	//	await ObsClient.SetSourceFilterEnabled("BRB Timer", "Start", true);
+	//	Log.LogInformation($"Enabled OBS timer");
+	//}
 
-	public async Task EnablePomodoroTimer()
-	{
-		await ObsClient.SetSourceFilterEnabled("1 Hour Timer", "Start", true);
-		Log.LogInformation($"Enabled Pomodoro OBS timer");
-	}
+	//public async Task ChangeBrowserSource(string sourceName, string url)
+	//{
+	//	// https://github.com/obs-websocket-community-projects/obs-websocket-js/discussions/319
+	//	// Todo: Needs testing
+	//	await ObsClient.SetInputSettings("nameofsource", new Dictionary<string, object> { { "url", "theurl" } });
+	//	Log.LogInformation($"Obs updated browser source.");
+	//}
+}
 
-	public async Task Test()
-	{
-		LastScene = await ObsClient.GetCurrentProgramScene();
-		await ObsClient.SetCurrentProgramScene("🌙 BRB");
-		await Task.Delay(6000);
-		await ObsClient.SetCurrentProgramScene(LastScene);
-	}
 
-	public async void OnConnectionClosed(object? sender, ConnectionClosedEventArgs e)
-	{
-		// Reconnect if there is an error? Not an error if Stream is finished 
-		//await ServiceStatusCache.Update(new ServiceStatusDTO(ServiceName.ObsWebsocket, false));
-		await Task.CompletedTask;
-	}
-
-	public async void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-	{
-		var result = sender as ObsClient 
-			?? throw new Exception("ObsClient OnPropertyChanged Bork");
-
-		if (result.ConnectionState == ConnectionState.Connecting)
-		{
-			// Do a thing				
-			return;
-		}
-		
-		if (result.ConnectionState == ConnectionState.Connected)
-		{
-			StreamConnected = true;
-			await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, true);
-			return;
-		}
-
-		if (result.ConnectionState == ConnectionState.Disconnected)
-		{
-			await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, false);
-			return;
-		}
-	}
+public interface IObsService
+{
+	Task CreateWebSocket(CancellationToken cancel);
+	Task SendRequest(string type);
+	Task Disconnect();
 }

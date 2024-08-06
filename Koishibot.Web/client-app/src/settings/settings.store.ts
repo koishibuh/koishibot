@@ -23,9 +23,10 @@ export const useSettingsStore = defineStore('settingsStore', () => {
   });
 
   const UpdateObsConnection = async (enabled: boolean) => {
+    console.log('test');
     try {
       if (enabled) {
-        await http.post('/api/obs/', null);
+        await http.post('/api/obs', null);
         message.value = 'Obs Websocket Connected';
       } else {
         await http.delete('/api/obs');

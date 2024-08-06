@@ -1,6 +1,5 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.Common;
-using Koishibot.Core.Features.Obs.Interfaces;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Persistence;
@@ -17,7 +16,7 @@ namespace Koishibot.Core.Features.StreamInformation;
 /// </summary>
 public record StreamOfflineHandler(
 	IOptions<Settings> Settings,
-	IObsService ObsService, IAppCache Cache, 
+	IAppCache Cache, 
 	ITwitchApiRequest TwitchApiRequest,
 	KoishibotDbContext Database, ITwitchIrcService BotIrc
 	) : IRequestHandler<StreamOfflineCommand>
@@ -28,7 +27,7 @@ public record StreamOfflineHandler(
 	{
 		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, false);
 
-		await ObsService.StopWebsocket();
+		//await ObsService.StopWebsocket();
 
 		var todaysStream = Cache.GetCurrentTwitchStream();
 

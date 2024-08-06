@@ -1,12 +1,11 @@
-﻿using Koishibot.Core.Features.Obs.Interfaces;
-namespace Koishibot.Core.Features.Obs.Controllers;
+﻿namespace Koishibot.Core.Features.Obs.Controllers;
 
 // == ⚫ DELETE == //
 
 public class StopObsWebsocketController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["OBS"])]
-	[HttpDelete("/api/obs/")]
+	[HttpDelete("/api/obs/connection")]
 	public async Task<ActionResult> StopObsWebsocket()
 	{
 		await Mediator.Send(new StopObsWebsocketCommand());
@@ -28,6 +27,6 @@ public record StopObsWebsocketHandler(
 	public async Task Handle
 			(StopObsWebsocketCommand c, CancellationToken cancel)
 	{
-		await ObsService.StopWebsocket();
+		await ObsService.Disconnect();
 	}
 }

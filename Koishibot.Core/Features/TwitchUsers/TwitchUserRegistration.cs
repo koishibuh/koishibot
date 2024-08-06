@@ -38,6 +38,11 @@ public record TwitchUserRegistration(
 		}
 		else
 		{
+			//if (storedUser.PermissionLevel == PermissionLevel.Everyone)
+			//{
+
+			//}
+
 			if (storedUser.ChangedUsername(userDto.Name))
 			{
 				storedUser.UpdateUserInfo(userDto);

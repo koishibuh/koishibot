@@ -1,6 +1,6 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
-using Koishibot.Core.Features.Obs.Interfaces;
+using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 namespace Koishibot.Core.Features.StreamInformation;
 
@@ -13,7 +13,7 @@ public record StreamReconnectCommand() : INotification;
 public record StreamReconnectHandler(
 	IAppCache Cache,
 	//IStreamSessionService StreamSessionService,
-	IObsService ObsService, 
+	IObsService ObsServiceNew, 
 	IChannelPointStatusService ChannelPointStatusService
 	) : INotificationHandler<StreamReconnectCommand>
 {
@@ -23,7 +23,7 @@ public record StreamReconnectHandler(
 		await Cache.ClearAttendanceCache()
 							 .UpdateStreamStatusOnline();
 
-		await ObsService.StartWebsocket();
+		await ObsServiceNew.CreateWebSocket(cancel);
 
 		await ChannelPointStatusService.Enable();
 

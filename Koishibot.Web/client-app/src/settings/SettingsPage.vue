@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import toggleButton from '@/common/toggle-button.vue';
+import ToggleButton from '@/common/toggle-button.vue';
 import { useSettingsStore } from '@/settings/settings.store';
 import { useNotificationStore } from '@/common/notification.store';
+import ObsContainer from '@/settings/ObsContainer.vue';
+import { useObsStore } from './obs.store';
 
 const store = useSettingsStore();
+const obsStore = useObsStore();
 const message = ref(store.message);
 
 const obs = async (e: boolean) => {
@@ -16,12 +19,10 @@ const obs = async (e: boolean) => {
     await store.UpdateObsConnection(false);
   }
 };
-
-const obsEnabled = ref<boolean>(true);
 </script>
-
 <template>
-  <toggleButton button1Name="Enable OBS" button2Name="Disable OBS" @enableItem="obs" />
+  <ObsContainer :settings="obsStore.settings" />
+  <!--   <ToggleButton button1Name="Enable OBS" button2Name="Disable OBS" @enableItem="obsStore" /> -->
 
   <div class="h-[200px] border-2 border-white rounded">
     <div v-if="store.logMessages.length > 0">
