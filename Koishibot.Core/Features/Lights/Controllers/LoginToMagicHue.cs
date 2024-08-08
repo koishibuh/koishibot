@@ -48,6 +48,11 @@ public record LoginToMagicHueHandler(
 			var result = JsonConvert.DeserializeObject<LoginResponse>(responseBody)
 				?? throw new Exception("Login Response was null");
 
+			if (result.Code == "10033")
+			{
+				throw new Exception("Login invalid");
+			}
+
 			Settings.Value.MagicHueToken = result.Token;
 		}
 		else

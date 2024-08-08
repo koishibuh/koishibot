@@ -6,19 +6,44 @@ import { type IColorSquare } from './models/colorsquare-interface';
 import sampleLightData from '@/lights/data/sampleLights.json';
 import defaultColorData from '@/lights/data/defaultColors.json';
 import http from '@/api/http';
+import { useNotificationStore } from '@/common/notification.store';
+import { type ILightLogin } from './models/lightlogin-interface';
 
 export const useLightStore = defineStore('lights', () => {
+  const notificationStore = useNotificationStore();
+
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
 
   const defaultColors = ref<IColorSquare[]>(defaultColorData);
-  const currentLights = ref<ILedLight[]>(sampleLightData);
-  const message = ref<string>();
+  /*   const currentLights = ref<ILedLight[]>(sampleLightData); */
+  const currentLights = ref<ILedLight[] | null>(null);
 
   /*   signalRConnection?.on('ReceiveLightUpdate', (lights: ILedLight[]) => {});  */
 
+  const login = async (login: ILightLogin) => {
+    try {
+      await http.post('/api/led-lights/login', login);
+    } catch (error) {
+      notificationStore.addMessage('Unable to login');
+    }
+  };
+
+  const importLights = async () => {
+    try {
+      console.log('importing..');
+      const result = await http.get<ILedLight[]>('/api/led-lights/import');
+      console.log(result);
+      currentLights.value = result;
+    } catch (error) {
+      notificationStore.addMessage('Unable to import');
+    }
+  };
+
   const updateSelectedColor = (color: string) => {
-    /*  defaultColors.value.map((x) => (x.isActive = false)); */
+    if (currentLights.value === null) {
+      return;
+    }
     const lightToUpdate = currentLights.value.find((x) => x.isSelected === true);
     if (lightToUpdate) {
       lightToUpdate.color = color;
@@ -26,6 +51,9 @@ export const useLightStore = defineStore('lights', () => {
   };
 
   const lightColorSelected = (lightName: string) => {
+    if (currentLights.value === null) {
+      return;
+    }
     currentLights.value.map((x) => (x.isSelected = false));
     const lightToUpdate = currentLights.value.find((x) => x.lightName === lightName);
     if (lightToUpdate) {
@@ -33,18 +61,38 @@ export const useLightStore = defineStore('lights', () => {
     }
   };
 
-  const lightPowerChanged = (lightName: string, state: boolean) => {
-    const lightToUpdate = currentLights.value.find((x) => x.lightName === lightName);
-    if (lightToUpdate) {
-      lightToUpdate.power = state;
+  const lightPowerChanged = async (lightName: string, state: boolean) => {
+    console.log(state);
+    if (currentLights.value === null) {
+      return;
+    }
+    try {
+      if (state === true) {
+        const result = await http.post('/api/led-lights', { LightName: lightName });
+      } else {
+        const result = await http.delete('/api/led-lights');
+      }
+
+      const lightToUpdate = currentLights.value.find((x) => x.lightName === lightName);
+      if (lightToUpdate) {
+        lightToUpdate.power = state;
+      }
+    } catch (error) {
+      notificationStore.addMessage('Unable to update light state');
     }
   };
 
   const clearSelected = () => {
+    if (currentLights.value === null) {
+      return;
+    }
     currentLights.value.map((x) => (x.isSelected = false));
   };
 
   const saveColorChange = async () => {
+    if (currentLights.value === null) {
+      return;
+    }
     const dto = currentLights.value.map((x) => {
       return {
         lightName: x.lightName,
@@ -55,7 +103,7 @@ export const useLightStore = defineStore('lights', () => {
     try {
       await http.post('/api/led-lights/', dto);
     } catch (e) {
-      message.value = 'Something went wrong';
+      notificationStore.addMessage('Something went wrong');
     }
   };
 
@@ -66,6 +114,8 @@ export const useLightStore = defineStore('lights', () => {
     lightColorSelected,
     lightPowerChanged,
     clearSelected,
-    saveColorChange
+    saveColorChange,
+    login,
+    importLights
   };
 });

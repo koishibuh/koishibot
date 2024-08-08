@@ -38,27 +38,40 @@ public record Light()
 		return this;
 	}
 
+	public string GetHexCode()
+	{
+		return $"{Red}{Green}{Blue}";
+	}
+
 	public Light SetInitialValues(DeviceInfo deviceInfo)
 	{
 		Name = deviceInfo.DeviceName;
 		MacAddress = deviceInfo.MacAddress;
-		string hex = deviceInfo.State;
 
-		var type = hex.Substring(2, 2);
-		BulbType = type is "33" ? BulbType.Tape : BulbType.BulbWhite;
+		if (deviceInfo.State is null) // Light is off
+		{
+			return this;
+		}
+		else
+		{
+			string hex = deviceInfo.State;
 
-		var power = hex.Substring(4, 2);
-		Power = power is "23" ? true : false;
+			var type = hex.Substring(2, 2);
+			BulbType = type is "33" ? BulbType.Tape : BulbType.BulbWhite;
 
-		Speed = Convert.ToInt32(hex.Substring(10, 2), 16);
-		// Mode? int.Parse(hex.Substring(6, 2));
+			var power = hex.Substring(4, 2);
+			Power = power is "23" ? true : false;
 
-		Red = Convert.ToInt32(hex.Substring(12, 2), 16);
-		Green = Convert.ToInt32(hex.Substring(14, 2), 16);
-		Blue = Convert.ToInt32(hex.Substring(16, 2), 16);
-		White = Convert.ToInt32(hex.Substring(18, 2), 16);
-		CoolWhite = Convert.ToInt32(hex.Substring(20, 2), 16);
-		return this;
+			Speed = Convert.ToInt32(hex.Substring(10, 2), 16);
+			// Mode? int.Parse(hex.Substring(6, 2));
+
+			Red = Convert.ToInt32(hex.Substring(12, 2), 16);
+			Green = Convert.ToInt32(hex.Substring(14, 2), 16);
+			Blue = Convert.ToInt32(hex.Substring(16, 2), 16);
+			White = Convert.ToInt32(hex.Substring(18, 2), 16);
+			CoolWhite = Convert.ToInt32(hex.Substring(20, 2), 16);
+			return this;
+		}
 	}
 
 	public int RoundValue(int value, int min = 0, int max = 255)
