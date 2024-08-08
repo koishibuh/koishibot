@@ -13,5 +13,5 @@ public record TransportMethod
 	/// When you connect to EventSub using WebSockets, the server returns the ID in the Welcome message. 
 	/// </summary>
 	[JsonPropertyName("session_id")]
-	public string? SessionId { get; set; }
+	public string SessionId { get; set; } = null!;
 };

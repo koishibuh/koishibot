@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.TwitchUsers.Interfaces;
+﻿using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelPoints;
 
@@ -21,7 +20,7 @@ public record RewardRedeemUpdatedHandler(
 	{
 		// TODO: Save to DB
 
-		await Signalr.SendLog(new LogVm($"{command.args.Reward.Title} has been updated", "Info"));
+		await Signalr.SendInfo($"{command.args.Reward.Title} has been updated");
 
 		await Task.CompletedTask;
 	}

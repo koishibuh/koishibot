@@ -3,6 +3,7 @@ using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.Dandle.Models;
+using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
@@ -32,6 +33,7 @@ public class KoishibotDbContext : DbContext
 	public DbSet<Subscription> Subscriptions => Set<Subscription>();
 	public DbSet<GiftSubscription> GiftSubscriptions => Set<GiftSubscription>();
 	public DbSet<SupportTotal> SupportTotals => Set<SupportTotal>();
+	public DbSet<ObsItem> ObsItems => Set<ObsItem>();
 
 	public KoishibotDbContext(DbContextOptions<KoishibotDbContext> options)
 		: base(options)

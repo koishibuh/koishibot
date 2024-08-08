@@ -37,7 +37,7 @@ public record EditObsSettingsHandler(
 // == ⚫ COMMAND == //
 
 public record EditObsSettingsCommand(
-		string WebsocketUrl,
+	string WebsocketUrl,
 	string Port,
 	string Password
 	) : IRequest;
@@ -47,3 +47,22 @@ public record EditObsSettingsCommand(
 //	string Port,
 //	string Password
 //	);
+
+// == ⚫ VALIDATOR == //
+
+public class EditObsSettingsValidator
+	: AbstractValidator<EditObsSettingsCommand>
+{
+
+	public EditObsSettingsValidator()
+	{
+		RuleFor(p => p.WebsocketUrl)
+			.NotEmpty();
+
+		RuleFor(p => p.Port)
+			.NotEmpty();
+
+		RuleFor(p => p.Password)
+			.NotEmpty();
+	}
+}

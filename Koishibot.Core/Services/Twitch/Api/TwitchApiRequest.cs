@@ -1,9 +1,10 @@
 ﻿using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.Common;
-
 namespace Koishibot.Core.Services.TwitchApi.Models;
+
 public partial record TwitchApiRequest(
-	ITwitchApiClient TwitchApiClient
+	ITwitchApiClient TwitchApiClient,
+	ILogger<TwitchApiRequest> Log
 	) : ITwitchApiRequest {}
 
 public interface ITwitchApiRequest

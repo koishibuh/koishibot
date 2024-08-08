@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 
+const props = defineProps<{
+  fieldName: string;
+}>();
+
 const emit = defineEmits<{
   (e: 'update', value: string): void;
 }>();
 
-const address = ref('');
+const textField = ref('');
 
 const isTextVisible = ref(false);
 
@@ -17,15 +21,19 @@ const toggleVisibility = (visible: boolean) => {
   isTextVisible.value = visible;
 };
 
-watch(address, (newValue: string) => {
+const createLabelName = computed(() => {
+  return props.fieldName.toLowerCase();
+});
+
+watch(textField, (newValue: string) => {
   emit('update', newValue);
 });
 </script>
 
 <template>
   <div class="flex items-center justify-between">
-    <label for="address" class="p-2 w-[60px]">Address:</label>
-    <input :type="inputType" v-model="address" id="address" class="text-black" />
+    <label :for="createLabelName" class="p-2 w-[60px]">{{ fieldName }}:</label>
+    <input :type="inputType" v-model="textField" id="address" class="text-black" />
     <button
       @click.prevent=""
       class="primary-button mx-2"

@@ -13,8 +13,18 @@ public partial record SignalrService(
 	IHubContext<SignalrHub, ISignalrHub> HubContext
 	): ISignalrService
 {
-	public async Task SendLog(LogVm log) =>
+
+	public async Task SendError(string message)
+	{
+		var log = new LogVm(message, "Error");
 		await HubContext.Clients.All.ReceiveLog(log);
+	}
+
+	public async Task SendInfo(string message)
+	{
+		var log = new LogVm(message, "Info");
+		await HubContext.Clients.All.ReceiveLog(log);
+	}
 
 	public async Task SendNotification(string content) => 
 		await HubContext.Clients.All.ReceiveNotification(content);
@@ -52,7 +62,8 @@ public partial record SignalrService(
 // == ⚫ SEND INTERFACE == //
 public partial interface ISignalrService
 {
-	Task SendLog(LogVm log);
+	Task SendInfo(string message);
+	Task SendError(string message);
 	Task SendNotification(string content);
 	Task SendChatMessage(ChatMessageVm chatMessageVm);
 	Task SendStatusUpdate(ServiceStatusVm serviceStatusVM);

@@ -3,7 +3,7 @@
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#requests">Obs Documentation</see>
 /// </summary>
-public class ObsRequestStrings
+public class ObsRequests
 {
 	// SCENES 
 

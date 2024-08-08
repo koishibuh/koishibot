@@ -1,5 +1,7 @@
 ﻿namespace Koishibot.Core.Services.OBS.Scenes;
 
+// == ⚫ RESPONSE == //
+
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getcurrentprogramscene">Obs Documentation</see>
 /// </summary>
@@ -15,4 +17,3 @@ public class GetCurrentProgramSceneResponse
 	/// </summary>
 	public string SceneUuid { get; set; } = string.Empty;
 }
-

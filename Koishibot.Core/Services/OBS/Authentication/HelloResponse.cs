@@ -10,9 +10,8 @@ public class HelloResponse
 	public Authentication? Authentication { get; set; }
 }
 
-
 public class Authentication
 {
-	public string Challenge { get; set; } = string.Empty;
-	public string Salt { get; set; } = string.Empty;
+	public string? Challenge { get; set; }
+	public string? Salt { get; set; }
 }

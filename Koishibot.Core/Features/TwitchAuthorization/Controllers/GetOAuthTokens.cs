@@ -49,8 +49,8 @@ public class GetOAuthTokensHandler(
 
 		SaveTokens(result);
 
-		await TwitchEventSubService.CreateWebSocket(cancel);
-		await TwitchIrcService.CreateWebSocket(cancel);
+		await TwitchEventSubService.CreateWebSocket();
+		await TwitchIrcService.CreateWebSocket();
 
 		//await Task.WhenAll(
 		//		TwitchEventSubHub.Start(),

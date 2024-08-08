@@ -26,7 +26,7 @@ public record StreamUpdatedHandler(
 
 		var infoVm = streamInfo.ConvertToVm();
 		await Signalr.SendStreamInfo(infoVm);
-		await Signalr.SendLog(new LogVm("Updated stream info", "Info"));
+		await Signalr.SendInfo("Updated stream info");
 	}
 }
 

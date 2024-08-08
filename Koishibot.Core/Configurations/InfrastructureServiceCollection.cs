@@ -27,7 +27,9 @@ public static class InfrastructureServiceCollection
 		//services.AddTransient<IObsService, ObsService>();
 
 		services.AddSingleton<IObsService, ObsService>();
-		
+
+		//services.AddSingleton<IWebSocketFactory, WebSocketFactory>();
+
 		//services.AddSingleton(s => new StreamerTwitchClient());
 		//services.AddSingleton(s => new BotTwitchClient());
 		//services.AddTransient<IStreamerIrcHub, StreamerIrcHub>();

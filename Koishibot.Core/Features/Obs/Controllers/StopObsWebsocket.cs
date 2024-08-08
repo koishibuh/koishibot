@@ -28,5 +28,6 @@ public record StopObsWebsocketHandler(
 			(StopObsWebsocketCommand c, CancellationToken cancel)
 	{
 		await ObsService.Disconnect();
+		await Task.CompletedTask;
 	}
 }

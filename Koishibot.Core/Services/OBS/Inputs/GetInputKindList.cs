@@ -1,5 +1,7 @@
 ﻿namespace Koishibot.Core.Services.OBS.Inputs;
 
+// == ⚫ REQUEST == //
+
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getinputkindlist">Obs Documentation</see>
 /// </summary>
@@ -12,6 +14,7 @@ public class GetInputKindListRequest
 	public bool Unversioned { get; set; }
 }
 
+// == ⚫ RESPONSE == //
 
 public class GetInputKindListResponse
 {

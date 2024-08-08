@@ -1,25 +1,34 @@
 ﻿using Koishibot.Core.Services.OBS.Enums;
 
 namespace Koishibot.Core.Services.OBS.Common;
-public class ObsRequest<T> where T : class
+
+
+public class ObsRequest<T> 
 {
-	public OpCodeType? Op { get; set; }
+	public OpCodeType? Op { get; set; } = OpCodeType.Request;
 
 	[JsonPropertyName("d")]
-	public RequestWrapper<T>? RequestData { get; set; }
-	//public string? RequestId { get; set; }
+	public RequestWrapper<T> Data { get; set; } = null!;
 }
 
-public class ObsRequestSimple
-{
-	public OpCodeType? Op { get; set; }
-
-	[JsonPropertyName("d")]
-	public RequestData RequestData { get; set; } = null!;
-}
-
-public class RequestData
+public class RequestWrapper<T>
 {
 	public string? RequestType { get; set; }
-	public Guid? RequestId { get; set; }
+	public Guid RequestId { get; set; } = new Guid();
+	public T? RequestData { get; set; }
+}
+
+
+public class ObsRequest
+{
+	public OpCodeType? Op { get; set; } = OpCodeType.Request;
+
+	[JsonPropertyName("d")]
+	public RequestWrapper Data { get; set; } = null!;
+}
+
+public class RequestWrapper
+{
+	public string? RequestType { get; set; }
+	public Guid RequestId { get; set; } = new Guid();
 }

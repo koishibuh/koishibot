@@ -20,13 +20,18 @@ public record StartObsWebsocketCommand() : IRequest;
 // == ⚫ HANDLER == //
 
 public record StartObsWebsocketHandler(
-	//IObsService ObsService
-	IObsService ObsServiceNew
+	IOptions<Settings> Settings,
+	IObsService ObsService
 	) : IRequestHandler<StartObsWebsocketCommand>
 {
 	public async Task Handle
 			(StartObsWebsocketCommand c, CancellationToken cancel)
 	{
-		await ObsServiceNew.CreateWebSocket(cancel);
+		if (Settings.Value.ObsSettings.WebsocketUrl is null)
+		{
+			throw new ArgumentException("Websocket Url cannot be null");
+		}
+
+		await ObsService.CreateWebSocket(cancel);
 	}
 }

@@ -1,5 +1,6 @@
 ﻿namespace Koishibot.Core.Services.OBS.Inputs;
 
+// == ⚫ REQUEST == //
 
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#toggleinputmute">Obs Documentation</see>
@@ -16,6 +17,7 @@ public class ToggleInputMuteRequest
 	public string? InputUuid { get; set; }
 }
 
+// == ⚫ RESPONSE == //
 
 public class ToggleInputMuteResponse
 {

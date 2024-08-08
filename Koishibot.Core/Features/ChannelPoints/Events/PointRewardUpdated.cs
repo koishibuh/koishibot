@@ -1,6 +1,5 @@
 ﻿using Koishibot.Core.Features.ChannelPoints.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Models;
-using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelPoints;
 namespace Koishibot.Core.Features.ChannelPoints.Events;
@@ -24,7 +23,7 @@ public record PointRewardUpdatedHandler(
 		var pointReward = command.CreateModel();
 		await Database.UpdateReward(pointReward);
 
-		await Signalr.SendLog(new LogVm($"{command.args.Title} has been updated", "Info"));
+		await Signalr.SendInfo($"{command.args.Title} has been updated");
 	}
 }
 

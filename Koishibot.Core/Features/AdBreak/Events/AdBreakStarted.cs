@@ -3,7 +3,6 @@ using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Features.ChatCommands;
-using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.AdBreak;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Events;
@@ -37,7 +36,7 @@ public record AdBreakStartedHandler(
 
 		var adInfo = await GetAdScheduleFromTwitch(command);
 
-		await Signalr.SendLog(new LogVm($"Ad started, delaying for {adInfo.AdDurationInSeconds}", "Info"));
+		await Signalr.SendInfo($"Ad started, delaying for {adInfo.AdDurationInSeconds}");
 		await Task.Delay(adInfo.AdDurationInSeconds);
 
 		await ChatReplyService.App(Command.AdCompleted);

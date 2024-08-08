@@ -1,15 +1,9 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import http from '@/api/http';
-import { useNotificationStore } from '@/common/notification.store';
-import { type ILog } from '@/settings/models/log-interface';
 import type { IObsRequest, IObsSettings } from './models/obs-interface';
 
 export const useObsStore = defineStore('obs-store', () => {
-  const notificationStore = useNotificationStore();
-
-  const logMessages = ref<ILog[]>([]);
-
   const message = ref('');
 
   const settings = ref<IObsSettings>({

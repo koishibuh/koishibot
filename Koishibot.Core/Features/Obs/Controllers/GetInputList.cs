@@ -17,9 +17,9 @@ public class GetInputListController : ApiControllerBase
 
 // == ⚫ HANDLER == //
 
-public record GetAdScheduleHandler(
+public record GetInputListHandler(
 	IOptions<Settings> Settings,
-	IObsService ObsServiceNew
+	IObsService ObsService
 ) : IRequestHandler<GetInputListQuery>
 {
 	public string StreamerId = Settings.Value.StreamerTokens.UserId;
@@ -27,9 +27,15 @@ public record GetAdScheduleHandler(
 	public async Task Handle
 		(GetInputListQuery query, CancellationToken cancel)
 	{
-		var requestType = ObsRequestStrings.GetSceneList;
+		var request = new ObsRequest
+		{
+			Data = new RequestWrapper
+			{
+				RequestType = ObsRequests.GetInputList
+			}
+		};
 
-		await ObsServiceNew.SendRequest(requestType);
+		await ObsService.SendRequest(request);
 	
 	}
 }

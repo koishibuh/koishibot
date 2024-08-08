@@ -1,10 +1,13 @@
 ﻿namespace Koishibot.Core.Services.OBS.Scenes;
 
+// == ⚫ REQUEST == //
+
 public class GetSceneItemListRequest
 {
 	public string SceneName { get; set; }	= string.Empty;
 }
 
+// == ⚫ RESPONSE == //
 
 public class GetSceneItemListResponse
 {

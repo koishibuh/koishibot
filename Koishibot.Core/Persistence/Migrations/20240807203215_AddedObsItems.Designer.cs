@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koishibot.Core.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
-    partial class KoishibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240807203215_AddedObsItems")]
+    partial class AddedObsItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasIndex("TimerGroupsId");
 
-                    b.ToTable("ChatCommandTimerGroup", (string)null);
+                    b.ToTable("ChatCommandTimerGroup");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ApplicationAuthentication.Models.AppLogin", b =>
@@ -222,7 +225,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChatCommands", (string)null);
+                    b.ToTable("ChatCommands");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandName", b =>
@@ -243,7 +246,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasIndex("ChatCommandId");
 
-                    b.ToTable("CommandNames", (string)null);
+                    b.ToTable("CommandNames");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.TimerGroup", b =>
@@ -265,7 +268,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimerGroups", (string)null);
+                    b.ToTable("TimerGroups");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Dandle.Models.DandleResult", b =>

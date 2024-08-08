@@ -1,17 +1,8 @@
-﻿using Koishibot.Core.Services.OBS.Enums;
-namespace Koishibot.Core.Services.OBS.Common;
+﻿namespace Koishibot.Core.Services.OBS.Common;
 
-public class ObsResponse<T> where T : class
+public class RequestResponse<T>
 {
-	/// <summary>
-	/// WebsocketOpCode
-	/// </summary>
-	[JsonPropertyName("op")]
-	public OpCodeType OpCode { get; set; }
-
-	/// <summary>
-	/// Data
-	/// </summary>
-	[JsonPropertyName("d")]
-	public T? Response { get; set; }
+	public string? RequestType { get; set; }
+	public string? RequestId { get; set; }
+	public T? ResponseData { get; set; }
 }

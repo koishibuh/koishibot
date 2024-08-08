@@ -2,6 +2,6 @@
 
 public interface ITwitchIrcService
 {
-	Task CreateWebSocket(CancellationToken cancel);
+	Task CreateWebSocket();
 	Task BotSend(string message);
 }

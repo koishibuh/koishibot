@@ -1,5 +1,7 @@
 ﻿namespace Koishibot.Core.Services.OBS.Scenes;
 
+// == ⚫ RESPONSE == //
+
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getscenelist">Obs Documentation</see>
 /// </summary>

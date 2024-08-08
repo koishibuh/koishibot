@@ -7,6 +7,7 @@ using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Dandle;
+using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak;
 
@@ -16,7 +17,7 @@ public record PomodoroTimer(
 	IOptions<Settings> Settings,
 	ILogger<PomodoroTimer> Log,
 	IChatReplyService ChatReplyService,
-	//IObsService ObsService,
+	IObsService ObsService,
 	ISignalrService Signalr, IAppCache Cache,
 	ITwitchApiRequest TwitchApiRequest,
 	IDandleService DandleService
@@ -61,9 +62,9 @@ public record PomodoroTimer(
 	public async void SwitchToBreak()
 	{
 		await ChatReplyService.App(Command.PomdoroBreak);
-		//await ObsService.StartBreak();
+		await ObsService.StartBreak();
 
-		
+
 		await DandleService.StartGame();
 
 		var breakTimer = new CurrentTimer().SetBreak();
@@ -94,7 +95,6 @@ public record PomodoroTimer(
 
 	public async Task SendLog(AdScheduleDto adInfo)
 	{
-		await Signalr.SendLog
-			(new LogVm($"Pomdoro Delaying for {adInfo.CalculateAdjustedTimeUntilNextAd()} minutes", "Info"));
+		await Signalr.SendInfo($"Pomdoro Delaying for {adInfo.CalculateAdjustedTimeUntilNextAd()} minutes");
 	}
 }
