@@ -28,12 +28,12 @@ async function testFeature() {
   test.value = await http.get('/api/test');
 }
 
+const bannerTest = () => {
+  store.addMessage('3');
+};
+
 const refreshtoken = ref<string>('');
 
-/* async function submit(username: string) {
-  await http.post('/api/twitchuser', { username: username });
-}
- */
 watch(
   () => connectResult.value,
   () => {
@@ -79,4 +79,6 @@ watch(
     <input type="checkbox" id="checkbox" v-model="checked" />
     <label for="checkbox">Attendance: {{ checked }}</label>
   </div>
+
+  <button @click="bannerTest" class="primary-button">Trigger Banner</button>
 </template>

@@ -11,18 +11,25 @@ export const useNotificationStore = defineStore('notification', () => {
 
   const obsStore = useObsStore();
 
-  const notificationMessage = ref('');
+  const notificationMessage = ref<string>('');
   const serviceStatuses = ref<IServiceStatus[]>();
 
+  async function delay(miliseconds: number) {
+    return new Promise((resolve) => setTimeout(resolve, miliseconds));
+  }
+
+  const addMessage = async (message: string) => {
+    notificationMessage.value = message;
+    await delay(2000);
+    notificationMessage.value = '';
+  };
+
   signalRConnection?.on('ReceiveNotification', (notification: string) => {
-    console.log('ReceiveNotification', notification);
     notificationMessage.value = notification;
   });
 
   signalRConnection?.on('ReceiveStatusUpdate', (status: IServiceStatus) => {
     console.log('ReceiveStatusUpdate', status);
-    /* let result = serviceStatuses.value?.find(x => x.name === status.name);
-		result = status; */
 
     const index = serviceStatuses.value?.findIndex((x) => x.name === status.name);
     if (index !== undefined && index !== -1 && serviceStatuses.value !== undefined) {
@@ -51,6 +58,7 @@ export const useNotificationStore = defineStore('notification', () => {
     GetStatus,
     notificationMessage,
     serviceStatuses,
-    getStatusByName
+    getStatusByName,
+    addMessage
   };
 });
