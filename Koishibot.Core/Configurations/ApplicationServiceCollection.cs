@@ -15,7 +15,7 @@ public static class ApplicationServiceCollection
 		{
 			// Order matters
 			cfg.RegisterServicesFromAssemblies(typeof(ApplicationServiceCollection).Assembly);
-			cfg.AddOpenBehavior(typeof(RequestResponseLoggingBehavior<,>));
+			//cfg.AddOpenBehavior(typeof(RequestResponseLoggingBehavior<,>));
 			cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 		});
 

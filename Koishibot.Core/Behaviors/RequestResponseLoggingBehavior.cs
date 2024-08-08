@@ -1,9 +1,8 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Koishibot.Core.Behaviors;
 
+// For debugging
 public class RequestResponseLoggingBehavior<TRequest, TResponse>(ILogger<RequestResponseLoggingBehavior<TRequest, TResponse>> logger)
 		: IPipelineBehavior<TRequest, TResponse>
 		where TRequest : class
