@@ -14,7 +14,7 @@ onMounted(async () => {
       if (token) {
         console.log('token received', token);
         message.value = token;
-        router.push({ name: 'Bot' });
+        router.push({ name: 'Home' });
       }
     } catch (error) {
       console.log(error);

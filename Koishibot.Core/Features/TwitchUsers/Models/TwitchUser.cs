@@ -15,7 +15,7 @@ public class TwitchUser
 	public string TwitchId { get; set; } = null!;
 	public string Login { get; set; } = string.Empty;
 	public string Name { get; set; } = null!;
-	public PermissionLevel PermissionLevel { get; set; } = PermissionLevel.Everyone;
+	public string Permissions { get; set; } = PermissionLevel.Everyone;
 
 	// NAVIGATION
 
@@ -36,7 +36,7 @@ public class TwitchUser
 
 	public bool IsIgnored()
 	{
-		return PermissionLevel == PermissionLevel.Ignore;
+		return Permissions == PermissionLevel.Ignore;
 	}
 
 	public bool ChangedUsername(string currentName)
@@ -52,12 +52,18 @@ public class TwitchUser
 		return this;
 	}
 
+	public TwitchUser UpgradePermissions()
+	{
+		Permissions = PermissionLevel.Koi;
+		return this;
+	}
+
 	public TwitchUser Initialize(TwitchUserDto userDto)
 	{
 		TwitchId = userDto.TwitchId;
 		Login = userDto.Login;
 		Name = userDto.Name;
-		PermissionLevel = PermissionLevel.Everyone;
+		Permissions = PermissionLevel.Everyone;
 		return this;
 	}
 
@@ -74,7 +80,7 @@ public class TwitchUser
 		TwitchId = userDto.Id;
 		Login = userDto.Login;
 		Name = userDto.Name;
-		PermissionLevel = PermissionLevel.Everyone;
+		Permissions = PermissionLevel.Everyone;
 		return this;
 	}
 }

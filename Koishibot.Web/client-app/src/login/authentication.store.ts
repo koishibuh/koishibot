@@ -3,26 +3,36 @@ import { defineStore } from 'pinia';
 import type { IJwt } from '@/login/jwt.interface';
 import http from '@/api/http';
 import { type ITwitchOAuthToken } from './models/twitch-oauth-token.interface';
+import type { AxiosResponse } from 'axios';
 
 export const useAuthenticationStore = defineStore('authentication-store', () => {
   const userData = ref<IJwt | null>();
 
   const loginUser = async (username: string, password: string) => {
-    const result = await http.post<IJwt>('/api/login', { username: username, password: password });
+    const result = await http.post<AxiosResponse>('/api/login', {
+      username: username,
+      password: password
+    });
+    console.log('login', result.data);
     if (result !== null) {
-      setUserData(result);
+      setUserData(result.data);
     }
   };
-
-  /*   async function loginUser(username: string, password: string) {
-    const result = await http.post('/api/login', { username: username, password: password });
-    setUserData(result);
-  } */
 
   function setUserData(data: IJwt): void {
     userData.value = data;
     localStorage.setItem('user', JSON.stringify(data));
     http.setAuthorizationHeader(data.token);
+  }
+
+  function getUserData(): void {
+    const data: any = localStorage.getItem('user');
+    if (!data) {
+      return;
+    }
+    const parsed = JSON.parse(data);
+    console.log(parsed);
+    http.setAuthorizationHeader(parsed.token);
   }
 
   const refreshTwitchOAuthToken = async (code: string): Promise<ITwitchOAuthToken> => {
@@ -36,6 +46,7 @@ export const useAuthenticationStore = defineStore('authentication-store', () => 
   return {
     loginUser,
     refreshTwitchOAuthToken,
-    getTwitchOAuthToken
+    getTwitchOAuthToken,
+    getUserData
   };
 });

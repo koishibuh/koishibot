@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Extensions;
-using System.Text.Json;
 
 namespace Koishibot.Core.Features.ChatCommands.Models;
 public class ChatCommand : IEntity
@@ -8,7 +7,7 @@ public class ChatCommand : IEntity
 	public string Description { get; set; } = string.Empty;
 	public bool Enabled { get; set; }
 	public string Message { get; set; } = null!;
-	public PermissionLevel Permissions { get; set; }
+	public string Permissions { get; set; } = PermissionLevel.Everyone;
 	public TimeSpan UserCooldown { get; set; }
 	public TimeSpan GlobalCooldown { get; set; }
 
@@ -16,16 +15,28 @@ public class ChatCommand : IEntity
 	public List<TimerGroup>? TimerGroups { get; set; } = [];
 }
 
-[JsonConverter(typeof(PermissionLevelEnumConverter))]
-public enum PermissionLevel
+//[JsonConverter(typeof(PermissionLevelEnumConverter))]
+//public enum PermissionLevel
+//{
+//	App = 1,
+//	Broadcaster = 2,
+//	Mod = 3,
+//	Koi = 4,
+//	Everyone = 5,
+//	Ignore = 6
+//}
+
+public class PermissionLevel
 {
-	App = 1,
-	Broadcaster = 2,
-	Mod = 3,
-	Koi = 4,
-	Everyone = 5,
-	Ignore = 6
+	public const string App = "App";
+	public const string Broadcaster = "Broadcaster";
+	public const string Mod = "Mod";
+	public const string Koi = "Koi";
+	public const string Everyone = "Everyone";
+	public const string Ignore = "Ignore";
 }
+
+
 
 public class TimerGroup : IEntity
 {
@@ -53,40 +64,40 @@ public class CommandName : IEntity
 
 // == ⚫ == //
 
-public class PermissionLevelEnumConverter : JsonConverter<PermissionLevel>
-{
-	public override PermissionLevel Read
-		(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-	{
-		var value = reader.GetString();
-		return value switch
-		{
-			"App" => PermissionLevel.App,
-			"Broadcaster" => PermissionLevel.Broadcaster,
-			"Mod" => PermissionLevel.Mod,
-			"Koi" => PermissionLevel.Koi,
-			"Everyone" => PermissionLevel.Everyone,
-			"Ignore" => PermissionLevel.Ignore,
-			_ => throw new JsonException()
-		};
-	}
+//public class PermissionLevelEnumConverter : JsonConverter<PermissionLevel>
+//{
+//	public override PermissionLevel Read
+//		(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+//	{
+//		var value = reader.GetString();
+//		return value switch
+//		{
+//			"App" => PermissionLevel.App,
+//			"Broadcaster" => PermissionLevel.Broadcaster,
+//			"Mod" => PermissionLevel.Mod,
+//			"Koi" => PermissionLevel.Koi,
+//			"Everyone" => PermissionLevel.Everyone,
+//			"Ignore" => PermissionLevel.Ignore,
+//			_ => throw new JsonException()
+//		};
+//	}
 
-	public override void Write
-		(Utf8JsonWriter writer, PermissionLevel value, JsonSerializerOptions options)
-	{
-		var mappedValue = value switch
-		{
-			PermissionLevel.App => "App",
-			PermissionLevel.Broadcaster => "Broadcaster",
-			PermissionLevel.Mod => "Mod",
-			PermissionLevel.Koi => "Koi",
-			PermissionLevel.Everyone => "Everyone",
-			PermissionLevel.Ignore => "Ignore",
-			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
-		};
-		if (writer.CurrentDepth.Equals(1))
-		{
-			writer.WriteStringValue(mappedValue);
-		}
-	}
-}
+//	public override void Write
+//		(Utf8JsonWriter writer, PermissionLevel value, JsonSerializerOptions options)
+//	{
+//		var mappedValue = value switch
+//		{
+//			PermissionLevel.App => "App",
+//			PermissionLevel.Broadcaster => "Broadcaster",
+//			PermissionLevel.Mod => "Mod",
+//			PermissionLevel.Koi => "Koi",
+//			PermissionLevel.Everyone => "Everyone",
+//			PermissionLevel.Ignore => "Ignore",
+//			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+//		};
+//		if (writer.CurrentDepth.Equals(1))
+//		{
+//			writer.WriteStringValue(mappedValue);
+//		}
+//	}
+//}

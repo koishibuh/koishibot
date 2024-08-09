@@ -47,6 +47,8 @@ public static class StartupExtensions
 
 			var auth = appSettings.GetRequiredSection("AppAuthentication");
 
+			builder.Services.AddAuthorization();
+
 			builder.Services.AddAuthentication("Bearer")
 				.AddJwtBearer(o =>
 				{
@@ -62,8 +64,6 @@ public static class StartupExtensions
 								(auth.GetRequiredSection("Key").Value))
 					};
 				});
-
-			builder.Services.AddAuthorization();
 		}
 		else
 		{
@@ -74,6 +74,8 @@ public static class StartupExtensions
 
 			var auth = appSettings.GetRequiredSection("AppAuthentication");
 
+			builder.Services.AddAuthorization();
+
 			builder.Services.AddAuthentication("Bearer")
 				.AddJwtBearer(o =>
 				{
@@ -88,9 +90,7 @@ public static class StartupExtensions
 							(Encoding.ASCII.GetBytes
 								(auth.GetRequiredSection("Key").Value))
 					};
-				});
-
-			builder.Services.AddAuthorization();
+				});	
 		}
 
 		builder.Services.AddHttpClient("Dictionary", httpClient =>

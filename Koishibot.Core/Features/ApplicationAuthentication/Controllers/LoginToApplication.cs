@@ -17,8 +17,8 @@ public class LoginToApplicationController : ApiControllerBase
 	public async Task<ActionResult> LoginToApplication
 		([FromBody] LoginToApplicationCommand dto)
 	{
-		await Mediator.Send(dto);
-		return Ok();
+		var response = await Mediator.Send(dto);
+		return Ok(response);
 	}
 }
 

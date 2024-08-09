@@ -18,7 +18,7 @@ public record ChatReplyService(
 		return scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
 	}
 
-	public async Task Start<T>(string command, T data, PermissionLevel permission)
+	public async Task Start<T>(string command, T data, string permission)
 	{
 		var result = Cache.GetCommand(command, permission);
 
@@ -86,7 +86,7 @@ public record ChatReplyService(
 
 public interface IChatReplyService
 {
-	Task Start<T>(string command, T data, PermissionLevel permission);
+	Task Start<T>(string command, T data, string permission);
 	Task App(string command);
 	Task App<T>(string command, T data);
 }

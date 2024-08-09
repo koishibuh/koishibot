@@ -127,7 +127,6 @@ public class ChannelInfoData
 	///The CCLs applied to the channel.
 	///</summary>
 	[JsonPropertyName("content_classification_labels")]
-	[JsonConverter(typeof(ContentClassificationLabelEnumConverter))]
 	public List<ContentClassificationLabel> ContentClassificationLabels { get; set; }
 
 	///<summary>

@@ -11,6 +11,7 @@ public class WebSocketFactory : IWebSocketFactory
 		byte maxReconnectAttempts,
 		Func<WebSocketMessage, Task> OnError,
 		Func<WebSocketMessage, Task> OnMessageReceived
+		//Func<Task> OnConnected
 		)
 	{
 		if (ActiveClient is not null)
@@ -53,6 +54,7 @@ public class WebSocketFactory : IWebSocketFactory
 
 		var webSocketClient = new WebSocketClient(client, OnError, OnMessageReceived);
 		_ = Task.Run(webSocketClient.StartListening);
+		//await OnConnected.Invoke();
 
 		ActiveClient = webSocketClient;
 

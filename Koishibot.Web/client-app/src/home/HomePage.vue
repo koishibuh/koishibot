@@ -69,7 +69,7 @@ watch(
 
     <p class="text-center">{{ store.notificationMessage }}</p>
     <p class="text-center">
-      <a v-show="oauthLink" target="_blank" :href="oauthLink">Authorization Link</a>
+      <a v-show="oauthLink" target="_self" :href="oauthLink">Authorization Link</a>
     </p>
   </div>
 

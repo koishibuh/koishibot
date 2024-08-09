@@ -28,6 +28,7 @@ public class GetOAuthTokensHandler(
 	IOptions<Settings> Settings,
 	IHttpClientFactory HttpClientFactory,
 	ITwitchEventSubService TwitchEventSubService,
+	IValidateTokenService ValidateTokenService,
 	ITwitchIrcService TwitchIrcService
 	)
 	: IRequestHandler<GetOAuthTokensQuery>
@@ -49,8 +50,11 @@ public class GetOAuthTokensHandler(
 
 		SaveTokens(result);
 
-		await TwitchEventSubService.CreateWebSocket();
+		// Validate token
+		await ValidateTokenService.Start();
+
 		await TwitchIrcService.CreateWebSocket();
+		await TwitchEventSubService.CreateWebSocket();
 
 		//await Task.WhenAll(
 		//		TwitchEventSubHub.Start(),

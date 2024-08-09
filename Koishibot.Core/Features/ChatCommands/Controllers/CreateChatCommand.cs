@@ -49,7 +49,7 @@ public record CreateChatCommand
 	string? Description,
 	bool Enabled,
 	string Message,
-	PermissionLevel PermissionLevel,
+	string PermissionLevel,
 	int UserCooldownMinutes,
 	int GlobalCooldownMinutes,
 	List<int>? TimerGroupIds

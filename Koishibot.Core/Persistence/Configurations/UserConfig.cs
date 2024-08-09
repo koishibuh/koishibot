@@ -23,7 +23,7 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 
 		builder.Property(p => p.Name);
 
-		builder.Property(p => p.PermissionLevel);
+		builder.Property(p => p.Permissions);
 
 		builder.HasOne(p => p.Attendance)
 			.WithOne(p => p.User)

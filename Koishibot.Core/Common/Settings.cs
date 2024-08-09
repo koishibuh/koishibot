@@ -38,8 +38,8 @@ public class TwitchAppSettings
 }
 public class TwitchTokens
 {
-	public string Username { get; set; } = string.Empty; // lowercase
 	public string UserId { get; set; } = string.Empty;
+	public string UserLogin { get; set; } = string.Empty; // lowercase
 	public string AccessToken { get; set; } = string.Empty;
 	public string RefreshToken { get; set; } = string.Empty;
 	public DateTime ExpirationDate { get; set; }

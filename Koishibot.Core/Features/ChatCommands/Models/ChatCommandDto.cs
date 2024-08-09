@@ -5,7 +5,7 @@ public record ChatCommandDto(
 	string Description,
 	bool Enabled, 
 	string Message,
-	PermissionLevel Permissions,
+	string Permissions,
 	TimeSpan UserCooldown,
 	DateTimeOffset? UserCooldownUp,
 	TimeSpan GlobalCooldown,

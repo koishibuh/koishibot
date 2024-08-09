@@ -3,6 +3,9 @@ using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Koishibot.Core.Services.Websockets;
 namespace Koishibot.Core.Services.Twitch.Irc;
 
+/// <summary>
+/// <see href="https://dev.twitch.tv/docs/chat/irc/">Twitch Documentation</see>
+/// </summary>
 public record TwitchIrcService(
 	IOptions<Settings> Settings,
 	IAppCache Cache,
@@ -23,7 +26,7 @@ public record TwitchIrcService(
 		var streamer = Settings.Value.StreamerTokens;
 		var bot = Settings.Value.BotTokens;
 
-		await OnConnected("bot", bot.AccessToken, bot.Username);
+		await OnConnected(bot.AccessToken, bot.UserLogin);
 	}
 
 	public async Task Error(WebSocketMessage message)
@@ -36,13 +39,13 @@ public record TwitchIrcService(
 	{
 		if (message.IsPing())
 		{
-			await BotIrc!.SendMessage("PONG :tmi.twitch.tv");
+			await BotIrc.SendMessage("PONG :tmi.twitch.tv");
 		}
 	}
 
-	public async Task OnConnected(string irc, string accessToken, string username)
+	public async Task OnConnected(string accessToken, string username)
 	{
-		var streamer = Settings.Value.StreamerTokens.Username.ToLower();
+		var streamer = Settings.Value.StreamerTokens.UserLogin;
 
 		await SignalrService.SendInfo("Connecting to Twitch Chat");
 		await SignalrService.SendInfo("Connection to Twitch Chat sucessful");

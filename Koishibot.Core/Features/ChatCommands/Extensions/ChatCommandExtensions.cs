@@ -39,7 +39,7 @@ public static class ChatCommandExtensions
 		return result is null;
 	}
 
-	public static ChatCommandDto? GetCommand(this IAppCache cache, string commandName, PermissionLevel permissions)
+	public static ChatCommandDto? GetCommand(this IAppCache cache, string commandName, string permissions)
 	{
 		var result = cache.Get<Dictionary<string, ChatCommandDto>>(CacheName.Commands);
 		if (result is null) { return null; }

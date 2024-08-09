@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Features.TwitchUsers.Extensions;
+﻿using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.TwitchUsers.Extensions;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
@@ -38,10 +39,10 @@ public record TwitchUserRegistration(
 		}
 		else
 		{
-			//if (storedUser.PermissionLevel == PermissionLevel.Everyone)
-			//{
-
-			//}
+			if (storedUser.Permissions == PermissionLevel.Everyone)
+			{
+				storedUser.UpgradePermissions();
+			}
 
 			if (storedUser.ChangedUsername(userDto.Name))
 			{
