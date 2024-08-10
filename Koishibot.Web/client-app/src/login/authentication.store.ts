@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import type { IJwt } from '@/login/jwt.interface';
+import type { IJwt } from './models/jwt.interface';
 import http from '@/api/http';
 import { type ITwitchOAuthToken } from './models/twitch-oauth-token.interface';
 import type { AxiosResponse } from 'axios';
