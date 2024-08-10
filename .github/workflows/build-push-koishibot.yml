@@ -8,39 +8,63 @@ on:
     branches: ["main"]
 
 jobs:
-    build-web:
-      name: Build Koishibot Web Container
-      runs-on: ubuntu-latest
-      permissions: 
-        contents: read
-        packages: write
+  build-web:
+    name: Build Koishibot Web Container
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      packages: write
 
-      env:
-        REGISTRY: ghcr.io
-        KOISHIBOT_WEB_IMAGE_NAME: koishibot-web
+    env:
+      REGISTRY: ghcr.io
+      KOISHIBOT_WEB_IMAGE_NAME: koishibot-web
 
-      steps:
-        - name: Check out Repo
-          uses: actions/checkout@v3
+    steps:
+      - name: Check out Repo
+        uses: actions/checkout@v3
 
-        - name: Login to Container Registry
-          uses: docker/login-action@v3.3.0
-          with:
-            registry: ${{ env.REGISTRY }}
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Container Registry
+        uses: docker/login-action@v3.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Extract metadata (tag, labels) for Docker
-          id: meta
-          uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-          with:
-            images: ${{ env.REGISTRY }}/${{ env.HAMDLEBOT_WEB_IMAGE_NAME }}
+      - name: Extract metadata (tag, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.HAMDLEBOT_WEB_IMAGE_NAME }}
 
-        - name: Build and push Koishibot Web
-          uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
-          with:
-            context: ./
-            push: true
-            tags: ghcr.io/${{github.repository_owner}}/koishibot-web:1.0.0
-            labels: ${{ steps.meta.outputs.labels }}
-            file: ./Koishibot.Web/Dockerfile      
+      - name: Build and push Koishibot Web
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: ./
+          push: true
+          tags: ghcr.io/${{github.repository_owner}}/koishibot-web:1.0.0
+          labels: ${{ steps.meta.outputs.labels }}
+          file: ./Koishibot.Web/Dockerfile      
+  deploy-container:
+    name: Deploy Koishibot Web Container
+    needs: build-web
+    runs-on: unbuntu-latest
+    permissions:
+     contents: read
+     packages: read
+    steps:
+      - name: Excecute ssh commands to pull down repo and run docker compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+         host: ${{secrets.HOSTNAME}}
+         username: ${{secrets.DEPLOY_USER}}
+         key: ${{secrets.DEPLOY_SSH_KEY}}
+         script: |
+            rm -rf koishibot
+            gh repo clone koishibuh/koishibot
+            docker login ghcr.io -u ${{github.actor}} --password ${{ secrets.GITHUB_TOKEN }}
+            cd koishibot
+            cp docker-compose.yml ~/docker-env && cd ~/docker-env
+            docker compose down
+            docker compose pull
+            docker compose up -d
+            rm -rf docker-compose.yml
