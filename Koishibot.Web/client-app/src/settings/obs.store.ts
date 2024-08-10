@@ -2,9 +2,10 @@ import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import http from '@/api/http';
 import type { IObsRequest, IObsSettings } from './models/obs-interface';
+import { useNotificationStore } from '@/common/notifications/notification.store';
 
 export const useObsStore = defineStore('obs-store', () => {
-  const message = ref('');
+  const notificationStore = useNotificationStore();
 
   const settings = ref<IObsSettings>({
     websocketUrl: '123',
@@ -17,7 +18,7 @@ export const useObsStore = defineStore('obs-store', () => {
     try {
       await http.post('/api/obs', settings);
     } catch (e) {
-      message.value = 'Error with saving settings';
+      notificationStore.displayMessage('Error with saving settings');
     }
   };
 
@@ -32,13 +33,12 @@ export const useObsStore = defineStore('obs-store', () => {
         settings.value.connectionStatus = false;
       }
     } catch {
-      message.value = 'Error with connection';
+      notificationStore.displayMessage('Error with connection');
     }
   };
 
   return {
     settings,
-    message,
     saveSettings,
     updateObsConnection
   };

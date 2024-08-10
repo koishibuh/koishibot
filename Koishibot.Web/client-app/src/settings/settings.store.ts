@@ -19,7 +19,7 @@ export const useSettingsStore = defineStore('settingsStore', () => {
     logMessages.value.push(log);
   });
 
-  const UpdateObsConnection = async (enabled: boolean) => {
+  /* const UpdateObsConnection = async (enabled: boolean) => {
     console.log('test');
     try {
       if (enabled) {
@@ -33,10 +33,10 @@ export const useSettingsStore = defineStore('settingsStore', () => {
       message.value = 'Error with connection';
     }
   };
-
+ */
   return {
     message,
-    logMessages,
-    UpdateObsConnection
+    logMessages
+    /*     UpdateObsConnection */
   };
 });

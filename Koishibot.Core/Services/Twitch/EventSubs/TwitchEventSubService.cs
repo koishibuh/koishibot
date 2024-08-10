@@ -110,7 +110,7 @@ public record TwitchEventSubService(
 	}
 
 
-	public async Task Disconnect()
+	public async Task DisconnectWebSocket()
 	{
 		await TwitchEventSub.Disconnect();
 	}
@@ -423,7 +423,7 @@ public record TwitchEventSubService(
 			{
 				return;
 			}
-			await Disconnect();
+			await DisconnectWebSocket();
 			await CreateWebSocket();
 		};
 		_keepaliveTimer.Start();
@@ -448,4 +448,5 @@ public record TwitchEventSubService(
 public interface ITwitchEventSubService
 {
 	Task CreateWebSocket();
+	Task DisconnectWebSocket();
 }

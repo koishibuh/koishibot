@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import ToggleButton from '@/common/toggle-button.vue';
 import { useObsStore } from '@/settings/obs.store';
 import type { IObsRequest, IObsSettings } from './models/obs-interface';
-import HiddenField from '@/common/hidden-field/HiddenField.vue';
 
 const props = defineProps<{
   settings: IObsSettings;

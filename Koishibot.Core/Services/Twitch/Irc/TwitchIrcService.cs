@@ -76,4 +76,10 @@ public record TwitchIrcService(
 			await SendMessageToChat("elysiargiffin", message);
 		}
 	}
+	public async Task DisconnectWebSocket()
+	{
+		await BotIrc.Disconnect();
+	}
+
+
 }
