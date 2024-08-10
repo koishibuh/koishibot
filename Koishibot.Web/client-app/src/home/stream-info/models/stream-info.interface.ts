@@ -3,3 +3,8 @@ export interface IStreamInfo {
   category: string;
   categoryId: string;
 }
+
+export interface IStreamInfoRequest {
+  streamTitle: string;
+  categoryId: string;
+}

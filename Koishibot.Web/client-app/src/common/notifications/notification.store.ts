@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
-import { type IServiceStatus } from '@/layout/service-status.interface';
+import { type IServiceStatus } from '@/layout/models/service-status.interface';
 import { useObsStore } from '@/settings/obs.store';
 import http from '@/api/http';
 
@@ -18,7 +18,7 @@ export const useNotificationStore = defineStore('notification', () => {
     return new Promise((resolve) => setTimeout(resolve, miliseconds));
   }
 
-  const addMessage = async (message: string) => {
+  const displayMessage = async (message: string) => {
     notificationMessage.value = message;
     await delay(2000);
     notificationMessage.value = '';
@@ -41,24 +41,24 @@ export const useNotificationStore = defineStore('notification', () => {
     }
   });
 
-  function getStatusByName(serviceName: string): boolean {
+  const getStatusByName = (serviceName: string): boolean => {
     const result = serviceStatuses.value?.find((x) => x.name === serviceName);
     if (result) {
       return result.status;
     } else {
       return false;
     }
-  }
+  };
 
-  async function GetStatus() {
+  const getStatus = async () => {
     serviceStatuses.value = await http.get('/api/service-status');
-  }
+  };
 
   return {
-    GetStatus,
     notificationMessage,
     serviceStatuses,
     getStatusByName,
-    addMessage
+    getStatus,
+    displayMessage
   };
 });

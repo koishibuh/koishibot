@@ -1,5 +1,3 @@
-import { type IPollChoiceInfo } from '@/raids/interfaces/raid-poll.interface';
-
 export interface IWordSuggestion {
   userId: number;
   username: string;

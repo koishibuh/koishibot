@@ -1,8 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
-import { type IPoll } from './interfaces/poll.interface';
-import { type IPollChoice } from './interfaces/poll-choice.interface';
+import type { IPoll, IPollChoice } from './models/poll.interface';
 
 export const usePollStore = defineStore('poll-store', () => {
   const { getConnectionByHub } = useSignalR();

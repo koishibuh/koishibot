@@ -10,16 +10,15 @@ const emit = defineEmits<{
 }>();
 
 const textField = ref('');
-
 const isTextVisible = ref(false);
-
-const inputType = computed(() => {
-  return isTextVisible.value ? 'text' : 'password';
-});
 
 const toggleVisibility = (visible: boolean) => {
   isTextVisible.value = visible;
 };
+
+const inputType = computed(() => {
+  return isTextVisible.value ? 'text' : 'password';
+});
 
 const createLabelName = computed(() => {
   return props.fieldName.toLowerCase();

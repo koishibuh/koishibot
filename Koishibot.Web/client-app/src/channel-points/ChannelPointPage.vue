@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useChannelPointStore } from './channel-points-store';
-import http from '@/api/http';
 import CreateReward from './CreateReward.vue';
 
 const store = useChannelPointStore();

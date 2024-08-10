@@ -9,6 +9,10 @@ const props = defineProps<{
   settings: IObsSettings;
 }>();
 
+const emit = defineEmits<{
+  settingClicked: [string];
+}>();
+
 const store = useObsStore();
 
 const address = ref<string>('');
@@ -28,6 +32,10 @@ const saveSettings = async () => {
   };
   await store.saveSettings(settings);
 };
+
+const showModal = () => {
+  emit('settingClicked', 'ObsSettings');
+};
 </script>
 
 <template>
@@ -38,18 +46,8 @@ const saveSettings = async () => {
     @update-state="connectedStateChanged"
   />
 
-  <div>
-    <form @submit.prevent="saveSettings()" class="flex flex-col gap-2 my-4 w-1/2">
-      <HiddenField field-name="Address" @update="(x) => (address = x)" />
-
-      <div class="flex items-center">
-        <label for="port" class="p-2 w-[60px]">Port:</label>
-        <input type="text" v-model="port" id="message" class="text-black" />
-      </div>
-
-      <HiddenField field-name="Password" @update="(x) => (password = x)" />
-
-      <button class="primary-button">Save</button>
-    </form>
+  <div class="w-1/2 mt-3">
+    <button class="primary-button" @click="showModal">Settings</button>
   </div>
+  <div></div>
 </template>

@@ -9,7 +9,7 @@ const searchFilter = ref('');
 const props = defineProps<{ menu: IDropdownMenu }>();
 const emits = defineEmits(['optionSelected', 'filter']);
 
-function selectOption(option: any) {
+const selectOption = (option: any) => {
   if (option) {
     console.log('1');
     selected.value = option;
@@ -17,14 +17,14 @@ function selectOption(option: any) {
     searchFilter.value = option.name;
     emits('optionSelected', selected.value);
   }
-}
+};
 
-function showOptions() {
+const showOptions = () => {
   if (!props.menu.disabled) {
     searchFilter.value = '';
     optionsShown.value = true;
   }
-}
+};
 
 const exit = () => {
   optionsShown.value = false;

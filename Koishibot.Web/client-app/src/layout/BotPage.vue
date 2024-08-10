@@ -7,7 +7,7 @@ import NavBar from './NavBar.vue';
 import ChatField from '@/chat/ChatField.vue';
 import ServiceStatusBar from './ServiceStatusBar.vue';
 import NotificationBanner from '@/common/notifications/NotificationBanner.vue';
-import { useNotificationStore } from '@/common/notification.store';
+import { useNotificationStore } from '@/common/notifications/notification.store';
 
 const route = useRoute();
 const store = useNotificationStore();

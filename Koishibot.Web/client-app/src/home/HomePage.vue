@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import http from '@/api/http';
-import { useNotificationStore } from '@/common/notification.store';
-import StreamInfo from '@/stream-info/StreamInfo.vue';
+import { useNotificationStore } from '@/common/notifications/notification.store';
+import StreamInfo from '@/home/stream-info/StreamInfo.vue';
 
 const store = useNotificationStore();
 const oauthLink = ref('');
@@ -29,7 +29,7 @@ async function testFeature() {
 }
 
 const bannerTest = () => {
-  store.addMessage('3');
+  store.displayMessage('3');
 };
 
 const refreshtoken = ref<string>('');

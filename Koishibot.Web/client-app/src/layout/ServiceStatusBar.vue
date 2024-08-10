@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useNotificationStore } from '@/common/notification.store';
+import { useNotificationStore } from '@/common/notifications/notification.store';
 
 const store = useNotificationStore();
 
 onMounted(async () => {
   try {
-    await store.GetStatus();
+    await store.getStatus();
   } catch (error) {
     console.log(error);
   }

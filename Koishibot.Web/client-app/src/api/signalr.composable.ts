@@ -1,4 +1,4 @@
-import { type IServiceStatus } from '@/layout/service-status.interface';
+import { type IServiceStatus } from '@/layout/models/service-status.interface';
 import {
   HubConnectionState,
   HubConnectionBuilder,
@@ -74,9 +74,9 @@ export const useSignalR = () => {
 
   return {
     signalRStatus,
+    signalRHubStatuses,
     createSignalRConnection,
     getConnectionByHub,
-    reconnectHub,
-    signalRHubStatuses
+    reconnectHub
   };
 };

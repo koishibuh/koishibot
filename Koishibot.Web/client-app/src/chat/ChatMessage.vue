@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type IChatMessage } from './chat-message.interface';
+import { type IChatMessage } from './models/chat-message.interface';
 
 const props = defineProps<{
   chat: IChatMessage;

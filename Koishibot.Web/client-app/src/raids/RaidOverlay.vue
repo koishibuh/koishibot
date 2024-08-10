@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch, ref } from 'vue';
 import { useRaidStore } from '@/raids/raid.store';
-import { type IRaidCandidate } from './interfaces/raid-candidate.interface';
+import { type IRaidCandidate } from './models/raid-candidate.interface';
 
 const store = useRaidStore();
 const streamLoading = ref<boolean>(true);

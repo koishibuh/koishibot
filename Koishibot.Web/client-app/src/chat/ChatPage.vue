@@ -14,11 +14,11 @@ watch(store.chatMessages, () => {
 
 const isHovering = ref<boolean>(false);
 
-function scroll() {
+const scroll = () => {
   if (chatMessageLog.value && !isHovering.value) {
     chatMessageLog.value.scrollTop = chatMessageLog.value.scrollHeight;
   }
-}
+};
 
 const scrollToBottom = () => {
   if (chatMessageLog.value) {
@@ -27,13 +27,13 @@ const scrollToBottom = () => {
   showButton.value = false;
 };
 
-function handleScroll(event: any) {
+const handleScroll = (event: any) => {
   if (event.target.scrollTop < event.target.scrollHeight - event.target.offsetHeight) {
     showButton.value = true;
   } else {
     showButton.value = false;
   }
-}
+};
 
 const showButton = ref<boolean>(false);
 </script>

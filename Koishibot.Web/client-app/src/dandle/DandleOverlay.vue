@@ -2,7 +2,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useDandleStore } from './dandle.store';
 import TimerCounter from '@/timers/TimerCounter.vue';
-import { type ITimer } from '@/timers/timer.interface';
+import { type ITimer } from '@/timers/models/timer.interface';
 
 import DandlePoll from './DandlePoll.vue';
 import { useOverlayStatusStore } from '../common/overlay-status.store';

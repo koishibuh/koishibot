@@ -6,13 +6,15 @@ import type {
   ICommandName,
   IChatCommandInfo,
   ICommandRequest
-} from './command-interface';
+} from './models/command-interface';
 import type { IDropdownMenu } from '@/common/dropdown-menu/dropdownmenu-interface';
+import { useNotificationStore } from '@/common/notifications/notification.store';
 
 export const useCommandStore = defineStore('command-store', () => {
+  const notificationStore = useNotificationStore();
+
   const commands = ref<ICommand[] | null>();
   const availableNames = ref<ICommandName[] | null>();
-  const message = ref('');
 
   const availableNamesOptions = ref<IDropdownMenu>({
     name: 'commandNames',
@@ -27,7 +29,6 @@ export const useCommandStore = defineStore('command-store', () => {
   };
 
   const getCommands = async () => {
-    console.log('test');
     try {
       if (commands.value == null) {
         console.log('test2');
@@ -37,7 +38,7 @@ export const useCommandStore = defineStore('command-store', () => {
         availableNamesOptions.value.options.push(...result.commandNames);
       }
     } catch (error) {
-      message.value = (error as Error).message;
+      notificationStore.displayMessage((error as Error).message);
     }
   };
 
@@ -45,18 +46,12 @@ export const useCommandStore = defineStore('command-store', () => {
     try {
       const result: number = await http.post('/api/commands', { request: request });
 
-      console.log('searching for commandName', request.commandNames[0].id);
-      console.log('commandName length', request.commandNames.length);
-
       const index = availableNamesOptions.value.options.findIndex(
         (option) => option.id === request.commandNames[0].id
       );
       if (index !== -1) {
         availableNamesOptions.value.options.splice(index, 1);
       }
-
-      console.log('currently in availablenameoptions', availableNamesOptions.value.options);
-      console.log('count availablenameoptions', availableNamesOptions.value.options.length);
 
       const newCommand: ICommand = {
         id: result,
@@ -71,16 +66,16 @@ export const useCommandStore = defineStore('command-store', () => {
 
       commands.value?.push(newCommand);
     } catch (error) {
-      message.value = (error as Error).message;
+      notificationStore.displayMessage((error as Error).message);
     }
   };
 
   return {
-    createCommandName,
-    getCommands,
-    createCommand,
     commands,
     availableNames,
-    availableNamesOptions
+    availableNamesOptions,
+    createCommandName,
+    getCommands,
+    createCommand
   };
 });

@@ -9,13 +9,14 @@ import BotPage from '@/layout/BotPage.vue';
 import CalendarOverlay from '@/calendars/CalendarOverlay.vue';
 import PollOverlay from '@/polls/PollOverlay.vue';
 import LoginPage from '@/login/LoginPage.vue';
-import AdTimerOverlay from '@/ad-timer/AdTimerOverlay.vue';
+import AdTimerOverlay from '@/timers/AdTimerOverlay.vue';
 import DandleOverlay from '@/dandle/DandleOverlay.vue';
 import SettingsPage from '@/settings/SettingsPage.vue';
 import LightsPage from '@/lights/LightsPage.vue';
 import ChannelPointPage from '@/channel-points/ChannelPointPage.vue';
 import DandlePage from '@/dandle/DandlePage.vue';
 import AuthenticatePage from '@/login/AuthenticatePage.vue';
+import LogPage from '@/console-log/LogPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -75,6 +76,11 @@ const router = createRouter({
           path: '/dandle',
           name: 'Dandle',
           component: DandlePage
+        },
+        {
+          path: '/log',
+          name: 'Log',
+          component: LogPage
         }
       ]
     },

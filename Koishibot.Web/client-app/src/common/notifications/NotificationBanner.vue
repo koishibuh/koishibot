@@ -15,7 +15,7 @@ defineProps<{
   </Transition>
 </template>
 
-<style>
+<style scoped>
 .slide-enter-active {
   transition:
     transform 0.5s,

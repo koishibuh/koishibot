@@ -10,11 +10,11 @@ import type {
   ILetterInfo,
   IDandleUserScore
 } from '@/dandle/dandle.interface';
-import { type IPollChoiceInfo } from '@/raids/interfaces/raid-poll.interface';
-import keyboardDefault from '@/dandle/keyboard-default.json';
-import guessBoard from '@/dandle/guessboard-default.json';
-import wordGuess from '@/dandle/data/wordVoteGuess.json';
-import wordSuggestions from '@/dandle/data/wordSuggestions.json';
+import { type IPollChoiceInfo } from '@/raids/models/raid-poll.interface';
+import keyboardDefault from '@/dandle/data/keyboard-default.json';
+import guessBoard from '@/dandle/data/guessboard-default.json';
+import wordGuessData from '@/dandle/sample/wordVoteGuessData.json';
+import wordSuggestionsData from '@/dandle/sample/wordSuggestionsData.json';
 
 export const useDandleStore = defineStore('dandleStore', () => {
   const { getConnectionByHub } = useSignalR();
@@ -23,10 +23,10 @@ export const useDandleStore = defineStore('dandleStore', () => {
   const keyboard = ref<IKeyboardRow[]>(keyboardDefault);
 
   const enableSuggestions = ref<boolean>(true);
-  const suggestedWords = ref<IWordSuggestion[]>([]); /*  (wordSuggestions); */
+  const suggestedWords = ref<IWordSuggestion[]>([]); /*  (wordSuggestionsData); */
 
   const enablePoll = ref<boolean>(false);
-  const dandleVotes = ref<IPollChoiceInfo[]>([]); /* (wordGuess); */
+  const dandleVotes = ref<IPollChoiceInfo[]>([]); /* (Data); */
   const voteCountTotal = ref<number>(0);
 
   const guessedWords = ref<IWordRow[]>(new Array(6).fill(guessBoard));
@@ -85,14 +85,14 @@ export const useDandleStore = defineStore('dandleStore', () => {
     console.log('Cleared Suggestion List');
   });
 
-  signalRConnection?.on('ReceiveDandleWordGuess', (wordGuess: IDandleGuessedWord) => {
-    console.log('received dandle word guess', wordGuess);
+  signalRConnection?.on('ReceiveDandleWordGuess', (Data: IDandleGuessedWord) => {
+    console.log('received dandle word guess', Data);
     enableSuggestions.value = true;
     enablePoll.value = false;
     voteCountTotal.value = 0;
     dandleVotes.value = [];
 
-    guessedWords.value.splice(guessedWordCount.value, 1, { letters: wordGuess.letters });
+    guessedWords.value.splice(guessedWordCount.value, 1, { letters: Data.letters });
 
     if (guessedWordCount.value < 6) {
       guessedWordCount.value = guessedWordCount.value + 1;
@@ -101,10 +101,10 @@ export const useDandleStore = defineStore('dandleStore', () => {
       guessedWordCount.value = 0;
     }
 
-    console.log('wordGuess', wordGuess.keys);
+    console.log('Data', Data.keys);
     console.log('keyboard', keyboard.value);
 
-    const guessedWordKeys = { keys: wordGuess.keys };
+    const guessedWordKeys = { keys: Data.keys };
 
     keyboard.value = keyboard.value.map((row: IKeyboardRow) => {
       return {

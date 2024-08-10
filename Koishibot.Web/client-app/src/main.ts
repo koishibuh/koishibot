@@ -1,10 +1,10 @@
-import './assets/main.css';
+import './common/assets/main.css';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
 import App from './App.vue';
-import router from './router/router-index';
+import router from './layout/router/router-index';
 import { useSignalR } from './api/signalr.composable';
 
 const app = createApp(App);

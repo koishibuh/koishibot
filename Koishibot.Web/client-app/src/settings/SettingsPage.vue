@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import ToggleButton from '@/common/toggle-button.vue';
 import { useSettingsStore } from '@/settings/settings.store';
-import { useNotificationStore } from '@/common/notification.store';
 import ObsContainer from '@/settings/ObsContainer.vue';
 import { useObsStore } from './obs.store';
+import ModalContainer from '@/common/modal/ModalContainer.vue';
+import ScopesContainer from './ScopesContainer.vue';
 
 const store = useSettingsStore();
 const obsStore = useObsStore();
@@ -19,24 +19,34 @@ const obs = async (e: boolean) => {
     await store.UpdateObsConnection(false);
   }
 };
+
+const message1 = ref<string>('');
+const modalContent = ref<string>('');
+const showModal = ref<boolean>(false);
+
+const showModalContent = (componentName: string) => {
+  modalContent.value = componentName;
+  message1.value = componentName;
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  modalContent.value = '';
+};
 </script>
 <template>
-  <ObsContainer :settings="obsStore.settings" />
-  <!--   <ToggleButton button1Name="Enable OBS" button2Name="Disable OBS" @enableItem="obsStore" /> -->
+  <div v-if="showModal">
+    <ModalContainer :content="modalContent" @modal-closed="closeModal" />
+  </div>
 
-  <div class="h-[200px] border-2 border-white rounded">
-    <div v-if="store.logMessages.length > 0">
-      <div v-for="(message, index) in store.logMessages" :key="index">
-        <div v-if="message.level === 'Info'">
-          <p>🟢 {{ message.timestamp }} | {{ message.message }}</p>
-        </div>
-        <div v-else-if="message.level === 'Warning'">
-          <p>🟡 {{ message.timestamp }} | {{ message.message }}</p>
-        </div>
-        <div v-else>
-          <p>🔴 {{ message.timestamp }} | {{ message.message }}</p>
-        </div>
-      </div>
-    </div>
+  <h1>OBS</h1>
+  <div class="border-2 p-2 border-gray-500 rounded">
+    <ObsContainer :settings="obsStore.settings" @setting-clicked="showModalContent" />
+  </div>
+
+  <h1>Scopes</h1>
+  <div class="border-2 p-2 border-gray-500 rounded">
+    <ScopesContainer @setting-clicked="showModalContent" />
   </div>
 </template>

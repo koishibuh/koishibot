@@ -1,9 +1,8 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
-import { type IRaidCandidate } from './interfaces/raid-candidate.interface';
-import { type IRaidCandidateVm } from './interfaces/raid-candidate.interface';
-import { type IRaidPoll } from './interfaces/raid-poll.interface';
+import type { IRaidCandidate, IRaidCandidateVm } from './models/raid-candidate.interface';
+import { type IRaidPoll } from './models/raid-poll.interface';
 import PollDefault from '@/raids/data/pollDefault.json';
 
 export const useRaidStore = defineStore('raidStore', () => {

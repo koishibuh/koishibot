@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import http from '@/api/http';
 import { useCommandStore } from './command.store';
 import DropdownMenu from '@/common/dropdown-menu/DropdownMenu.vue';
-import type { ICommandName, ICommandRequest } from './command-interface';
+import type { ICommandName, ICommandRequest } from './models/command-interface';
 
 const commandName = ref('');
 
@@ -11,7 +10,6 @@ const message = ref<unknown | string>();
 
 const store = useCommandStore();
 
-const nametext = ref('');
 const selectedName = ref<ICommandName | null>(null);
 const messagetext = ref('');
 const permissionstext = ref('');
@@ -20,7 +18,7 @@ const globalcooldowntext = ref('');
 const descriptiontext = ref('');
 const shouldBeDisabled = ref<boolean>(false);
 
-async function sendCommand() {
+const sendCommand = async () => {
   try {
     shouldBeDisabled.value = true;
     if (selectedName.value === null) {
@@ -50,7 +48,7 @@ async function sendCommand() {
   } catch (error) {
     message.value = (error as Error).message;
   }
-}
+};
 
 async function createCommandName() {
   try {

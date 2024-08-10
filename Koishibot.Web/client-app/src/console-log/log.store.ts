@@ -5,12 +5,9 @@ import http from '@/api/http';
 import { useNotificationStore } from '@/common/notifications/notification.store';
 import { type ILog } from '@/settings/models/log-interface';
 
-export const useSettingsStore = defineStore('settingsStore', () => {
+export const useLogStore = defineStore('logStore', () => {
   const notificationStore = useNotificationStore();
-
   const logMessages = ref<ILog[]>([]);
-
-  const message = ref('');
 
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
@@ -19,24 +16,7 @@ export const useSettingsStore = defineStore('settingsStore', () => {
     logMessages.value.push(log);
   });
 
-  const UpdateObsConnection = async (enabled: boolean) => {
-    console.log('test');
-    try {
-      if (enabled) {
-        await http.post('/api/obs', null);
-        message.value = 'Obs Websocket Connected';
-      } else {
-        await http.delete('/api/obs');
-        message.value = 'Obs Websocket Disconnected';
-      }
-    } catch {
-      message.value = 'Error with connection';
-    }
-  };
-
   return {
-    message,
-    logMessages,
-    UpdateObsConnection
+    logMessages
   };
 });

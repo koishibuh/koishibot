@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import calendar from '@/calendars/calendarData.json';
+import calendar from '@/calendars/data/calendarData.json';
 </script>
 
 <template>

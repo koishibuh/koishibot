@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useChannelPointStore } from './channel-points-store';
-import { type IChannelRewardRequest } from './models/reward-request.interface';
+import { type IChannelRewardRequest } from './models/channel-point.interface';
 
 const store = useChannelPointStore();
 

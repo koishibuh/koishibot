@@ -1,9 +1,9 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
-import { type IStreamEvent } from './interfaces/stream-event.interface';
+import { type IStreamEvent } from './models/stream-event.interface';
 import http from '@/api/http';
-import eventSample from '@/event-feed/data/eventSample.json';
+import eventSample from '@/event-feed/data/eventData.json';
 
 export const useEventFeedStore = defineStore('event-feed', () => {
   const { getConnectionByHub } = useSignalR();
@@ -18,15 +18,14 @@ export const useEventFeedStore = defineStore('event-feed', () => {
     recentEvent.value = streamEvent;
   });
 
-  async function getRecentEvents() {
-    console.log('test');
+  const getRecentEvents = async () => {
     streamEvents.value = await http.get('/api/event-feed');
     recentEvent.value = streamEvents.value[0];
-  }
+  };
 
   return {
-    getRecentEvents,
     streamEvents,
-    recentEvent
+    recentEvent,
+    getRecentEvents
   };
 });

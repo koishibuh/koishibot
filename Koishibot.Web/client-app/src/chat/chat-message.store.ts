@@ -1,15 +1,18 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { type IChatMessage } from './chat-message.interface';
+import { type IChatMessage } from './models/chat-message.interface';
 import { useSignalR } from '@/api/signalr.composable';
-import chatSample from '@/chat/data/chatSample.json';
+import http from '@/api/http';
+import { useNotificationStore } from '@/common/notifications/notification.store';
+import data from '@/chat/data/chatData.json';
 
 export const useChatMessageStore = defineStore('chat-messages', () => {
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
+  const notificationStore = useNotificationStore();
 
   /*   const chatMessages = ref<IChatMessage[]>([]); */
-  const chatMessages = ref<IChatMessage[]>(chatSample);
+  const chatMessages = ref<IChatMessage[]>(data);
 
   signalRConnection?.on('ReceiveChatMessage', (chatmessage: IChatMessage) => {
     console.log('ReceiveChatMessage', chatmessage);
@@ -19,7 +22,16 @@ export const useChatMessageStore = defineStore('chat-messages', () => {
     chatMessages.value.push(chatmessage);
   });
 
+  const sendChatMessage = async (message: string) => {
+    try {
+      await http.post('/api/chat', { message: message });
+    } catch (error) {
+      notificationStore.displayMessage((error as Error).message);
+    }
+  };
+
   return {
-    chatMessages
+    chatMessages,
+    sendChatMessage
   };
 });

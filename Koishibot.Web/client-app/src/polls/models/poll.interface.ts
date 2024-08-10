@@ -1,5 +1,3 @@
-import { type IPollChoice } from './poll-choice.interface';
-
 export interface IPoll {
   id: string;
   title: string;
@@ -7,4 +5,8 @@ export interface IPoll {
   endingAt: Date;
   duration: string;
   choices: IPollChoice;
+}
+
+export interface IPollChoice {
+  [key: string]: number;
 }

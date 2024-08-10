@@ -1,24 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useStreamInfoStore } from './stream-info.store';
+import type { IStreamInfoRequest } from './models/stream-info.interface';
 
 const store = useStreamInfoStore();
-const streamtitle = ref<string>();
-const category = ref<string>();
+
+const streamtitle = ref<string>('');
+const category = ref<string>('');
 
 onMounted(async () => {
-  try {
-    await store.GetStreamInfo();
-    streamtitle.value = store.streamInfo?.streamTitle;
-    category.value = store.streamInfo?.category;
-  } catch (error) {
-    console.log(error);
-  }
+  await store.getStreamInfo();
+  streamtitle.value = store.streamInfo?.streamTitle!;
+  category.value = store.streamInfo?.category!;
 });
 
-async function updateStreamInfo() {
-  await store.UpdateStreamInfo(streamtitle.value, category.value);
-}
+const updateStreamInfo = async () => {
+  const request: IStreamInfoRequest = {
+    streamTitle: streamtitle?.value,
+    categoryId: category?.value
+  };
+
+  await store.updateStreamInfo(request);
+};
 </script>
 
 <template>

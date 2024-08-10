@@ -3,10 +3,10 @@ import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
 import { type ILedLight } from './models/ledlight-interface';
 import { type IColorSquare } from './models/colorsquare-interface';
-import sampleLightData from '@/lights/data/sampleLights.json';
-import defaultColorData from '@/lights/data/defaultColors.json';
+import sampleLightData from '@/lights/sample-data/lightsData.json';
+import defaultColorData from '@/lights/default/colorsDefault.json';
 import http from '@/api/http';
-import { useNotificationStore } from '@/common/notification.store';
+import { useNotificationStore } from '@/common/notifications/notification.store';
 import { type ILightLogin } from './models/lightlogin-interface';
 
 export const useLightStore = defineStore('lights', () => {
@@ -25,7 +25,7 @@ export const useLightStore = defineStore('lights', () => {
     try {
       await http.post('/api/led-lights/login', login);
     } catch (error) {
-      notificationStore.addMessage('Unable to login');
+      notificationStore.displayMessage('Unable to login');
     }
   };
 
@@ -36,7 +36,7 @@ export const useLightStore = defineStore('lights', () => {
       console.log(result);
       currentLights.value = result;
     } catch (error) {
-      notificationStore.addMessage('Unable to import');
+      notificationStore.displayMessage('Unable to import');
     }
   };
 
@@ -78,7 +78,7 @@ export const useLightStore = defineStore('lights', () => {
         lightToUpdate.power = state;
       }
     } catch (error) {
-      notificationStore.addMessage('Unable to update light state');
+      notificationStore.displayMessage('Unable to update light state');
     }
   };
 
@@ -103,7 +103,7 @@ export const useLightStore = defineStore('lights', () => {
     try {
       await http.post('/api/led-lights/', dto);
     } catch (e) {
-      notificationStore.addMessage('Something went wrong');
+      notificationStore.displayMessage('Something went wrong');
     }
   };
 

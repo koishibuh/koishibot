@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { type IPollChoiceInfo } from '@/raids/interfaces/raid-poll.interface';
+import { type IPollChoiceInfo } from '@/raids/models/raid-poll.interface';
 
 const props = defineProps<{
   pollChoice: IPollChoiceInfo;

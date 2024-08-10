@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
-import { type IOverlayTimer } from '../timers/timer-interface';
+import { type IOverlayTimer } from '@/timers/models/timer.interface';
 
 export const useTimerStore = defineStore('timers', () => {
   const { getConnectionByHub } = useSignalR();
