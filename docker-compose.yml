@@ -1,0 +1,10 @@
+version: "3.8"
+services: 
+  koishibot-web:
+    container_name: "koishibot-web"
+    restart: unless-stopped
+    image: ghcr.io/koishibuh/koishibot-web:1.0.0
+    env_file:
+      - ~/docker-env/.koishibot-env
+    ports:
+      - 8789:8080
