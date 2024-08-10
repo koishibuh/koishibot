@@ -47,7 +47,7 @@ jobs:
   deploy-container:
     name: Deploy Koishibot Web Container
     needs: build-web
-    runs-on: unbuntu-latest
+    runs-on: ubuntu-latest
     permissions:
      contents: read
      packages: read
