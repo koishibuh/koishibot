@@ -19,7 +19,6 @@ const port = ref<string>('');
 const password = ref<string>('');
 
 const connectedStateChanged = (state: boolean) => {
-  console.log(state);
   store.updateObsConnection(state);
 };
 

@@ -7,21 +7,23 @@ import ModalContainer from '@/common/modal/ModalContainer.vue';
 import ScopesContainer from './ScopesContainer.vue';
 import TwitchContainer from './TwitchContainer.vue';
 import { useServiceStatusStore } from '@/layout/service-status.store';
+import { useTwitchStore } from './twitch.store';
 
 const store = useSettingsStore();
 const obsStore = useObsStore();
 const statusStore = useServiceStatusStore();
+const twitchStore = useTwitchStore();
 const message = ref(store.message);
 
-const obs = async (e: boolean) => {
+/* const obs = async (e: boolean) => {
   if (e) {
-    await store.UpdateObsConnection(true);
+    await obsStore.UpdateObsConnection(true);
     message.value = 'Enabled';
   } else {
     message.value = 'Disabled';
     await store.UpdateObsConnection(false);
   }
-};
+}; */
 
 const message1 = ref<string>('');
 const modalContent = ref<string>('');
@@ -46,7 +48,7 @@ const closeModal = () => {
 
   <h1>Twitch</h1>
   <div class="border-2 p-2 border-gray-500 rounded">
-    <TwitchContainer />
+    <TwitchContainer :settings="twitchStore" @setting-clicked="showModalContent" />
   </div>
 
   <h1>OBS</h1>
