@@ -1,0 +1,46 @@
+name: Build and Publish Koishibot Containers
+env: 
+  REGISTRY: ghcr.io
+  IMAGE_NAME: koishibot-web
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+    build-web:
+      name: Build Koishibot Web Container
+      runs-on: ubuntu-latest
+      permissions: 
+        contents: read
+        packages: write
+
+      env:
+        REGISTRY: ghcr.io
+        KOISHIBOT_WEB_IMAGE_NAME: koishibot-web
+
+      steps:
+        - name: Check out Repo
+          uses: actions/checkout@v3
+
+        - name: Login to Container Registry
+          uses: docker/login-action@v3.3.0
+          with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Extract metadata (tag, labels) for Docker
+          id: meta
+          uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.HAMDLEBOT_WEB_IMAGE_NAME }}
+
+        - name: Build and push Koishibot Web
+          uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+          with:
+            context: ./
+            push: true
+            tags: ghcr.io/${{github.repository_owner}}/koishibot-web:1.0.0
+            labels: ${{ steps.meta.outputs.labels }}
+            file: ./Koishibot.Web/Dockerfile      
