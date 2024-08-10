@@ -63,7 +63,7 @@ jobs:
             gh repo clone koishibuh/koishibot
             docker login ghcr.io -u ${{github.actor}} --password ${{ secrets.GITHUB_TOKEN }}
             cd koishibot
-            cp docker-compose.yml ~/docker-env && cd ~/docker-env
+            cp docker-compose.yml /etc/docker-env && cd /etc/docker-env
             docker compose down
             docker compose pull
             docker compose up -d
