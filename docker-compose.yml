@@ -5,6 +5,6 @@ services:
     restart: unless-stopped
     image: ghcr.io/koishibuh/koishibot-web:1.0.0
     env_file:
-      - /etc/docker-env/.koishibot-env
+      - /etc/docker-env/.koishibot-web-env
     ports:
       - 8789:8080
