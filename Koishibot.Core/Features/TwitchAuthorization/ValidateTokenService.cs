@@ -40,7 +40,7 @@ public record ValidateTokenService(
 			?? throw new Exception("Unable to get user from Validation Token");
 
 		Settings.Value.StreamerTokens.UserId = result.UserId ?? string.Empty;
-		Settings.Value.StreamerTokens.UserLogin = result.Login ?? string.Empty;
+		Settings.Value.StreamerTokens.UserLogin = result.UserLogin ?? string.Empty;
 	}
 }
 
@@ -50,7 +50,7 @@ public class ValidateTokenResponse
 	public string? ClientId { get; set; }
 
 	[JsonPropertyName("login")]
-	public string? Login { get; set; }
+	public string? UserLogin { get; set; }
 
 	[JsonPropertyName("scopes")]
 	public List<string>? Scopes { get; set; }
