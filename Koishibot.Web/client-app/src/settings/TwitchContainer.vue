@@ -27,8 +27,8 @@ const updateEventSubStatus = async (status: boolean) => {
 <template>
   <div class="flex">
     <ToggleButton
-      button1Name="Enable TTV IRC"
-      button2Name="Disable TTV IRC"
+      button1Name="Enable IRC"
+      button2Name="Disable IRC"
       @update-state="updateIRCStatus"
     />
 
