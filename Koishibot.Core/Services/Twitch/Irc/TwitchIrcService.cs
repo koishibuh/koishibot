@@ -31,7 +31,6 @@ public record TwitchIrcService(
 
 	public async Task Error(WebSocketMessage message)
 	{
-		//factory.Remove(WebSocketName.TwitchIrc);
 		await BotIrc.Disconnect();
 	}
 
@@ -59,7 +58,9 @@ public record TwitchIrcService(
 		await BotIrc.SendMessage($"JOIN ${streamer}");
 		await SendMessageToChat(streamer, "Joined channel");
 
-		await Cache.UpdateServiceStatus(ServiceName.BotIrc, true);
+		await Task.Delay(3000);
+
+		await Cache.UpdateServiceStatus(ServiceName.BotIrc, ServiceStatusString.Online);
 	}
 
 	public async Task SendMessageToChat(string channelName, string message)
@@ -79,7 +80,6 @@ public record TwitchIrcService(
 	public async Task DisconnectWebSocket()
 	{
 		await BotIrc.Disconnect();
+		await Cache.UpdateServiceStatus(ServiceName.BotIrc, ServiceStatusString.Offline);
 	}
-
-
 }

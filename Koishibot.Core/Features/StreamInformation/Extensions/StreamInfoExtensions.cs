@@ -25,7 +25,7 @@ public static class StreamInfoExtensions
 	public static async Task UpdateStreamStatusOnline
 		(this IAppCache cache)
 	{
-		await cache.UpdateServiceStatus(ServiceName.StreamOnline, true);
+		await cache.UpdateServiceStatus(ServiceName.StreamOnline, ServiceStatusString.Online);
 	}
 	public static void AddStreamSessions
 		(this IAppCache cache, StreamSessions sessions)

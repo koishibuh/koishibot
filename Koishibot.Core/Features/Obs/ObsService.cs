@@ -96,7 +96,7 @@ public record ObsService(
 	public async Task OnAuthorized()
 	{
 		await Signalr.SendInfo("Obs WebSocket Connected");
-		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, true);
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Online);
 
 		// Do things when Obs has connected
 		var request = new RequestWrapper
@@ -110,7 +110,7 @@ public record ObsService(
 
 	public async Task Error(WebSocketMessage error)
 	{
-		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, false);
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
 		await Signalr.SendError(error.Message);
 		Log.LogInformation(error.Message);
 		if (ObsWebSocket.IsDisposed is false)
@@ -122,7 +122,7 @@ public record ObsService(
 	public async Task OnDisconnected()
 	{
 		await Signalr.SendInfo("Obs WebSocket Disconnected");
-		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, false);
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
 	}
 
 	public async Task OnSceneReceived(GetSceneListResponse args)

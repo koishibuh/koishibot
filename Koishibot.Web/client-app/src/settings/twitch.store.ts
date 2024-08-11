@@ -11,8 +11,17 @@ export const useTwitchStore = defineStore('twitchStore', () => {
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
 
-  const ircStatus = ref<boolean>(false);
-  const eventSubStatus = ref<boolean>(false);
+  const ircStatus = ref({ name: 'BotIrc', status: false });
+  const eventSubStatus = ref({ name: 'TwitchWebsocket', status: false });
+
+  const startTwitchServices = async () => {
+    try {
+      notificationStore.displayMessage('Getting Authorization Link');
+      return await http.get<string>('/api/twitch-auth/url');
+    } catch (error) {
+      notificationStore.displayMessage((error as Error).message);
+    }
+  };
 
   const updateIrcStatus = async (enabled: boolean) => {
     try {
@@ -45,6 +54,7 @@ export const useTwitchStore = defineStore('twitchStore', () => {
   return {
     ircStatus,
     eventSubStatus,
+    startTwitchServices,
     updateIrcStatus,
     updateEventSubStatus
   };

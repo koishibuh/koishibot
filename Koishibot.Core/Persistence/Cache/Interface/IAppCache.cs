@@ -9,6 +9,6 @@ public interface IAppCache
 	void AddNoExpire<T>(CacheName name, T item);
 	T? Get<T>(CacheName name) where T : class;
 	void InitializeServices();
-	Task UpdateServiceStatus(ServiceName name, bool status);
+	Task UpdateServiceStatus(ServiceName name, string status);
 	void Remove(CacheName name);
 }

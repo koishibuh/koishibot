@@ -1,16 +1,18 @@
-﻿namespace Koishibot.Core.Features.Application.Models;
+﻿using Koishibot.Core.Persistence.Cache.Enums;
+
+namespace Koishibot.Core.Features.Application.Models;
 
 public class ServiceStatus
 {
-	public bool SignalR { get; set; } = false;
-	public bool StreamerIrc { get; set; } = false;
-	public bool BotIrc { get; set; } = false;
-	public bool TwitchWebsocket { get; set; } = false;
-	public bool ObsWebsocket { get; set; } = false;
+	public string SignalR { get; set; } = ServiceStatusString.Offline;
+	public string StreamerIrc { get; set; } = ServiceStatusString.Offline;
+	public string BotIrc { get; set; } = ServiceStatusString.Offline;
+	public string TwitchWebsocket { get; set; } = ServiceStatusString.Offline;
+	public string ObsWebsocket { get; set; } = ServiceStatusString.Offline;
 
-	public bool StreamOnline { get; set; } = false;
-	public bool Attendance { get; set; } = true;
-	public bool DragonEggQuest { get; set; } = false;
-	public bool Dandle { get; set; } = false;
-	public bool Raid { get; set; } = false;	
+	public string StreamOnline { get; set; } = ServiceStatusString.Offline;
+	public string Attendance { get; set; } = ServiceStatusString.Online;
+	public string DragonEggQuest { get; set; } = ServiceStatusString.Offline;
+	public string Dandle { get; set; } = ServiceStatusString.Offline;
+	public string Raid { get; set; } = ServiceStatusString.Offline;
 }

@@ -25,7 +25,7 @@ public record StreamOfflineHandler(
 
 	public async Task Handle(StreamOfflineCommand command, CancellationToken cancel)
 	{
-		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, false);
+		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, ServiceStatusString.Offline);
 
 		//await ObsService.StopWebsocket();
 

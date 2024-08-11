@@ -7,6 +7,7 @@ using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Persistence.Cache.Enums;
 namespace Koishibot.Core.Features.ChannelPoints;
 
 public record DragonEggQuestService(
@@ -33,7 +34,7 @@ public record DragonEggQuestService(
 
 			await Cache
 				.AddDragonEggQuest(dragonEggQuest)
-				.UpdateDragonEggQuestServiceStatus(true);
+				.UpdateDragonEggQuestServiceStatus(ServiceStatusString.Online);
 
 			await ChannelPointsApi.EnableRedemption(reward.TwitchId);
 			await ChatReplyService.App(Command.DragonEggQuestEnabled);

@@ -10,7 +10,7 @@ public static class RaidSuggestionExtensions
 	// CACHE
 	public static void EnableRaidSuggestions(this IAppCache cache)
 	{
-		cache.UpdateServiceStatus(ServiceName.Raid, true);
+		cache.UpdateServiceStatus(ServiceName.Raid, ServiceStatusString.Online);
 
 		var raid = new Raid().EnableSuggestions();
 		cache.Add(CacheName.Raid, raid);
@@ -18,7 +18,7 @@ public static class RaidSuggestionExtensions
 
 	public static IAppCache DisableRaidSuggestions(this IAppCache cache)
 	{
-		cache.UpdateServiceStatus(ServiceName.Raid, false);
+		cache.UpdateServiceStatus(ServiceName.Raid, ServiceStatusString.Offline);
 		return cache;
 	}
 

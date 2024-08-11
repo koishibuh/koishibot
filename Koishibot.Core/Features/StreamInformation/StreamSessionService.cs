@@ -81,7 +81,8 @@ public record StreamSessionService(
 
 	public async Task ReloadCurrentSession(TwitchStream stream)
 	{
-		await Cache.UpdateServiceStatus(ServiceName.Attendance, stream.AttendanceMandatory);
+		var status = stream.AttendanceMandatory ? ServiceStatusString.Online : ServiceStatusString.Offline;
+		await Cache.UpdateServiceStatus(ServiceName.Attendance, status);
 
 		var lastStreamDate = await Database.GetLastMandatoryStreamDate();
 		var streamSessions = new StreamSessions(stream, lastStreamDate);

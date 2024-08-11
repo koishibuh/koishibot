@@ -33,7 +33,7 @@ public record GetServiceStatusHandler(
 
 		var list = typeof(ServiceStatus)
 			.GetProperties()
-			.Select(x => new ServiceStatusVm(x.Name, (bool)x.GetValue(result)!))
+			.Select(x => new ServiceStatusVm(x.Name, (string)x.GetValue(result)!))
 			.ToList();
 
 		return await Task.FromResult(list);

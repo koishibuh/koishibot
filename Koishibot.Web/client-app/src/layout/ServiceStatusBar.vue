@@ -12,9 +12,18 @@ onMounted(async () => {
   }
 });
 
-function statusColor(status: Boolean): string {
-  return status ? 'bg-g' : 'bg-red-500';
-}
+const statusColor = (status: string): string => {
+  switch (status) {
+    case 'Online':
+      return 'bg-g';
+    case 'Loading':
+      return 'bg-yellow-400';
+    case 'Offline':
+      return 'bg-red-500';
+    default:
+      return ' bg-gray-600';
+  }
+};
 </script>
 
 <template>
@@ -28,19 +37,3 @@ function statusColor(status: Boolean): string {
     <span class="tooltiptext">{{ item.name }}</span>
   </div>
 </template>
-
-<!-- <div class="tooltip bg-g h-3 w-3 rounded-full" alt="Stream Elements Status">
-	<span class="tooltiptext">Stream Elements Status</span>
-</div>
-<div class="tooltip bg-g h-3 w-3 rounded-full" alt="Streamer Client Status">
-	<span class="tooltiptext">Streamer Client Status</span>
-</div>
-<div class="tooltip bg-g h-3 w-3 rounded-full" alt="Bot Client Status">
-	<span class="tooltiptext">Bot Client Status</span>
-</div>
-<div class="tooltip bg-g h-3 w-3 rounded-full" alt="Event Sub Status">
-	<span class="tooltiptext">Event Sub Status</span>
-</div>
-<div class="tooltip bg-g h-3 w-3 rounded-full" alt="Chat Processor Status">
-	<span class="tooltiptext">Chat Processor Status</span>
-</div> -->

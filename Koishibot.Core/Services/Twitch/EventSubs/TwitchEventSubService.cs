@@ -113,6 +113,7 @@ public record TwitchEventSubService(
 	public async Task DisconnectWebSocket()
 	{
 		await TwitchEventSub.Disconnect();
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Offline);
 	}
 
 	public async Task Error(WebSocketMessage message)
@@ -124,6 +125,7 @@ public record TwitchEventSubService(
 
 	private async Task ProcessSessionWelcomeMessage(string message)
 	{
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Loading);
 		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message);
 		var sessionId = eventMessage.Payload.Session.Id;
 
@@ -136,7 +138,7 @@ public record TwitchEventSubService(
 
 		_keepaliveTimeoutSeconds = eventMessage.Payload.Session.KeepAliveTimeoutSeconds;
 		StartKeepaliveTimer();
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, true);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Online);
 	}
 
 

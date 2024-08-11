@@ -19,7 +19,7 @@ public class UpdateServiceStatusController : ApiControllerBase
 
 public record UpdateServiceStatusCommand(
 	string ServiceName,
-	bool Status
+	string Status
 	) : IRequest;
 
 // == ⚫ HANDLER == //

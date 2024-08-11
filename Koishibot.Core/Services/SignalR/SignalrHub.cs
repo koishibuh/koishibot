@@ -17,7 +17,7 @@ public class SignalrHub : Hub<ISignalrHub>
 		await Clients.Client(Context.ConnectionId).ReceiveLog(
 			new LogVm($"SignalR is now connected", "i"));
 
-		await _cache.UpdateServiceStatus(ServiceName.SignalR, true);
+		await _cache.UpdateServiceStatus(ServiceName.SignalR, ServiceStatusString.Online);
 
 		await base.OnConnectedAsync();
 	}

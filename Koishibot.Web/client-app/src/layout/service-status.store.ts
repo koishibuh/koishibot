@@ -23,15 +23,21 @@ export const useServiceStatusStore = defineStore('serviceStatus', () => {
       serviceStatuses.value[index] = status;
     }
 
+    if (status.status === 'Loading') {
+      return;
+    }
+
+    const enabled: boolean = status.status === 'Online' ? true : false;
+
     switch (status.name) {
       case 'ObsWebsocket':
-        obsStore.settings.connectionStatus = status.status;
+        obsStore.settings.connectionStatus = enabled;
         break;
       case 'BotIrc':
-        twitchStore.ircStatus = status.status;
+        twitchStore.ircStatus.status = enabled;
         break;
       case 'TwitchWebsocket':
-        twitchStore.eventSubStatus = status.status;
+        twitchStore.eventSubStatus.status = enabled;
         break;
       default:
         break;

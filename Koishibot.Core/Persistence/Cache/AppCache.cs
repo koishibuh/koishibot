@@ -43,7 +43,7 @@ public record AppCache(
 		Cache.Set(CacheName.ServiceStatus, serviceStatus);
 	}
 
-	public async Task UpdateServiceStatus(ServiceName name, bool status)
+	public async Task UpdateServiceStatus(ServiceName name, string status)
 	{
 		var serviceStatus = Cache.Get<ServiceStatus>(CacheName.ServiceStatus)
 			?? throw new Exception("Service Status not found");

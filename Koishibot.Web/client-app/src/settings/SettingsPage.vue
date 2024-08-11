@@ -13,7 +13,6 @@ const store = useSettingsStore();
 const obsStore = useObsStore();
 const statusStore = useServiceStatusStore();
 const twitchStore = useTwitchStore();
-const message = ref(store.message);
 
 /* const obs = async (e: boolean) => {
   if (e) {
@@ -48,7 +47,11 @@ const closeModal = () => {
 
   <h1>Twitch</h1>
   <div class="border-2 p-2 border-gray-500 rounded">
-    <TwitchContainer :settings="twitchStore" @setting-clicked="showModalContent" />
+    <TwitchContainer
+      :irc-status="twitchStore.ircStatus.status"
+      :event-sub-status="twitchStore.eventSubStatus.status"
+      @setting-clicked="showModalContent"
+    />
   </div>
 
   <h1>OBS</h1>

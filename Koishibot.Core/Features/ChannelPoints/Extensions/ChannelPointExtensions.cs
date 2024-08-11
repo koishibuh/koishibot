@@ -25,7 +25,7 @@ public static class ChannelPointExtensions
 
 
 	public static async Task<IAppCache> UpdateDragonEggQuestServiceStatus
-		(this IAppCache cache, bool status)
+		(this IAppCache cache, string status)
 	{
 		await cache.UpdateServiceStatus(ServiceName.DragonEggQuest, status);
 
@@ -48,7 +48,7 @@ public static class ChannelPointExtensions
 
 	public static async Task DisableDragonEggQuestService(this IAppCache cache)
 	{
-		await cache.UpdateServiceStatus(ServiceName.DragonEggQuest, false);
+		await cache.UpdateServiceStatus(ServiceName.DragonEggQuest, ServiceStatusString.Offline);
 	}
 
 	// DATABASE
