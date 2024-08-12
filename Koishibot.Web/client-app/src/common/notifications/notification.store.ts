@@ -35,16 +35,18 @@ export const useNotificationStore = defineStore('notification', () => {
     if (index !== undefined && index !== -1 && serviceStatuses.value !== undefined) {
       serviceStatuses.value[index] = status;
     }
+    const boolStatus = status.status === 'Offline' ? false : true;
 
     if (status.name === 'ObsWebsocket') {
-      obsStore.settings.connectionStatus = status.status;
+      obsStore.settings.connectionStatus = boolStatus;
     }
   });
 
   const getStatusByName = (serviceName: string): boolean => {
     const result = serviceStatuses.value?.find((x) => x.name === serviceName);
+    const boolStatus = result?.status === 'Offline' ? false : true;
     if (result) {
-      return result.status;
+      return boolStatus;
     } else {
       return false;
     }
