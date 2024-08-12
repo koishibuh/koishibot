@@ -129,7 +129,9 @@ public record TwitchEventSubService(
 		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message);
 		var sessionId = eventMessage.Payload.Session.Id;
 
-		var EventsToSubscribeTo = TwitchApiHelper.SubscribeToEvents();
+		var EventsToSubscribeTo = Settings.Value.DebugMode
+			? TwitchApiHelper.DebugSubscribeToEvents()
+			: TwitchApiHelper.SubscribeToEvents();
 
 		var requests = EventsToSubscribeTo.Select
 				(x => CreateEventSubRequest(x, sessionId)).ToList();

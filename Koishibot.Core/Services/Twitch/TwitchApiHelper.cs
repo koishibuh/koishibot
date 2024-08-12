@@ -5,6 +5,12 @@ using System.Text.Json;
 namespace Koishibot.Core.Services.Twitch;
 public static class TwitchApiHelper
 {
+	public static List<EventSubSubscriptionType> DebugSubscribeToEvents()
+	{
+		return [EventSubSubscriptionType.ChannelUpdate];
+	}
+
+
 	public static List<EventSubSubscriptionType> SubscribeToEvents()
 	{
 		return
