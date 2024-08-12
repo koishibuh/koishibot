@@ -9,7 +9,7 @@ import { ref, computed } from 'vue';
 const signalRConnections = ref(new Map<string, HubConnection>());
 
 export const useSignalR = () => {
-  const signalRStatus = ref<IServiceStatus>({ name: 'SignalR', status: false });
+  const signalRStatus = ref<IServiceStatus>({ name: 'SignalR', status: 'Offline' });
 
   const signalRHubStatuses = computed(() => {
     const statuses = new Map<string, HubConnectionState>();
@@ -49,13 +49,13 @@ export const useSignalR = () => {
 
   const startSignalRConnection = async (connection: HubConnection): Promise<void> => {
     if (!connection) {
-      signalRStatus.value = { name: 'SignalR', status: false };
+      signalRStatus.value = { name: 'SignalR', status: 'Offline' };
       throw new Error('No signalR connection found');
     }
     console.log('StartSignalRConnection', 'Starting SignalR connection');
     connection.keepAliveIntervalInMilliseconds = 1000;
     await connection.start();
-    signalRStatus.value = { name: 'SignalR', status: true };
+    signalRStatus.value = { name: 'SignalR', status: 'Online' };
   };
 
   const getConnectionByHub = (hubName: string): HubConnection | null => {
@@ -63,7 +63,7 @@ export const useSignalR = () => {
   };
 
   const reconnectHub = () => {
-    signalRStatus.value = { name: 'SignalR', status: false };
+    signalRStatus.value = { name: 'SignalR', status: 'Offline' };
     signalRConnections.value.forEach(async (connection) => {
       if (connection.state === HubConnectionState.Disconnected) {
         await startSignalRConnection(connection as HubConnection);
