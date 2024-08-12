@@ -4,6 +4,7 @@ using Koishibot.Core.Exceptions;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services;
 using Koishibot.Core.Services.SignalR;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -134,13 +135,13 @@ public static class StartupExtensions
 		builder.Services.AddControllers();
 		builder.Services.AddSignalR();
 
-		builder.Services.AddCors(options =>
-		{
-			options.AddPolicy("LocalPolicy", builder => builder
-			.WithOrigins("http://localhost:5210", "http://localhost:5000")
-			.AllowAnyHeader()
-			.AllowAnyMethod());
-		});
+		//builder.Services.AddCors(options =>
+		//{
+		//	options.AddPolicy("LocalPolicy", builder => builder
+		//	.WithOrigins("http://localhost:5210", "http://localhost:5000")
+		//	.AllowAnyHeader()
+		//	.AllowAnyMethod());
+		//});
 
 		var koishibotHubUrl = debugMode 
 			? "https://localhost:7115/notifications" 
@@ -169,19 +170,24 @@ public static class StartupExtensions
 			app.UseSwagger();
 			app.UseSwaggerUI();
 		}
-		//else
-		//{
-		//	app.UseHsts();
-		//}
+
+		var forwardedHeaderOptions = new ForwardedHeadersOptions
+		{
+			ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+			RequireHeaderSymmetry = false
+		};
+
+		forwardedHeaderOptions.KnownNetworks.Clear();
+		forwardedHeaderOptions.KnownProxies.Clear();
+		app.UseForwardedHeaders(forwardedHeaderOptions);
 
 		app.UseExceptionHandler();
 
-		app.UseHttpsRedirection();
 		app.UseStaticFiles();
 
 		app.UseRouting();
 
-		app.UseCors("LocalPolicy");
+		//app.UseCors("LocalPolicy");
 
 		app.UseAuthentication();
 		app.UseAuthorization();
