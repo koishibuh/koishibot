@@ -6,9 +6,9 @@ namespace Koishibot.Core.Features.Common.Models;
 
 public record StreamInfo(
 		TwitchUserDto Streamer,
+		string StreamTitle,
 		string Category,
-		string CategoryId,
-		string StreamTitle)
+		string CategoryId)
 {
 	public string StreamTitle { get; set; } = StreamTitle;
 

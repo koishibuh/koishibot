@@ -14,6 +14,7 @@ public class Settings
 	public AppAuthentication AppAuthentication { get; set; } = null!;
 	public GoogleTokens GoogleTokens { get; set; } = null!;
 	public string MagicHueToken { get; set; } = string.Empty;
+	public WordpressCredentials WordpressCredentials { get; set; } = null!;
 }
 
 public class AppAuthentication
@@ -70,4 +71,10 @@ public class GoogleTokens
 	public string ClientEmail { get; set; } = string.Empty;
 	public string PrivateKey { get; set; } = string.Empty;
 	public string TwitchCalendarId { get; set; } = string.Empty;
+}
+
+public class WordpressCredentials
+{
+	public string Username { get; set; } = string.Empty;
+	public string Password { get; set; } = string.Empty;
 }

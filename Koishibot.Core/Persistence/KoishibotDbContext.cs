@@ -34,6 +34,7 @@ public class KoishibotDbContext : DbContext
 	public DbSet<GiftSubscription> GiftSubscriptions => Set<GiftSubscription>();
 	public DbSet<SupportTotal> SupportTotals => Set<SupportTotal>();
 	public DbSet<ObsItem> ObsItems => Set<ObsItem>();
+	public DbSet<StreamCategory> StreamCategories => Set<StreamCategory>();
 
 	public KoishibotDbContext(DbContextOptions<KoishibotDbContext> options)
 		: base(options)

@@ -21,17 +21,11 @@ public static class AppCacheExtensions
 		var serviceStatus = cache.Get<ServiceStatus>(CacheName.ServiceStatus)
 			?? throw new Exception("Status not found");
 
-		var result = typeof(ServiceStatus).GetProperty(serviceName.ToString());
+		var result = typeof(ServiceStatus).GetProperty(serviceName.ToString())
+			?? throw new Exception($"Property '{serviceName.ToString()}' not found in ServiceStatus");
 
-		return result is not null
-		? (bool)result.GetValue(serviceStatus)!
-		: throw new Exception($"Property '{serviceName.ToString()}' not found in ServiceStatus");
+		return result.GetValue(serviceStatus) != ServiceStatusString.Loading ? true : false;
 
-
-		//var result = serviceStatus.serviceName;
-		//return result is null
-		//? false
-		//: result.Status;
 	}
 
 	public static int GetCurrentStreamId(this IAppCache cache)

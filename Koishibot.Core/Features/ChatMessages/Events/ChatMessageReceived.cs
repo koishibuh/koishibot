@@ -76,3 +76,11 @@ public record ChatMessageReceivedCommand(
 
 };
 
+
+
+// check if string is url
+//public bool HasUrl(string text)
+//{
+//	var urlRegex = new Regex(@"(https?:\/\/(?:[-\w]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?)");
+//	return urlRegex.IsMatch(text);
+//}

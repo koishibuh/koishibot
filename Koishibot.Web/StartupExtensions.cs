@@ -108,6 +108,12 @@ public static class StartupExtensions
 			httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/");
 		});
 
+
+		builder.Services.AddHttpClient("Wordpress", httpClient =>
+		{
+			httpClient.BaseAddress = new Uri("https://www.elysiagriffin.com/wp-json/wp/v2/");
+		});
+
 		builder.Services.AddHttpClient("Default");
 
 

@@ -31,11 +31,11 @@ watch(textField, (newValue: string) => {
 
 <template>
   <div class="flex items-center justify-between">
-    <label :for="createLabelName" class="p-2 w-[60px]">{{ fieldName }}:</label>
-    <input :type="inputType" v-model="textField" id="address" class="text-black" />
+    <label :for="createLabelName" class="p-2 w-1/3">{{ fieldName }}:</label>
+    <input :type="inputType" v-model="textField" id="address" class="text-black w-2/3" />
     <button
       @click.prevent=""
-      class="primary-button mx-2"
+      class="primary-button mx-2 w-1/3"
       @mousedown="toggleVisibility(true)"
       @mouseup="toggleVisibility(false)"
       @mouseleave="toggleVisibility(false)"

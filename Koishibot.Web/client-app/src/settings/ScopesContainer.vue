@@ -13,6 +13,6 @@ const showModal = () => {
 <template>
   List of Scopes or something
   <div class="w-1/2 mt-3">
-    <button class="primary-button" @click="showModal">Settings</button>
+    <button class="primary-button w-full" @click="showModal">Settings</button>
   </div>
 </template>

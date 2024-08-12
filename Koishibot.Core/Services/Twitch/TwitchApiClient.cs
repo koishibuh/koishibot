@@ -135,8 +135,6 @@ public record TwitchApiClient(
 	//	return responses;
 	//}
 
-
-
 	public async Task<string> SendRequest
 			(HttpMethod httpMethod, string endPoint)
 	{

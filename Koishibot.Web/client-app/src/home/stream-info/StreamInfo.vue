@@ -25,10 +25,10 @@ const updateStreamInfo = async () => {
 </script>
 
 <template>
-  <div class="">
+  <div>
     <h1>Stream Info</h1>
     <div class="border-2 p-2 border-gray-500 rounded flex items-center gap-2">
-      <div class="w-1/3">
+      <div class="w-1/3 flex flex-col">
         <button class="primary-button mb-2">Previous Info</button>
         <button class="primary-button mb-2">Coding</button>
         <button class="primary-button">Art</button>

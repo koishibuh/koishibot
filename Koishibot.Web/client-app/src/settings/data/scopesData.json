@@ -1,0 +1,274 @@
+[
+  {
+    "name": "analytics:read:games",
+    "selected": false
+  },
+  {
+    "name": "bits:read",
+    "selected": false
+  },
+  {
+    "name": "channel:edit:commercial",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:ads",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:broadcast",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:guest_star",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:moderators",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:polls",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:predictions",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:raids",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:redemptions",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:schedule",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:videos",
+    "selected": false
+  },
+  {
+    "name": "channel:manage:vips",
+    "selected": false
+  },
+  {
+    "name": "channel:moderate",
+    "selected": false
+  },
+  {
+    "name": "channel:read:ads",
+    "selected": false
+  },
+  {
+    "name": "channel:read:charity",
+    "selected": false
+  },
+  {
+    "name": "channel:read:editors",
+    "selected": false
+  },
+  {
+    "name": "channel:read:goals",
+    "selected": false
+  },
+  {
+    "name": "channel:read:guest_star",
+    "selected": false
+  },
+  {
+    "name": "channel:read:hype_train",
+    "selected": false
+  },
+  {
+    "name": "channel:read:polls",
+    "selected": false
+  },
+  {
+    "name": "channel:read:predictions",
+    "selected": false
+  },
+  {
+    "name": "channel:read:redemptions",
+    "selected": false
+  },
+  {
+    "name": "channel:read:stream_key",
+    "selected": false
+  },
+  {
+    "name": "channel:read:subscriptions",
+    "selected": false
+  },
+  {
+    "name": "channel:read:vips",
+    "selected": false
+  },
+  {
+    "name": "clips:edit",
+    "selected": false
+  },
+  {
+    "name": "moderation:read",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:announcements",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:automod",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:automod_settings",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:banned_users",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:blocked_terms",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:chat_messages",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:chat_settings",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:guest_star",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:shoutouts",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:unban_requests",
+    "selected": false
+  },
+  {
+    "name": "moderator:manage:warnings",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:automod_settings",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:banned_users",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:blocked_terms",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:chat_messages",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:chat_settings",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:chatters",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:followers",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:guest_star",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:moderators",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:shield_mode",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:shoutoutsor",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:suspicious_users",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:unban_requests",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:vips",
+    "selected": false
+  },
+  {
+    "name": "moderator:read:warnings",
+    "selected": false
+  },
+  {
+    "name": "user:edit",
+    "selected": false
+  },
+  {
+    "name": "user:edit:broadcast",
+    "selected": false
+  },
+  {
+    "name": "user:manage:blocked_users",
+    "selected": false
+  },
+  {
+    "name": "user:manage:chat_color",
+    "selected": false
+  },
+  {
+    "name": "user:manage:whispers",
+    "selected": false
+  },
+  {
+    "name": "user:read:blocked_users",
+    "selected": false
+  },
+  {
+    "name": "user:read:broadcast",
+    "selected": false
+  },
+  {
+    "name": "user:read:chat",
+    "selected": false
+  },
+  {
+    "name": "user:read:emotes",
+    "selected": false
+  },
+  {
+    "name": "user:read:follows",
+    "selected": false
+  },
+  {
+    "name": "user:read:moderated_channels",
+    "selected": false
+  },
+  {
+    "name": "user:read:whispers",
+    "selected": false
+  },
+  {
+    "name": "user:write:chat",
+    "selected": false
+  }
+]

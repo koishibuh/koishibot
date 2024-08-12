@@ -44,14 +44,16 @@ const formattedHeader = computed(() => {
 
   <transition name="slide" appear>
     <div
-      class="modal fixed w-[550px] border-2 p-2 border-blue-300 bg-gray-600 rounded"
+      class="modal fixed w-[550px] border-2 border-gray-500 bg-[#3f4046] rounded"
       v-if="showModal"
     >
-      <div class="flex justify-between">
+      <div class="flex justify-between bg-background p-2 rounded-t">
         <h1>{{ formattedHeader }}</h1>
         <button class="primary-button w-[30px]" @click="closeModal">x</button>
       </div>
-      <component :is="getContentComponent" />
+      <div class="max-h-56 overflow-y-auto">
+        <component :is="getContentComponent" class="p-2" />
+      </div>
     </div>
   </transition>
 </template>
