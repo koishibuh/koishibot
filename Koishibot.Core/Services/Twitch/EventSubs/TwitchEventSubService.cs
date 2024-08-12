@@ -74,7 +74,6 @@ public record TwitchEventSubService(
 	{
 		if (message.IsPing())
 		{
-			Log.LogInformation("Pong");
 			await TwitchEventSub.SendMessage("PONG");
 			return;
 		}
@@ -405,14 +404,19 @@ public record TwitchEventSubService(
 		}
 	}
 
-
-
 	public async Task Send<T>(T args)
 	{
-		using var scope = ScopeFactory.CreateScope();
-		var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+		try
+		{
+			using var scope = ScopeFactory.CreateScope();
+			var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-		await mediatr.Send(args);
+			await mediatr.Send(args);
+		} 
+		catch (Exception ex) 
+		{
+			Log.LogInformation($"{ex}");
+		}
 	}
 
 	private void StartKeepaliveTimer()

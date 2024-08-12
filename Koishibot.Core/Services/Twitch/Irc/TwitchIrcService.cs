@@ -10,7 +10,8 @@ public record TwitchIrcService(
 	IOptions<Settings> Settings,
 	IAppCache Cache,
 	IServiceScopeFactory ScopeFactory,
-	ISignalrService SignalrService
+	ISignalrService SignalrService,
+	ILogger<TwitchIrcService> Log
 	) : ITwitchIrcService
 {
 	public WebSocketClient BotIrc { get; set; }
@@ -72,9 +73,14 @@ public record TwitchIrcService(
 
 	public async Task BotSend(string message)
 	{
-		if (BotIrc is not null)
+		try
 		{
-			await SendMessageToChat("elysiargiffin", message);
+			var streamer = Settings.Value.StreamerTokens.UserLogin;
+			await SendMessageToChat(streamer, message);
+		}
+		catch (Exception ex)
+		{
+			Log.LogError(ex.Message);
 		}
 	}
 	public async Task DisconnectWebSocket()

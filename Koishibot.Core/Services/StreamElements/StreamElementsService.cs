@@ -76,10 +76,17 @@ public record StreamElementsService(
 
 			if (eventData.Type == EventType.Tip)
 			{
-				using var scope = ScopeFactory.CreateScope();
-				var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+				try
+				{
+					using var scope = ScopeFactory.CreateScope();
+					var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-				await mediatr.Send(new SETipReceivedCommand(eventData));
+					await mediatr.Send(new SETipReceivedCommand(eventData));
+				}
+				catch (Exception ex)
+				{
+					Log.LogError(ex.Message);
+				}
 			}
 		}
 	}
