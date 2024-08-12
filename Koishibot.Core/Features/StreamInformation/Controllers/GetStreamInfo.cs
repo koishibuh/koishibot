@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.ChatCommands.Extensions;
-using Koishibot.Core.Features.Common;
+﻿using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Models;
@@ -38,8 +37,12 @@ public record GetStreamInfoHandler(
 	public async Task<StreamInfoVm> Handle
 		(GetStreamInfoQuery query, CancellationToken cancel)
 	{
-		
-	var streamInfo = Cache.GetStreamInfo();
+		if (Settings.Value.StreamerTokens.RefreshToken is null)
+		{
+			throw new Exception("Refresh Token not valid");
+		}
+
+		var streamInfo = Cache.GetStreamInfo();
 		if (streamInfo is null)
 		{
 			if (Cache.GetStatusByServiceName(ServiceName.TwitchWebsocket))
@@ -50,11 +53,15 @@ public record GetStreamInfoHandler(
 				if (result.Count < 0) throw new Exception("User not found");
 
 				// Add Category name and Id to Database
-				var category = new StreamCategory {
+				var category = new StreamCategory
+				{
 					TwitchId = result[0].CategoryId,
-					Name = result[0].CategoryName };
+					Name = result[0].CategoryName
+				};
 
-				await Database.UpdateEntry(category);
+				await category.UpsertEntry(Database);
+
+				//await Database.UpdateEntry(category);
 
 				streamInfo = new StreamInfo(
 					new TwitchUserDto(

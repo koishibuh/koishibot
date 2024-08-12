@@ -24,10 +24,10 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		foreach (var item in response)
 		{
 			var result = JsonSerializer.Deserialize<CreateEventSubSubscriptionResponse>(item);
-			Log.LogInformation($"{result.Data[0].Type} successful");
 		}
-		//return result;
-	}
+
+		Log.LogInformation($"Subscribed to {response.Count} events.");
+	} 
 }
 
 // == ⚫ REQUEST BODY == //

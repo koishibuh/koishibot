@@ -10,7 +10,7 @@ export const useStreamInfoStore = defineStore('stream-info', () => {
   const signalRConnection = getConnectionByHub('notifications');
   const notificationStore = useNotificationStore();
 
-  const streamInfo = ref<IStreamInfo>();
+  const streamInfo = ref<IStreamInfo>({ streamTitle: '', category: '', categoryId: '' });
 
   signalRConnection?.on('ReceiveStreamInfo', (info: IStreamInfo) => {
     streamInfo.value = info;

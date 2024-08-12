@@ -5,8 +5,6 @@ using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatMessage;
 namespace Koishibot.Core.Features.ChatMessages.Events;
 
-
-
 /// <summary>
 /// Processes chat messages: <br/>
 /// Publish to UI, Log User, Save Attendance if Enabled, Check Command

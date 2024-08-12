@@ -31,7 +31,6 @@ public record WordpressService(
 		return httpClient;
 	}
 
-
 	// == ⚫ == //
 
 	//public async Task<string> SendRequest

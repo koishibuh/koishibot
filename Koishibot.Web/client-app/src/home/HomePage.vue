@@ -3,8 +3,10 @@ import { ref, onMounted, watch } from 'vue';
 import http from '@/api/http';
 import { useNotificationStore } from '@/common/notifications/notification.store';
 import StreamInfo from '@/home/stream-info/StreamInfo.vue';
+import { useStreamInfoStore } from './stream-info/stream-info.store';
 
 const store = useNotificationStore();
+const streamInfoStore = useStreamInfoStore();
 const test = ref();
 
 // have this check to whatever is received from bot on load
@@ -28,7 +30,7 @@ watch(
 </script>
 
 <template>
-  <StreamInfo />
+  <StreamInfo :info="streamInfoStore.streamInfo" />
 
   <h1>Test Zone</h1>
   <div class="flex gap-2 border-2 p-2 border-gray-500 rounded h-24">

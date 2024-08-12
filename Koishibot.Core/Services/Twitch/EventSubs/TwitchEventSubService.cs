@@ -74,6 +74,7 @@ public record TwitchEventSubService(
 	{
 		if (message.IsPing())
 		{
+			Log.LogInformation("Pong");
 			await TwitchEventSub.SendMessage("PONG");
 			return;
 		}

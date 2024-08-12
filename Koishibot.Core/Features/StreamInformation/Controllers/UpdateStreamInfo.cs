@@ -20,7 +20,7 @@ public class UpdateStreamInfoController : ApiControllerBase
 
 public record UpdateStreamInfoCommand(
 	string Title,
-	string Category
+	string CategoryId
 	) : IRequest;
 
 
