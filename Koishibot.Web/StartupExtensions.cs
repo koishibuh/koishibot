@@ -135,13 +135,14 @@ public static class StartupExtensions
 		builder.Services.AddControllers();
 		builder.Services.AddSignalR();
 
-		//builder.Services.AddCors(options =>
-		//{
-		//	options.AddPolicy("LocalPolicy", builder => builder
-		//	.WithOrigins("http://localhost:5210", "http://localhost:5000")
-		//	.AllowAnyHeader()
-		//	.AllowAnyMethod());
-		//});
+		builder.Services.AddCors(options =>
+		{
+			options.AddPolicy("LocalPolicy", builder => builder
+			.AllowAnyOrigin()
+			//.WithOrigins("http://localhost:5210", "http://localhost:5000")
+			.AllowAnyHeader()
+			.AllowAnyMethod());
+		});
 
 		var koishibotHubUrl = debugMode 
 			? "https://localhost:7115/notifications" 
@@ -187,7 +188,7 @@ public static class StartupExtensions
 
 		app.UseRouting();
 
-		//app.UseCors("LocalPolicy");
+		app.UseCors("LocalPolicy");
 
 		app.UseAuthentication();
 		app.UseAuthorization();
