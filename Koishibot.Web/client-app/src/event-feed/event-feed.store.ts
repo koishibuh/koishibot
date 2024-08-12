@@ -11,21 +11,17 @@ export const useEventFeedStore = defineStore('event-feed', () => {
 
   const streamEvents = ref<IStreamEvent[]>([]);
   /*   const streamEvents = ref<IStreamEvent[]>(eventSample); */
-  const recentEvent = ref();
 
   signalRConnection?.on('ReceiveStreamEvent', (streamEvent: IStreamEvent) => {
     streamEvents.value.push(streamEvent);
-    recentEvent.value = streamEvent;
   });
 
   const getRecentEvents = async () => {
     streamEvents.value = await http.get('/api/event-feed');
-    recentEvent.value = streamEvents.value[0];
   };
 
   return {
     streamEvents,
-    recentEvent,
     getRecentEvents
   };
 });
