@@ -57,7 +57,7 @@ public record TwitchIrcService(
 		await Task.Delay(3000);
 
 		await BotIrc.SendMessage($"JOIN ${streamer}");
-		await SendMessageToChat(streamer, "Joined channel");
+		// await SendMessageToChat(streamer, "Joined channel");
 
 		await Task.Delay(3000);
 

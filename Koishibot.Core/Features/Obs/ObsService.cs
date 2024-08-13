@@ -21,20 +21,21 @@ public record ObsService(
 		IServiceScopeFactory ScopeFactory
 	) : IObsService
 {
-	public WebSocketClient ObsWebSocket { get; set; }
+	public WebSocketClient? ObsWebSocket { get; set; }
 
 	private JsonSerializerOptions _options =
 			new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 	public async Task CreateWebSocket(CancellationToken cancel)
 	{
+		if (ObsWebSocket is not null) { return; }
+		
 		var factory = new WebSocketFactory();
 
 		ObsWebSocket = await factory.Create(
 			$"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}",
 			3, Error, ProcessMessage);
 	}
-
 
 	public async Task ProcessMessage(WebSocketMessage message)
 	{

@@ -30,7 +30,6 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 }
 
 // == ⚫ REQUEST QUERY PARAMETERS == //
-
 public class GetLiveStreamsRequestParameters
 {
 	///<summary>
@@ -66,7 +65,7 @@ public class GetLiveStreamsRequestParameters
 	///</summary>
 	[JsonPropertyName("type")]
 	[JsonConverter(typeof(StreamTypeEnumConverter))]
-	public StreamType Type { get; set; }
+	public StreamType? Type { get; set; }
 
 	///<summary>
 	///A language code used to filter the list of streams.</br/>
@@ -102,7 +101,6 @@ public class GetLiveStreamsRequestParameters
 
 
 // == ⚫ RESPONSE BODY == //
-
 public class GetLiveStreamsResponse
 {
 	///<summary>

@@ -15,7 +15,7 @@ namespace Koishibot.Core.Features.StreamInformation.Events;
 public record StreamOnlineHandler(
 	IAppCache Cache, ISignalrService Signalr,
 	IStreamSessionService StreamSessionService,
-	IObsService ObsServiceNew,
+	IObsService ObsService,
 	IChannelPointStatusService ChannelPointStatusService
 	) : IRequestHandler<StreamOnlineCommand>
 {
@@ -25,7 +25,7 @@ public record StreamOnlineHandler(
 			.ClearAttendanceCache()
 			.UpdateStreamStatusOnline();
 
-		await ObsServiceNew.CreateWebSocket(cancel);
+		await ObsService.CreateWebSocket(cancel);
 
 		var timer = new CurrentTimer().SetStartingSoon();
 		Cache.AddCurrentTimer(timer);

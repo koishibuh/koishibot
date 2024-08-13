@@ -1,11 +1,11 @@
-﻿using Koishibot.Core.Features.TwitchAuthorization.Enums;
+﻿using Koishibot.Core.Features.StreamInformation;
+using Koishibot.Core.Features.TwitchAuthorization.Enums;
 using Koishibot.Core.Features.TwitchAuthorization.Models;
 using Koishibot.Core.Services.Twitch.EventSubs;
 using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.TwitchApi.Models;
 using Newtonsoft.Json;
 namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
-
-// == ⚫ GET == //
 
 public class GetOAuthTokensController : ApiControllerBase
 {
@@ -18,23 +18,20 @@ public class GetOAuthTokensController : ApiControllerBase
 	}
 }
 
-// == ⚫ QUERY == //
-
 public record GetOAuthTokensQuery(string Code) : IRequest;
 
-// == ⚫ HANDLER == //
-
-public class GetOAuthTokensHandler(
+public record GetOAuthTokensHandler(
 	IOptions<Settings> Settings,
 	IHttpClientFactory HttpClientFactory,
 	ITwitchEventSubService TwitchEventSubService,
 	IValidateTokenService ValidateTokenService,
-	ITwitchIrcService TwitchIrcService
+	ITwitchIrcService TwitchIrcService,
+	ITwitchApiRequest TwitchApiRequest,
+	IServiceScopeFactory ScopeFactory,
+	ILogger<GetOAuthTokensHandler> Log
 	)
 	: IRequestHandler<GetOAuthTokensQuery>
 {
-	public TwitchAppSettings settings => Settings.Value.TwitchAppSettings;
-
 	public async Task Handle(GetOAuthTokensQuery query, CancellationToken cancel)
 	{
 		var requestContent = CreateRequestContent(query.Code);
@@ -55,7 +52,28 @@ public class GetOAuthTokensHandler(
 
 		await TwitchIrcService.CreateWebSocket();
 		await TwitchEventSubService.CreateWebSocket();
+		
+		var liveStreamParameters = new GetLiveStreamsRequestParameters
+		{
+			UserIds = new List<string> { Settings.Value.StreamerTokens.UserId},
+			First = 1
+		};
+		var listStreamResponse = await TwitchApiRequest.GetLiveStreams(liveStreamParameters);
+		if (listStreamResponse.Data.Count == 1)
+		{
+			try
+			{
+				using var scope = ScopeFactory.CreateScope();
+				var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
 
+				await mediatr.Publish(new StreamReconnectCommand());
+			} 
+			catch (Exception ex) 
+			{
+				Log.LogInformation($"{ex}");
+			}
+		}
+		
 		//await Task.WhenAll(
 		//		TwitchEventSubHub.Start(),
 		//		StreamerIrc.Start(),
@@ -63,7 +81,7 @@ public class GetOAuthTokensHandler(
 		//		);
 	}
 
-	public FormUrlEncodedContent CreateRequestContent(string code)
+	private FormUrlEncodedContent CreateRequestContent(string code)
 	{
 		return new FormUrlEncodedContent(
 		[
@@ -75,7 +93,7 @@ public class GetOAuthTokensHandler(
 		]);
 	}
 
-	public void SaveTokens(ClientCredentialsTokenResponse response)
+	private void SaveTokens(ClientCredentialsTokenResponse response)
 	{
 		Settings.Value.StreamerTokens.SetExpirationTime(response.ExpiresIn);
 		Settings.Value.StreamerTokens.AccessToken = response.AccessToken;

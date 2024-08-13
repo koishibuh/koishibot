@@ -18,7 +18,7 @@ public enum StreamType
 public class StreamTypeEnumConverter : JsonConverter<StreamType>
 {
 	public override StreamType Read
-					(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		var value = reader.GetString();
 		return value switch
