@@ -1,46 +1,52 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
+
 namespace Koishibot.Core.Services.Websockets;
 
+/*══════════════════【 CLIENT 】══════════════════*/
 public sealed class WebSocketClient(
-	ClientWebSocket Client,
-	Func<WebSocketMessage, Task> OnError,
-	Func<WebSocketMessage, Task> OnMessageReceived
-	) : IDisposable
+ClientWebSocket client,
+Func<WebSocketMessage, Task> onError,
+Func<WebSocketMessage, Task> onMessageReceived
+) : IDisposable
 {
 	public bool IsDisposed { get; private set; }
-	public CancellationTokenSource CancelSource = new();
-
-	// == ⚫ == //
+	private CancellationTokenSource CancelSource = new();
 
 	public async Task StartListening()
 	{
 		try
 		{
 			using var memoryStream = new MemoryStream();
-			while (Client.State == WebSocketState.Open)
+			while (client.State == WebSocketState.Open)
 			{
 				WebSocketReceiveResult result;
 				do
 				{
 					var messageBuffer = WebSocket.CreateClientBuffer(1024, 16);
-					result = await Client.ReceiveAsync(messageBuffer, default);
+					result = await client.ReceiveAsync(messageBuffer, default);
 
 					await memoryStream.WriteAsync(
-						messageBuffer.Array.AsMemory(messageBuffer.Offset, result.Count),	default);
+					messageBuffer.Array.AsMemory(messageBuffer.Offset, result.Count), default);
 				} while (!result.EndOfMessage);
 
-				if (result is { MessageType: WebSocketMessageType.Text })
+				switch (result)
 				{
-					var message = Encoding.UTF8.GetString(memoryStream.ToArray());
-					await OnMessageReceived.Invoke(new WebSocketMessage(message));
+					case { MessageType: WebSocketMessageType.Text }:
+					{
+						var message = Encoding.UTF8.GetString(memoryStream.ToArray());
+						await onMessageReceived.Invoke(new WebSocketMessage(message));
+						break;
+					}
+					case { MessageType: WebSocketMessageType.Close }:
+					{
+						var error = $"{result.CloseStatus}: {result.CloseStatusDescription}";
+						await onError.Invoke(new WebSocketMessage(error));
+						await Disconnect();
+						break;
+					}
 				}
-				else if (result is { MessageType: WebSocketMessageType.Close })
-				{
-					var error = $"{result.CloseStatus}: {result.CloseStatusDescription}";
-					await OnError.Invoke(new WebSocketMessage(error));
-					await Disconnect();
-				}
+
 				memoryStream.Seek(0, SeekOrigin.Begin);
 				memoryStream.Position = 0;
 				memoryStream.SetLength(0);
@@ -49,19 +55,19 @@ public sealed class WebSocketClient(
 		catch (WebSocketException e)
 		{
 			var error = e.WebSocketErrorCode.ToString();
-			await OnError.Invoke(new WebSocketMessage(error));
+			await onError.Invoke(new WebSocketMessage(error));
 		}
 	}
 
 	public async Task SendMessage(string message, CancellationToken cancel = default)
 	{
 		var bytes = Encoding.UTF8.GetBytes(message);
-		await Client.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancel);
+		await client.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancel);
 	}
 
 	public async Task Disconnect()
 	{
-		await Client.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", default);
+		await client.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", default);
 		CancelSource.Cancel();
 
 		Dispose();
@@ -69,9 +75,12 @@ public sealed class WebSocketClient(
 
 	public void Dispose()
 	{
-		if (IsDisposed) { return; }
-		IsDisposed = true;
+		if (IsDisposed)
+		{
+			return;
+		}
 
-		Client.Dispose();
+		IsDisposed = true;
+		client.Dispose();
 	}
 }

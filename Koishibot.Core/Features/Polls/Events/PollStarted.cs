@@ -4,11 +4,10 @@ using Koishibot.Core.Features.Polls.Extensions;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Polls;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.Twitch.Irc;
 namespace Koishibot.Core.Features.Polls.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelpollbegin">Channel Poll Begin</see>
 /// </summary>
@@ -41,8 +40,7 @@ public record PollStartedHandler(
 }
 
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record PollStartedCommand(PollBeginEvent e) : IRequest
 {
 	public CurrentPoll CreateDto()

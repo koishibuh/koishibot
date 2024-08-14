@@ -2,7 +2,6 @@
 using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json;
-
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 public partial record TwitchApiRequest : ITwitchApiRequest
@@ -17,7 +16,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task<GetLiveStreamsResponse> GetLiveStreams(GetLiveStreamsRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "streams";
+		const string url = "streams";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
@@ -57,7 +56,7 @@ public class GetLiveStreamsRequestParameters
 	///For example, game_id=9876 game_id=5432.
 	///</summary>
 	[JsonPropertyName("game_id")]
-	public string GameId { get; set; }
+	public string? GameId { get; set; }
 
 	///<summary>
 	///The type of stream to filter the list of streams by.<br/>
@@ -68,14 +67,14 @@ public class GetLiveStreamsRequestParameters
 	public StreamType? Type { get; set; }
 
 	///<summary>
-	///A language code used to filter the list of streams.</br/>
+	///A language code used to filter the list of streams.<br/>
 	///Returns only streams that broadcast in the specified language.<br/>
 	///Specify the language using an ISO 639-1 two-letter language code or other if the broadcast uses a language not in the list of supported stream languages.
 	///You may specify a maximum of 100 language codes. To specify multiple languages, include the language parameter for each language.<br/>
 	///For example, language= de  language = fr.
 	///</summary>
 	[JsonPropertyName("language")]
-	public List<string> Language { get; set; }
+	public List<string>? Language { get; set; }
 
 	///<summary>
 	///The maximum number of items to return per page in the response.<br/>
@@ -89,14 +88,14 @@ public class GetLiveStreamsRequestParameters
 	///The Pagination object in the response contains the cursor’s value. 
 	///</summary>
 	[JsonPropertyName("before")]
-	public string Before { get; set; }
+	public string? Before { get; set; }
 
 	///<summary>
 	///The cursor used to get the next page of results.<br/>
 	///The Pagination object in the response contains the cursor’s value.
 	///</summary>
 	[JsonPropertyName("after")]
-	public string After { get; set; }
+	public string? After { get; set; }
 }
 
 
@@ -107,12 +106,12 @@ public class GetLiveStreamsResponse
 	///The list of streams.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<LivestreamData> Data { get; set; }
+	public List<LivestreamData>? Data { get; set; }
 
 	///<summary>
 	///The information used to page through the list of results.<br/>
 	///The object is empty if there are no more pages left to page through.
 	///</summary>
 	[JsonPropertyName("pagination")]
-	public Pagination Pagination { get; set; }
+	public Pagination? Pagination { get; set; }
 }

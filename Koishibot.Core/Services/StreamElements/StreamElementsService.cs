@@ -7,6 +7,7 @@ using System.Text.Json;
 using Timer = System.Timers.Timer;
 namespace Koishibot.Core.Services.StreamElements;
 
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record StreamElementsService(
 	ILogger<StreamElementsService> Log,
 	IOptions<Settings> Settings,
@@ -15,6 +16,7 @@ public record StreamElementsService(
 	IServiceScopeFactory ScopeFactory
 	) : IStreamElementsService
 {
+	public CancellationToken? Cancel { get; set; }
 	public WebSocketClient StreamElementsClient { get; set; }
 
 	private Timer _keepaliveTimer;
@@ -23,18 +25,15 @@ public record StreamElementsService(
 	private readonly LimitedSizeHashSet<StreamElementsEvent, string> _eventSet
 		= new(10, x => x.Id);
 
-	public async Task CreateWebSocket(CancellationToken cancel)
+	public async Task CreateWebSocket()
 	{
+		const string url = "wss://realtime.streamelements.com/socket.io/?cluster=main&EIO=3&transport=websocket";
 		var factory = new WebSocketFactory();
 
-		StreamElementsClient = await factory.Create(
-			"wss://realtime.streamelements.com/socket.io/?cluster=main&EIO=3&transport=websocket",
-			3, Error, ProcessMessage);
+		StreamElementsClient = await factory.Create(url, 3, Error, ProcessMessage);
 	}
 
-	// == ⚫ == //
-
-	public async Task ProcessMessage(WebSocketMessage message)
+	private async Task ProcessMessage(WebSocketMessage message)
 	{
 		if (message.IsPing())
 		{
@@ -95,26 +94,30 @@ public record StreamElementsService(
 	public async Task Connected() =>
 		await Signalr.SendInfo("StreamElements Websocket Authenticated");
 
-	public async Task Error(WebSocketMessage error)
+	private async Task Error(WebSocketMessage error)
 	{
 		//await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, false);
 		await StreamElementsClient.Disconnect();
 	}
 
-	public async Task SendPong()
+	private async Task SendPong()
 		=> await StreamElementsClient.SendMessage("2");
 
-	public async Task OnUnauthorized() =>
+	private async Task OnUnauthorized() =>
 		await Signalr.SendError("StreamElements Websocket Unauthorized");
 
-	public async Task Disconnect()
+	private async Task Disconnect()
 	{
 		await StreamElementsClient.Disconnect();
 	}
 
+
+	public void SetCancellationToken(CancellationToken cancel)
+		=> Cancel = cancel;
+
 	// AUTHENTICATE
 
-	public async Task Authenticate()
+	private async Task Authenticate()
 	{
 		var jwt = Settings.Value.StreamElementsJwtToken;
 		var message = new AuthenticationRequest(jwt);
@@ -142,13 +145,11 @@ public record StreamElementsService(
 public class StreamElementsMessage
 {
 	public string Message { get; set; } = null!;
-
-
 }
 
-// == ⚫ INTERFACE == //
-
+/*══════════════════【 INTERFACE 】══════════════════*/
 public interface IStreamElementsService
 {
-	public Task CreateWebSocket(CancellationToken cancel);
+	void SetCancellationToken(CancellationToken cancel);
+	public Task CreateWebSocket();
 }

@@ -37,7 +37,7 @@ public record AppCache(
 
 	// == ⚫ == //
 
-	public void InitializeServices()
+	public void InitializeServiceStatusCache()
 	{
 		var serviceStatus = new ServiceStatus();
 		Cache.Set(CacheName.ServiceStatus, serviceStatus);

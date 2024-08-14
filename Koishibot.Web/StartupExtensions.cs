@@ -95,28 +95,18 @@ public static class StartupExtensions
 		}
 
 		builder.Services.AddHttpClient("Dictionary", httpClient =>
-		{
-			httpClient.BaseAddress = new Uri("https://api.dictionaryapi.dev/api/v2/entries/en/");
-		});
+			httpClient.BaseAddress = new Uri("https://api.dictionaryapi.dev/api/v2/entries/en/"));
 
 		builder.Services.AddHttpClient("MagicHue", httpClient =>
-		{
-			httpClient.BaseAddress = new Uri("https://wifij01us.magichue.net/app/");
-		});
+			httpClient.BaseAddress = new Uri("https://wifij01us.magichue.net/app/"));
 
 		builder.Services.AddHttpClient("Twitch", httpClient =>
-		{
-			httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/");
-		});
-
+			httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/"));
 
 		builder.Services.AddHttpClient("Wordpress", httpClient =>
-		{
-			httpClient.BaseAddress = new Uri("https://www.elysiagriffin.com/wp-json/wp/v2/");
-		});
+			httpClient.BaseAddress = new Uri("https://www.elysiagriffin.com/wp-json/wp/v2/"));
 
 		builder.Services.AddHttpClient("Default");
-
 
 		builder.Services.AddSerilog((services, lc) => lc
 		.ReadFrom.Configuration(builder.Configuration)
@@ -124,7 +114,7 @@ public static class StartupExtensions
 		//.Enrich.FromLogContext()
 		.WriteTo.Console());
 
-		builder.Services.AddHostedService<TwitchServicesWorker>();
+		builder.Services.AddHostedService<KoishibotBackgroundWorker>();
 
 		builder.Services.AddAppServices();
 		builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -132,19 +122,20 @@ public static class StartupExtensions
 
 		builder.Services.AddMemoryCache();
 
-		builder.Services.AddControllers();
 		builder.Services.AddSignalR();
 
 		builder.Services.AddCors(options =>
 		{
-			options.AddPolicy("LocalPolicy", builder => builder
+			options.AddPolicy("LocalPolicy", b => b
 			.AllowAnyOrigin()
 			//.WithOrigins("http://localhost:5210", "http://localhost:5000")
 			.AllowAnyHeader()
 			.AllowAnyMethod());
 		});
 
-		var koishibotHubUrl = debugMode 
+		builder.Services.AddControllers();
+
+		var koishibotHubUrl = debugMode
 			? "https://localhost:7115/notifications" 
 			: "http://localhost:5000/notifications";
 
@@ -196,7 +187,6 @@ public static class StartupExtensions
 		app.MapControllers();
 		app.MapHub<SignalrHub>("/notifications");
 		app.MapFallbackToFile("index.html");
-
 
 		return app;
 	}

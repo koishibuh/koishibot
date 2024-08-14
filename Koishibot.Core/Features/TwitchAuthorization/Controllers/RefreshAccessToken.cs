@@ -1,7 +1,6 @@
 ﻿namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 
-// == ⚫ POST == //
-
+/*--------------------< CONTROLLER >-----------------------*/
 public class RefreshAccessTokenController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Twitch Oauth"])]
@@ -14,12 +13,7 @@ public class RefreshAccessTokenController : ApiControllerBase
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record RefreshAccessTokenCommand(string Token) : IRequest;
-
-// == ⚫ HANDLER == //
-
+/*-----------------------< HANDLER >-----------------------*/
 public record RefreshAccessTokenHandler(
 		IRefreshAccessTokenService RefreshAccessTokenService
 		) : IRequestHandler<RefreshAccessTokenCommand>
@@ -30,3 +24,6 @@ public record RefreshAccessTokenHandler(
 		await RefreshAccessTokenService.Start();
 	}
 }
+
+/*----------------------< QUERY >-------------------------*/
+public record RefreshAccessTokenCommand(string Token) : IRequest;

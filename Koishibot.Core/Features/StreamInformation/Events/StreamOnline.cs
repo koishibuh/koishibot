@@ -25,7 +25,7 @@ public record StreamOnlineHandler(
 			.ClearAttendanceCache()
 			.UpdateStreamStatusOnline();
 
-		await ObsService.CreateWebSocket(cancel);
+		await ObsService.CreateWebSocket();
 
 		var timer = new CurrentTimer().SetStartingSoon();
 		Cache.AddCurrentTimer(timer);

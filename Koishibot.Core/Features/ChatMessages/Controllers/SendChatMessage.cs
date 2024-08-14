@@ -1,11 +1,10 @@
 ﻿using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
 
 namespace Koishibot.Core.Features.ChatMessages.Controllers;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
 public class SendChatMessageController : ApiControllerBase
 {
 	[HttpPost("/api/chat")]
@@ -17,25 +16,22 @@ public class SendChatMessageController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record SendChatMessageHandler(
 	IOptions<Settings> Settings,
 	ITwitchIrcService StreamerClient,
 	ITwitchApiRequest TwitchApiRequest
 	) : IRequestHandler<SendChatMessageCommand>
 {
-	public string StreamerId = Settings.Value.StreamerTokens.UserId;
-
 	public async Task Handle(SendChatMessageCommand command, CancellationToken cancel)
 	{
-		var body = command.CreateRequest(StreamerId);
+		var streamerId = Settings.Value.StreamerTokens.UserId;
+		var body = command.CreateRequest(streamerId);
 		await TwitchApiRequest.SendChatMessage(body);
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record SendChatMessageCommand(
 	string Message
 	) : IRequest
@@ -51,14 +47,10 @@ public record SendChatMessageCommand(
 	}
 }
 
-
-// == ⚫ VALIDATOR == //
-
+/*══════════════════【 VALIDATOR 】══════════════════*/
 public class SendChatMessageValidator
 		: AbstractValidator<SendChatMessageCommand>
 {
-	public KoishibotDbContext Database { get; }
-
 	public SendChatMessageValidator()
 	{
 		RuleFor(p => p.Message)

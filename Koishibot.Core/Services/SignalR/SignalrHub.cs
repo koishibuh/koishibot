@@ -3,21 +3,16 @@ using Koishibot.Core.Persistence.Cache.Enums;
 using Microsoft.AspNetCore.SignalR;
 namespace Koishibot.Core.Services.SignalR;
 
-public class SignalrHub : Hub<ISignalrHub>
+public class SignalrHub(IAppCache cache) : Hub<ISignalrHub>
 {
-	public IAppCache _cache { get; set; }
-
-	public SignalrHub(IAppCache Cache)
-	{
-		_cache = Cache;
-	}
+	private IAppCache Cache { get; set; } = cache;
 
 	public override async Task OnConnectedAsync()
 	{
-		await Clients.Client(Context.ConnectionId).ReceiveLog(
-			new LogVm($"SignalR is now connected", "i"));
+		await Clients.Client(Context.ConnectionId).ReceiveLog
+			(new LogVm($"SignalR is now connected", "i"));
 
-		await _cache.UpdateServiceStatus(ServiceName.SignalR, ServiceStatusString.Online);
+		await Cache.UpdateServiceStatus(ServiceName.SignalR, ServiceStatusString.Online);
 
 		await base.OnConnectedAsync();
 	}

@@ -13,31 +13,32 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 namespace Koishibot.Core.Features.Obs;
 
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record ObsService(
 		IAppCache Cache,
 		IOptions<Settings> Settings,
 		ISignalrService Signalr,
 		ILogger<ObsService> Log,
 		IServiceScopeFactory ScopeFactory
-	) : IObsService
+) : IObsService
 {
-	public WebSocketClient? ObsWebSocket { get; set; }
+	public CancellationToken? Cancel { get; set; }
+	private WebSocketClient? ObsWebSocket { get; set; }
 
-	private JsonSerializerOptions _options =
-			new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+	private readonly JsonSerializerOptions _options =
+		new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-	public async Task CreateWebSocket(CancellationToken cancel)
+	public async Task CreateWebSocket()
 	{
 		if (ObsWebSocket is not null) { return; }
-		
-		var factory = new WebSocketFactory();
 
-		ObsWebSocket = await factory.Create(
-			$"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}",
-			3, Error, ProcessMessage);
+		var url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
+
+		var factory = new WebSocketFactory();
+		ObsWebSocket = await factory.Create(url, 3, Error, ProcessMessage);
 	}
 
-	public async Task ProcessMessage(WebSocketMessage message)
+	private async Task ProcessMessage(WebSocketMessage message)
 	{
 		if (message.IsNullOrEmpty()) { return; }
 
@@ -91,10 +92,12 @@ public record ObsService(
 
 	public async Task Disconnect()
 	{
+		if (ObsWebSocket is null) { return; }
 		await ObsWebSocket.Disconnect();
+		ObsWebSocket = null;
 	}
 
-	public async Task OnAuthorized()
+	private async Task OnAuthorized()
 	{
 		await Signalr.SendInfo("Obs WebSocket Connected");
 		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Online);
@@ -109,15 +112,21 @@ public record ObsService(
 	}
 
 
-	public async Task Error(WebSocketMessage error)
+	private async Task Error(WebSocketMessage error)
 	{
-		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
-		await Signalr.SendError(error.Message);
-		Log.LogInformation(error.Message);
-		if (ObsWebSocket.IsDisposed is false)
+		if (error.Message != "Failed to connect to the websocket")
 		{
-			await ObsWebSocket.Disconnect();
+			await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
+			await Signalr.SendError(error.Message);
+			Log.LogInformation(error.Message);
+
+			if (ObsWebSocket?.IsDisposed is false)
+			{
+				await ObsWebSocket.Disconnect();
+			}
 		}
+
+		ObsWebSocket = null;
 	}
 
 	public async Task OnDisconnected()
@@ -126,7 +135,10 @@ public record ObsService(
 		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
 	}
 
-	public async Task OnSceneReceived(GetSceneListResponse args)
+	public void SetCancellationToken(CancellationToken cancel)
+		=> Cancel = cancel;
+
+	private async Task OnSceneReceived(GetSceneListResponse args)
 	{
 		var scenes = args.Scenes.Select(x => new ObsItem
 		{
@@ -195,6 +207,8 @@ public record ObsService(
 
 	public async Task SendRequest<T>(ObsRequest<T> request)
 	{
+		if (ObsWebSocket is null) { return; }
+
 		try
 		{
 			var message = JsonSerializer.Serialize(request, _options);
@@ -208,6 +222,8 @@ public record ObsService(
 
 	public async Task SendRequest(ObsRequest request)
 	{
+		if (ObsWebSocket is null) { return; }
+
 		try
 		{
 			var message = JsonSerializer.Serialize(request, _options);
@@ -230,6 +246,7 @@ public record ObsService(
 
 	private async Task SendIdentifyRequest(WebSocketMessage message)
 	{
+		if (ObsWebSocket is null) { return; }
 
 		var response = JsonSerializer.Deserialize<ObsBase<HelloResponse>>(message.Message, _options)
 				?? throw new Exception("response" + message);
@@ -256,25 +273,20 @@ public record ObsService(
 		await ObsWebSocket.SendMessage(json);
 	}
 
-	public KoishibotDbContext CreateScopedDatabase()
-	{
-		using var scope = ScopeFactory.CreateScope();
-		return scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-	}
-
-
-	public string GetRequestType(JsonObject jsonObj) =>
+	private static string GetRequestType(JsonObject jsonObj) =>
 		jsonObj["d"]?["requestType"].Deserialize<string>()
 			?? throw new Exception("cry" + jsonObj);
 
-	public OpCodeType GetOpCode(JsonObject jsonObj) =>
+	private static OpCodeType GetOpCode(JsonObject jsonObj) =>
 		jsonObj["op"].Deserialize<OpCodeType>();
 }
 
 
+/*══════════════════【 INTERFACE 】══════════════════*/
 public interface IObsService
 {
-	Task CreateWebSocket(CancellationToken cancel);
+	void SetCancellationToken(CancellationToken cancel);
+	Task CreateWebSocket();
 	Task SendRequest<T>(ObsRequest<T> request);
 	Task SendRequest(ObsRequest request);
 	Task Disconnect();

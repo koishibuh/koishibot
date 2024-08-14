@@ -5,12 +5,11 @@ using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.Twitch.Enums;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.StreamInformation;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamoffline">Stream Offline EventSub Documentation</see></para>
 /// </summary>

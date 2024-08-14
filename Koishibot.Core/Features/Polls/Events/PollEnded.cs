@@ -6,9 +6,8 @@ using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Enums;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Polls;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
-
 namespace Koishibot.Core.Features.Polls.Events;
 
 // == ⚫ COMMAND == //

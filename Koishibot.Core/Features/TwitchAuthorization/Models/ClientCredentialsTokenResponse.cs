@@ -1,24 +1,22 @@
-﻿using Newtonsoft.Json;
-namespace Koishibot.Core.Features.TwitchAuthorization.Models;
+﻿namespace Koishibot.Core.Features.TwitchAuthorization.Models;
 
 public class ClientCredentialsTokenResponse
 {
-	[JsonProperty("access_token")]
-	public string AccessToken { get; set; }
+	[JsonPropertyName("access_token")]
+	public string? AccessToken { get; init; }
 
-	[JsonProperty("refresh_token")]
-	public string RefreshToken { get; set; }
+	[JsonPropertyName("refresh_token")]
+	public string? RefreshToken { get; init; }
 
-	[JsonProperty("expires_in")]
-	public int ExpiresIn { get; set; }
+	[JsonPropertyName("expires_in")]
+	public int ExpiresIn { get; init; }
 
-	[JsonProperty("scope")]
-	public List<string> Scopes { get; set; }
+	[JsonPropertyName("scope")]
+	public List<string>? Scopes { get; init; }
 
-	[JsonProperty("token_type")]
-	public string TokenType { get; set; }
+	[JsonPropertyName("token_type")]
+	public string? TokenType { get; init; }
 
 	//[JsonProperty("id_token")]
 	//public string IdToken { get; set; }
-
 }

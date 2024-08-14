@@ -44,34 +44,38 @@ using System.Text.Json;
 using Timer = System.Timers.Timer;
 namespace Koishibot.Core.Services.Twitch.EventSubs;
 
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record TwitchEventSubService(
-	IAppCache Cache,
-	IOptions<Settings> Settings,
-	IServiceScopeFactory ScopeFactory,
-	ISignalrService SignalrService,
-	ILogger<TwitchEventSubService> Log,
-	ITwitchApiRequest TwitchApiRequest
-	) : ITwitchEventSubService
+IAppCache Cache,
+IOptions<Settings> Settings,
+IServiceScopeFactory ScopeFactory,
+ISignalrService SignalrService,
+ILogger<TwitchEventSubService> Log,
+ITwitchApiRequest TwitchApiRequest
+) : ITwitchEventSubService
 {
-	public WebSocketFactory Factory = new();
-	public WebSocketClient TwitchEventSub { get; set; }
-	private int _keepaliveTimeoutSeconds = 60;
-	private Timer _keepaliveTimer;
+	public CancellationToken? Cancel { get; set; }
 
+	private WebSocketClient? TwitchEventSub { get; set; }
+	private readonly WebSocketFactory _factory = new();
+	private int _timeoutSeconds = 60;
+	private Timer? _keepaliveTimer;
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
 		= new(25, x => x.MessageId);
 
 	public async Task CreateWebSocket()
 	{
-		TwitchEventSub = await Factory.Create(
-			$"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_keepaliveTimeoutSeconds}",
-			3, OnError: Error, OnMessageReceived: ProcessMessage);
+		if (TwitchEventSub is not null) { return; }
+
+		var url = $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
+
+		TwitchEventSub = await _factory.Create(url, 3, Error, ProcessMessage);
 	}
 
-	// == ⚫ == //
-
-	public async Task ProcessMessage(WebSocketMessage message)
+	private async Task ProcessMessage(WebSocketMessage message)
 	{
+		if (TwitchEventSub is null) { return;}
+
 		if (message.IsPing())
 		{
 			await TwitchEventSub.SendMessage("PONG");
@@ -79,10 +83,7 @@ public record TwitchEventSubService(
 		}
 
 		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message.Message);
-		if (eventMessage == null)
-		{
-			return;
-		}
+		if (eventMessage == null) { return; }
 
 		if (!_eventSet.Contains(eventMessage.Metadata.MessageId))
 		{
@@ -114,12 +115,13 @@ public record TwitchEventSubService(
 	{
 		await TwitchEventSub.Disconnect();
 		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Offline);
+		TwitchEventSub = null;
 	}
 
-	public async Task Error(WebSocketMessage message)
+	private async Task Error(WebSocketMessage message)
 	{
-		Log.LogInformation(message.Message);
-		await TwitchEventSub.Disconnect();
+		await SignalrService.SendError("Unable to connect to Twitch EventSub");
+		await DisconnectWebSocket();
 	}
 
 
@@ -138,7 +140,7 @@ public record TwitchEventSubService(
 
 		await TwitchApiRequest.CreateEventSubSubscription(requests);
 
-		_keepaliveTimeoutSeconds = eventMessage.Payload.Session.KeepAliveTimeoutSeconds;
+		_timeoutSeconds = eventMessage.Payload.Session.KeepAliveTimeoutSeconds;
 		StartKeepaliveTimer();
 		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Online);
 	}
@@ -423,12 +425,12 @@ public record TwitchEventSubService(
 
 	private void StartKeepaliveTimer()
 	{
-		_keepaliveTimer = new Timer(TimeSpan.FromSeconds(_keepaliveTimeoutSeconds));
+		_keepaliveTimer = new Timer(TimeSpan.FromSeconds(_timeoutSeconds));
 		_keepaliveTimer.Elapsed += async (_, _) =>
 		{
 			var rightNow = DateTimeOffset.UtcNow;
 			var lastEvent = _eventSet.LastItem();
-			if (rightNow.Subtract(lastEvent.Timestamp).Seconds < _keepaliveTimeoutSeconds - 3)
+			if (rightNow.Subtract(lastEvent.Timestamp).Seconds < _timeoutSeconds - 3)
 			{
 				return;
 			}
@@ -452,10 +454,15 @@ public record TwitchEventSubService(
 			Transport = new TransportMethod { SessionId = sessionId },
 		};
 	}
+
+	public void SetCancellationToken(CancellationToken cancel)
+		=> Cancel = cancel;
 }
 
+/*══════════════════【 INTERFACE 】══════════════════*/
 public interface ITwitchEventSubService
 {
+	void SetCancellationToken(CancellationToken cancel);
 	Task CreateWebSocket();
 	Task DisconnectWebSocket();
 }

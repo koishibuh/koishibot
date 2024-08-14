@@ -1,10 +1,7 @@
-﻿using Koishibot.Core.Services.Twitch.Irc.Interfaces;
-
+﻿using Koishibot.Core.Services.Twitch.Irc;
 namespace Koishibot.Core.Features.Application.Controllers;
 
-
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
 public class ConnectTwitchIrcController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Services"])]
@@ -16,20 +13,17 @@ public class ConnectTwitchIrcController : ApiControllerBase
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record ConnectTwitchIrcCommand(
-	) : IRequest;
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record ConnectTwitchIrcHandler(
-	ITwitchIrcService TwitchIrcService
-	) : IRequestHandler<ConnectTwitchIrcCommand>
+ITwitchIrcService TwitchIrcService
+) : IRequestHandler<ConnectTwitchIrcCommand>
 {
 	public async Task Handle
-		(ConnectTwitchIrcCommand dto, CancellationToken cancel)
+	(ConnectTwitchIrcCommand dto, CancellationToken cancel)
 	{
 		await TwitchIrcService.CreateWebSocket();
 	}
 }
+
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record ConnectTwitchIrcCommand : IRequest;

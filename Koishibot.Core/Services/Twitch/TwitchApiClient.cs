@@ -3,21 +3,22 @@ using Koishibot.Core.Services.TwitchApi.Models;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Koishibot.Core.Features.TwitchAuthorization;
+
 namespace Koishibot.Core.Services.Twitch;
 
 public record TwitchApiClient(
-	ILogger<TwitchApiClient> Log,
-		IOptions<Settings> Settings,
-		IHttpClientFactory HttpClientFactory,
-		IRefreshAccessTokenService RefreshAccessTokenService
-		) : ITwitchApiClient
+ILogger<TwitchApiClient> Log,
+IOptions<Settings> Settings,
+IHttpClientFactory HttpClientFactory,
+IRefreshAccessTokenService RefreshAccessTokenService
+) : ITwitchApiClient
 {
-
 	public async Task EnsureValidToken()
 	{
-		var StreamerTokens = Settings.Value.StreamerTokens;
+		var streamerTokens = Settings.Value.StreamerTokens;
 
-		var result = StreamerTokens.HasTokenExpired();
+		var result = streamerTokens.HasTokenExpired();
 		if (result is true)
 		{
 			await RefreshAccessTokenService.Start();
@@ -26,7 +27,6 @@ public record TwitchApiClient(
 
 	public HttpClient CreateClient()
 	{
-
 		var clientId = Settings.Value.TwitchAppSettings.ClientId;
 		var accessToken = Settings.Value.StreamerTokens.AccessToken;
 		var authenticationHeader = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -78,8 +78,6 @@ public record TwitchApiClient(
 
 	//	return responseContent;
 	//}
-
-
 
 
 	//public async Task<string> SendRequest(HttpMethod httpMethod, string endPoint)
@@ -136,7 +134,7 @@ public record TwitchApiClient(
 	//}
 
 	public async Task<string> SendRequest
-			(HttpMethod httpMethod, string endPoint)
+	(HttpMethod httpMethod, string endPoint)
 	{
 		await EnsureValidToken();
 
@@ -161,7 +159,7 @@ public record TwitchApiClient(
 
 
 	public async Task<string> SendRequest
-			(HttpMethod httpMethod, string endPoint, string query)
+	(HttpMethod httpMethod, string endPoint, string query)
 	{
 		await EnsureValidToken();
 
@@ -184,9 +182,8 @@ public record TwitchApiClient(
 	}
 
 	public async Task<string> SendRequest
-			(HttpMethod httpMethod, string endPoint, StringContent body)
+	(HttpMethod httpMethod, string endPoint, StringContent body)
 	{
-
 		await EnsureValidToken();
 
 		var httpClient = CreateClient();
@@ -207,7 +204,7 @@ public record TwitchApiClient(
 	}
 
 	public async Task<string> SendRequest
-			(HttpMethod httpMethod, string endPoint, string query, StringContent body)
+	(HttpMethod httpMethod, string endPoint, string query, StringContent body)
 	{
 		await EnsureValidToken();
 
@@ -261,7 +258,7 @@ public record TwitchApiClient(
 	}
 }
 
-
+/*══════════════════【 INTERFACE 】══════════════════*/
 public interface ITwitchApiClient
 {
 	Task<string> SendRequest(HttpMethod httpMethod, string endPoint);

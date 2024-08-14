@@ -1,6 +1,6 @@
 ﻿using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Models;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.RaidSuggestions;
 
@@ -21,8 +21,7 @@ public class CreateRaidPollController : ApiControllerBase
 
 public record CreateRaidPollCommands : IRequest;
 
-// == ⚫ HANDLER  == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record CreateRaidPollHandler(
 		IOptions<Settings> Settings,
 	ILogger<CreateRaidPollHandler> Log,

@@ -1,7 +1,6 @@
 ﻿namespace Koishibot.Core.Features.Obs.Controllers;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
 public class StartObsWebsocketController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["OBS"])]
@@ -13,25 +12,23 @@ public class StartObsWebsocketController : ApiControllerBase
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record StartObsWebsocketCommand() : IRequest;
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record StartObsWebsocketHandler(
 	IOptions<Settings> Settings,
 	IObsService ObsService
 	) : IRequestHandler<StartObsWebsocketCommand>
 {
 	public async Task Handle
-			(StartObsWebsocketCommand c, CancellationToken cancel)
+		(StartObsWebsocketCommand c, CancellationToken cancel)
 	{
 		if (Settings.Value.ObsSettings.WebsocketUrl is null)
 		{
 			throw new ArgumentException("Websocket Url cannot be null");
 		}
 
-		await ObsService.CreateWebSocket(cancel);
+		await ObsService.CreateWebSocket();
 	}
 }
+
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record StartObsWebsocketCommand : IRequest;

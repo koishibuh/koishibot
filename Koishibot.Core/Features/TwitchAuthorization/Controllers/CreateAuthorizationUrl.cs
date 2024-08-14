@@ -1,8 +1,6 @@
 ﻿namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 
-
-// == ⚫ GET == //
-
+/*--------------------< CONTROLLER >-----------------------*/
 public class GetAuthorizationUrlController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Twitch Oauth"])]
@@ -14,26 +12,24 @@ public class GetAuthorizationUrlController : ApiControllerBase
 	}
 }
 
-// == ⚫ QUERY == //
-
-public record GetAuthorizationUrlQuery() : IRequest<string>;
-
-// == ⚫ HANDLER == //
-
-public class GetAuthorizationUrlHandler(
+/*-----------------------< HANDLER >-----------------------*/
+public record GetAuthorizationUrlHandler(
 	IOptions<Settings> Settings
 	) : IRequestHandler<GetAuthorizationUrlQuery, string>
 {
-	public TwitchAppSettings settings => Settings.Value.TwitchAppSettings;
-
 	public async Task<string> Handle(GetAuthorizationUrlQuery query, CancellationToken cancel)
 	{
+		var settings = Settings.Value.TwitchAppSettings;
+
 		return await Task.FromResult("https://id.twitch.tv/oauth2/authorize?" +
 			$"client_id={settings.ClientId}&" +
 			$"redirect_uri={settings.RedirectUri}&" +
-			$"response_type=code&" +
-			$"force_verify=true&" +
+			"response_type=code&" +
+			"force_verify=true&" +
 			$"state={settings.CreateStateVerify()}&" +
 			$"scope={string.Join("+", ScopesStreamer.Scopes)}");
 	}
 }
+
+/*----------------------< QUERY >-------------------------*/
+public record GetAuthorizationUrlQuery : IRequest<string>;

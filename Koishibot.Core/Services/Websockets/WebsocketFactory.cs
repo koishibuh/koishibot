@@ -2,77 +2,43 @@
 
 namespace Koishibot.Core.Services.Websockets;
 
+/*══════════════════【 FACTORY 】══════════════════*/
 public class WebSocketFactory : IWebSocketFactory
 {
-	public WebSocketClient? ActiveClient { get; set; }	
+	private WebSocketClient? ActiveClient { get; set; }
 
 	public async Task<WebSocketClient> Create(
-		string url,
-		byte maxReconnectAttempts,
-		Func<WebSocketMessage, Task> OnError,
-		Func<WebSocketMessage, Task> OnMessageReceived
-		//Func<Task> OnConnected
-		)
+	string url,
+	byte maxReconnectAttempts,
+	Func<WebSocketMessage, Task> onError,
+	Func<WebSocketMessage, Task> onMessageReceived
+	//Func<Task> OnConnected
+	)
 	{
-		if (ActiveClient is not null)
-		{
-			return ActiveClient;
-		}
+		if (ActiveClient is not null) { return ActiveClient; }
 
 		var client = new ClientWebSocket();
-
 		try
 		{
 			await client.ConnectAsync(new Uri(url), default);
 		}
 		catch (WebSocketException)
 		{
-			await OnError.Invoke(new WebSocketMessage($"Failed to connect to the websocket at {url}."));
+			client.Dispose();
+			await onError.Invoke(new WebSocketMessage($"Failed to connect to the websocket"));
 			throw new WebSocketException($"Failed to connect to the websocket at {url}.");
 		}
 
-		//var retryCount = 0;
-		//while (client.State != WebSocketState.Open
-		//			&& retryCount < maxReconnectAttempts)
-		//{
-		//	try
-		//	{
-		//		await client.ConnectAsync(new Uri(url), default);
-		//		retryCount = 0;
-		//	}
-		//	catch (WebSocketException)
-		//	{
-		//		var delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount));
-		//		await Task.Delay(delay);
-		//		retryCount++;
-		//	}
-		//}
-		//if (retryCount >= maxReconnectAttempts)
-		//{
-		//	throw new WebSocketException($"Failed to connect to the websocket at {url}.");
-		//}
+		ActiveClient = new WebSocketClient(client, onError, onMessageReceived);
+		_ = Task.Run(ActiveClient.StartListening);
 
-		var webSocketClient = new WebSocketClient(client, OnError, OnMessageReceived);
-		_ = Task.Run(webSocketClient.StartListening);
-		//await OnConnected.Invoke();
-
-		ActiveClient = webSocketClient;
-
-		return webSocketClient;
-	}
-
-	public async void Remove(string name)
-	{
-		ActiveClient?.Dispose();
+		return ActiveClient;
 	}
 }
 
-
-// == ⚫ INTERFACE == //
-
+/*══════════════════【 INTERFACE 】══════════════════*/
 public interface IWebSocketFactory
 {
 	Task<WebSocketClient> Create(string url, byte maxReconnectAttempts,
-		Func<WebSocketMessage, Task> OnError, Func<WebSocketMessage, Task> OnMessageReceived);
-	void Remove(string name);
+	Func<WebSocketMessage, Task> onError, Func<WebSocketMessage, Task> onMessageReceived);
 }

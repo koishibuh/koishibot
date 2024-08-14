@@ -4,7 +4,6 @@ using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.EventSubs;
 using Koishibot.Core.Services.Twitch.Irc;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Todoist.Net;
 

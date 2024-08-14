@@ -1,9 +1,7 @@
-﻿using Koishibot.Core.Services.Twitch.Irc.Interfaces;
-
+﻿using Koishibot.Core.Services.Twitch.Irc;
 namespace Koishibot.Core.Features.Application.Controllers;
 
-// == ⚫ DELETE == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
 public class DisconnectTwitchIrcController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Services"])]
@@ -15,13 +13,7 @@ public class DisconnectTwitchIrcController : ApiControllerBase
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record DisconnectTwitchIrcCommand(
-	) : IRequest;
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record DisconnectTwitchIrcHandler(
 	ITwitchIrcService TwitchIrcService
 	) : IRequestHandler<DisconnectTwitchIrcCommand>
@@ -32,3 +24,6 @@ public record DisconnectTwitchIrcHandler(
 		await TwitchIrcService.DisconnectWebSocket();
 	}
 }
+
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record DisconnectTwitchIrcCommand : IRequest;

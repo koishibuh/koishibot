@@ -1,8 +1,10 @@
-﻿using Koishibot.Core.Features.TwitchAuthorization.Enums;
+﻿using System.Text.Json;
+using System.Xml;
+using Koishibot.Core.Features.TwitchAuthorization.Enums;
 using Koishibot.Core.Features.TwitchAuthorization.Models;
-using Newtonsoft.Json;
-
 namespace Koishibot.Core.Features.TwitchAuthorization;
+
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record RefreshAccessTokenService(
 	IOptions<Settings> Settings,
 	IHttpClientFactory HttpClientFactory
@@ -16,9 +18,13 @@ public record RefreshAccessTokenService(
 		var requestContent = CreateRequestContent();
 
 		using var response = await httpClient.PostAsync(uri, requestContent);
-		var content = await response.Content.ReadAsStringAsync();
+		if (response.IsSuccessStatusCode is false)
+		{
+			throw new Exception("Unable to get oauth tokens");
+		}
 
-		var result = JsonConvert.DeserializeObject<ClientCredentialsTokenResponse>(content)
+		var content = await response.Content.ReadAsStringAsync();
+		var result = JsonSerializer.Deserialize<ClientCredentialsTokenResponse>(content)
 			?? throw new Exception("An error occurred while generating a twitch token.");
 
 		SaveTokens(result);
@@ -28,7 +34,7 @@ public record RefreshAccessTokenService(
 #endif
 	}
 
-	public FormUrlEncodedContent CreateRequestContent()
+	private FormUrlEncodedContent CreateRequestContent()
 	{
 		return new FormUrlEncodedContent(
 		[
@@ -39,18 +45,25 @@ public record RefreshAccessTokenService(
 		]);
 	}
 
-	public void SaveTokens(ClientCredentialsTokenResponse response)
+	private void SaveTokens(ClientCredentialsTokenResponse response)
 	{
 		Settings.Value.StreamerTokens.SetExpirationTime(response.ExpiresIn);
 		Settings.Value.StreamerTokens.AccessToken = response.AccessToken;
 		Settings.Value.StreamerTokens.RefreshToken = response.RefreshToken;
 	}
 
-	public void SaveSettingsToJson()
+	private void SaveSettingsToJson()
 	{
 		var wrapper = new { AppSettings = Settings.Value };
 		wrapper.AppSettings.TwitchEventSubSessionId = "";
-		var updatedSettings = JsonConvert.SerializeObject(wrapper, Formatting.Indented);
+		var options = new JsonSerializerOptions { WriteIndented = true };
+		var updatedSettings = JsonSerializer.Serialize(wrapper, options);
 		File.WriteAllText("ASettings/settings.json", updatedSettings);
 	}
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IRefreshAccessTokenService
+{
+	Task Start();
 }

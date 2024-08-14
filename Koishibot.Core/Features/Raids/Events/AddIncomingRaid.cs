@@ -4,33 +4,34 @@ using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Raids;
-using Koishibot.Core.Services.Twitch.Irc.Interfaces;
+using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
+
 namespace Koishibot.Core.Features.Raids.Events;
 
 // == ⚫ COMMAND == //
 
 public record IncomingRaidCommand(
-				RaidEvent args
-				) : IRequest;
+RaidEvent args
+) : IRequest;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record AddIncomingRaidHandler(
-		IOptions<Settings> Settings,
-		ITwitchApiRequest TwitchApiRequest,
-		ITwitchIrcService BotIrc,
-		ITwitchUserHub TwitchUserHub,
-		ISignalrService Signalr,
-		//IShoutoutApi ShoutoutApi,
-		IAppCache Cache,
-		KoishibotDbContext Database,
-		 IPromoVideoService PromoVideoService
-		) : IRequestHandler<IncomingRaidCommand>
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest,
+ITwitchIrcService BotIrc,
+ITwitchUserHub TwitchUserHub,
+ISignalrService Signalr,
+//IShoutoutApi ShoutoutApi,
+IAppCache Cache,
+KoishibotDbContext Database,
+IPromoVideoService PromoVideoService
+) : IRequestHandler<IncomingRaidCommand>
 {
 	public async Task Handle(IncomingRaidCommand command, CancellationToken cancellationToken)
 	{
-		var e = new TwitchUserDto(command.args.FromBroadcasterId, command.args.FromBroadcasterLogin, command.args.FromBroadcasterName);
+		var e = new TwitchUserDto(command.args.FromBroadcasterId, command.args.FromBroadcasterLogin,
+		command.args.FromBroadcasterName);
 
 		// do obs things 
 
@@ -64,7 +65,6 @@ public record AddIncomingRaidHandler(
 }
 
 // == ⚫ CHAT REPLY  == //
-
 public static class IncomingRaidChatReply
 {
 	public static async Task RaidedBy(this ITwitchIrcService botIrc, StreamInfo e)
