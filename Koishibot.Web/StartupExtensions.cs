@@ -137,7 +137,7 @@ public static class StartupExtensions
 
 		var koishibotHubUrl = debugMode
 			? "https://localhost:7115/notifications" 
-			: "http://localhost:5000/notifications";
+			: "http://localhost:8789/notifications";
 
 		var koishibotHubConnection = new HubConnectionBuilder()
 			.WithUrl(koishibotHubUrl)
