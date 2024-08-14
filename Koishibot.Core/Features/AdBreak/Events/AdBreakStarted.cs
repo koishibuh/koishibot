@@ -1,29 +1,25 @@
 ﻿using Koishibot.Core.Features.AdBreak.Enums;
 using Koishibot.Core.Features.AdBreak.Extensions;
-using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Services.Twitch.EventSubs.AdBreak;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelad_breakbegin">Channel Ad Break Begin</see>
 /// </summary>
 /// <exception cref="NotImplementedException"></exception>
 public record AdBreakStartedHandler(
-	IOptions<Settings> Settings,
-	IAppCache Cache, 
-	IChatReplyService ChatReplyService,
-	IPomodoroTimer PomodoroService,
-	ITwitchApiRequest TwitchApiRequest,
-	ISignalrService Signalr
-	) : IRequestHandler<AdBreakStartedCommand>
+IOptions<Settings> Settings,
+IAppCache Cache,
+IChatReplyService ChatReplyService,
+IPomodoroTimer PomodoroService,
+ITwitchApiRequest TwitchApiRequest,
+ISignalrService Signalr
+) : IRequestHandler<AdBreakStartedCommand>
 {
-	public string StreamerId = Settings.Value.StreamerTokens.UserId;
-
 	public async Task Handle
 		(AdBreakStartedCommand command, CancellationToken cancel)
 	{
@@ -37,7 +33,7 @@ public record AdBreakStartedHandler(
 		var adInfo = await GetAdScheduleFromTwitch(command);
 
 		await Signalr.SendInfo($"Ad started, delaying for {adInfo.AdDurationInSeconds}");
-		await Task.Delay(adInfo.AdDurationInSeconds);
+		await Task.Delay(adInfo.AdDurationInSeconds, cancel);
 
 		await ChatReplyService.App(Command.AdCompleted);
 
@@ -48,31 +44,31 @@ public record AdBreakStartedHandler(
 		}
 		else
 		{
-			await Task.Delay(currentTimer.TimeRemaining());
+			await Task.Delay(currentTimer.TimeRemaining(), cancel);
 			await PomodoroService.StartTimer(adInfo);
 		}
 	}
 
-	// == ⚫ == //
-
-	public async Task UpdateOverlayTimer(AdBreakStartedCommand command)
+/*═════════◣ ◢═════════*/
+	private async Task UpdateOverlayTimer(AdBreakStartedCommand command)
 	{
-		var adBreakVm = new AdBreakVm(command.args.DurationInSeconds, DateTime.Now);
+		var adBreakVm = new AdBreakVm(command.Args.DurationInSeconds, DateTime.Now);
 		await Signalr.SendAdStartedEvent(adBreakVm);
 	}
 
-	public async Task<AdScheduleDto> GetAdScheduleFromTwitch(AdBreakStartedCommand command)
+/*═════════◣ ◢═════════*/
+	private async Task<AdScheduleDto> GetAdScheduleFromTwitch(AdBreakStartedCommand command)
 	{
-		var parameters = command.CreateParameters(StreamerId);
+		var streamerId = Settings.Value.StreamerTokens.UserId;
+		var parameters = command.CreateParameters(streamerId);
 		var result = await TwitchApiRequest.GetAdSchedule(parameters);
 		return result.ConvertToDto();
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record AdBreakStartedCommand(AdBreakBeginEvent args) : IRequest
+/*════════════════════【 COMMAND 】════════════════════*/
+public record AdBreakStartedCommand(AdBreakBeginEvent Args) : IRequest
 {
 	public GetAdScheduleRequestParameters CreateParameters(string streamerId)
-		=> new GetAdScheduleRequestParameters { BroadcasterId = streamerId };
+		=> new() { BroadcasterId = streamerId };
 };

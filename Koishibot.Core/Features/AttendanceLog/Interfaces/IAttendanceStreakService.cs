@@ -7,5 +7,6 @@ public interface IAttendanceStreakService
 	Task GetUsersAttendanceStreak(string word, string emoji, TwitchUser user);
 	Task GetTopAttendanceStreaks(string word, string emoji);
 	Task GetUserAttendanceCount(TwitchUser user);
+	Task GetUsersBestStreak(string word, string emoji, TwitchUser user);
 	Task ResetAttendanceStreaks();
 }

@@ -44,7 +44,7 @@ public record AttendanceStreakService(
 		var result = await Database.GetUsersPersonalBestStreak(user.Id);
 		var data = new UserCountStreakData(user.Name, result, word, emoji);
 
-		await ChatReplyService.Start(Command.PBStreak, data, PermissionLevel.Everyone);
+		await ChatReplyService.Start(Command.PbStreak, data, PermissionLevel.Everyone);
 	}
 
 	public async Task ResetAttendanceStreaks()

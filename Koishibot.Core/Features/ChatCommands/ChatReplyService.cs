@@ -19,8 +19,11 @@ public record ChatReplyService(
 		{
 			using var scope = ScopeFactory.CreateScope();
 			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-			var databaseResult = await database.GetCommand(command)
-			                     ?? throw new Exception("Command not found");
+			var databaseResult = await database.GetCommand(command);
+			if (databaseResult is null)
+			{
+				throw new Exception("Command not found");
+			}
 
 			Cache.AddCommand(databaseResult);
 
@@ -41,8 +44,11 @@ public record ChatReplyService(
 		{
 			using var scope = ScopeFactory.CreateScope();
 			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-			var databaseResult = await database.GetCommand(command)
-			                     ?? throw new Exception("Command not found");
+			var databaseResult = await database.GetCommand(command);
+			if (databaseResult is null)
+			{
+				throw new Exception("Command not found");
+			}
 
 			Cache.AddCommand(databaseResult);
 
@@ -61,8 +67,11 @@ public record ChatReplyService(
 		{
 			using var scope = ScopeFactory.CreateScope();
 			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-			var databaseResult = await database.GetCommand(command)
-			                     ?? throw new Exception("Command not found");
+			var databaseResult = await database.GetCommand(command);
+			if (databaseResult is null)
+			{
+				throw new Exception("Command not found");
+			}
 
 			Cache.AddCommand(databaseResult);
 

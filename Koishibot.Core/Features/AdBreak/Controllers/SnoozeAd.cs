@@ -1,12 +1,12 @@
 ﻿using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Controllers;
 
-// == ⚫ PATCH == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/ads")]
 public class SnoozeNextAdController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Ad Schedule"])]
-	[HttpPatch("/api/ads/twitch")]
+	[HttpPatch("twitch")]
 	public async Task<ActionResult> SnoozeNextAd()
 	{
 		var result = await Mediator.Send(new SnoozeNextAdCommand());
@@ -14,36 +14,33 @@ public class SnoozeNextAdController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record SnoozeAdHandler(
 	IOptions<Settings> Settings,
 	ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<SnoozeNextAdCommand, SnoozeNextAdDto>
 {
-	public string StreamerId = Settings.Value.StreamerTokens.UserId;
-
 	public async Task<SnoozeNextAdDto> Handle
 		(SnoozeNextAdCommand command, CancellationToken cancel)
 	{
-		var parameters = command.CreateParameters(StreamerId);
+		var streamerId = Settings.Value.StreamerTokens.UserId;
+		var parameters = command.CreateParameters(streamerId);
 
 		var result = await TwitchApiRequest.SnoozeNextAd(parameters);
 		return result.ConvertToDto();
 	}
 }
 
-// == ⚫ QUERY == //
 
-public record SnoozeNextAdCommand()
-	: IRequest<SnoozeNextAdDto>
+/*════════════════════【 COMMAND 】════════════════════*/
+public record SnoozeNextAdCommand : IRequest<SnoozeNextAdDto>
 {
 	public SnoozeNextAdRequestParameters CreateParameters(string streamerId)
-		=> new SnoozeNextAdRequestParameters { BroadcasterId = streamerId };
+		=> new() { BroadcasterId = streamerId };
 };
 
-// == ⚫ DTO == //
 
+/*════════════════════【 DTO 】════════════════════*/
 public record SnoozeNextAdDto(
 	int AvailableSnoozeCount,
 	DateTimeOffset? GainNextSnoozeAt,

@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="Features\AdBreak\Interfaces\" />
     <Folder Include="Services\Twitch\EventSubs\Extensions\" />
   </ItemGroup>
 

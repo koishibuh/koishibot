@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Features.AdBreak;
-using Koishibot.Core.Features.AdBreak.Interfaces;
 using Scrutor;
 
 namespace Koishibot.Core.Configurations;
@@ -18,9 +17,6 @@ public static class ApplicationServiceCollection
 			//cfg.AddOpenBehavior(typeof(RequestResponseLoggingBehavior<,>));
 			cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 		});
-
-		//services.AddSingleton<IOAuthTokensProcessor, OAuthTokensProcessor>();
-		//services.AddTransient<IRefreshAccessTokenService, RefreshAccessTokenService>();
 
 		services.AddSingleton<IPomodoroTimer, PomodoroTimer>();
 

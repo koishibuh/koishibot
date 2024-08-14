@@ -2,12 +2,12 @@
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Controllers;
 
-// == ⚫ GET == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/ads")]
 public class GetAdScheduleController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Ad Schedule"])]
-	[HttpGet("/api/ads/twitch")]
+	[HttpGet("twitch")]
 	public async Task<ActionResult> GetAdSchedule()
 	{
 		var result = await Mediator.Send(new GetAdScheduleQuery());
@@ -15,28 +15,26 @@ public class GetAdScheduleController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetAdScheduleHandler(
 	IOptions<Settings> Settings,
 	ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<GetAdScheduleQuery, AdScheduleDto>
 {
-	public string StreamerId = Settings.Value.StreamerTokens.UserId;
-
 	public async Task<AdScheduleDto> Handle
 		(GetAdScheduleQuery query, CancellationToken cancel)
 	{
-		var parameters = query.CreateParameters(StreamerId);
+		var streamerId = Settings.Value.StreamerTokens.UserId;
+
+		var parameters = query.CreateParameters(streamerId);
 		var result = await TwitchApiRequest.GetAdSchedule(parameters);
 		return result.ConvertToDto();
 	}
 }
 
-// == ⚫ QUERY == //
-
-public record GetAdScheduleQuery() : IRequest<AdScheduleDto>
+/*════════════════════【 QUERY 】════════════════════*/
+public record GetAdScheduleQuery : IRequest<AdScheduleDto>
 {
-	public GetAdScheduleRequestParameters CreateParameters(string streamerId) 
-		=> new GetAdScheduleRequestParameters	{BroadcasterId = streamerId };
+	public GetAdScheduleRequestParameters CreateParameters(string streamerId)
+		=> new() { BroadcasterId = streamerId };
 };

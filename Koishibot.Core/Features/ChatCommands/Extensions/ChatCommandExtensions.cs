@@ -57,17 +57,17 @@ public static class ChatCommandExtensions
 			.Select(x => x.ChatCommand)
 			.ToListAsync();
 
-		var list = new Dictionary<string, ChatCommandDto>();
-
-		foreach(var item in commandNames)
-		{
-			list.Add(command, new ChatCommandDto(item.Id, item.Description,
-				item.Enabled, item.Message, item.Permissions,
-				item.UserCooldown, DateTimeOffset.UtcNow,
-				item.GlobalCooldown, DateTimeOffset.UtcNow));
-		}
-
-		return list;
+		return commandNames.Count == 0
+			? null
+			: commandNames.ToDictionary(
+				item => command,
+				item => new ChatCommandDto(
+					item.Id, item.Description,
+					item.Enabled, item.Message,
+					item.Permissions, item.UserCooldown,
+					DateTimeOffset.UtcNow, item.GlobalCooldown,
+					DateTimeOffset.UtcNow)
+				);
 	}
 
 	public static void AddCommand(this IAppCache cache, Dictionary<string, ChatCommandDto> command)

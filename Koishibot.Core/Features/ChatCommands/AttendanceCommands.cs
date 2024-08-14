@@ -49,12 +49,12 @@ public record AttendanceCommands(
 				return true;
 
 			case "pbstreak":
-				await AttendanceStreakService.GetUsersAttendanceStreak
+				await AttendanceStreakService.GetUsersBestStreak
 							("streak", "🔥", c.User);
 				return true;
 
 			case "pbsteak":
-				await AttendanceStreakService.GetUsersAttendanceStreak
+				await AttendanceStreakService.GetUsersBestStreak
 							("steak", "🥩", c.User);
 				return true;
 

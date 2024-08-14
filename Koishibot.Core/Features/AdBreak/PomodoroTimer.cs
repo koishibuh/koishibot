@@ -1,7 +1,6 @@
 ﻿using Koishibot.Core.Features.AdBreak.Enums;
 using Koishibot.Core.Features.AdBreak.Events;
 using Koishibot.Core.Features.AdBreak.Extensions;
-using Koishibot.Core.Features.AdBreak.Interfaces;
 using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.Common;
@@ -11,22 +10,18 @@ using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak;
 
-// == ⚫ SERVICE == //
-
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record PomodoroTimer(
-	IOptions<Settings> Settings,
-	ILogger<PomodoroTimer> Log,
-	IChatReplyService ChatReplyService,
-	IObsService ObsService,
-	ISignalrService Signalr, IAppCache Cache,
-	ITwitchApiRequest TwitchApiRequest,
-	IDandleService DandleService
-	) : IPomodoroTimer
+IOptions<Settings> Settings,
+IChatReplyService ChatReplyService,
+IObsService ObsService,
+ISignalrService Signalr,
+IAppCache Cache,
+ITwitchApiRequest TwitchApiRequest,
+IDandleService DandleService
+) : IPomodoroTimer
 {
-	private CancellationTokenSource _cancelToken = new();
-	public ATimer? timer;
-
-	// == ⚫ == //
+	private ATimer? _timer;
 
 	public async Task GetAdSchedule()
 	{
@@ -40,8 +35,7 @@ public record PomodoroTimer(
 		await StartTimer(adInfo);
 	}
 
-	// == ⚫ == //
-
+/*═════════◣ START ◢═════════*/
 	/// <summary>
 	/// <see cref="AdBreakStartedHandler">Ad Break Started</see>
 	/// </summary>
@@ -55,15 +49,15 @@ public record PomodoroTimer(
 		await UpdateOverlayTimer(pomoTimer);
 		await SendLog(adInfo);
 
-		timer = Toolbox.CreateTimer(adInfo.CalculateAdjustedTimeUntilNextAd(), () => SwitchToBreak());
-		timer.Start();
+		_timer = Toolbox.CreateTimer(adInfo.CalculateAdjustedTimeUntilNextAd(), ()
+			=> SwitchToBreak());
+		_timer.Start();
 	}
 
-	public async void SwitchToBreak()
+	private async void SwitchToBreak()
 	{
-		await ChatReplyService.App(Command.PomdoroBreak);
+		await ChatReplyService.App(Command.PomodoroBreak);
 		await ObsService.StartBreak();
-
 
 		await DandleService.StartGame();
 
@@ -73,13 +67,13 @@ public record PomodoroTimer(
 		await Signalr.UpdateTimerOverlay(breakTimerVm);
 	}
 
-	// == ⚫ == //
 
+/*═════════◣ CANCEL ◢═════════*/
 	public void CancelTimer()
 	{
 		try
 		{
-			timer?.Dispose();
+			_timer?.Dispose();
 		}
 		catch
 		{
@@ -87,14 +81,22 @@ public record PomodoroTimer(
 		}
 	}
 
-	public async Task UpdateOverlayTimer(CurrentTimer timer)
+	private async Task UpdateOverlayTimer(CurrentTimer timer)
 	{
 		var pomoTimerVm = timer.ConvertToVm();
 		await Signalr.UpdateTimerOverlay(pomoTimerVm);
 	}
 
-	public async Task SendLog(AdScheduleDto adInfo)
+	private async Task SendLog(AdScheduleDto adInfo)
 	{
-		await Signalr.SendInfo($"Pomdoro Delaying for {adInfo.CalculateAdjustedTimeUntilNextAd()} minutes");
+		await Signalr.SendInfo($"Pomodoro Delaying for {adInfo.CalculateAdjustedTimeUntilNextAd()} minutes");
 	}
 }
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+	public interface IPomodoroTimer
+	{
+		Task GetAdSchedule();
+		Task StartTimer(AdScheduleDto adInfo);
+		void CancelTimer();
+	}
