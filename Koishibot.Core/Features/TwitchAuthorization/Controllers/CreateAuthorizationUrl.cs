@@ -1,6 +1,6 @@
 ﻿namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 
-/*--------------------< CONTROLLER >-----------------------*/
+/*══════════════════【 CONTROLLER 】══════════════════*/
 public class GetAuthorizationUrlController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Twitch Oauth"])]
@@ -12,7 +12,7 @@ public class GetAuthorizationUrlController : ApiControllerBase
 	}
 }
 
-/*-----------------------< HANDLER >-----------------------*/
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetAuthorizationUrlHandler(
 	IOptions<Settings> Settings
 	) : IRequestHandler<GetAuthorizationUrlQuery, string>
@@ -31,5 +31,5 @@ public record GetAuthorizationUrlHandler(
 	}
 }
 
-/*----------------------< QUERY >-------------------------*/
+/*════════════════════【 QUERY 】════════════════════*/
 public record GetAuthorizationUrlQuery : IRequest<string>;
