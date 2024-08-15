@@ -12,9 +12,11 @@ namespace Koishibot.Core.Features.ChannelPoints;
 
 public record DragonEggQuestService(
 	ILogger<DragonEggQuestService> Log,
-	IAppCache Cache, KoishibotDbContext Database,
-	IChatReplyService ChatReplyService, IChannelPointsApi ChannelPointsApi
-	) : IDragonEggQuestService
+	IAppCache Cache,
+	KoishibotDbContext Database,
+	IChatReplyService ChatReplyService,
+	IChannelPointsApi ChannelPointsApi
+) : IDragonEggQuestService
 {
 	public async Task Initialize()
 	{

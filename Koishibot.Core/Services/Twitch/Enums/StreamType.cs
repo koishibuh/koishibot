@@ -13,8 +13,7 @@ public enum StreamType
 	Rerun
 }
 
-// == ⚫ == //
-
+/*═══════════════════【 CONVERTER 】═══════════════════*/
 public class StreamTypeEnumConverter : JsonConverter<StreamType>
 {
 	public override StreamType Read

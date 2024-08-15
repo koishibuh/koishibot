@@ -3,39 +3,24 @@ using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
-
 namespace Koishibot.Core.Features.StreamInformation.Extensions;
+
 public static class StreamInfoExtensions
 {
+/*════════════════════【 CACHE 】════════════════════*/
+	public static bool StreamOnline(this IAppCache cache) =>
+		cache.GetStatusByServiceName(ServiceName.StreamOnline);
 
-
-	// CACHE
-
-	public static bool StreamOnline(this IAppCache cache)
-	{
-		return cache.GetStatusByServiceName(ServiceName.StreamOnline);
-	}
-
-	public static void UpdateStreamInfo(this IAppCache cache, StreamInfo info)
-	{
+	public static void UpdateStreamInfo(this IAppCache cache, StreamInfo info) =>
 		cache.AddNoExpire(CacheName.StreamInfo, info);
-	}
 
-
-	public static async Task UpdateStreamStatusOnline
-		(this IAppCache cache)
-	{
+	public static async Task UpdateStreamStatusOnline(this IAppCache cache) =>
 		await cache.UpdateServiceStatus(ServiceName.StreamOnline, ServiceStatusString.Online);
-	}
-	public static void AddStreamSessions
-		(this IAppCache cache, StreamSessions sessions)
-	{
+
+	public static void AddStreamSessions(this IAppCache cache, StreamSessions sessions) =>
 		cache.Add(CacheName.StreamSessions, sessions);
-	}
 
-
-	// DATABASE
-
+/*═══════════════════【 DATABASE 】═══════════════════*/
 	public static async Task<TwitchStream?> GetSessionByTwitchId
 		(this KoishibotDbContext database, string twitchStreamId)
 	{

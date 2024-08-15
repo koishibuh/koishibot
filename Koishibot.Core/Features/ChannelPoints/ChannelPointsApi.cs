@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Services.TwitchApi.Models;
-
 namespace Koishibot.Core.Features.ChannelPoints;
 
 public record ChannelPointsApi(IOptions<Settings> Settings,

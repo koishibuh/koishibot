@@ -7,17 +7,17 @@ using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
 namespace Koishibot.Core.Features.StreamInformation.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamonline">Stream Online EventSub Documentation</see></para>
 /// </summary>
 public record StreamOnlineHandler(
-	IAppCache Cache, ISignalrService Signalr,
+	IAppCache Cache,
+	ISignalrService Signalr,
 	IStreamSessionService StreamSessionService,
 	IObsService ObsService,
 	IChannelPointStatusService ChannelPointStatusService
-	) : IRequestHandler<StreamOnlineCommand>
+) : IRequestHandler<StreamOnlineCommand>
 {
 	public async Task Handle(StreamOnlineCommand command, CancellationToken cancel)
 	{
@@ -41,7 +41,5 @@ public record StreamOnlineHandler(
 	}
 }
 
-
-// == ⚫ COMMAND == //
-
-public record StreamOnlineCommand() : IRequest;
+/*════════════════════【 COMMAND 】════════════════════*/
+public record StreamOnlineCommand : IRequest;

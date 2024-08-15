@@ -4,6 +4,7 @@ using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
+/*══════════════════【 API REQUEST 】══════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -28,7 +29,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
+/*══════════════【 REQUEST PARAMETERS 】══════════════*/
 public class GetLiveStreamsRequestParameters
 {
 	///<summary>
@@ -63,7 +64,6 @@ public class GetLiveStreamsRequestParameters
 	///Values are all or live, default is all.
 	///</summary>
 	[JsonPropertyName("type")]
-	[JsonConverter(typeof(StreamTypeEnumConverter))]
 	public StreamType? Type { get; set; }
 
 	///<summary>
@@ -81,7 +81,7 @@ public class GetLiveStreamsRequestParameters
 	///The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
 	///</summary>
 	[JsonPropertyName("first")]
-	public int First { get; set; }
+	public int? First { get; set; }
 
 	///<summary>
 	///The cursor used to get the previous page of results.<br/>
@@ -98,20 +98,19 @@ public class GetLiveStreamsRequestParameters
 	public string? After { get; set; }
 }
 
-
-// == ⚫ RESPONSE BODY == //
+/*═════════════════【 RESPONSE BODY 】═════════════════*/
 public class GetLiveStreamsResponse
 {
 	///<summary>
 	///The list of streams.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<LivestreamData>? Data { get; set; }
+	public List<LivestreamData>? Data { get; init; }
 
 	///<summary>
 	///The information used to page through the list of results.<br/>
 	///The object is empty if there are no more pages left to page through.
 	///</summary>
 	[JsonPropertyName("pagination")]
-	public Pagination? Pagination { get; set; }
+	public Pagination? Pagination { get; init; }
 }
