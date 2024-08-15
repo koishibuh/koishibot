@@ -4,6 +4,10 @@ import HiddenField from '@/common/hidden-field/HiddenField.vue';
 import { useObsStore } from './obs.store';
 import { type IObsRequest } from './models/obs-interface';
 
+const emit = defineEmits<{
+  saveClicked: [void]
+}>();
+
 const store = useObsStore();
 
 const address = ref<string>('');
@@ -17,7 +21,9 @@ const saveSettings = async () => {
     password: password.value
   };
   await store.saveSettings(request);
+  emit('saveClicked');
 };
+
 </script>
 
 <template>

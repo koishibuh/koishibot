@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Services.TwitchApi.Models;
+
 namespace Koishibot.Core.Features.AdBreak.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
@@ -17,8 +18,8 @@ public class GetAdScheduleController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetAdScheduleHandler(
-	IOptions<Settings> Settings,
-	ITwitchApiRequest TwitchApiRequest
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<GetAdScheduleQuery, AdScheduleDto>
 {
 	public async Task<AdScheduleDto> Handle

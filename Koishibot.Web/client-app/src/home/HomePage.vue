@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import http from '@/api/http';
-import { useNotificationStore } from '@/common/notifications/notification.store';
 import StreamInfo from '@/home/stream-info/StreamInfo.vue';
 import { useStreamInfoStore } from './stream-info/stream-info.store';
+import { useSettingsStore } from '@/settings/settings.store';
+import { useNotificationStore } from '@/common/notifications/notification.store';
 
-const store = useNotificationStore();
+const store = useSettingsStore();
+const notificationStore = useNotificationStore();
 const streamInfoStore = useStreamInfoStore();
 const test = ref();
 
@@ -18,7 +20,7 @@ async function testFeature() {
 }
 
 const bannerTest = () => {
-  store.displayMessage('3');
+  notificationStore.displayMessage('3');
 };
 
 watch(
@@ -41,5 +43,22 @@ watch(
   <div class="p-2 mb-2 mx-auto max-w-xl">
     <input type="checkbox" id="checkbox" v-model="checked" />
     <label for="checkbox">Attendance: {{ checked }}</label>
+  </div>
+
+
+  <div class="h-[200px] border-2 border-white rounded">
+    <div v-if="store.logMessages.length >= 1">
+      <div v-for="(message, index) in store.logMessages" :key="index">
+        <div v-if="message.level === 'Info'">
+          <p>🟢 {{ message.timestamp }} | {{ message.message }}</p>
+        </div>
+        <div v-else-if="message.level === 'Warning'">
+          <p>🟡 {{ message.timestamp }} | {{ message.message }}</p>
+        </div>
+        <div v-else>
+          <p>🔴 {{ message.timestamp }} | {{ message.message }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

@@ -1,10 +1,11 @@
 ﻿namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 
-/*--------------------< CONTROLLER >-----------------------*/
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/twitch-auth")]
 public class RefreshAccessTokenController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Twitch Oauth"])]
-	[HttpPost("/api/twitch-auth")]
+	[HttpPost]
 	public async Task<ActionResult> RefreshAccessToken
 		([FromBody] RefreshAccessTokenCommand command)
 	{
@@ -13,17 +14,17 @@ public class RefreshAccessTokenController : ApiControllerBase
 	}
 }
 
-/*-----------------------< HANDLER >-----------------------*/
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record RefreshAccessTokenHandler(
-		IRefreshAccessTokenService RefreshAccessTokenService
-		) : IRequestHandler<RefreshAccessTokenCommand>
+IRefreshAccessTokenService RefreshAccessTokenService
+) : IRequestHandler<RefreshAccessTokenCommand>
 {
 	public async Task Handle
-			(RefreshAccessTokenCommand command, CancellationToken cancel)
+		(RefreshAccessTokenCommand command, CancellationToken cancel)
 	{
 		await RefreshAccessTokenService.Start();
 	}
 }
 
-/*----------------------< QUERY >-------------------------*/
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record RefreshAccessTokenCommand(string Token) : IRequest;

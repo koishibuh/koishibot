@@ -2,8 +2,7 @@
 using Koishibot.Core.Services.Twitch.Common;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ PATCH == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -15,7 +14,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		(UpdateCustomRewardRequestParameters parameters, UpdateCustomRewardRequestBody requestBody)
 	{
 		var method = HttpMethod.Patch;
-		var url = "channel_points/custom_rewards";
+		const string url = "channel_points/custom_rewards";
 		var query = parameters.ObjectQueryFormatter();
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
@@ -23,8 +22,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class UpdateCustomRewardRequestParameters
 {
 	///<summary>
@@ -43,8 +41,7 @@ public class UpdateCustomRewardRequestParameters
 	public string RewardId { get; set; } = null!;
 }
 
-// == ⚫ REQUEST BODY == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class UpdateCustomRewardRequestBody
 {
 	///<summary>
@@ -146,13 +143,12 @@ public class UpdateCustomRewardRequestBody
 	public bool? ShouldRedemptionsSkipRequestQueue { get; set; }
 }
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class UpdateCustomRewardResponse
 {
 	///<summary>
 	///The list contains the single reward that you updated.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<CustomRewardData> CustomRewardData { get; set; }
+	public List<CustomRewardData>? CustomRewardData { get; set; }
 }

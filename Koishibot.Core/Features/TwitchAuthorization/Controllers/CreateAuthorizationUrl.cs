@@ -1,10 +1,11 @@
 ﻿namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/twitch-auth")]
 public class GetAuthorizationUrlController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Twitch Oauth"])]
-	[HttpGet("/api/twitch-auth/url")]
+	[HttpGet("url")]
 	public async Task<ActionResult> GetAuthorizationUrlCommand()
 	{
 		var result = await Mediator.Send(new GetAuthorizationUrlQuery());
@@ -14,8 +15,8 @@ public class GetAuthorizationUrlController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetAuthorizationUrlHandler(
-	IOptions<Settings> Settings
-	) : IRequestHandler<GetAuthorizationUrlQuery, string>
+IOptions<Settings> Settings
+) : IRequestHandler<GetAuthorizationUrlQuery, string>
 {
 	public async Task<string> Handle(GetAuthorizationUrlQuery query, CancellationToken cancel)
 	{

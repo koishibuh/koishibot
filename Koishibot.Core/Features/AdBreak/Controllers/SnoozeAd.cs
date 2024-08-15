@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Services.TwitchApi.Models;
+
 namespace Koishibot.Core.Features.AdBreak.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
@@ -16,8 +17,8 @@ public class SnoozeNextAdController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record SnoozeAdHandler(
-	IOptions<Settings> Settings,
-	ITwitchApiRequest TwitchApiRequest
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<SnoozeNextAdCommand, SnoozeNextAdDto>
 {
 	public async Task<SnoozeNextAdDto> Handle
@@ -31,7 +32,6 @@ public record SnoozeAdHandler(
 	}
 }
 
-
 /*════════════════════【 COMMAND 】════════════════════*/
 public record SnoozeNextAdCommand : IRequest<SnoozeNextAdDto>
 {
@@ -39,10 +39,9 @@ public record SnoozeNextAdCommand : IRequest<SnoozeNextAdDto>
 		=> new() { BroadcasterId = streamerId };
 };
 
-
-/*════════════════════【 DTO 】════════════════════*/
+/*══════════════════════【 DTO 】══════════════════════*/
 public record SnoozeNextAdDto(
-	int AvailableSnoozeCount,
-	DateTimeOffset? GainNextSnoozeAt,
-	DateTimeOffset? NextAdScheduledAt
+int AvailableSnoozeCount,
+DateTimeOffset? GainNextSnoozeAt,
+DateTimeOffset? NextAdScheduledAt
 );

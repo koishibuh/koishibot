@@ -1,7 +1,6 @@
 ﻿global using FluentValidation;
 global using Koishibot.Core.Behaviors;
 global using Koishibot.Core.Common;
-global using Koishibot.Core.Features.TwitchAuthorization.Interfaces;
 global using Koishibot.Core.Persistence.Cache;
 global using Koishibot.Core.Persistence.Cache.Interface;
 global using Koishibot.Core.Services.SignalR;

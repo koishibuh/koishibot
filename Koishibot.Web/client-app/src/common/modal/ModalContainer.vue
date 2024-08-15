@@ -52,7 +52,7 @@ const formattedHeader = computed(() => {
         <button class="primary-button w-[30px]" @click="closeModal">x</button>
       </div>
       <div class="max-h-56 overflow-y-auto">
-        <component :is="getContentComponent" class="p-2" />
+        <component :is="getContentComponent" @saveClicked="closeModal" class="p-2" />
       </div>
     </div>
   </transition>

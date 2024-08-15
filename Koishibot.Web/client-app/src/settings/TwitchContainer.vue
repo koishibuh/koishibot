@@ -25,10 +25,14 @@ const updateEventSubStatus = async (status: boolean) => {
   await twitchStore.updateEventSubStatus(status);
 };
 
-const startTwitchServices = async () => {
-  const authUrl = await twitchStore.startTwitchServices();
+const connectToTwitch = async () => {
+  const authUrl = await twitchStore.connectToTwitch();
   window.open(authUrl, '_self');
 };
+
+const reconnectTwitchServices = async () => {
+  await twitchStore.reconnectTwitchServices();
+}
 </script>
 
 <template>
@@ -38,8 +42,8 @@ const startTwitchServices = async () => {
       <input type="password" v-model="refreshtoken" id="refreshtoken" class="text-black" />
       <button @click="connectBot()" class="w-1/2 primary-button">Connect (Refresh)</button>
     </div> -->
-    <button @click="startTwitchServices" class="w-1/2 primary-button">
-      Connect to Twitch Services
+    <button @click="connectToTwitch" class="w-1/2 primary-button">
+      Connect to Twitch
     </button>
     <ToggleButton
       button1Name="Enable IRC"
@@ -54,5 +58,7 @@ const startTwitchServices = async () => {
       :state="eventSubStatus"
       @update-state="updateEventSubStatus"
     />
+
+    <button class="primary-button" @click="reconnectTwitchServices">Reconnect Stream Services</button>
   </div>
 </template>

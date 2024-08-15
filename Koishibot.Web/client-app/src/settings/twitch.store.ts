@@ -4,6 +4,7 @@ import { useSignalR } from '@/api/signalr.composable';
 import http from '@/api/http';
 import { useNotificationStore } from '@/common/notifications/notification.store';
 import { type ILog } from '@/settings/models/log-interface';
+import type {AxiosError} from "axios";
 
 export const useTwitchStore = defineStore('twitchStore', () => {
   const notificationStore = useNotificationStore();
@@ -14,12 +15,21 @@ export const useTwitchStore = defineStore('twitchStore', () => {
   const ircStatus = ref({ name: 'BotIrc', status: false });
   const eventSubStatus = ref({ name: 'TwitchWebsocket', status: false });
 
-  const startTwitchServices = async () => {
+  const connectToTwitch = async () => {
     try {
-      notificationStore.displayMessage('Getting Authorization Link');
+      await notificationStore.displayMessage('Getting Authorization Link');
       return await http.get<string>('/api/twitch-auth/url');
     } catch (error) {
-      notificationStore.displayMessage((error as Error).message);
+      await notificationStore.displayMessage((error as Error).message);
+    }
+  }
+
+  const reconnectTwitchServices = async () => {
+    try {
+      await notificationStore.displayMessage('Starting Twitch Services');
+      return await http.post<string>('/api/stream/reconnect', null);
+    } catch (error) {
+      await notificationStore.displayMessage("Stream is offline");
     }
   };
 
@@ -27,13 +37,13 @@ export const useTwitchStore = defineStore('twitchStore', () => {
     try {
       if (enabled) {
         await http.post('/api/twitch-irc', null);
-        notificationStore.displayMessage('Twitch Irc Connected');
+        await notificationStore.displayMessage('Twitch Irc Connected');
       } else {
         await http.delete('/api/twitch-irc');
-        notificationStore.displayMessage('Twitch Irc Disconnected');
+        await notificationStore.displayMessage('Twitch Irc Disconnected');
       }
     } catch (error) {
-      notificationStore.displayMessage((error as Error).message);
+      await notificationStore.displayMessage((error as Error).message);
     }
   };
 
@@ -41,20 +51,21 @@ export const useTwitchStore = defineStore('twitchStore', () => {
     try {
       if (enabled) {
         await http.post('/api/twitch-eventsub', null);
-        notificationStore.displayMessage('Twitch EventSub Connected');
+        await notificationStore.displayMessage('Twitch EventSub Connected');
       } else {
         await http.delete('/api/twitch-eventsub');
-        notificationStore.displayMessage('Twitch EventSub Disconnected');
+        await notificationStore.displayMessage('Twitch EventSub Disconnected');
       }
     } catch (error) {
-      notificationStore.displayMessage((error as Error).message);
+      await notificationStore.displayMessage((error as Error).message);
     }
   };
 
   return {
     ircStatus,
     eventSubStatus,
-    startTwitchServices,
+    connectToTwitch,
+    reconnectTwitchServices,
     updateIrcStatus,
     updateEventSubStatus
   };

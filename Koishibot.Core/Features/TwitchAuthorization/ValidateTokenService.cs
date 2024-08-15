@@ -9,10 +9,10 @@ namespace Koishibot.Core.Features.TwitchAuthorization;
 /// <see cref="http://dev.twitch.tv/docs/authentication/validate-tokens/"/>
 /// </summary>
 public record ValidateTokenService(
-	IOptions<Settings> Settings,
-	IRefreshAccessTokenService RefreshAccessTokenService,
-	IHttpClientFactory HttpClientFactory
-	) : IValidateTokenService
+IOptions<Settings> Settings,
+IRefreshAccessTokenService RefreshAccessTokenService,
+IHttpClientFactory HttpClientFactory
+) : IValidateTokenService
 {
 	public async Task Start()
 	{
@@ -23,17 +23,17 @@ public record ValidateTokenService(
 
 		using var response = await httpClient.SendAsync(request);
 		var content = await response.Content.ReadAsStringAsync();
-		if (response.IsSuccessStatusCode is false)
-		{
-			await RefreshAccessTokenService.Start();
-		}
-		else
+		if (response.IsSuccessStatusCode)
 		{
 			var token = JsonSerializer.Deserialize<ValidateTokenResponse>(content)
-			  ?? throw new Exception("Unable to get user from Validation Token");
+			            ?? throw new Exception("Unable to get user from Validation Token");
 
 			Settings.Value.StreamerTokens.UserId = token.UserId ?? string.Empty;
 			Settings.Value.StreamerTokens.UserLogin = token.UserLogin ?? string.Empty;
+		}
+		else
+		{
+			await RefreshAccessTokenService.Start();
 		}
 	}
 
@@ -59,7 +59,7 @@ public class ValidateTokenResponse
 	public string? UserLogin { get; init; }
 
 	[JsonPropertyName("scopes")]
-	public List<string>? Scopes { get; init; }
+	List<string>? Scopes { get; init; }
 
 	[JsonPropertyName("user_id")]
 	public string? UserId { get; init; }

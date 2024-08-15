@@ -71,14 +71,8 @@ IDandleService DandleService
 /*═════════◣ CANCEL ◢═════════*/
 	public void CancelTimer()
 	{
-		try
-		{
-			_timer?.Dispose();
-		}
-		catch
-		{
-			throw new Exception("Timer is null");
-		}
+		try { _timer?.Dispose(); }
+		catch { throw new Exception("Timer is null"); }
 	}
 
 	private async Task UpdateOverlayTimer(CurrentTimer timer)

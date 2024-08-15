@@ -22,7 +22,7 @@ ITwitchApiRequest TwitchApiRequest
 ) : IRequestHandler<StartAdCommand, StartAdDto>
 {
 	public async Task<StartAdDto> Handle
-	(StartAdCommand command, CancellationToken cancel)
+		(StartAdCommand command, CancellationToken cancel)
 	{
 		var streamerId = Settings.Value.StreamerTokens.UserId;
 		// TODO: Have the length of ad change from UI

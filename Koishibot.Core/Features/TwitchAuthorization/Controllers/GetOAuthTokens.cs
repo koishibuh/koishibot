@@ -1,13 +1,17 @@
 ﻿using System.Text.Json;
 using Koishibot.Core.Features.TwitchAuthorization.Enums;
 using Koishibot.Core.Features.TwitchAuthorization.Models;
+using Koishibot.Core.Services.Twitch.EventSubs;
+using Koishibot.Core.Services.Twitch.Irc;
+
 namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/twitch-auth")]
 public class GetOAuthTokensController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Twitch Oauth"])]
-	[HttpPost("/api/twitch-auth/token")]
+	[HttpPost("token")]
 	public async Task<ActionResult> GetOAuthTokens
 	([FromBody] GetOAuthTokensQuery query)
 	{
@@ -20,20 +24,11 @@ public class GetOAuthTokensController : ApiControllerBase
 public record GetOAuthTokensHandler(
 IOptions<Settings> Settings,
 IHttpClientFactory HttpClientFactory,
-IValidateTokenService ValidateTokenService,
 IStartupTwitchServices StartupTwitchServices
 ) : IRequestHandler<GetOAuthTokensQuery>
 {
 	public async Task Handle(GetOAuthTokensQuery query, CancellationToken cancel)
 	{
-		// TODO: Have a popup asking if I want to continue to get oauth when OBS is not connected
-		// This doesn't check to see if the OBS login info is valid
-
-		if (string.IsNullOrEmpty(Settings.Value.ObsSettings.WebsocketUrl))
-		{
-			throw new Exception("Missing OBS Websocket connection");
-		}
-
 		var requestContent = CreateRequestContent(query.Code);
 
 		var httpClient = HttpClientFactory.CreateClient("Default");
@@ -50,8 +45,6 @@ IStartupTwitchServices StartupTwitchServices
 		             ?? throw new Exception("An error occurred while generating a twitch token.");
 
 		SaveTokens(result);
-
-		await ValidateTokenService.Start();
 		await StartupTwitchServices.Start();
 	}
 

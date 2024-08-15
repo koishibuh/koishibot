@@ -1,10 +1,11 @@
 ﻿namespace Koishibot.Core.Features.Obs.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/obs")]
 public class StartObsWebsocketController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["OBS"])]
-	[HttpPost("/api/obs/connection")]
+	[HttpPost("connection")]
 	public async Task<ActionResult> StartObsWebsocket()
 	{
 		await Mediator.Send(new StartObsWebsocketCommand());
@@ -22,9 +23,7 @@ public record StartObsWebsocketHandler(
 		(StartObsWebsocketCommand c, CancellationToken cancel)
 	{
 		if (Settings.Value.ObsSettings.WebsocketUrl is null)
-		{
 			throw new ArgumentException("Websocket Url cannot be null");
-		}
 
 		await ObsService.CreateWebSocket();
 	}
