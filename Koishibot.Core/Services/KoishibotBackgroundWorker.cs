@@ -33,11 +33,11 @@ IStreamElementsService streamElementsService,
 	/*═════════◣ START ◢═════════*/
 	private async Task OnStarted(CancellationToken cancel)
 	{
-		await signalrHub.StartAsync(cancel);
-
 		appCache.InitializeServiceStatusCache();
 		appCache.CreateAttendanceCache();
 
+		await signalrHub.StartAsync(cancel);
+		
 		twitchIrcService.SetCancellationToken(cancel);
 		twitchEventSubService.SetCancellationToken(cancel);
 		streamElementsService.SetCancellationToken(cancel);
