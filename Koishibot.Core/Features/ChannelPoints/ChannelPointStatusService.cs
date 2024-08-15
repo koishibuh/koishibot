@@ -8,8 +8,11 @@ public record ChannelPointStatusService(
 {
 	public async Task Enable()
 	{
-		if (Settings.Value.DebugMode) { return; }
+		if (Settings.Value.DebugMode)
+		{
+			await DragonEggQuestService.Initialize();
+			return;
+		}
 
-		await DragonEggQuestService.Initialize();
 	}
 }

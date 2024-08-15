@@ -26,6 +26,14 @@ IStartupTwitchServices StartupTwitchServices
 {
 	public async Task Handle(GetOAuthTokensQuery query, CancellationToken cancel)
 	{
+		// TODO: Have a popup asking if I want to continue to get oauth when OBS is not connected
+		// This doesn't check to see if the OBS login info is valid
+
+		if (string.IsNullOrEmpty(Settings.Value.ObsSettings.WebsocketUrl))
+		{
+			throw new Exception("Missing OBS Websocket connection");
+		}
+
 		var requestContent = CreateRequestContent(query.Code);
 
 		var httpClient = HttpClientFactory.CreateClient("Default");

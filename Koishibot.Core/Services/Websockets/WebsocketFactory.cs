@@ -26,7 +26,7 @@ public class WebSocketFactory : IWebSocketFactory
 		{
 			client.Dispose();
 			await onError.Invoke(new WebSocketMessage($"Failed to connect to the websocket"));
-			throw new WebSocketException($"Failed to connect to the websocket at {url}.");
+			// throw new WebSocketException($"Failed to connect to the websocket at {url}.");
 		}
 
 		ActiveClient = new WebSocketClient(client, onError, onMessageReceived);

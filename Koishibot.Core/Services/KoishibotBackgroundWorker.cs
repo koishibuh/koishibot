@@ -37,7 +37,7 @@ IStreamElementsService streamElementsService,
 		appCache.CreateAttendanceCache();
 
 		await signalrHub.StartAsync(cancel);
-		
+
 		twitchIrcService.SetCancellationToken(cancel);
 		twitchEventSubService.SetCancellationToken(cancel);
 		streamElementsService.SetCancellationToken(cancel);
