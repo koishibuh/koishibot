@@ -1,8 +1,13 @@
-﻿using Koishibot.Core.Features.ChatCommands.Interface;
-using Koishibot.Core.Features.Common;
+﻿using System.Text.RegularExpressions;
+using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Interface;
+using Koishibot.Core.Features.ChatMessages.Models;
+using Koishibot.Core.Features.Moderation;
+using Koishibot.Core.Features.Moderation.Enums;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatMessage;
+
 namespace Koishibot.Core.Features.ChatMessages.Events;
 
 /// <summary>
@@ -10,34 +15,48 @@ namespace Koishibot.Core.Features.ChatMessages.Events;
 /// Publish to UI, Log User, Save Attendance if Enabled, Check Command
 /// </summary>
 public record ChatMessageReceived(
-	IOptions<Settings> Settings,
-	IAppCache Cache,
-	ISignalrService Signalr,
-	IChatCommandProcessor ChatCommandProcessor,
-	ITwitchUserHub TwitchUserHub
-	) : IRequestHandler<ChatMessageReceivedCommand>
+IAppCache Cache,
+ISignalrService Signalr,
+IChatCommandProcessor ChatCommandProcessor,
+ITwitchUserHub TwitchUserHub,
+ITimeoutUserService TimeoutUserService,
+IChatReplyService BotIrc
+) : IRequestHandler<ChatMessageReceivedCommand>
 {
 	public async Task Handle
-		(ChatMessageReceivedCommand command, CancellationToken cancel)
+	(ChatMessageReceivedCommand command, CancellationToken cancel)
 	{
-		var chatVm = command.args.ConvertToVm();
+		var chatVm = command.CreateChatMessageVm();
 		await Signalr.SendChatMessage(chatVm);
 
-		await (Settings.Value.DebugMode is true
-				? DebugProcess(command)
-				: Process(command));
+		var userDto = command.CreateUserDto();
+		var user = await TwitchUserHub.Start(userDto);
+		var chat = command.CreateChatMessageDto(user);
+
+		if (chat.MessageHasLink() && chat.UserNotAllowed())
+		{
+			await TimeoutUserService.TwoSeconds(chat.User.TwitchId);
+			await BotIrc.App(Command.LinkNotPermitted, new { user = chat.User.Name });
+		}
+
+		if (chat.HasCommand())
+		{
+			await ChatCommandProcessor.Start(chat);
+		}
+
+		// await (Settings.Value.DebugMode is true
+		// ? DebugProcess(command)
+		// : Process(command));
 	}
 
-
-	// == 🐌 DEBUG == //
-
-	public async Task DebugProcess(ChatMessageReceivedCommand e)
+/*════════════════════【 🐌 DEBUG 】════════════════════*/
+	private async Task DebugProcess(ChatMessageReceivedCommand command)
 	{
 		//if (e.TwitchUserDto.Name is not "ElysiaGriffin") { return; }
-		var userDto = new TwitchUserDto(e.args.ChatterId, e.args.ChatterLogin, e.args.ChatterName);
+		var userDto = command.CreateUserDto();
 
 		var user = await TwitchUserHub.Start(userDto);
-		var chat = e.args.ConvertToDto(user);
+		var chat = command.CreateChatMessageDto(user);
 
 		if (chat.HasCommand())
 		{
@@ -50,13 +69,12 @@ public record ChatMessageReceived(
 		//}
 	}
 
-	// == ⚫ LIVE == //
-
-	public async Task Process(ChatMessageReceivedCommand e)
+/*════════════════════【 🟣 LIVE 】════════════════════*/
+	private async Task Process(ChatMessageReceivedCommand e)
 	{
-		var userDto = new TwitchUserDto(e.args.ChatterId, e.args.ChatterLogin, e.args.ChatterName);
+		var userDto = e.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
-		var chat = e.args.ConvertToDto(user);
+		var chat = e.CreateChatMessageDto(user);
 
 		if (chat.HasCommand())
 		{
@@ -65,20 +83,49 @@ public record ChatMessageReceived(
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record ChatMessageReceivedCommand(
-	ChatMessageReceivedEvent args
-	) : IRequest
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public partial record ChatMessageReceivedCommand(
+ChatMessageReceivedEvent E
+) : IRequest
 {
+	public ChatMessageVm CreateChatMessageVm() =>
+	new ChatMessageVm(E.ChatterId, E.ChatterName, new List<KeyValuePair<string, string>>(),
+	E.Color, E.Message.Text ?? string.Empty);
 
-};
+	public TwitchUserDto CreateUserDto() =>
+	new(E.ChatterId, E.ChatterLogin, E.ChatterName);
 
+	public ChatMessageDto CreateChatMessageDto(TwitchUser user)
+	{
+		string? command = null;
+		var message = "";
 
+		var trimmed = E.Message.Text;
 
-// check if string is url
-//public bool HasUrl(string text)
-//{
-//	var urlRegex = new Regex(@"(https?:\/\/(?:[-\w]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?)");
-//	return urlRegex.IsMatch(text);
-//}
+		if (trimmed.StartsWith("!"))
+		{
+			var match = MessageContainsExclamation().Match(E.Message.Text);
+			if (match.Success)
+			{
+				command = match.Groups["command"].Value.ToLower();
+				message = match.Groups["message"].Value;
+			}
+		}
+		else
+		{
+			message = trimmed;
+		}
+
+		return new ChatMessageDto
+		{
+		User = user,
+		Badges = E.Badges,
+		Color = E.Color,
+		Message = message,
+		Command = command
+		};
+	}
+
+	[GeneratedRegex(@"^\s*!+(?<command>\w+)(?:\s+(?<message>.+))?$")]
+	public static partial Regex MessageContainsExclamation();
+}

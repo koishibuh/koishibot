@@ -1,9 +1,9 @@
 ﻿namespace Koishibot.Core.Features.TwitchUsers.Models;
 
 public record TwitchUserDto(
-		string TwitchId,
-		string Login,
-		string Name
+string TwitchId,
+string Login,
+string Name
 )
 {
 	public bool IsIgnoredUser()

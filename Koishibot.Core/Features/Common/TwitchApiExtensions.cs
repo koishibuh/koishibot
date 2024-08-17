@@ -9,49 +9,6 @@ namespace Koishibot.Core.Features.Common;
 
 public static class TwitchApiExtensions
 {
-
-	// == ⚫ Chat
-
-	public static ChatMessageDto ConvertToDto(this ChatMessageReceivedEvent e, TwitchUser user)
-	{
-		string? command = null;
-		string message = "";
-
-		var trimmed = e.Message.Text;
-
-		if (trimmed.StartsWith("!"))
-		{
-			var match = Regex.Match(e.Message.Text, @"^\s*!+(?<command>\w+)(?:\s+(?<message>.+))?$");
-			if (match.Success)
-			{
-				command = match.Groups["command"].Value.ToLower();
-				message = match.Groups["message"].Value;
-			}
-		}
-		else
-		{
-			message = trimmed;
-		}
-
-		return new ChatMessageDto
-		{
-			User = user,
-			//new TwitchUserDto(e.ChatterId, e.ChatterLogin, e.ChatterName),
-			Badges = e.Badges,
-			Color = e.Color,
-			Message = message,
-			Command = command
-		};			
-	}
-
-	public static ChatMessageVm ConvertToVm(this ChatMessageReceivedEvent e) 
-	{
-		return new ChatMessageVm(e.ChatterId, e.ChatterName, new List<KeyValuePair<string, string>>(),
-			e.Color, e.Message.Text);		 
-	}
-
-
-
 	// == ⚫ Channel Api
 	//public static LiveStreamInfo ConvertToDto(this GetStreamsResponse response)
 	//{
