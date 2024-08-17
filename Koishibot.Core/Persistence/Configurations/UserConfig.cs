@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Models;
+using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -62,5 +63,9 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 			.WithOne(p => p.TwitchUser)
 			.HasForeignKey(p => p.UserId)
 			.IsRequired(false);
+
+		builder.HasOne(p => p.WordpressItemTag)
+		.WithOne(p => p.TwitchUser)
+		.HasForeignKey<ItemTag>(p => p.UserId);
 	}
 }

@@ -31,6 +31,7 @@ public class TwitchUser
 	public IList<Kofi> KofiSupport { get; set; } = [];
 	public IList<SETip> SETips { get; set; } = [];
 	public SupportTotal? SupportTotal { get; set; }
+	public ItemTag? WordpressItemTag { get; set; }
 
 	// == ⚫ == //
 

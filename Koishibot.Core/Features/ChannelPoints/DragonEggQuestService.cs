@@ -8,19 +8,24 @@ using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
+
 namespace Koishibot.Core.Features.ChannelPoints;
 
 public record DragonEggQuestService(
-	ILogger<DragonEggQuestService> Log,
-	IAppCache Cache,
-	KoishibotDbContext Database,
-	IChatReplyService ChatReplyService,
-	IChannelPointsApi ChannelPointsApi
+ILogger<DragonEggQuestService> Log,
+IAppCache Cache,
+KoishibotDbContext Database,
+IChatReplyService ChatReplyService,
+IChannelPointsApi ChannelPointsApi
 ) : IDragonEggQuestService
 {
+	/*════════════════【 INITIALIZE 】════════════════*/
 	public async Task Initialize()
 	{
-		if (TodayIsNotMondayOrThursday(DateTime.UtcNow)) { return; }
+		if (TodayIsNotMondayOrThursday(DateTime.UtcNow))
+		{
+			return;
+		}
 
 		var reward = await Database.GetChannelRewardByName("Dragon Egg Quest");
 		if (reward is null)
@@ -30,13 +35,13 @@ public record DragonEggQuestService(
 		} // Need to create the reward
 
 		var redemptions = await Database.GetTodayRedemptionByRewardId(reward.Id);
-		if (redemptions.Count == 0 || redemptions is null)
+		if (redemptions.Count == 0)
 		{
 			var dragonEggQuest = new DragonEggQuest().Set(reward, 0);
 
 			await Cache
-				.AddDragonEggQuest(dragonEggQuest)
-				.UpdateDragonEggQuestServiceStatus(ServiceStatusString.Online);
+			.AddDragonEggQuest(dragonEggQuest)
+			.UpdateDragonEggQuestServiceStatus(ServiceStatusString.Online);
 
 			await ChannelPointsApi.EnableRedemption(reward.TwitchId);
 			await ChatReplyService.App(Command.DragonEggQuestEnabled);
@@ -59,8 +64,7 @@ public record DragonEggQuestService(
 		}
 	}
 
-	// == ⚫ == //
-
+/*════════════════【 GET RESULT 】════════════════*/
 	public async Task GetResult(TwitchUser user, DateTimeOffset redeemedAt)
 	{
 		if (Cache.DragonEggQuestClosed())
@@ -84,28 +88,28 @@ public record DragonEggQuestService(
 			var quest = new DragonEggQuest().Set(reward, 0);
 
 			await Cache
-				.AddDragonEggQuest(quest)
-				.DisableDragonEggQuestService();
+			.AddDragonEggQuest(quest)
+			.DisableDragonEggQuestService();
 
 			var data = new UserCountData(user.Name, (successRange.Attempts + 1));
 
 			await ChatReplyService.App(Command.DragonEggQuestSuccessful, data);
 
 			var redemption = new ChannelPointRedemption()
-				.Set(reward, user, redeemedAt, true);
+			.Set(reward, user, redeemedAt, true);
 
 			await Database.UpdateRedemption(redemption);
 		}
 		else
 		{
 			successRange
-				.IncreaseWinRangeBy(8)
-				.IncreaseAttemptCount(1);
+			.IncreaseWinRangeBy(8)
+			.IncreaseAttemptCount(1);
 
 			Cache.AddDragonEggQuest(successRange);
 
 			var redemption = new ChannelPointRedemption()
-				.Set(reward, user, redeemedAt, false);
+			.Set(reward, user, redeemedAt, false);
 
 			await Database.UpdateRedemption(redemption);
 
@@ -114,12 +118,13 @@ public record DragonEggQuestService(
 		}
 	}
 
-	public bool TodayIsNotMondayOrThursday(DateTime today)
+	private bool TodayIsNotMondayOrThursday(DateTime today)
 	{
-		return today.DayOfWeek == DayOfWeek.Tuesday
-				|| today.DayOfWeek == DayOfWeek.Wednesday
-				|| today.DayOfWeek == DayOfWeek.Friday
-				|| today.DayOfWeek == DayOfWeek.Saturday
-				|| today.DayOfWeek == DayOfWeek.Sunday;
+		return today.DayOfWeek is
+		DayOfWeek.Tuesday or
+		DayOfWeek.Wednesday or
+		DayOfWeek.Friday or
+		DayOfWeek.Saturday or
+		DayOfWeek.Sunday;
 	}
 }

@@ -8,11 +8,14 @@ import ScopesContainer from './ScopesContainer.vue';
 import TwitchContainer from './TwitchContainer.vue';
 import { useServiceStatusStore } from '@/layout/service-status.store';
 import { useTwitchStore } from './twitch.store';
+import {useStreamElementsStore} from "@/settings/streamelements.store";
+import StreamElementsContainer from '@/settings/StreamElementsContainer.vue';
 
 const store = useSettingsStore();
 const obsStore = useObsStore();
 const statusStore = useServiceStatusStore();
 const twitchStore = useTwitchStore();
+const streamElementsStore = useStreamElementsStore();
 
 /* const obs = async (e: boolean) => {
   if (e) {
@@ -57,6 +60,11 @@ const closeModal = () => {
   <h1>OBS</h1>
   <div class="border-2 p-2 border-gray-500 rounded">
     <ObsContainer :settings="obsStore.settings" @setting-clicked="showModalContent" />
+  </div>
+
+  <h1>StreamElements</h1>
+  <div class="border-2 p-2 border-gray-500 rounded">
+    <StreamElementsContainer />
   </div>
 
   <h1>Scopes</h1>

@@ -3,11 +3,11 @@ namespace Koishibot.Core.Features.StreamInformation.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/stream")]
-public class ReconnectStreamServices : ApiControllerBase
+public class ReconnectStreamServicesController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Stream"])]
 	[HttpPost("reconnect")]
-	public async Task<ActionResult> ReconnectStream()
+	public async Task<ActionResult> ReconnectStreamServices()
 	{
 		await Mediator.Send(new ReconnectStreamCommand());
 		return Ok();

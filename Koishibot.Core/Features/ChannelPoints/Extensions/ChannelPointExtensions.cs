@@ -82,7 +82,7 @@ public static class ChannelPointExtensions
 		return reward.Id;
 	}
 
-	public static async Task<ChannelPointReward> GetChannelRewardByName
+	public static async Task<ChannelPointReward?> GetChannelRewardByName
 	(this KoishibotDbContext database, string rewardName)
 	{
 		var result = await database.ChannelPointRewards
@@ -90,9 +90,7 @@ public static class ChannelPointExtensions
 			.Where(p => p.Title == rewardName)
 			.FirstOrDefaultAsync();
 
-		return result is not null
-			? result 
-			: throw new Exception("Dragon Egg Quest not found in repo");
+		return result;
 	}
 
 	public static async Task<List<ChannelPointRedemption>> GetTodayRedemptionByRewardId
