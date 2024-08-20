@@ -55,9 +55,9 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 			.HasForeignKey<SupportTotal>(p => p.UserId);
 
 		builder.HasMany(p => p.KofiSupport)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey(p => p.UserId)
-		.IsRequired(false);
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired(false);
 
 		builder.HasMany(p => p.SETips)
 			.WithOne(p => p.TwitchUser)

@@ -1,18 +1,20 @@
-﻿using Koishibot.Core.Features.ChatCommands.Interface;
+﻿using Koishibot.Core.Features.ChannelPoints.Extensions;
+using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatMessages.Models;
 namespace Koishibot.Core.Features.ChatCommands;
 
-// == ⚫ == //
-
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record ChatCommandProcessor(
 	IOptions<Settings> Settings,
+	IAppCache Cache,
 	IGeneralCommands GeneralCommands,
 	IAttendanceCommands AttendanceCommands,
 	IRaidCommands RaidCommands,
-	IDandleCommands DandleCommands
+	IDandleCommands DandleCommands,
+	IDragonQuestCommands DragonQuestCommands
 	) : IChatCommandProcessor
 {
-	public bool Processed { get; set; }
+	private bool Processed { get; set; }
 
 	public async Task Start(ChatMessageDto c)
 	{
@@ -26,6 +28,12 @@ public record ChatCommandProcessor(
 
 			Processed = await GeneralCommands.Process(c);
 			if (Processed is true) { return; }
+
+			if (Cache.DragonEggQuestClosed() is false)
+			{
+				Processed = await DragonQuestCommands.Process(c);
+				if (Processed is true) { return; }
+			}
 		}
 		else
 		{

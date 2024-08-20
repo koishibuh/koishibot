@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Features.ChannelPoints.Enums;
+﻿using HtmlAgilityPack;
+using Koishibot.Core.Features.ChannelPoints.Enums;
 using Koishibot.Core.Features.ChannelPoints.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.ChannelPoints.Models;
@@ -8,7 +9,6 @@ using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
-
 namespace Koishibot.Core.Features.ChannelPoints;
 
 public record DragonEggQuestService(
@@ -16,17 +16,13 @@ ILogger<DragonEggQuestService> Log,
 IAppCache Cache,
 KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
-IChannelPointsApi ChannelPointsApi
+IChannelPointsApi ChannelPointsApi,
+IHttpClientFactory HttpClientFactory
 ) : IDragonEggQuestService
 {
 	/*════════════════【 INITIALIZE 】════════════════*/
 	public async Task Initialize()
 	{
-		if (TodayIsNotMondayOrThursday(DateTime.UtcNow))
-		{
-			return;
-		}
-
 		var reward = await Database.GetChannelRewardByName("Dragon Egg Quest");
 		if (reward is null)
 		{
@@ -85,11 +81,11 @@ IChannelPointsApi ChannelPointsApi
 		{
 			await ChannelPointsApi.DisableRedemption(reward.TwitchId);
 
-			var quest = new DragonEggQuest().Set(reward, 0);
+			// TODO: Reset this at the end of stream
+			var quest = new DragonEggQuest().Set(reward, 0).SetWinner(user);
 
-			await Cache
-			.AddDragonEggQuest(quest)
-			.DisableDragonEggQuestService();
+			Cache.AddDragonEggQuest(quest);
+			// .DisableDragonEggQuestService();
 
 			var data = new UserCountData(user.Name, (successRange.Attempts + 1));
 
@@ -118,13 +114,28 @@ IChannelPointsApi ChannelPointsApi
 		}
 	}
 
-	private bool TodayIsNotMondayOrThursday(DateTime today)
+	public async Task<List<string>> GetEggDescriptions(string url)
 	{
-		return today.DayOfWeek is
-		DayOfWeek.Tuesday or
-		DayOfWeek.Wednesday or
-		DayOfWeek.Friday or
-		DayOfWeek.Saturday or
-		DayOfWeek.Sunday;
+		var httpClient = HttpClientFactory.CreateClient("Default");
+		using var response = await httpClient.GetAsync(url);
+		response.EnsureSuccessStatusCode();
+
+		var content = await response.Content.ReadAsStringAsync();
+		var webpage = new HtmlDocument();
+		webpage.LoadHtml(content);
+
+		var eggNodes = webpage.DocumentNode.SelectNodes("//div[@class='eggs']//div")
+		               ?? throw new Exception("Error finding egg on page");
+
+		return eggNodes
+		.Select(egg => egg.SelectSingleNode(".//span")
+		               ?? throw new Exception("Error finding egg description"))
+		.Select(span => span.InnerText)
+		.ToList();
+	}
+
+	public async Task AddEggToWebsite()
+	{
+		//
 	}
 }

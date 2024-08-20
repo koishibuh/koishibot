@@ -8,11 +8,18 @@ public record ChannelPointStatusService(
 {
 	public async Task Enable()
 	{
-		if (Settings.Value.DebugMode)
+		if (TodayIsMondayOrThursday())
 		{
 			await DragonEggQuestService.Initialize();
-			return;
 		}
+	}
 
+	private bool TodayIsMondayOrThursday()
+	{
+		var today = DateTime.UtcNow;
+
+		return today.DayOfWeek is
+		DayOfWeek.Monday or
+		DayOfWeek.Thursday;
 	}
 }

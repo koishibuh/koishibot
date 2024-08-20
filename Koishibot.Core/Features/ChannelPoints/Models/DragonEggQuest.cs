@@ -1,4 +1,6 @@
-﻿namespace Koishibot.Core.Features.ChannelPoints.Models;
+﻿using Koishibot.Core.Features.TwitchUsers.Models;
+
+namespace Koishibot.Core.Features.ChannelPoints.Models;
 
 public class DragonEggQuest
 {
@@ -6,6 +8,7 @@ public class DragonEggQuest
 	public string TwitchId { get; set; } = null!;
 	public int Attempts { get; set; }
 	public int UpperLimit { get; set; }
+	public TwitchUser? SuccessfulUser { get; set; }
 
 	// == ⚫  == //
 	public DragonEggQuest Set(ChannelPointReward reward, int redemptionCount)
@@ -14,6 +17,12 @@ public class DragonEggQuest
 		TwitchId = reward.TwitchId;
 		Attempts = redemptionCount;
 		UpperLimit = redemptionCount == 0 ? 5 : redemptionCount * 5;
+		return this;
+	}
+
+	public DragonEggQuest SetWinner(TwitchUser user)
+	{
+		SuccessfulUser = user;
 		return this;
 	}
 

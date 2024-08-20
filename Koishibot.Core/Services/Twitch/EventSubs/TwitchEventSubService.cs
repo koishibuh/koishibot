@@ -74,39 +74,46 @@ ITwitchApiRequest TwitchApiRequest
 
 	private async Task ProcessMessage(WebSocketMessage message)
 	{
-		if (TwitchEventSub is null) { return;}
-
-		if (message.IsPing())
+		try
 		{
-			await TwitchEventSub.SendMessage("PONG");
-			return;
+			if (TwitchEventSub is null) { return;}
+
+			if (message.IsPing())
+			{
+				await TwitchEventSub.SendMessage("PONG");
+				return;
+			}
+
+			var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message.Message);
+			if (eventMessage == null) { return; }
+
+			if (!_eventSet.Contains(eventMessage.Metadata.MessageId))
+			{
+				_eventSet.Add(eventMessage.Metadata);
+			}
+
+			switch (eventMessage.Metadata.Type)
+			{
+				case EventSubMessageType.Notification:
+					await ProcessNotificationMessage(eventMessage.Metadata.SubscriptionType, message.Message);
+					break;
+				case EventSubMessageType.SessionWelcome:
+					await ProcessSessionWelcomeMessage(message.Message);
+					break;
+				case EventSubMessageType.SessionReconnect:
+					break;
+				case EventSubMessageType.SessionKeepalive:
+					//OnKeepAliveMessage?.Invoke(eventMessage.Metadata.MessageId);
+					break;
+				case EventSubMessageType.Revocation:
+					break;
+				default:
+					throw new InvalidMetadataMessageTypeException("Unsupported message type.");
+			}
 		}
-
-		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message.Message);
-		if (eventMessage == null) { return; }
-
-		if (!_eventSet.Contains(eventMessage.Metadata.MessageId))
+		catch (Exception e)
 		{
-			_eventSet.Add(eventMessage.Metadata);
-		}
 
-		switch (eventMessage.Metadata.Type)
-		{
-			case EventSubMessageType.Notification:
-				await ProcessNotificationMessage(eventMessage.Metadata.SubscriptionType, message.Message);
-				break;
-			case EventSubMessageType.SessionWelcome:
-				await ProcessSessionWelcomeMessage(message.Message);
-				break;
-			case EventSubMessageType.SessionReconnect:
-				break;
-			case EventSubMessageType.SessionKeepalive:
-				//OnKeepAliveMessage?.Invoke(eventMessage.Metadata.MessageId);
-				break;
-			case EventSubMessageType.Revocation:
-				break;
-			default:
-				throw new InvalidMetadataMessageTypeException("Unsupported message type.");
 		}
 	}
 

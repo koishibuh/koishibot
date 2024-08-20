@@ -35,6 +35,8 @@ public class KoishibotDbContext : DbContext
 	public DbSet<SupportTotal> SupportTotals => Set<SupportTotal>();
 	public DbSet<ObsItem> ObsItems => Set<ObsItem>();
 	public DbSet<StreamCategory> StreamCategories => Set<StreamCategory>();
+	public DbSet<ItemTag> ItemTags => Set<ItemTag>();
+	public DbSet<KoiKinDragon> KoiKinDragons => Set<KoiKinDragon>();
 
 	public KoishibotDbContext(DbContextOptions<KoishibotDbContext> options)
 		: base(options)

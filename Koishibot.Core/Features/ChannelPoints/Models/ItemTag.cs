@@ -1,4 +1,6 @@
 using Koishibot.Core.Features.TwitchUsers.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace Koishibot.Core.Features.ChannelPoints.Models;
 
 public class ItemTag
@@ -10,4 +12,22 @@ public class ItemTag
 	// NAVIGATION
 
 	public TwitchUser? TwitchUser { get; set; }
+	public List<KoiKinDragon> KoiKinDragons { get; set; } = [];
+}
+
+public class ItemTagConfig : IEntityTypeConfiguration<ItemTag>
+{
+	public void Configure(EntityTypeBuilder<ItemTag> builder)
+	{
+		builder.ToTable("ItemTags");
+		builder.HasKey(p => p.Id);
+
+		builder.Property(p => p.UserId);
+		builder.Property(p => p.WordPressId);
+
+		builder.HasMany(p => p.KoiKinDragons)
+			.WithOne(p => p.ItemTag)
+			.HasForeignKey(p => p.ItemTagId)
+			.IsRequired(false);
+	}
 }

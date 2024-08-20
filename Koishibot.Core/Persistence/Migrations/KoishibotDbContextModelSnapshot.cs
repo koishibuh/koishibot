@@ -211,7 +211,39 @@ namespace Koishibot.Core.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("ItemTag");
+                    b.ToTable("ItemTags", (string)null);
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("ItemTagId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("WordpressId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemTagId");
+
+                    b.ToTable("KoiKinDragons", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>
@@ -898,6 +930,15 @@ namespace Koishibot.Core.Migrations
                     b.Navigation("TwitchUser");
                 });
 
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.ChannelPoints.Models.ItemTag", "ItemTag")
+                        .WithMany("KoiKinDragons")
+                        .HasForeignKey("ItemTagId");
+
+                    b.Navigation("ItemTag");
+                });
+
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandName", b =>
                 {
                     b.HasOne("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", "ChatCommand")
@@ -1068,6 +1109,11 @@ namespace Koishibot.Core.Migrations
             modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.ChannelPointReward", b =>
                 {
                     b.Navigation("ChannelPointRedemptions");
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.ItemTag", b =>
+                {
+                    b.Navigation("KoiKinDragons");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>

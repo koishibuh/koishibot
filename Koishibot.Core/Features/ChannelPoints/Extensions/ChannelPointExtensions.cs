@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.Twitch.Common;
@@ -31,11 +32,17 @@ public static class ChannelPointExtensions
 
 		return cache;
 	}
-	public static DragonEggQuest GetDragonEggQuest(this IAppCache cache)
-	{
-		return cache.Get<DragonEggQuest>(CacheName.DragonEggQuest)
-			?? throw new Exception("DragonEggQuest not in cache");
 
+	public static DragonEggQuest? GetDragonEggQuest(this IAppCache cache)
+	{
+		return cache.Get<DragonEggQuest>(CacheName.DragonEggQuest);
+	}
+
+	public static TwitchUser? GetDragonQuestWinner(this IAppCache cache)
+	{
+		var result = cache.Get<DragonEggQuest>(CacheName.DragonEggQuest)
+		       ?? throw new Exception("DragonEggQuest not in cache");
+		return result.SuccessfulUser;
 	}
 
 
@@ -52,7 +59,6 @@ public static class ChannelPointExtensions
 	}
 
 	// DATABASE
-
 	public static async Task<int> UpdateReward
 	(this KoishibotDbContext database, ChannelPointReward reward)
 	{
@@ -195,5 +201,13 @@ public static class ChannelPointExtensions
 				reward.ImageUrl
 			))
 			.ToList();
+	}
+
+	public static async Task<ItemTag?> GetItemTagByUserId
+		(this KoishibotDbContext database, int userId)
+	{
+		return await database.ItemTags
+		.Where(x => x.UserId == userId)
+		.FirstOrDefaultAsync();
 	}
 }
