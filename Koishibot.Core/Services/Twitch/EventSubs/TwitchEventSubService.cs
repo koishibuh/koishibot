@@ -41,6 +41,7 @@ using Koishibot.Core.Services.Twitch.Extensions;
 using Koishibot.Core.Services.TwitchApi.Models;
 using Koishibot.Core.Services.Websockets;
 using System.Text.Json;
+using Koishibot.Core.Exceptions;
 using Timer = System.Timers.Timer;
 namespace Koishibot.Core.Services.Twitch.EventSubs;
 
@@ -85,7 +86,8 @@ ITwitchApiRequest TwitchApiRequest
 			}
 
 			var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message.Message);
-			if (eventMessage == null) { return; }
+			if (eventMessage == null)
+				throw new JsonDeserializeException(message.Message);
 
 			if (!_eventSet.Contains(eventMessage.Metadata.MessageId))
 			{
@@ -113,22 +115,26 @@ ITwitchApiRequest TwitchApiRequest
 		}
 		catch (Exception e)
 		{
-
+			Log.LogError("An error has occured: {e}", e);
+			Log.LogError(e, "An error has occured");
 		}
-	}
-
-
-	public async Task DisconnectWebSocket()
-	{
-		await TwitchEventSub.Disconnect();
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Offline);
-		TwitchEventSub = null;
 	}
 
 	private async Task Error(WebSocketMessage message)
 	{
+		Log.LogError("Websocket error: {message}", message);
 		await SignalrService.SendError("Unable to connect to Twitch EventSub");
 		await DisconnectWebSocket();
+	}
+
+	public async Task DisconnectWebSocket()
+	{
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Offline);
+		if (TwitchEventSub is not null)
+		{
+			await TwitchEventSub.Disconnect();
+			TwitchEventSub = null;
+		}
 	}
 
 
