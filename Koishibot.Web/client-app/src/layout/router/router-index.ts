@@ -1,22 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import PollPage from '@/polls/PollPage.vue';
 import HomePage from '@/home/HomePage.vue';
 import FeedPage from '@/event-feed/FeedPage.vue';
-import CommandPage from '@/commands/CommandPage.vue';
-import RaidOverlay from '@/raids/RaidOverlay.vue';
-import TimerOverlay from '@/timers/TimerOverlay.vue';
 import BotPage from '@/layout/BotPage.vue';
-import CalendarOverlay from '@/calendars/CalendarOverlay.vue';
-import PollOverlay from '@/polls/PollOverlay.vue';
 import LoginPage from '@/login/LoginPage.vue';
-import AdTimerOverlay from '@/timers/AdTimerOverlay.vue';
-import DandleOverlay from '@/dandle/DandleOverlay.vue';
-import SettingsPage from '@/settings/SettingsPage.vue';
-import LightsPage from '@/lights/LightsPage.vue';
-import ChannelPointPage from '@/channel-points/ChannelPointPage.vue';
-import DandlePage from '@/dandle/DandlePage.vue';
 import AuthenticatePage from '@/login/AuthenticatePage.vue';
-import LogPage from '@/console-log/LogPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,7 +27,7 @@ const router = createRouter({
         {
           path: '/poll',
           name: 'Poll',
-          component: PollPage
+          component: () => import('@/polls/PollPage.vue')
         },
         {
           path: '/feed',
@@ -48,71 +35,66 @@ const router = createRouter({
           component: FeedPage
         },
         {
-          path: '/command',
-          name: 'Command',
-          component: CommandPage
+          path: '/commands',
+          name: 'Commands',
+          component: () => import('@/commands/CommandPage.vue')
         },
         {
           path: '/lights',
           name: 'Lights',
-          component: LightsPage
+          component: () => import('@/lights/LightsPage.vue')
         },
         {
           path: '/settings',
           name: 'Settings',
-          component: SettingsPage
+          component: () => import('@/settings/SettingsPage.vue')
         },
         {
           path: '/channelpoints',
           name: 'Channel Points',
-          component: ChannelPointPage
-        },
-        {
-          path: '/commands',
-          name: 'Commands',
-          component: CommandPage
+          component: () => import('@/channel-points/ChannelPointPage.vue')
         },
         {
           path: '/dandle',
           name: 'Dandle',
-          component: DandlePage
+          component: () => import('@/dandle/DandlePage.vue')
         },
         {
           path: '/log',
           name: 'Log',
-          component: LogPage
+          component: () => import('@/console-log/LogPage.vue')
         }
       ]
     },
     {
       path: '/overlay/raid',
       name: 'RaidOverlay',
-      component: RaidOverlay
+      component: () => import('@/raids/RaidOverlay.vue')
     },
     {
       path: '/overlay/timer',
       name: 'TimerOverlay',
-      component: TimerOverlay
+      component: () => import('@/timers/TimerOverlay.vue')
     },
     {
       path: '/overlay/adtimer',
       name: 'AdTimerOverlay',
-      component: AdTimerOverlay
+      component: () => import('@/timers/AdTimerOverlay.vue')
     },
     {
       path: '/overlay/calendar',
       name: 'CalendarOverlay',
-      component: CalendarOverlay
+      component: () => import('@/calendars/CalendarOverlay.vue')
     },
     {
       path: '/overlay/poll',
       name: 'PollOverlay',
-      component: PollOverlay
+      component: () => import('@/polls/PollOverlay.vue')
     },
     {
       path: '/overlay/dandle',
       name: 'DandleOverlay',
-      component: DandleOverlay
+      component: () => import('@/dandle/DandleOverlay.vue')
     },
     {
       path: '/',
