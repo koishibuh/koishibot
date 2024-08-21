@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Persistence.Cache.Enums;
+﻿using Koishibot.Core.Exceptions;
+using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.Websockets;
 namespace Koishibot.Core.Services.Twitch.Irc;
 
@@ -14,26 +15,26 @@ ILogger<TwitchIrcService> Log
 ) : ITwitchIrcService
 {
 	public CancellationToken? Cancel { get; set; }
+	private WebSocketFactory Factory { get; set; } = new();
 	private WebSocketHandler? BotIrc { get; set; }
 
 	public async Task CreateWebSocket()
 	{
-		if (BotIrc is not null) { return; }
-
 		const string url = "wss://irc-ws.chat.twitch.tv:443";
 
-		var factory = new WebSocketFactory();
-		BotIrc = await factory.Create(url, 3, Error, ProcessMessage);
+		try
+		{
+			BotIrc = await Factory.Create(url, 3, ProcessMessage, Error, Closed);
+			var bot = Settings.Value.BotTokens;
+			await OnConnected(bot.AccessToken, bot.UserLogin);
+		}
+		catch (Exception e)
+		{
+			Log.LogError("An error has occured: {e}", e);
+			await SignalrService.SendError(e.Message);
+			throw new CustomException(e.Message);
+		}
 
-		var streamer = Settings.Value.StreamerTokens;
-		var bot = Settings.Value.BotTokens;
-
-		await OnConnected(bot.AccessToken, bot.UserLogin);
-	}
-
-	private async Task Error(WebSocketMessage message)
-	{
-		await DisconnectWebSocket();
 	}
 
 	private async Task ProcessMessage(WebSocketMessage message)
@@ -88,11 +89,31 @@ ILogger<TwitchIrcService> Log
 	public void SetCancellationToken(CancellationToken cancel)
 		=> Cancel = cancel;
 
+
+	private async Task Error(WebSocketMessage message)
+	{
+		Log.LogError("Websocket error: {message}", message);
+		await SignalrService.SendError(message.Message);
+		if (BotIrc is not null  && BotIrc.IsDisposed is false)
+		{
+			await DisconnectWebSocket();
+		}
+	}
+
+	private async Task Closed(WebSocketMessage message)
+	{
+		Log.LogInformation($"Websocket closed {message}");
+		if (BotIrc is not null  && BotIrc.IsDisposed is false)
+		{
+			await DisconnectWebSocket();
+		}
+	}
+
 	public async Task DisconnectWebSocket()
 	{
-		await BotIrc!.Disconnect();
+		await Factory.Disconnect();
 		await Cache.UpdateServiceStatus(ServiceName.BotIrc, ServiceStatusString.Offline);
-		BotIrc = null;
+		await SignalrService.SendInfo("BotIrc Websocket Disconnected");
 	}
 }
 

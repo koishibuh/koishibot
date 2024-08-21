@@ -4,10 +4,10 @@ public enum ServiceName
 {
 	SignalR,
 	StreamOnline,
-	StreamerIrc,
 	BotIrc,
 	TwitchWebsocket,
 	ObsWebsocket,
+	StreamElements,
 
 	Attendance,
 	DragonEggQuest,

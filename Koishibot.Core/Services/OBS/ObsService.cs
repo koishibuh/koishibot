@@ -24,22 +24,21 @@ IServiceScopeFactory ScopeFactory
 ) : IObsService
 {
 	public CancellationToken? Cancel { get; set; }
+	private WebSocketFactory Factory { get; set; } = new();
 	private WebSocketHandler? ObsWebSocket { get; set; }
-	private WebSocketFactory? Factory { get; set; }
 
 	private readonly JsonSerializerOptions _options =
 	new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 	public async Task CreateWebSocket()
 	{
-		if (ObsWebSocket is not null) return;
+		// if (ObsWebSocket is not null) return;
 
 		var url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
 
-		Factory = new WebSocketFactory();
 		try
 		{
-			ObsWebSocket = await Factory.Create(url, 3, Error, ProcessMessage);
+			ObsWebSocket = await Factory.Create(url, 3, ProcessMessage, Error, Closed);
 		}
 		catch (Exception e)
 		{
@@ -121,30 +120,6 @@ IServiceScopeFactory ScopeFactory
 		};
 
 		await SendRequest(new ObsRequest { Data = request });
-	}
-
-
-	private async Task Error(WebSocketMessage error)
-	{
-		if (error.Message != "Failed to connect to the websocket")
-		{
-			await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
-			await Signalr.SendError(error.Message);
-			Log.LogInformation(error.Message);
-
-			if (ObsWebSocket?.IsDisposed is false)
-			{
-				await ObsWebSocket.Disconnect();
-			}
-		}
-
-		ObsWebSocket = null;
-	}
-
-	public async Task OnDisconnected()
-	{
-		await Signalr.SendInfo("Obs WebSocket Disconnected");
-		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
 	}
 
 	public void SetCancellationToken(CancellationToken cancel)
@@ -293,12 +268,30 @@ IServiceScopeFactory ScopeFactory
 		await ObsWebSocket.SendMessage(json);
 	}
 
+	private async Task Error(WebSocketMessage message)
+	{
+		Log.LogError("Websocket error: {message}", message);
+		await Signalr.SendError(message.Message);
+		if (ObsWebSocket is not null && ObsWebSocket.IsDisposed is false)
+		{
+			await Disconnect();
+		}
+	}
+
+	private async Task Closed(WebSocketMessage message)
+	{
+		Log.LogInformation($"Websocket closed {message}");
+		if (ObsWebSocket is not null && ObsWebSocket.IsDisposed is false)
+		{
+			await Disconnect();
+		}
+	}
+
 	public async Task Disconnect()
 	{
-		if (ObsWebSocket is null) return;
-
-		await ObsWebSocket.Disconnect();
-		ObsWebSocket = null;
+		await Factory.Disconnect();
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
+		await Signalr.SendInfo("OBS Websocket Disconnected");
 	}
 
 	private static string GetRequestType(JsonObject jsonObj) =>

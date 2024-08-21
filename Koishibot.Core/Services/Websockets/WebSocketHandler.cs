@@ -5,8 +5,9 @@ namespace Koishibot.Core.Services.Websockets;
 /*══════════════════【 CLIENT 】══════════════════*/
 public sealed class WebSocketHandler(
 ClientWebSocket client,
+Func<WebSocketMessage, Task> onMessageReceived,
 Func<WebSocketMessage, Task> onError,
-Func<WebSocketMessage, Task> onMessageReceived
+Func<WebSocketMessage, Task> onClosed
 ) : IDisposable
 {
 	public bool IsDisposed { get; private set; }
@@ -17,7 +18,7 @@ Func<WebSocketMessage, Task> onMessageReceived
 		try
 		{
 			using var memoryStream = new MemoryStream();
-			while (client.State == WebSocketState.Open)
+			while (client.State == WebSocketState.Open && !CancelSource.Token.IsCancellationRequested)
 			{
 				WebSocketReceiveResult result;
 				do
@@ -39,9 +40,9 @@ Func<WebSocketMessage, Task> onMessageReceived
 					}
 					case { MessageType: WebSocketMessageType.Close }:
 					{
-						var error = $"{result.CloseStatus}: {result.CloseStatusDescription}";
-						await onError.Invoke(new WebSocketMessage(error));
-						break;
+						var message = $"{result.CloseStatus}: {result.CloseStatusDescription}";
+						await onClosed.Invoke(new WebSocketMessage(message));
+						return;
 					}
 				}
 
@@ -55,20 +56,32 @@ Func<WebSocketMessage, Task> onMessageReceived
 			var error = e.WebSocketErrorCode.ToString();
 			await onError.Invoke(new WebSocketMessage(error));
 		}
+		catch (OperationCanceledException)
+		{
+		}
+		catch (Exception e)
+		{
+			await onError.Invoke(new WebSocketMessage($"Unexpected error: {e.Message}"));
+		}
 	}
 
 	public async Task SendMessage(string message, CancellationToken cancel = default)
 	{
+		if (client.State != WebSocketState.Open)
+			throw new InvalidOperationException("WebSocket is not open");
+
 		var bytes = Encoding.UTF8.GetBytes(message);
 		await client.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancel);
 	}
 
 	public async Task Disconnect()
 	{
-		await client.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", default);
-		await CancelSource.CancelAsync();
-
-		Dispose();
+		if (client.State is WebSocketState.Open or WebSocketState.CloseReceived)
+		{
+			await CancelSource.CancelAsync();
+			await client.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+			Dispose();
+		}
 	}
 
 	public void Dispose()
@@ -77,5 +90,6 @@ Func<WebSocketMessage, Task> onMessageReceived
 
 		IsDisposed = true;
 		client.Dispose();
+		CancelSource.Dispose();
 	}
 }
