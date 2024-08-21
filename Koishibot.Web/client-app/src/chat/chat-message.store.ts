@@ -11,11 +11,10 @@ export const useChatMessageStore = defineStore('chat-messages', () => {
   const signalRConnection = getConnectionByHub('notifications');
   const notificationStore = useNotificationStore();
 
-  /*   const chatMessages = ref<IChatMessage[]>([]); */
-  const chatMessages = ref<IChatMessage[]>(data);
+  const chatMessages = ref<IChatMessage[]>([]);
+  // const chatMessages = ref<IChatMessage[]>(data);
 
   signalRConnection?.on('ReceiveChatMessage', (chatmessage: IChatMessage) => {
-    console.log('ReceiveChatMessage', chatmessage);
     if (chatMessages.value.length >= 50) {
       chatMessages.value.splice(0, 1);
     }

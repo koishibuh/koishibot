@@ -14,7 +14,7 @@ ILogger<TwitchIrcService> Log
 ) : ITwitchIrcService
 {
 	public CancellationToken? Cancel { get; set; }
-	private WebSocketClient? BotIrc { get; set; }
+	private WebSocketHandler? BotIrc { get; set; }
 
 	public async Task CreateWebSocket()
 	{

@@ -11,6 +11,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Koishibot.Core.Exceptions;
+
 namespace Koishibot.Core.Features.Obs;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
@@ -23,19 +25,29 @@ public record ObsService(
 ) : IObsService
 {
 	public CancellationToken? Cancel { get; set; }
-	private WebSocketClient? ObsWebSocket { get; set; }
+	private WebSocketHandler? ObsWebSocket { get; set; }
 
 	private readonly JsonSerializerOptions _options =
 		new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 	public async Task CreateWebSocket()
 	{
-		if (ObsWebSocket is not null) { return; }
+		if (ObsWebSocket is not null) return;
 
 		var url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
 
 		var factory = new WebSocketFactory();
-		ObsWebSocket = await factory.Create(url, 3, Error, ProcessMessage);
+
+		try
+		{
+			ObsWebSocket = await factory.Create(url, 3, Error, ProcessMessage);
+		}
+		catch (Exception e)
+		{
+			Log.LogError("An error has occured: {e}", e);
+			await Signalr.SendError(e.Message);
+			throw new CustomException(e.Message);
+		}
 	}
 
 	private async Task ProcessMessage(WebSocketMessage message)

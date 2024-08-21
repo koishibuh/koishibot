@@ -57,8 +57,7 @@ ITwitchApiRequest TwitchApiRequest
 {
 	public CancellationToken? Cancel { get; set; }
 
-	private WebSocketClient? TwitchEventSub { get; set; }
-	private readonly WebSocketFactory _factory = new();
+	private WebSocketHandler? TwitchEventSub { get; set; }
 	private int _timeoutSeconds = 60;
 	private Timer? _keepaliveTimer;
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
@@ -66,11 +65,20 @@ ITwitchApiRequest TwitchApiRequest
 
 	public async Task CreateWebSocket()
 	{
-		if (TwitchEventSub is not null) { return; }
+		if (TwitchEventSub is not null) return;
 
 		var url = $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
 
-		TwitchEventSub = await _factory.Create(url, 3, Error, ProcessMessage);
+		var factory = new WebSocketFactory();
+		try
+		{
+			TwitchEventSub = await factory.Create(url, 3, Error, ProcessMessage);
+		}
+		catch (Exception e)
+		{
+			Log.LogError("An error has occured: {e}", e);
+			await SignalrService.SendError(e.Message);
+		}
 	}
 
 	private async Task ProcessMessage(WebSocketMessage message)
@@ -123,8 +131,13 @@ ITwitchApiRequest TwitchApiRequest
 	private async Task Error(WebSocketMessage message)
 	{
 		Log.LogError("Websocket error: {message}", message);
-		await SignalrService.SendError("Unable to connect to Twitch EventSub");
-		await DisconnectWebSocket();
+		await SignalrService.SendError(message.Message);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Offline);
+		if (TwitchEventSub is not null)
+		{
+			await TwitchEventSub.Disconnect();
+			TwitchEventSub = null;
+		}
 	}
 
 	public async Task DisconnectWebSocket()
@@ -145,7 +158,8 @@ ITwitchApiRequest TwitchApiRequest
 		var sessionId = eventMessage.Payload.Session.Id;
 
 		var EventsToSubscribeTo = Settings.Value.DebugMode
-			? TwitchApiHelper.DebugSubscribeToEvents()
+			// ? TwitchApiHelper.DebugSubscribeToEvents()
+			? TwitchApiHelper.SubscribeToEvents()
 			: TwitchApiHelper.SubscribeToEvents();
 
 		var requests = EventsToSubscribeTo.Select

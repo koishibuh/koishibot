@@ -14,12 +14,21 @@ export const useNotificationStore = defineStore('notification', () => {
   const notificationMessage = ref<string>('');
   const serviceStatuses = ref<IServiceStatus[]>();
 
+  const color = ref<boolean>(false);
+
   async function delay(miliseconds: number) {
     return new Promise((resolve) => setTimeout(resolve, miliseconds));
   }
 
   const displayMessage = async (message: string) => {
     notificationMessage.value = message;
+    await delay(2000);
+    notificationMessage.value = '';
+  };
+
+  const displayMessageNew = async (error: boolean,  message: string) => {
+    notificationMessage.value = message;
+    color.value = error;
     await delay(2000);
     notificationMessage.value = '';
   };
@@ -61,6 +70,8 @@ export const useNotificationStore = defineStore('notification', () => {
     serviceStatuses,
     getStatusByName,
     getStatus,
-    displayMessage
+    displayMessage,
+    displayMessageNew,
+    color
   };
 });

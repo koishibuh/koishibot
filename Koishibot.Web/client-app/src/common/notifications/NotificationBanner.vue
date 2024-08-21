@@ -1,13 +1,23 @@
 <script setup lang="ts">
 defineProps<{
   message: string;
+  error: boolean;
 }>();
+
+const backgroundColor = (error: boolean): string => {
+  if (error) {
+    return 'bg-red-500';
+  } else {
+    return 'bg-green-400';
+  }
+}
 </script>
 
 <template>
   <Transition name="slide">
     <div
-      class="z-10 absolute bg-green-400 left-[25%] top-[35px] m-auto w-2/4 p-2 rounded"
+      class="z-10 absolute left-[25%] top-[35px] m-auto w-2/4 p-2 rounded"
+      :class="backgroundColor(error)"
       v-if="message !== ''"
     >
       <p>{{ message }}</p>

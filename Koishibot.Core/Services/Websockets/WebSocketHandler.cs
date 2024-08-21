@@ -1,10 +1,9 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
-
 namespace Koishibot.Core.Services.Websockets;
 
 /*══════════════════【 CLIENT 】══════════════════*/
-public sealed class WebSocketClient(
+public sealed class WebSocketHandler(
 ClientWebSocket client,
 Func<WebSocketMessage, Task> onError,
 Func<WebSocketMessage, Task> onMessageReceived
@@ -42,7 +41,6 @@ Func<WebSocketMessage, Task> onMessageReceived
 					{
 						var error = $"{result.CloseStatus}: {result.CloseStatusDescription}";
 						await onError.Invoke(new WebSocketMessage(error));
-						await Disconnect();
 						break;
 					}
 				}
@@ -68,7 +66,7 @@ Func<WebSocketMessage, Task> onMessageReceived
 	public async Task Disconnect()
 	{
 		await client.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Closing", default);
-		CancelSource.Cancel();
+		await CancelSource.CancelAsync();
 
 		Dispose();
 	}

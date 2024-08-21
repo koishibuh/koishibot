@@ -1,4 +1,6 @@
-﻿namespace Koishibot.Core.Features.Obs.Controllers;
+﻿using Koishibot.Core.Exceptions;
+
+namespace Koishibot.Core.Features.Obs.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/obs")]
@@ -22,8 +24,11 @@ public record StartObsWebsocketHandler(
 	public async Task Handle
 		(StartObsWebsocketCommand c, CancellationToken cancel)
 	{
-		if (Settings.Value.ObsSettings.WebsocketUrl is null)
-			throw new ArgumentException("Websocket Url cannot be null");
+		if (string.IsNullOrEmpty(Settings.Value.ObsSettings.WebsocketUrl))
+			throw new CustomException("Obs Websocket URL is empty");
+
+		if (string.IsNullOrEmpty(Settings.Value.ObsSettings.Port))
+			throw new CustomException("Obs Port is empty");
 
 		await ObsService.CreateWebSocket();
 	}

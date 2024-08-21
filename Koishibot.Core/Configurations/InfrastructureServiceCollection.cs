@@ -14,44 +14,18 @@ public static class InfrastructureServiceCollection
 	public static IServiceCollection AddInfrastructureServices
 		(this IServiceCollection services, IConfiguration configuration)
 	{
-		//services.AddSingleton<ITwitchAPI>(s =>
-		//{
-		//	var twitchApi = new TwitchAPI();
-		//	twitchApi.Settings.ClientId =
-		//			s.GetRequiredService<IOptions<Settings>>().Value.TwitchAppSettings.ClientId;
-		//	return twitchApi;
-		//});
-
-
-		//services.AddTransient<IObsService, ObsService>();
-
 		services.AddSingleton<IObsService, ObsService>();
-
-		//services.AddSingleton<IWebSocketFactory, WebSocketFactory>();
-
-		//services.AddSingleton(s => new StreamerTwitchClient());
-		//services.AddSingleton(s => new BotTwitchClient());
-		//services.AddTransient<IStreamerIrcHub, StreamerIrcHub>();
-		//services.AddTransient<IBotIrcHub, BotIrcHub>();
-
-
-		services.AddTransient<ISignalrService, SignalrService>();
-		
-		//services.AddTransient<IChatMessageService, ChatMessageService>();
-		//services.AddSingleton<IGoogleService, GoogleService>();
-
-		//services.AddTwitchLibEventSubWebsockets();
-		//services.AddSingleton<ITwitchEventSubHub, TwitchEventSubHub>();
-
+		services.AddSingleton<ISignalrService, SignalrService>();
 
 		services.AddSingleton<ITwitchIrcService, TwitchIrcService>();
 		services.AddSingleton<ITwitchEventSubService, TwitchEventSubService>();
 		services.AddSingleton<ITwitchApiClient, TwitchApiClient>();
 		services.AddSingleton<IStreamElementsService, StreamElementsService>();
-		services.AddSingleton<ILightService, LightService>();	
+		services.AddSingleton<ILightService, LightService>();
 
 
 		//services.AddTransient<ITodoistService, TodoistService>();
+		//services.AddSingleton<IGoogleService, GoogleService>();
 		services.AddSingleton<ITodoistClient, TodoistClient>(s =>
 		{
 			var token = s.GetRequiredService<IOptions<Settings>>().Value.TodoistAccessToken;

@@ -17,7 +17,7 @@ public record StreamElementsService(
 	) : IStreamElementsService
 {
 	public CancellationToken? Cancel { get; set; }
-	public WebSocketClient StreamElementsClient { get; set; }
+	public WebSocketHandler StreamElementsHandler { get; set; }
 
 	private Timer _keepaliveTimer;
 	private int _keepaliveTimeoutSeconds = 20;
@@ -30,7 +30,7 @@ public record StreamElementsService(
 		const string url = "wss://realtime.streamelements.com/socket.io/?cluster=main&EIO=3&transport=websocket";
 		var factory = new WebSocketFactory();
 
-		StreamElementsClient = await factory.Create(url, 3, Error, ProcessMessage);
+		StreamElementsHandler = await factory.Create(url, 3, Error, ProcessMessage);
 	}
 
 	private async Task ProcessMessage(WebSocketMessage message)
@@ -97,18 +97,18 @@ public record StreamElementsService(
 	private async Task Error(WebSocketMessage error)
 	{
 		//await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, false);
-		await StreamElementsClient.Disconnect();
+		await StreamElementsHandler.Disconnect();
 	}
 
 	private async Task SendPong()
-		=> await StreamElementsClient.SendMessage("2");
+		=> await StreamElementsHandler.SendMessage("2");
 
 	private async Task OnUnauthorized() =>
 		await Signalr.SendError("StreamElements Websocket Unauthorized");
 
 	private async Task Disconnect()
 	{
-		await StreamElementsClient.Disconnect();
+		await StreamElementsHandler.Disconnect();
 	}
 
 
@@ -122,7 +122,7 @@ public record StreamElementsService(
 		var jwt = Settings.Value.StreamElementsJwtToken;
 		var message = new AuthenticationRequest(jwt);
 
-		await StreamElementsClient.SendMessage(message.ConvertToString());
+		await StreamElementsHandler.SendMessage(message.ConvertToString());
 	}
 
 	private void StartKeepaliveTimer()

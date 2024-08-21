@@ -46,19 +46,19 @@ watch(
   </div>
 
 
-  <div class="h-[200px] border-2 border-white rounded">
-    <div v-if="store.logMessages.length >= 1">
-      <div v-for="(message, index) in store.logMessages" :key="index">
-        <div v-if="message.level === 'Info'">
-          <p>🟢 {{ message.timestamp }} | {{ message.message }}</p>
-        </div>
-        <div v-else-if="message.level === 'Warning'">
-          <p>🟡 {{ message.timestamp }} | {{ message.message }}</p>
-        </div>
-        <div v-else>
-          <p>🔴 {{ message.timestamp }} | {{ message.message }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
+<!--  <div class="h-[200px] border-2 border-white rounded">-->
+<!--    <div v-if="store.logMessages.length >= 1">-->
+<!--      <div v-for="(message, index) in store.logMessages" :key="index">-->
+<!--        <div v-if="message.level === 'Info'">-->
+<!--          <p>🟢 {{ message.timestamp }} | {{ message.message }}</p>-->
+<!--        </div>-->
+<!--        <div v-else-if="message.level === 'Warning'">-->
+<!--          <p>🟡 {{ message.timestamp }} | {{ message.message }}</p>-->
+<!--        </div>-->
+<!--        <div v-else>-->
+<!--          <p>🔴 {{ message.timestamp }} | {{ message.message }}</p>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
 </template>

@@ -37,7 +37,7 @@ const store = useNotificationStore();
           class="bg-accent-two h-[24px] rounded-t flex items-center gap-2 justify-center relative"
         >
           <h1>{{ route.name }}</h1>
-          <NotificationBanner :message="store.notificationMessage" />
+          <NotificationBanner :error="store.color" :message="store.notificationMessage" />
         </div>
 
         <main class="w-[650px] flex flex-col h-[44.5vh] overflow-auto bg-background p-3">

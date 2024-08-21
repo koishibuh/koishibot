@@ -1,5 +1,5 @@
 // For API Calls
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 
 export default {
   async get<T>(url: string): Promise<T> {

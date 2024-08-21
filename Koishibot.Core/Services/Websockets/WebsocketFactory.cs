@@ -1,13 +1,14 @@
 ﻿using System.Net.WebSockets;
+using Koishibot.Core.Exceptions;
 
 namespace Koishibot.Core.Services.Websockets;
 
 /*══════════════════【 FACTORY 】══════════════════*/
 public class WebSocketFactory : IWebSocketFactory
 {
-	private WebSocketClient? ActiveClient { get; set; }
+	private WebSocketHandler? ActiveClient { get; set; }
 
-	public async Task<WebSocketClient> Create(
+	public async Task<WebSocketHandler> Create(
 	string url,
 	byte maxReconnectAttempts,
 	Func<WebSocketMessage, Task> onError,
@@ -15,21 +16,14 @@ public class WebSocketFactory : IWebSocketFactory
 	//Func<Task> OnConnected
 	)
 	{
-		if (ActiveClient is not null) { return ActiveClient; }
+		if (ActiveClient is not null)
+			return ActiveClient;
 
 		var client = new ClientWebSocket();
-		try
-		{
-			await client.ConnectAsync(new Uri(url), default);
-		}
-		catch (WebSocketException)
-		{
-			client.Dispose();
-			await onError.Invoke(new WebSocketMessage($"Failed to connect to the websocket"));
-			// throw new WebSocketException($"Failed to connect to the websocket at {url}.");
-		}
+		var uri = new Uri(url);
+		await client.ConnectAsync(uri, default);
 
-		ActiveClient = new WebSocketClient(client, onError, onMessageReceived);
+		ActiveClient = new WebSocketHandler(client, onError, onMessageReceived);
 		_ = Task.Run(ActiveClient.StartListening);
 
 		return ActiveClient;
@@ -39,6 +33,6 @@ public class WebSocketFactory : IWebSocketFactory
 /*══════════════════【 INTERFACE 】══════════════════*/
 public interface IWebSocketFactory
 {
-	Task<WebSocketClient> Create(string url, byte maxReconnectAttempts,
+	Task<WebSocketHandler> Create(string url, byte maxReconnectAttempts,
 	Func<WebSocketMessage, Task> onError, Func<WebSocketMessage, Task> onMessageReceived);
 }

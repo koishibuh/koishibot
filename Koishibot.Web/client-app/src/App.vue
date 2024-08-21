@@ -13,6 +13,5 @@ onMounted(() => {
 </script>
 
 <template>
-  {{ store.logMessages.length }}
   <RouterView />
 </template>

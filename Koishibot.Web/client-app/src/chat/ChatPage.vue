@@ -1,41 +1,35 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue';
+import { watch, ref, onMounted, nextTick } from 'vue';
 import ChatMessage from './ChatMessage.vue';
 import { useChatMessageStore } from './chat-message.store';
 
 const store = useChatMessageStore();
 const chatMessageLog = ref();
 
-watch(store.chatMessages, () => {
-  if (chatMessageLog.value) {
-    window.setTimeout(scroll, 0);
-  }
-});
+onMounted(() => {
+  chatMessageLog.value.scrollTop = chatMessageLog.value.scrollHeight;
+})
 
 const isHovering = ref<boolean>(false);
 
-const scroll = () => {
-  if (chatMessageLog.value && !isHovering.value) {
-    chatMessageLog.value.scrollTop = chatMessageLog.value.scrollHeight;
+watch(store.chatMessages, async () => {
+  if (!isHovering.value) {
+  await nextTick();
+  chatMessageLog.value.scrollTop =
+      chatMessageLog.value.scrollHeight + chatMessageLog.value.offsetHeight;
   }
-};
+});
+
+const showButton = ref<boolean>(false);
 
 const scrollToBottom = () => {
-  if (chatMessageLog.value) {
-    chatMessageLog.value.scrollTop = chatMessageLog.value.scrollHeight;
-  }
-  showButton.value = false;
+  chatMessageLog.value.scrollTop = chatMessageLog.value.scrollHeight;
 };
 
 const handleScroll = (event: any) => {
-  if (event.target.scrollTop < event.target.scrollHeight - event.target.offsetHeight) {
-    showButton.value = true;
-  } else {
-    showButton.value = false;
-  }
+  showButton.value = event.target.scrollTop < event.target.scrollHeight - 423;
 };
 
-const showButton = ref<boolean>(false);
 </script>
 
 <template>
@@ -44,13 +38,11 @@ const showButton = ref<boolean>(false);
       Scroll Down
     </button>
   </div>
-  <div
-    class="overflow-auto p-1 px-2"
-    ref="chatMessageLog"
-    @mouseover="isHovering = true"
-    @mouseout="isHovering = false"
-    @scroll.passive="handleScroll"
-  >
+
+  <div class="flex flex-col overflow-y-scroll px-2 min-h-[423px]" ref="chatMessageLog"
+       @mouseover="isHovering = true"
+       @mouseout="isHovering = false"
+       @scroll.passive="handleScroll">
     <ChatMessage v-for="(item, index) in store.chatMessages" :key="index" :chat="item" />
   </div>
 </template>
