@@ -1,4 +1,6 @@
-﻿using Koishibot.Core.Exceptions;
+﻿using Google.Apis.Calendar.v3.Data;
+using Koishibot.Core.Exceptions;
+using Settings = Koishibot.Core.Common.Settings;
 
 namespace Koishibot.Core.Features.Obs.Controllers;
 

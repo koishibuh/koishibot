@@ -73,10 +73,7 @@ Func<WebSocketMessage, Task> onMessageReceived
 
 	public void Dispose()
 	{
-		if (IsDisposed)
-		{
-			return;
-		}
+		if (IsDisposed) return;
 
 		IsDisposed = true;
 		client.Dispose();

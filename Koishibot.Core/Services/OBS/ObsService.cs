@@ -12,23 +12,23 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Koishibot.Core.Exceptions;
-
 namespace Koishibot.Core.Features.Obs;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
 public record ObsService(
-		IAppCache Cache,
-		IOptions<Settings> Settings,
-		ISignalrService Signalr,
-		ILogger<ObsService> Log,
-		IServiceScopeFactory ScopeFactory
+IAppCache Cache,
+IOptions<Settings> Settings,
+ISignalrService Signalr,
+ILogger<ObsService> Log,
+IServiceScopeFactory ScopeFactory
 ) : IObsService
 {
 	public CancellationToken? Cancel { get; set; }
 	private WebSocketHandler? ObsWebSocket { get; set; }
+	private WebSocketFactory? Factory { get; set; }
 
 	private readonly JsonSerializerOptions _options =
-		new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+	new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 	public async Task CreateWebSocket()
 	{
@@ -36,11 +36,10 @@ public record ObsService(
 
 		var url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
 
-		var factory = new WebSocketFactory();
-
+		Factory = new WebSocketFactory();
 		try
 		{
-			ObsWebSocket = await factory.Create(url, 3, Error, ProcessMessage);
+			ObsWebSocket = await Factory.Create(url, 3, Error, ProcessMessage);
 		}
 		catch (Exception e)
 		{
@@ -52,61 +51,62 @@ public record ObsService(
 
 	private async Task ProcessMessage(WebSocketMessage message)
 	{
-		if (message.IsNullOrEmpty()) { return; }
-
-		var jsonObj = message.ConvertToJsonObject();
-
-		var opCode = GetOpCode(jsonObj);
-
-		if (opCode == OpCodeType.Event) { return; }
-		if (opCode == OpCodeType.RequestBatchResponse) { return; }
-
-		if (opCode == OpCodeType.RequestResponse)
+		try
 		{
-			var requestType = GetRequestType(jsonObj);
+			if (message.IsNullOrEmpty())
+				throw new NullException("ObsWS received a null message");
 
-			switch (requestType)
+			var jsonObj = message.ConvertToJsonObject();
+			var opCode = GetOpCode(jsonObj);
+
+			// TODO
+			if (opCode == OpCodeType.Event) return;
+			if (opCode == OpCodeType.RequestBatchResponse) return;
+
+			if (opCode == OpCodeType.RequestResponse)
 			{
-				case ObsRequests.GetCurrentProgramScene:
-					var currentScene = jsonObj["d"].Deserialize<RequestResponse<GetCurrentProgramSceneResponse>>(_options);
-					break;
-				case ObsRequests.GetSceneList:
-					var sceneList = jsonObj["d"].Deserialize<RequestResponse<GetSceneListResponse>>(_options);
-					await OnSceneReceived(sceneList.ResponseData);
-					break;
-				case ObsRequests.GetInputList:
-					var inputList = jsonObj["d"].Deserialize<RequestResponse<GetInputListResponse>>(_options);
-					break;
-				case ObsRequests.GetInputKindList:
-					//var inputKindList = jsonObj.Deserialize<ObsResponse<GetInputKindListResponse>>(_options);
-					break;
-				default:
-					break;
+				var requestType = GetRequestType(jsonObj);
+
+				switch (requestType)
+				{
+					case ObsRequests.GetCurrentProgramScene:
+						var currentScene = jsonObj["d"].Deserialize<RequestResponse<GetCurrentProgramSceneResponse>>(_options);
+						break;
+					case ObsRequests.GetSceneList:
+						var sceneList = jsonObj["d"].Deserialize<RequestResponse<GetSceneListResponse>>(_options);
+						await OnSceneReceived(sceneList.ResponseData);
+						break;
+					case ObsRequests.GetInputList:
+						var inputList = jsonObj["d"].Deserialize<RequestResponse<GetInputListResponse>>(_options);
+						break;
+					case ObsRequests.GetInputKindList:
+						//var inputKindList = jsonObj.Deserialize<ObsResponse<GetInputKindListResponse>>(_options);
+						break;
+					default:
+						break;
 					// When Scene/Source is updated/removed/added
+				}
+
+				return;
 			}
 
-			return;
-		}
+			if (opCode is OpCodeType.Hello or OpCodeType.Reidentify)
+			{
+				await SendIdentifyRequest(message);
+				return;
+			}
 
-		if (opCode == OpCodeType.Hello || opCode == OpCodeType.Reidentify)
+			if (opCode == OpCodeType.Identified)
+			{
+				await OnAuthorized();
+				return;
+			}
+		}
+		catch (Exception e)
 		{
-			await SendIdentifyRequest(message);
-			return;
+			Log.LogError("An error has occured: {e}", e);
+			await Signalr.SendError(e.Message);
 		}
-
-		if (opCode == OpCodeType.Identified)
-		{
-			await OnAuthorized();
-			return;
-		}
-	}
-
-
-	public async Task Disconnect()
-	{
-		if (ObsWebSocket is null) { return; }
-		await ObsWebSocket.Disconnect();
-		ObsWebSocket = null;
 	}
 
 	private async Task OnAuthorized()
@@ -154,9 +154,9 @@ public record ObsService(
 	{
 		var scenes = args.Scenes.Select(x => new ObsItem
 		{
-			ObsId = x.SceneUuid ?? string.Empty,
-			ObsName = x.SceneName ?? string.Empty,
-			Type = ObsItemType.Scene.ToString()
+		ObsId = x.SceneUuid ?? string.Empty,
+		ObsName = x.SceneName ?? string.Empty,
+		Type = ObsItemType.Scene.ToString()
 		}).ToList();
 
 		//var database = CreateScopedDatabase();
@@ -186,14 +186,14 @@ public record ObsService(
 	public async Task OnInputReceived(GetInputListResponse args)
 	{
 		var audio = args.Inputs
-			.Where(x => x.UnversionedInputKind == InputTypes.AudioOutputCapture ||
-						x.UnversionedInputKind == InputTypes.AudioInputCapture)
-			.Select(x => new ObsItem
-			{
-				ObsId = x.InputUuid ?? string.Empty,
-				ObsName = x.InputName ?? string.Empty,
-				Type = ObsItemType.Audio.ToString()
-			});
+		.Where(x => x.UnversionedInputKind == InputTypes.AudioOutputCapture ||
+		            x.UnversionedInputKind == InputTypes.AudioInputCapture)
+		.Select(x => new ObsItem
+		{
+		ObsId = x.InputUuid ?? string.Empty,
+		ObsName = x.InputName ?? string.Empty,
+		Type = ObsItemType.Audio.ToString()
+		});
 
 		using var scope = ScopeFactory.CreateScope();
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
@@ -216,10 +216,12 @@ public record ObsService(
 	}
 
 
-
 	public async Task SendRequest<T>(ObsRequest<T> request)
 	{
-		if (ObsWebSocket is null) { return; }
+		if (ObsWebSocket is null)
+		{
+			return;
+		}
 
 		try
 		{
@@ -234,7 +236,10 @@ public record ObsService(
 
 	public async Task SendRequest(ObsRequest request)
 	{
-		if (ObsWebSocket is null) { return; }
+		if (ObsWebSocket is null)
+		{
+			return;
+		}
 
 		try
 		{
@@ -258,10 +263,13 @@ public record ObsService(
 
 	private async Task SendIdentifyRequest(WebSocketMessage message)
 	{
-		if (ObsWebSocket is null) { return; }
+		if (ObsWebSocket is null)
+		{
+			return;
+		}
 
 		var response = JsonSerializer.Deserialize<ObsBase<HelloResponse>>(message.Message, _options)
-				?? throw new Exception("response" + message);
+		               ?? throw new Exception("response" + message);
 
 		var authResponse = response.Response.Authentication;
 
@@ -273,26 +281,33 @@ public record ObsService(
 
 		var req = new IdentifyRequest
 		{
-			Op = OpCodeType.Identify,
-			Data = new IdentifyData
-			{
-				RpcVersion = 1,
-				Authentication = b64Challenge
-			}
+		Op = OpCodeType.Identify,
+		Data = new IdentifyData
+		{
+		RpcVersion = 1,
+		Authentication = b64Challenge
+		}
 		};
 
 		var json = JsonSerializer.Serialize(req, _options);
 		await ObsWebSocket.SendMessage(json);
 	}
 
+	public async Task Disconnect()
+	{
+		if (ObsWebSocket is null) return;
+
+		await ObsWebSocket.Disconnect();
+		ObsWebSocket = null;
+	}
+
 	private static string GetRequestType(JsonObject jsonObj) =>
-		jsonObj["d"]?["requestType"].Deserialize<string>()
-			?? throw new Exception("cry" + jsonObj);
+	jsonObj["d"]?["requestType"].Deserialize<string>()
+	?? throw new Exception("cry" + jsonObj);
 
 	private static OpCodeType GetOpCode(JsonObject jsonObj) =>
-		jsonObj["op"].Deserialize<OpCodeType>();
+	jsonObj["op"].Deserialize<OpCodeType>();
 }
-
 
 /*══════════════════【 INTERFACE 】══════════════════*/
 public interface IObsService
