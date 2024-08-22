@@ -6,6 +6,7 @@ public enum EventType
 	Subscriber,
 	CommunityGiftPurchase,
 	Tip,
+	Follow,
 	Cheer,
 	Raid,
 	Merch,

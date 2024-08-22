@@ -68,8 +68,8 @@ public record StreamElementsService(
 				if (message.IsEventUpdate()) { return; }
 
 				var response = message.ParseResponse();
-				var eventData = JsonSerializer.Deserialize<StreamElementsEvent>(response);
 
+				var eventData = JsonSerializer.Deserialize<StreamElementsEvent>(response);
 				if (eventData == null)
 					throw new NullException("StreamElements EventData was null");
 

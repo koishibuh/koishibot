@@ -26,7 +26,8 @@ public record WebSocketMessage(
 		=> Message.StartsWith("42");
 
 	public bool IsEventUpdate()
-		=> Message.Contains("event:update");
+		=> Message.Contains("event:update") || Message.Contains("stream:update");
+
 
 	public string ParseResponse()
 	{
