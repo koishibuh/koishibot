@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useAdTimerStore } from './adtimer.store';
-import { storeToRefs } from 'pinia';
 
 const store = useAdTimerStore();
 const progress = ref(100);
 const duration = ref<number>(180000); // 3 minutes in milliseconds
-const enable = ref<Boolean>(false);
-
-const { adTimer } = storeToRefs(store);
+const enable = ref<Boolean>(true);
 
 async function startTimer() {
   progress.value = 100;
@@ -28,20 +25,11 @@ const sleep = (ms: number) => {
   return new Promise((resolve, reject) => setTimeout(resolve, ms));
 };
 
-/* watch(
-  () => store.adTimer,
-  async () => {
-    duration.value = store.adTimer;
-    await startTimer();
+watch(() => store.adTimer, (newValue, oldValue) => {
+  if (newValue) {
+    startTimer();
   }
-); */
-
-watch(adTimer, async () => {
-  if (adTimer.value?.adLength) {
-    duration.value = adTimer.value?.adLength;
-    await startTimer();
-  }
-});
+})
 </script>
 
 <template>
