@@ -23,7 +23,7 @@ public record StreamElementsService(
 	public WebSocketHandler? StreamElementsWebSocket { get; set; }
 
 	private Timer _keepaliveTimer;
-	private int _keepaliveTimeoutSeconds = 20;
+	private int _keepaliveTimeoutSeconds = 25;
 
 	private readonly LimitedSizeHashSet<StreamElementsEvent, string> _eventSet
 		= new(10, x => x.Id);
@@ -54,7 +54,11 @@ public record StreamElementsService(
 				await Authenticate();
 
 			else if (message.IsAuthenticated())
+			{
+				_eventSet.Add(new StreamElementsEvent{ CreatedAt = DateTimeOffset.UtcNow });
+				await Cache.UpdateServiceStatus(ServiceName.StreamElements, ServiceStatusString.Online);
 				StartKeepaliveTimer();
+			}
 
 			else if (message.IsUnauthorized())
 				await OnUnauthorized();
@@ -145,13 +149,14 @@ public record StreamElementsService(
 		_keepaliveTimer = new Timer(TimeSpan.FromSeconds(_keepaliveTimeoutSeconds));
 		_keepaliveTimer.Elapsed += async (_, _) =>
 		{
-			var rightNow = DateTimeOffset.UtcNow;
-			var lastEvent = _eventSet.LastItem();
-			if (rightNow.Subtract(lastEvent.CreatedAt).Seconds < _keepaliveTimeoutSeconds - 3)
-			{
-				return;
-			}
-			await Disconnect();
+			await SendPong();
+			// var rightNow = DateTimeOffset.UtcNow;
+			// var lastEvent = _eventSet.LastItem();
+			// if (rightNow.Subtract(lastEvent.CreatedAt).Seconds < _keepaliveTimeoutSeconds - 3)
+			// {
+			// 	return;
+			// }
+			// await Disconnect();
 		};
 		_keepaliveTimer.Start();
 	}

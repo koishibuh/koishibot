@@ -1,10 +1,14 @@
-﻿namespace Koishibot.Core.Features;
+﻿using Koishibot.Core.Features.AdBreak.Models;
+using Microsoft.AspNetCore.Authorization;
+
+namespace Koishibot.Core.Features;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api")]
 public class ATestPlaygroundController : ApiControllerBase
 {
 	[HttpPost("test")]
+	// [AllowAnonymous]
 	public async Task<ActionResult> TestPlayground()
 	{
 		var result = await Mediator.Send(new TestPlaygroundCommand());
@@ -17,7 +21,8 @@ public record TestPlaygroundCommand() : IRequest<string>;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record TestPlaygroundHandler(
-	ILogger<TestPlaygroundHandler> Log
+	ILogger<TestPlaygroundHandler> Log,
+	ISignalrService Signalr
 	//IAdsApi AdsApi,
 	//IAppCache Cache,
 	//// IStreamOnlineHandler StreamOnlineHandler
@@ -30,6 +35,9 @@ public record TestPlaygroundHandler(
 	public async Task<string> Handle
 		(TestPlaygroundCommand c, CancellationToken cancel)
 	{
+		var time = new TimeSpan(0, 0, 60);
+		var adBreakVm = new AdBreakVm(time, DateTime.Now);
+		await Signalr.SendAdStartedEvent(adBreakVm);
 		return "hi";
 		await Task.CompletedTask;
 
