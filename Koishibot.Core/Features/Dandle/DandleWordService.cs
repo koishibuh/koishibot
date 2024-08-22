@@ -78,13 +78,13 @@ public record DandleWordService(
 			if (definition is not null && definition.Count > 0)
 			{
 				var data = new WordDefineData(definition[0]?.Word, definition[0]?.Meanings[0]?.Definitions[0].Definition);
-
 				await ChatReplyService.App(Command.Definition, data);
 			}
 		}
 		else
 		{
-			await ChatReplyService.App(Command.NoDefinition);
+			var data = new { Word = word };
+			await ChatReplyService.App(Command.NoDefinition, data);
 		}
 	}
 }

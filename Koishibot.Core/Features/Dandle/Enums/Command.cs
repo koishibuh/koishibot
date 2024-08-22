@@ -19,7 +19,7 @@ public class Command
 	// Dandle Definition
 
 	public const string NoDefinition = "dandle-nodefinition";
-	public const string Definition = "dandle-definition";
+	public const string Definition = "define";
 	public const string WordNotFound = "dandle-wordnotfound";
 	public const string InvalidLength = "dandle-invalidwordlength";
 	public const string WordExists = "dandle-wordexists";

@@ -31,8 +31,9 @@ watch(dandleStore.dandleTimer, () => {
   <button class="bg-b rounded border-2 text-xl" @click="updateTimer">BUTTON</button>
   <button class="bg-b rounded border-2 text-xl" @click="enableTimer">ENABLE BUTTON</button> -->
   <div class="flex">
+
+<!--      v-if="overlayStore.dandleOverlayStatus"-->
     <div
-      v-if="overlayStore.dandleOverlayStatus"
       class="w-1/3 h-[1080px] ml-5 flex flex-col items-center bg-gray-800/75"
     >
       <div class="h-1/6">

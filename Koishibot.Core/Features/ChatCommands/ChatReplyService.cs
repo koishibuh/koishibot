@@ -1,4 +1,5 @@
 ﻿using HandlebarsDotNet;
+using Koishibot.Core.Exceptions;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Persistence;
@@ -21,14 +22,13 @@ public record ChatReplyService(
 			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
 			var databaseResult = await database.GetCommand(command);
 			if (databaseResult is null)
-			{
-				throw new Exception("Command not found");
-			}
+				throw new CustomException("Command not found");
 
 			Cache.AddCommand(databaseResult);
 
 			var successful = databaseResult.TryGetValue(command, out result);
-			if (successful is false) throw new Exception("Command not found");
+			if (successful is false)
+				throw new CustomException("Command not found");
 		}
 
 		var template = Handlebars.Compile(result!.Message);

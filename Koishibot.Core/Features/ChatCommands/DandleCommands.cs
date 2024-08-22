@@ -7,11 +7,11 @@ using Koishibot.Core.Features.Dandle.Interfaces;
 namespace Koishibot.Core.Features.ChatCommands;
 
 public record DandleCommands(
-	IAppCache Cache,
-	IDandleSuggestionProcessor DandleSuggestionProcessor,
-	IDandleVoteProcessor DandleVoteProcessor,
-	IDandleWordService DandleWordService
-	) : IDandleCommands
+IAppCache Cache,
+IDandleSuggestionProcessor DandleSuggestionProcessor,
+IDandleVoteProcessor DandleVoteProcessor,
+IDandleWordService DandleWordService
+) : IDandleCommands
 {
 	public async Task<bool> Process(ChatMessageDto c)
 	{
@@ -33,6 +33,7 @@ public record DandleCommands(
 					await DandleWordService.CreateWord(c);
 					return true;
 				}
+
 				if (c.Command is "removeword")
 				{
 					// remove
@@ -40,6 +41,7 @@ public record DandleCommands(
 					return true;
 				}
 			}
+
 			return false;
 		}
 
@@ -74,6 +76,7 @@ public record DandleCommands(
 				await DandleVoteProcessor.ProcessVote(c);
 				return true;
 			}
+
 			return false;
 		}
 		else
