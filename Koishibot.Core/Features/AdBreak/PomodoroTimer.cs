@@ -49,8 +49,7 @@ IDandleService DandleService
 		await UpdateOverlayTimer(pomoTimer);
 		await SendLog(adInfo);
 
-		_timer = Toolbox.CreateTimer(adInfo.CalculateAdjustedTimeUntilNextAd(), ()
-			=> SwitchToBreak());
+		_timer = Toolbox.CreateTimer(adInfo.CalculateAdjustedTimeUntilNextAd(), SwitchToBreak);
 		_timer.Start();
 	}
 

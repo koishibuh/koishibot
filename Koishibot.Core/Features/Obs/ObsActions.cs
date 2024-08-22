@@ -13,7 +13,6 @@ public static class ObsActions
 
 	public static async Task StartBreak(this IObsService obs)
 	{
-
 		var request = new RequestWrapper<SetCurrentProgramSceneRequest>
 		{
 			RequestType = ObsRequests.SetCurrentProgramScene,
@@ -28,7 +27,5 @@ public static class ObsActions
 		{
 			Data = request
 		});
-
-		//await obs.EnableTimer();
 	}
 }

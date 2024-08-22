@@ -140,7 +140,7 @@ IServiceScopeFactory ScopeFactory
 
 		foreach (var scene in scenes)
 		{
-			var result = await database.ObsItems.Where(x => x.ObsId == scene.ObsId).FirstOrDefaultAsync();
+			var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == scene.ObsId);
 			if (result is null)
 			{
 				database.Add(scene);

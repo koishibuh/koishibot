@@ -22,7 +22,7 @@ IStreamElementsService StreamElementsService
 ) : IRequestHandler<ConnectStreamElementsCommand>
 {
 	public async Task Handle
-		(ConnectStreamElementsCommand command, CancellationToken cancel)
+	(ConnectStreamElementsCommand command, CancellationToken cancel)
 	{
 		// TODO: Send status to UI when connected
 		// TODO: Alert on UI to update JWT Token

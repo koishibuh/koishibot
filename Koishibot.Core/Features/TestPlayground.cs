@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.AdBreak.Models;
+using Koishibot.Core.Features.Obs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Koishibot.Core.Features;
@@ -8,7 +9,7 @@ namespace Koishibot.Core.Features;
 public class ATestPlaygroundController : ApiControllerBase
 {
 	[HttpPost("test")]
-	// [AllowAnonymous]
+	[AllowAnonymous]
 	public async Task<ActionResult> TestPlayground()
 	{
 		var result = await Mediator.Send(new TestPlaygroundCommand());
@@ -22,7 +23,8 @@ public record TestPlaygroundCommand() : IRequest<string>;
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record TestPlaygroundHandler(
 	ILogger<TestPlaygroundHandler> Log,
-	ISignalrService Signalr
+	ISignalrService Signalr,
+	IObsService ObsService
 	//IAdsApi AdsApi,
 	//IAppCache Cache,
 	//// IStreamOnlineHandler StreamOnlineHandler
@@ -35,10 +37,12 @@ public record TestPlaygroundHandler(
 	public async Task<string> Handle
 		(TestPlaygroundCommand c, CancellationToken cancel)
 	{
-		var time = new TimeSpan(0, 0, 60);
-		var adBreakVm = new AdBreakVm(time, DateTime.Now);
-		await Signalr.SendAdStartedEvent(adBreakVm);
-		return "hi";
+		// await ObsService.StartBreak();
+
+		// var time = new TimeSpan(0, 0, 60);
+		// var adBreakVm = new AdBreakVm(time, DateTime.Now);
+		// await Signalr.SendAdStartedEvent(adBreakVm);
+		// return "hi";
 		await Task.CompletedTask;
 
 		//var result = await GoogleCalendarApi.GetEvents("8kroeh9nkripcr3iu9m569fe28@group.calendar.google.com");
