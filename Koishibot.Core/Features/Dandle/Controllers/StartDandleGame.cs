@@ -1,10 +1,11 @@
 ﻿namespace Koishibot.Core.Features.Dandle.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/dandle")]
 public class StartDandleGameController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Dandle"])]
-	[HttpPost("/api/dandle")]
+	[HttpPost]
 	public async Task<ActionResult> StartDandleGame()
 	{
 		await Mediator.Send(new StartDandleGameCommand());

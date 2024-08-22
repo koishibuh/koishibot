@@ -1,14 +1,19 @@
 ﻿namespace Koishibot.Core.Services.OBS.Scenes;
 
-// == ⚫ REQUEST == //
+// Need to specify a scene name or uuid. Would need to fetch list of scenes
+// then query for item list
 
+/*════════════════【 REQUEST BODY 】════════════════*/
+/// <summary>
+/// https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getsceneitemlist
+/// </summary>
 public class GetSceneItemListRequest
 {
-	public string SceneName { get; set; }	= string.Empty;
+	public string? SceneName { get; set; }
+	public string? SceneUuid { get; set; }
 }
 
-// == ⚫ RESPONSE == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class GetSceneItemListResponse
 {
 	public List<SceneItem> SceneItems { get; set; } = [];

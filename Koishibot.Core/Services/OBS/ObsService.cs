@@ -64,6 +64,8 @@ IServiceScopeFactory ScopeFactory
 
 			if (opCode == OpCodeType.RequestResponse)
 			{
+				// if Status Code 300, throw
+
 				var requestType = GetRequestType(jsonObj);
 
 				switch (requestType)
@@ -80,6 +82,9 @@ IServiceScopeFactory ScopeFactory
 						break;
 					case ObsRequests.GetInputKindList:
 						//var inputKindList = jsonObj.Deserialize<ObsResponse<GetInputKindListResponse>>(_options);
+						break;
+					case ObsRequests.GetSceneItemList:
+						var sceneItems = jsonObj["d"].Deserialize<RequestResponse<GetSceneItemListResponse>>(_options);
 						break;
 					default:
 						break;
@@ -158,11 +163,44 @@ IServiceScopeFactory ScopeFactory
 		await Signalr.SendInfo(scenes[0].ObsName);
 	}
 
+	// private async Task OnSourceListReceived(GetSceneItemListResponse args)
+	// {
+	// 	var scenes = args.SceneItems.Select(x => new ObsItem
+	// 	{
+	// 		ObsId = x.SceneUuid ?? string.Empty,
+	// 		ObsName = x.SceneName ?? string.Empty,
+	// 		Type = ObsItemType.Scene.ToString()
+	// 	}).ToList();
+	//
+	// 	//var database = CreateScopedDatabase();
+	// 	using var scope = ScopeFactory.CreateScope();
+	// 	var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+	//
+	// 	foreach (var scene in scenes)
+	// 	{
+	// 		var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == scene.ObsId);
+	// 		if (result is null)
+	// 		{
+	// 			database.Add(scene);
+	// 		}
+	// 		else if (result.ObsName != scene.ObsName)
+	// 		{
+	// 			result.ObsName = scene.ObsName;
+	// 			database.Update(result);
+	// 		}
+	// 	}
+	//
+	// 	await database.SaveChangesAsync();
+	//
+	//
+	// 	await Signalr.SendInfo(scenes[0].ObsName);
+	// }
+
 	public async Task OnInputReceived(GetInputListResponse args)
 	{
 		var audio = args.Inputs
-		.Where(x => x.UnversionedInputKind == InputTypes.AudioOutputCapture ||
-		            x.UnversionedInputKind == InputTypes.AudioInputCapture)
+		.Where(x => x.UnversionedInputKind is
+			InputTypes.AudioOutputCapture or InputTypes.AudioInputCapture)
 		.Select(x => new ObsItem
 		{
 		ObsId = x.InputUuid ?? string.Empty,
@@ -175,7 +213,7 @@ IServiceScopeFactory ScopeFactory
 
 		foreach (var item in audio)
 		{
-			var result = await database.ObsItems.Where(x => x.ObsId == item.ObsId).FirstOrDefaultAsync();
+			var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == item.ObsId);
 			if (result is null)
 			{
 				database.Add(item);
