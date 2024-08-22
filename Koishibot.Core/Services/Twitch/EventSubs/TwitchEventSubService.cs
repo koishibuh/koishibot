@@ -162,12 +162,11 @@ ITwitchApiRequest TwitchApiRequest
 		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message);
 		var sessionId = eventMessage.Payload.Session.Id;
 
-		var EventsToSubscribeTo = Settings.Value.DebugMode
-			// ? TwitchApiHelper.DebugSubscribeToEvents()
-			? TwitchApiHelper.SubscribeToEvents()
+		var eventsToSubscribeTo = Settings.Value.DebugMode
+			? TwitchApiHelper.DebugSubscribeToEvents()
 			: TwitchApiHelper.SubscribeToEvents();
 
-		var requests = EventsToSubscribeTo.Select
+		var requests = eventsToSubscribeTo.Select
 				(x => CreateEventSubRequest(x, sessionId)).ToList();
 
 		await TwitchApiRequest.CreateEventSubSubscription(requests);
