@@ -1,10 +1,8 @@
 ﻿using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.Common;
-
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ PATCH == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -17,7 +15,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 			(EditChannelInfoRequestParameters parameters, EditChannelInfoRequestBody requestBody)
 	{
 		var method = HttpMethod.Patch;
-		var url = "channels";
+		const string url = "channels";
 		var query = parameters.ObjectQueryFormatter();
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
@@ -27,8 +25,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class EditChannelInfoRequestParameters
 {
 	///<summary>
@@ -40,8 +37,7 @@ public class EditChannelInfoRequestParameters
 	public string BroadcasterId { get; set; } = null!;
 }
 
-// == ⚫ REQUEST BODY == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 /// <summary>
 /// All fields are optional, but you must specify at least one field.
 /// </summary>

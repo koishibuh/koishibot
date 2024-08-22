@@ -83,6 +83,8 @@ ITwitchApiRequest TwitchApiRequest
 
 	private async Task ProcessMessage(WebSocketMessage message)
 	{
+		// if message is event notification or keep alive, reset timer
+		// if timer has elapsed, reconnect
 		try
 		{
 			if (TwitchEventSub is null) { return;}
@@ -105,17 +107,21 @@ ITwitchApiRequest TwitchApiRequest
 			switch (eventMessage.Metadata.Type)
 			{
 				case EventSubMessageType.Notification:
+					Log.LogInformation($"Twitch Notification {eventMessage.Metadata.Timestamp}");
 					await ProcessNotificationMessage(eventMessage.Metadata.SubscriptionType, message.Message);
 					break;
 				case EventSubMessageType.SessionWelcome:
 					await ProcessSessionWelcomeMessage(message.Message);
 					break;
 				case EventSubMessageType.SessionReconnect:
+					Log.LogInformation($"TwitchEventSub Reconnect Session {eventMessage.Payload.Session.ReconnectUrl}");
 					break;
 				case EventSubMessageType.SessionKeepalive:
+					Log.LogInformation($"TwitchEventSub Keepalive {eventMessage.Metadata.Timestamp}");
 					//OnKeepAliveMessage?.Invoke(eventMessage.Metadata.MessageId);
 					break;
 				case EventSubMessageType.Revocation:
+					Log.LogInformation($"TwitchEventSub Revoked {eventMessage.Payload.Subscription.Type}");
 					break;
 				default:
 					throw new InvalidMetadataMessageTypeException("Unsupported message type.");
@@ -133,7 +139,7 @@ ITwitchApiRequest TwitchApiRequest
 	{
 		Log.LogError("Websocket error: {message}", message);
 		await SignalrService.SendError(message.Message);
-		if (TwitchEventSub is not null)
+		if (TwitchEventSub is not null && TwitchEventSub.IsDisposed is false)
 		{
 			await DisconnectWebSocket();
 		}

@@ -126,9 +126,14 @@ public record StreamElementsService(
 
 	private async Task Disconnect()
 	{
+		_keepaliveTimer.Stop();
+		_keepaliveTimer.Dispose();
 		await Factory.Disconnect();
 		await Cache.UpdateServiceStatus(ServiceName.StreamElements, ServiceStatusString.Offline);
 		await Signalr.SendInfo("StreamElements Websocket Disconnected");
+		// TODO: Proper retry
+		await CreateWebSocket();
+
 	}
 
 	public void SetCancellationToken(CancellationToken cancel)
@@ -150,13 +155,6 @@ public record StreamElementsService(
 		_keepaliveTimer.Elapsed += async (_, _) =>
 		{
 			await SendPong();
-			// var rightNow = DateTimeOffset.UtcNow;
-			// var lastEvent = _eventSet.LastItem();
-			// if (rightNow.Subtract(lastEvent.CreatedAt).Seconds < _keepaliveTimeoutSeconds - 3)
-			// {
-			// 	return;
-			// }
-			// await Disconnect();
 		};
 		_keepaliveTimer.Start();
 	}

@@ -25,7 +25,6 @@ KoishibotDbContext Database
 		await category.UpsertEntry(Database);
 
 		var streamInfo = command.ConvertToDto();
-
 		Cache.UpdateStreamInfo(streamInfo);
 
 		var infoVm = streamInfo.ConvertToVm();
