@@ -3,34 +3,33 @@ using Koishibot.Core.Features.Common.Models;
 
 namespace Koishibot.Core.Features.Application.Controllers;
 
-// == ⚫ GET == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/timer")]
 public class GetTimerController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Timer"])]
-	[HttpGet("/api/timer")]
+	[HttpGet]
 	public async Task<ActionResult> GetTimer()
 	{
-		var result = await Mediator.Send(new GetTimerCommand());
-		return Ok(result);
+		await Mediator.Send(new GetTimerQuery());
+		return Ok();
 	}
 }
 
-// == ⚫ QUERY == //
-
-public record GetTimerCommand()
-	: IRequest<OverlayTimerVm>;
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetTimerHandler(
-	IAppCache Cache
-	) : IRequestHandler<GetTimerCommand, OverlayTimerVm>
+IAppCache Cache,
+ISignalrService Signalr
+) : IRequestHandler<GetTimerQuery>
 {
-	public async Task<OverlayTimerVm> Handle
-		(GetTimerCommand command, CancellationToken cancel)
+	public async Task Handle
+	(GetTimerQuery query, CancellationToken cancel)
 	{
 		var result = Cache.GetCurrentTimer();
-		return await Task.FromResult(result.ConvertToVm());
+		var timer = result.ConvertToVm();
+		await Signalr.UpdateTimerOverlay(timer);
 	}
 }
+
+/*════════════════════【 QUERY 】════════════════════*/
+public record GetTimerQuery : IRequest;
