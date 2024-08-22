@@ -1,35 +1,30 @@
-import { ref } from 'vue';
-import { defineStore } from 'pinia';
-import { useSignalR } from '@/api/signalr.composable';
-import { useNotificationStore } from '@/common/notifications/notification.store';
-import type { IStreamInfo, IStreamInfoRequest } from './models/stream-info.interface';
+import {ref} from 'vue';
+import {defineStore} from 'pinia';
+import {useSignalR} from '@/api/signalr.composable';
+import {useNotificationStore} from '@/common/notifications/notification.store';
+import type {IStreamInfo, IStreamInfoRequest} from './models/stream-info.interface';
 import http from '@/api/http';
+import {useAxios} from "@/api/newhttp";
 
 export const useStreamInfoStore = defineStore('stream-info', () => {
-  const { getConnectionByHub } = useSignalR();
+  const {getConnectionByHub} = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
   const notificationStore = useNotificationStore();
+  const axios = useAxios();
 
-  const streamInfo = ref<IStreamInfo>({ streamTitle: '', category: '', categoryId: '' });
+  const streamInfo = ref<IStreamInfo>({streamTitle: '', category: '', categoryId: ''});
 
   signalRConnection?.on('ReceiveStreamInfo', (info: IStreamInfo) => {
     streamInfo.value = info;
   });
 
   const getStreamInfo = async () => {
-    try {
-      streamInfo.value = await http.get('/api/stream-info/twitch');
-    } catch (error) {
-      notificationStore.displayMessage((error as Error).message);
-    }
+    streamInfo.value = await axios.get('/api/stream-info/twitch');
   };
 
   const updateStreamInfo = async (request: IStreamInfoRequest) => {
-    try {
-      streamInfo.value = await http.post('/api/stream-info/twitch', request);
-    } catch (error) {
-      notificationStore.displayMessage((error as Error).message);
-    }
+      streamInfo.value = await axios.post('/api/stream-info/twitch', request);
+      await notificationStore.displayMessageNew(false, "Sent");
   };
 
   return {

@@ -30,9 +30,9 @@ const store = useNotificationStore();
         <NavBar />
       </div>
     </div>
-    <div id="bottom" class="flex h-[47vh] bg-[#1f212a]">
-      <div class="w-[114px]"></div>
-      <div class="flex flex-col ml-2">
+    <div id="bottom" class="flex h-[47vh] bg-[#1f212a] gap-2">
+      <div class="w-[133px]"></div>
+      <div class="flex flex-col w-full">
         <div
           class="bg-accent-two h-[24px] rounded-t flex items-center gap-2 justify-center relative"
         >

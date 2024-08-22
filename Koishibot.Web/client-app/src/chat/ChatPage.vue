@@ -27,7 +27,7 @@ const scrollToBottom = () => {
 };
 
 const handleScroll = (event: any) => {
-  showButton.value = event.target.scrollTop < event.target.scrollHeight - 423;
+  showButton.value = event.target.scrollTop < event.target.scrollHeight - 490;
 };
 
 </script>
@@ -39,7 +39,7 @@ const handleScroll = (event: any) => {
     </button>
   </div>
 
-  <div class="flex flex-col overflow-y-scroll px-2 min-h-[423px]" ref="chatMessageLog"
+  <div class="flex flex-col overflow-y-scroll px-2 grow" ref="chatMessageLog"
        @mouseover="isHovering = true"
        @mouseout="isHovering = false"
        @scroll.passive="handleScroll">

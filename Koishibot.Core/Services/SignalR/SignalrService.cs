@@ -26,6 +26,9 @@ public partial record SignalrService(
 		await HubContext.Clients.All.ReceiveLog(log);
 	}
 
+	public async Task SendNewNotification(NotificationVm notificationVm) =>
+		await HubContext.Clients.All.ReceiveNewNotification(notificationVm);
+
 	public async Task SendNotification(string content) => 
 		await HubContext.Clients.All.ReceiveNotification(content);
 
@@ -65,6 +68,7 @@ public partial interface ISignalrService
 	Task SendInfo(string message);
 	Task SendError(string message);
 	Task SendNotification(string content);
+	Task SendNewNotification(NotificationVm notificationVm);
 	Task SendChatMessage(ChatMessageVm chatMessageVm);
 	Task SendStatusUpdate(ServiceStatusVm serviceStatusVM);
 	Task SendStreamEvent(StreamEventVm streamEventVm);
@@ -83,6 +87,7 @@ public partial interface ISignalrHub
 {
 	Task ReceiveLog(LogVm log);
 	Task ReceiveNotification(string content);
+	Task ReceiveNewNotification(NotificationVm notificationVm);
 	Task ReceiveChatMessage(ChatMessageVm chatMessageVm);
 	Task ReceiveStatusUpdate(ServiceStatusVm serviceStatusVM);
 	Task ReceiveStreamEvent(StreamEventVm streamEventVm);

@@ -12,7 +12,7 @@ const sendMessage = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="sendMessage" class="flex p-2 justify-between">
+  <form @submit.prevent="sendMessage" class="flex p-2 justify-between h-[52px]">
     <input class="w-[85%] rounded p-1" type="text" v-model="message" />
     <input
       class="bg-accent-two rounded-r p-1 w-[15%]"

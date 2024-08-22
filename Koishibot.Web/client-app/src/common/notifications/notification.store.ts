@@ -4,6 +4,7 @@ import { useSignalR } from '@/api/signalr.composable';
 import { type IServiceStatus } from '@/layout/models/service-status.interface';
 import { useObsStore } from '@/settings/obs.store';
 import http from '@/api/http';
+import { type INotification } from "@/common/notifications/notification.interface";
 
 export const useNotificationStore = defineStore('notification', () => {
   const { getConnectionByHub } = useSignalR();
@@ -16,8 +17,8 @@ export const useNotificationStore = defineStore('notification', () => {
 
   const color = ref<boolean>(false);
 
-  async function delay(miliseconds: number) {
-    return new Promise((resolve) => setTimeout(resolve, miliseconds));
+  async function delay(milliseconds: number) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
 
   const displayMessage = async (message: string) => {
@@ -32,6 +33,13 @@ export const useNotificationStore = defineStore('notification', () => {
     await delay(2000);
     notificationMessage.value = '';
   };
+
+  signalRConnection?.on('ReceiveNewNotification', async (notification: INotification) => {
+    color.value = notification.error;
+    notificationMessage.value = notification.message;
+    await delay(2000);
+    notificationMessage.value = '';
+  })
 
   signalRConnection?.on('ReceiveNotification', (notification: string) => {
     notificationMessage.value = notification;

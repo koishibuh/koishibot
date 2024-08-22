@@ -23,6 +23,7 @@ const getStreamInfo = async () => {
   await store.getStreamInfo();
   streamTitle.value = store.streamInfo?.streamTitle!;
   category.value = store.streamInfo?.category!;
+  categoryId.value = store.streamInfo?.categoryId!;
 };
 
 const updateStreamInfo = async () => {

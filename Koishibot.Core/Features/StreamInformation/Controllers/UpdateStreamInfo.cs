@@ -2,54 +2,45 @@
 
 namespace Koishibot.Core.Features.StreamInformation.Controllers;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/stream-info")]
 public class UpdateStreamInfoController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Stream Info"])]
-	[HttpPost("/api/stream-info/twitch")]
+	[HttpPost("twitch")]
 	public async Task<ActionResult> UpdateStreamInfo
-		([FromBody] UpdateStreamInfoCommand command)
+	([FromBody] UpdateStreamInfoCommand command)
 	{
 		await Mediator.Send(command);
 		return Ok();
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record UpdateStreamInfoCommand(
-	string Title,
-	string CategoryId
-	) : IRequest;
-
-
-// == ⚫ HANDLER  == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record UpdateStreamInfoHandler(
-	IOptions<Settings> Settings,
-	IAppCache Cache,
-			//IUpdateStreamInfoApi TwitchApi
-			ITwitchApiRequest TwitchApiRequest
-		//ITwitchApiClient TwitchApiService
-	) : IRequestHandler<UpdateStreamInfoCommand>
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest
+) : IRequestHandler<UpdateStreamInfoCommand>
 {
 	public async Task Handle
-		(UpdateStreamInfoCommand dto, CancellationToken cancel)
+	(UpdateStreamInfoCommand command, CancellationToken cancel)
 	{
-		// TODO: Update Category
-
-		//await TwitchApi.UpdateStreamTitle(dto.Title);
-		var parameters = new EditChannelInfoRequestParameters
-		{
-			BroadcasterId = Settings.Value.StreamerTokens.UserId
-		};
-
-		var body = new EditChannelInfoRequestBody
-		{
-			Title = "test4"
-		};
+		var parameters = command.CreateRequestParameters(Settings);
+		var body = command.CreateRequestBody();
 
 		await TwitchApiRequest.EditChannelInfo(parameters, body);
 	}
+}
+
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record UpdateStreamInfoCommand(
+string StreamTitle,
+string? CategoryId
+) : IRequest
+{
+	public EditChannelInfoRequestParameters CreateRequestParameters(IOptions<Settings> settings) =>
+		new() { BroadcasterId = settings.Value.StreamerTokens.UserId };
+
+	public EditChannelInfoRequestBody CreateRequestBody() =>
+		new() { Title = StreamTitle, GameId = CategoryId };
 }
