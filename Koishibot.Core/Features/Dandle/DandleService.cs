@@ -6,28 +6,27 @@ using Koishibot.Core.Features.Dandle.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.Dandle;
 
-// == ⚫ SERVICE == //
-
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record DandleService(
-	IAppCache Cache,
-	IChatReplyService ChatReplyService,
-	IServiceScopeFactory ServiceScopeFactory,
-	ISignalrService Signalr, ILogger<StartDandleGameHandler> Log
-	) : IDandleService
+IAppCache Cache,
+IChatReplyService ChatReplyService,
+IServiceScopeFactory ServiceScopeFactory,
+ISignalrService Signalr,
+ILogger<DandleService> Log
+) : IDandleService
 {
 	public async Task StartGame()
 	{
-		if (Cache.DandleIsEnabled()) { return; }
+		if (Cache.DandleIsEnabled()) return;
 
 		using var scope = ServiceScopeFactory.CreateScope();
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-
 		var dandleDictionary = await database.GetDandleWords();
 
 		var dandleInfo = new DandleGame()
-			.SetNewGame()
-			.LoadDictionary(dandleDictionary)
-			.SelectRandomWord();
+		.SetNewGame()
+		.LoadDictionary(dandleDictionary)
+		.SelectRandomWord();
 
 		Log.LogInformation($"Selected Dandle word is '{dandleInfo.TargetWord.Word}'");
 
@@ -37,8 +36,6 @@ public record DandleService(
 		await Signalr.EnableDandleOverlay();
 		await ChatReplyService.App(Command.NewGame);
 	}
-
-	// == ⚫  == //
 
 	public async Task EndGame()
 	{
@@ -52,8 +49,7 @@ public record DandleService(
 	}
 }
 
-// == ⚫ INTERFACE == //
-
+/*═══════════════════【 INTERFACE 】═══════════════════*/
 public interface IDandleService
 {
 	public Task StartGame();

@@ -22,6 +22,13 @@ public static class ChatCommandExtensions
 		return entity.Id;
 	}
 
+	public static async Task RemoveEntry<T>
+		(this KoishibotDbContext database, T entity) where T : class, IEntity
+	{
+		database.Remove(entity);
+		await database.SaveChangesAsync();
+	}
+
 	public static async Task<T> UpdateEntryReturn<T>
 (this KoishibotDbContext database, T entity) where T : class, IEntity
 	{

@@ -1,7 +1,6 @@
 ﻿namespace Koishibot.Core.Features.Dandle.Controllers;
 
-// == ⚫ POST  == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
 public class StartDandleGameController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Dandle"])]
@@ -13,22 +12,17 @@ public class StartDandleGameController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER  == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// Starts a game of Dandle
 /// </summary>
 public record StartDandleGameHandler(
-	IDandleService DandleService
-	) : IRequestHandler<StartDandleGameCommand>
+IDandleService DandleService
+) : IRequestHandler<StartDandleGameCommand>
 {
-	public async Task Handle
-		(StartDandleGameCommand c, CancellationToken cancel)
-	{
-		await DandleService.StartGame();
-	}
+	public async Task Handle(StartDandleGameCommand c, CancellationToken cancel)
+		=> await DandleService.StartGame();
 }
 
-// == ⚫ COMMAND  == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record StartDandleGameCommand() : IRequest;

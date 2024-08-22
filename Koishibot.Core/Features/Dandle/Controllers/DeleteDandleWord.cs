@@ -1,14 +1,14 @@
-﻿using Koishibot.Core.Features.Dandle.Extensions;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Dandle.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.Dandle.Controllers;
 
-// == ⚫ DELETE  == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/dandle")]
 public class DeleteDandleWordController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Dandle"])]
-	[HttpDelete("/api/dandle/word")]
+	[HttpDelete("word")]
 	public async Task<ActionResult> DeleteDandleWord
 		([FromBody] DeleteDandleWordCommand e)
 	{
@@ -17,34 +17,31 @@ public class DeleteDandleWordController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER  == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// 
 /// </summary>
 public record DeleteDandleWordHandler(
-	KoishibotDbContext Database
-	) : IRequestHandler<DeleteDandleWordCommand>
+KoishibotDbContext Database
+) : IRequestHandler<DeleteDandleWordCommand>
 {
 	public async Task Handle
-		(DeleteDandleWordCommand command, CancellationToken cancel)
+	(DeleteDandleWordCommand command, CancellationToken cancel)
 	{
 		var word = command.CreateModel();
-		await Database.RemoveDandleWord(word);
+		await Database.RemoveEntry(word);
 	}
 }
 
-// == ⚫ COMMAND  == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record DeleteDandleWordCommand(
-	int DandleWordId
-	) : IRequest
+int DandleWordId
+) : IRequest
 {
-	public DandleWord CreateModel() => new DandleWord { Id = DandleWordId };
+	public DandleWord CreateModel() => new() { Id = DandleWordId };
 }
 
-// == ⚫ VALIDATOR == //
-
+/*══════════════════【 VALIDATOR 】══════════════════*/
 //public class DeleteDandleWordValidator
 //	: AbstractValidator<CreateDandleWordCommand>
 //{
