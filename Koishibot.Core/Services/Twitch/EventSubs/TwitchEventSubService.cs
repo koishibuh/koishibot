@@ -173,13 +173,14 @@ ITwitchApiRequest TwitchApiRequest
 			: TwitchApiHelper.SubscribeToEvents();
 
 		var requests = eventsToSubscribeTo.Select
-				(x => CreateEventSubRequest(x, sessionId)).ToList();
+			(x => CreateEventSubRequest(x, sessionId)).ToList();
 
 		await TwitchApiRequest.CreateEventSubSubscription(requests);
 
 		_timeoutSeconds = eventMessage.Payload.Session.KeepAliveTimeoutSeconds;
 		StartKeepaliveTimer();
 		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Online);
+		await SignalrService.SendInfo("TwitchEventSub Websocket Connected");
 	}
 
 

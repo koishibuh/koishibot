@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import HiddenField from '@/common/hidden-field/HiddenField.vue';
 import { useObsStore } from './obs.store';
 import { type IObsRequest } from './models/obs-interface';
+import {storeToRefs} from "pinia";
 
 const emit = defineEmits<{
   saveClicked: [void]
@@ -27,7 +28,8 @@ const saveSettings = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="saveSettings()" class="flex flex-col gap-2 my-4 w-full">
+  <form @submit.prevent="saveSettings()" class="flex flex-col gap-2 my-
+  4 w-full">
     <HiddenField field-name="Address" @update="(x) => (address = x)" />
     <div class="flex items-center">
       <label for="port" class="p-2 w-1/4">Port:</label>

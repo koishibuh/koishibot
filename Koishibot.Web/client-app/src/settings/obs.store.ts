@@ -10,11 +10,12 @@ export const useObsStore = defineStore('obs-store', () => {
   const axios = useAxios();
 
   const settings = ref<IObsSettings>({
-    websocketUrl: '123',
-    port: '404',
-    password: '1312231',
+    websocketUrl: '',
+    port: '4455',
+    password: '',
     connectionStatus: false
   });
+
 
   const saveSettings = async (settings: IObsRequest) => {
     try {

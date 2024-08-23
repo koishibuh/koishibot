@@ -59,7 +59,7 @@ const closeModal = () => {
 
   <h1>OBS</h1>
   <div class="border-2 p-2 border-gray-500 rounded">
-    <ObsContainer :settings="obsStore.settings" @setting-clicked="showModalContent" />
+    <ObsContainer :settings="obsStore.settings" @setting-clicked="showModalContent"/>
   </div>
 
   <h1>StreamElements</h1>
