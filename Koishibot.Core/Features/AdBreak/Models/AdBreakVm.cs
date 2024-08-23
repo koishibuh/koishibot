@@ -3,6 +3,6 @@
 namespace Koishibot.Core.Features.AdBreak.Models;
 
 public record AdBreakVm(
-	TimeSpan AdLength,
+	int AdLength,
 	DateTime TimerEnds
 	);

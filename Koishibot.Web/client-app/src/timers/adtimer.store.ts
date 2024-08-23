@@ -7,8 +7,7 @@ export const useAdTimerStore = defineStore('adTimerStore', () => {
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
 
-  /* const adTimer = ref<number>(18000); */
-  const adTimer = ref<IAdTimer>();
+  const adTimer = ref<IAdTimer>({ adLength: 180000, timerEnds: new Date(Date.now())});
 
   signalRConnection?.on('ReceiveAdStartedEvent', (ad: IAdTimer) => {
     adTimer.value = ad;

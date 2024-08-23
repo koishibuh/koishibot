@@ -52,7 +52,8 @@ ISignalrService Signalr
 /*═════════◣ ◢═════════*/
 	private async Task UpdateOverlayTimer(AdBreakStartedCommand command)
 	{
-		var adBreakVm = new AdBreakVm(command.Args.DurationInSeconds, DateTime.Now);
+		var totalMilliseconds = (int)command.Args.DurationInSeconds.TotalMilliseconds;
+		var adBreakVm = new AdBreakVm(totalMilliseconds, DateTime.Now);
 		await Signalr.SendAdStartedEvent(adBreakVm);
 	}
 

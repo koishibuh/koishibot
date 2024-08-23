@@ -5,7 +5,7 @@ const store = useSettingsStore();
 </script>
 
 <template>
-  <div class="h-[200px] border-2 border-white rounded">
+  <div class="h-[200px] border-2 border-white rounded overflow-scroll">
     <div v-if="store.logMessages.length >= 1">
       <div v-for="(message, index) in store.logMessages" :key="index">
         <div v-if="message.level === 'Info'">

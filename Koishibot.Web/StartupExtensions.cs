@@ -48,23 +48,23 @@ public static class StartupExtensions
 
 			var auth = appSettings.GetRequiredSection("AppAuthentication");
 
-			builder.Services.AddAuthorization();
-
-			builder.Services.AddAuthentication("Bearer")
-				.AddJwtBearer(o =>
-				{
-					o.TokenValidationParameters = new()
-					{
-						ValidateIssuer = true,
-						ValidateAudience = true,
-						ValidateIssuerSigningKey = true,
-						ValidIssuer = auth.GetRequiredSection("Issuer").Value,
-						ValidAudience = auth.GetRequiredSection("Audience").Value,
-						IssuerSigningKey = new SymmetricSecurityKey
-							(Encoding.ASCII.GetBytes
-								(auth.GetRequiredSection("Key").Value))
-					};
-				});
+			// builder.Services.AddAuthorization();
+			//
+			// builder.Services.AddAuthentication("Bearer")
+			// 	.AddJwtBearer(o =>
+			// 	{
+			// 		o.TokenValidationParameters = new()
+			// 		{
+			// 			ValidateIssuer = true,
+			// 			ValidateAudience = true,
+			// 			ValidateIssuerSigningKey = true,
+			// 			ValidIssuer = auth.GetRequiredSection("Issuer").Value,
+			// 			ValidAudience = auth.GetRequiredSection("Audience").Value,
+			// 			IssuerSigningKey = new SymmetricSecurityKey
+			// 				(Encoding.ASCII.GetBytes
+			// 					(auth.GetRequiredSection("Key").Value))
+			// 		};
+			// 	});
 		}
 		else
 		{

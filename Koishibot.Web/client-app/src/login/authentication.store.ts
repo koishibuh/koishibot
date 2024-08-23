@@ -13,7 +13,7 @@ export const useAuthenticationStore = defineStore('authentication-store', () => 
       username: username,
       password: password
     });
-    console.log('login', result.data);
+    
     if (result !== null) {
       setUserData(result.data);
     }

@@ -1,9 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomePage from '@/home/HomePage.vue';
-import FeedPage from '@/event-feed/FeedPage.vue';
-import BotPage from '@/layout/BotPage.vue';
-import LoginPage from '@/login/LoginPage.vue';
-import AuthenticatePage from '@/login/AuthenticatePage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,17 +7,17 @@ const router = createRouter({
       path: '/bot',
       name: 'Bot',
       meta: { requiresAuth: true },
-      component: BotPage,
+      component: () => import('@/layout/BotPage.vue'),
       children: [
         {
           path: '',
           name: 'Home',
-          component: HomePage
+          component: () => import('@/home/HomePage.vue')
         },
         {
           path: '/authenticate',
           name: 'authenticate',
-          component: AuthenticatePage
+          component: () => import('@/login/AuthenticatePage.vue')
         },
         {
           path: '/poll',
@@ -32,7 +27,7 @@ const router = createRouter({
         {
           path: '/feed',
           name: 'Feed',
-          component: FeedPage
+          component: () => import('@/event-feed/FeedPage.vue')
         },
         {
           path: '/commands',
@@ -99,7 +94,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'Login',
-      component: LoginPage
+      component: () => import('@/login/LoginPage.vue')
     }
   ]
 });
