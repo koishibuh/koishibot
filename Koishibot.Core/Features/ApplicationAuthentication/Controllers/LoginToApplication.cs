@@ -5,59 +5,54 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Koishibot.Core.Exceptions;
+
 namespace Koishibot.Core.Features.ApplicationAuthentication.Controllers;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/login")]
 public class LoginToApplicationController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Application"])]
-	[HttpPost("/api/login")]
+	[HttpPost]
 	[AllowAnonymous]
 	public async Task<ActionResult> LoginToApplication
-		([FromBody] LoginToApplicationCommand dto)
+	([FromBody] LoginToApplicationCommand dto)
 	{
 		var response = await Mediator.Send(dto);
 		return Ok(response);
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record LoginToApplicationCommand(
-	string Username,
-	string Password
-	) : IRequest<JwtVm>;
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record LoginToApplicationHandler(
-	IOptions<Settings> Settings,
-	IAppCache Cache, KoishibotDbContext Database
-	) : IRequestHandler<LoginToApplicationCommand, JwtVm>
+IOptions<Settings> Settings,
+KoishibotDbContext Database
+) : IRequestHandler<LoginToApplicationCommand, JwtVm>
 {
 	public async Task<JwtVm> Handle
-		(LoginToApplicationCommand command, CancellationToken cancel)
+	(LoginToApplicationCommand command, CancellationToken cancel)
 	{
 		var appAuth = Settings.Value.AppAuthentication;
 
 		var result = await Database.GetLoginByUsername(command.Username)
-			?? throw new Exception("Invalid Login");
+		             ?? throw new Exception("Invalid Login");
 
 		var validPassword = BCrypt.Net.BCrypt.Verify(command.Password, result.HashedPassword);
-		if (validPassword is false) { throw new Exception("Invalid Login"); }
+		if (validPassword is false)
+			throw new CustomException("Invalid Login");
 
 		var key = Encoding.UTF8.GetBytes(appAuth.Key);
 		var signingCredentials = new SigningCredentials
-			(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+		(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
 
 		var jwtToken = new JwtSecurityToken(
-			appAuth.Issuer,
-			appAuth.Audience,
-			new List<Claim> { new("username", result.Username ) },
-			DateTime.UtcNow,
-			DateTime.UtcNow.AddHours(12),
-			signingCredentials
+		appAuth.Issuer,
+		appAuth.Audience,
+		new List<Claim> { new("username", result.Username) },
+		DateTime.UtcNow,
+		DateTime.UtcNow.AddHours(12),
+		signingCredentials
 		);
 
 		var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
@@ -65,15 +60,16 @@ public record LoginToApplicationHandler(
 	}
 }
 
-// == ⚫ EXTENSIONS == //
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record LoginToApplicationCommand(
+string Username,
+string Password
+) : IRequest<JwtVm>;
 
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
 public static class LoginToApplication
 {
 	public static async Task<AppLogin?> GetLoginByUsername
-		(this KoishibotDbContext database, string username)
-	{
-		return await database.AppLogins
-			.Where(x => x.Username == username)
-			.FirstOrDefaultAsync();
-	}
+	(this KoishibotDbContext database, string username)
+		=> await database.AppLogins.FirstOrDefaultAsync(x => x.Username == username);
 }

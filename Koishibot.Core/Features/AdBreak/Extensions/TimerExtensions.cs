@@ -1,6 +1,5 @@
 ﻿using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Persistence.Cache.Enums;
-
 namespace Koishibot.Core.Features.AdBreak.Extensions;
 
 public static class TimerExtensions
@@ -21,8 +20,6 @@ public static class TimerExtensions
 
 /*═══════════════════【 SIGNALR 】═══════════════════*/
 	public static async Task UpdateTimerOverlay
-	(this ISignalrService signalr, OverlayTimerVm vm)
-	{
+	(this ISignalrService signalr, OverlayTimerVm vm) =>
 		await signalr.SendOverlayTimer(vm);
-	}
 }
