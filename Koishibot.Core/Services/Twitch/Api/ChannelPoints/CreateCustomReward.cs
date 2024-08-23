@@ -2,8 +2,7 @@
 using Koishibot.Core.Services.Twitch.Common;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ POST == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -13,21 +12,19 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// Required Scopes: channel:manage:redemptions
 	/// </summary>
 	public async Task CreateCustomReward
-		(CreateCustomRewardRequestParameters parameters, CreateCustomRewardRequestBody requestBody)
+	(CreateCustomRewardRequestParameters parameters, CreateCustomRewardRequestBody requestBody)
 	{
 		var method = HttpMethod.Post;
-		var url = "channel_points/custom_rewards";
+		const string url = "channel_points/custom_rewards";
 		var query = parameters.ObjectQueryFormatter();
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
 		await TwitchApiClient.SendRequest(method, url, query, body);
-
 		// Get result from EventSub
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class CreateCustomRewardRequestParameters
 {
 	///<summary>
@@ -36,11 +33,9 @@ public class CreateCustomRewardRequestParameters
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
 	public string BroadcasterId { get; set; } = null!;
-
 }
 
-// == ⚫ REQUEST BODY == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/api/reference/#create-custom-rewards">Twitch Documentation</see><br/>
 /// Creates a Custom Reward in the broadcaster’s channel.<br/>
@@ -148,9 +143,7 @@ public class CreateCustomRewardRequestBody
 	public bool ShouldRedemptionsSkipRequestQueue { get; set; }
 }
 
-
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class CreateCustomRewardResponse
 {
 	///<summary>
@@ -158,5 +151,5 @@ public class CreateCustomRewardResponse
 	///A list that contains the single custom reward you created.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<CustomRewardData> Data { get; set; }
+	public List<CustomRewardData>? Data { get; set; }
 }

@@ -4,8 +4,7 @@ using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelPoints;
 
 namespace Koishibot.Core.Features.ChannelPoints.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionupdate">Twitch Documentation</see></para>
 /// </summary>
@@ -26,7 +25,6 @@ public record RewardRedeemUpdatedHandler(
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record RedeemedRewardUpdatedCommand
 	(RewardRedemptionUpdatedEvent args) : IRequest;

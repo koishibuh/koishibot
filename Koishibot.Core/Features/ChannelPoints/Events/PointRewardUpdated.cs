@@ -2,55 +2,53 @@
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelPoints;
+
 namespace Koishibot.Core.Features.ChannelPoints.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_rewardupdate">ChannelPoints Custom Reward Update EventSub</see></para>
 /// </summary>
 /// <param name="sender"></param>
 /// <param name="e"></param>
 public record PointRewardUpdatedHandler(
-	ILogger<PointRewardUpdatedHandler> Log,
-	KoishibotDbContext Database,
-	ISignalrService Signalr
-	) : IRequestHandler<PointRewardUpdatedCommand>
+ILogger<PointRewardUpdatedHandler> Log,
+KoishibotDbContext Database,
+ISignalrService Signalr
+) : IRequestHandler<PointRewardUpdatedCommand>
 {
 	public async Task Handle
-		(PointRewardUpdatedCommand command, CancellationToken cancellationToken)
+	(PointRewardUpdatedCommand command, CancellationToken cancellationToken)
 	{
 		var pointReward = command.CreateModel();
 		await Database.UpdateReward(pointReward);
 
-		await Signalr.SendInfo($"{command.args.Title} has been updated");
+		await Signalr.SendInfo($"Point Reward '{command.Args.Title}' has been updated");
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record PointRewardUpdatedCommand
-	(CustomRewardUpdatedEvent args) : IRequest
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record PointRewardUpdatedCommand(
+CustomRewardUpdatedEvent Args
+) : IRequest
 {
 	public ChannelPointReward CreateModel()
-	{
-		return new ChannelPointReward
+		=> new()
 		{
-			CreatedOn = DateTimeOffset.UtcNow,
-			TwitchId = args.RewardId,
-			Title = args.Title,
-			Description = args.Description,
-			Cost = args.Cost,
-			BackgroundColor = args.BackgroundColor,
-			IsEnabled = args.IsEnabled,
-			IsUserInputRequired = args.IsUserInputRequired,
-			IsMaxPerStreamEnabled = args.MaxPerStream.IsEnabled,
-			IsMaxPerUserPerStreamEnabled = args.MaxPerUserPerStream.IsEnabled,
-			IsGlobalCooldownEnabled = args.GlobalCooldown.IsEnabled,
-			GlobalCooldownSeconds = args.GlobalCooldown.CooldownInSeconds,
-			IsPaused = args.IsPaused,
-			ShouldRedemptionsSkipRequestQueue = args.ShouldRedemptionsSkipRequestQueue,
-			ImageUrl = args.CustomImage is null ? args.DefaultImage.Url4X : args.CustomImage.Url4X
+		CreatedOn = DateTimeOffset.UtcNow,
+		TwitchId = Args.RewardId,
+		Title = Args.Title,
+		Description = Args.Description,
+		Cost = Args.Cost,
+		BackgroundColor = Args.BackgroundColor,
+		IsEnabled = Args.IsEnabled,
+		IsUserInputRequired = Args.IsUserInputRequired,
+		IsMaxPerStreamEnabled = Args.MaxPerStream.IsEnabled,
+		IsMaxPerUserPerStreamEnabled = Args.MaxPerUserPerStream.IsEnabled,
+		IsGlobalCooldownEnabled = Args.GlobalCooldown.IsEnabled,
+		GlobalCooldownSeconds = Args.GlobalCooldown.CooldownInSeconds,
+		IsPaused = Args.IsPaused,
+		ShouldRedemptionsSkipRequestQueue = Args.ShouldRedemptionsSkipRequestQueue,
+		ImageUrl = Args.CustomImage is null ? Args.DefaultImage.Url4X : Args.CustomImage.Url4X
 		};
-	}
 };

@@ -4,7 +4,6 @@ using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Models;
-using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.AttendanceLog;

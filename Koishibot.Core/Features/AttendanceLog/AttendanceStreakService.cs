@@ -2,8 +2,6 @@
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.ChatCommands;
-using Koishibot.Core.Features.ChatCommands.Models;
-using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.AttendanceLog;
@@ -11,7 +9,7 @@ namespace Koishibot.Core.Features.AttendanceLog;
 public record AttendanceStreakService(
 KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
-SignalrService Signalr
+ISignalrService Signalr
 ) : IAttendanceStreakService
 {
 	public async Task GetUsersAttendanceStreak(string word, string emoji, TwitchUser user)

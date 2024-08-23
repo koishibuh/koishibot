@@ -29,7 +29,6 @@ public static class ChannelPointExtensions
 		(this IAppCache cache, string status)
 	{
 		await cache.UpdateServiceStatus(ServiceName.DragonEggQuest, status);
-
 		return cache;
 	}
 
@@ -45,27 +44,22 @@ public static class ChannelPointExtensions
 		return result.SuccessfulUser;
 	}
 
-
-
 	public static IAppCache AddDragonEggQuest(this IAppCache cache, DragonEggQuest quest)
 	{
 		cache.Add(CacheName.DragonEggQuest, quest);
 		return cache;
 	}
 
-	public static async Task DisableDragonEggQuestService(this IAppCache cache)
-	{
-		await cache.UpdateServiceStatus(ServiceName.DragonEggQuest, ServiceStatusString.Offline);
-	}
+
 
 	// DATABASE
 	public static async Task<int> UpdateReward
 	(this KoishibotDbContext database, ChannelPointReward reward)
 	{
 		var result = await database.ChannelPointRewards
-			.Where(x => x.TwitchId == reward.TwitchId)
-			.FirstOrDefaultAsync()
-				?? throw new Exception("Reward to update not found");
+		.FirstOrDefaultAsync(x => x.TwitchId == reward.TwitchId);
+
+		if (result is null) return 0;
 
 		result.Title = reward.Title;
 		result.Description = reward.Description;
@@ -84,7 +78,7 @@ public static class ChannelPointExtensions
 		result.ImageUrl = reward.ImageUrl;
 
 		database.Update(result);
-		database.SaveChanges();
+		await database.SaveChangesAsync();
 		return reward.Id;
 	}
 

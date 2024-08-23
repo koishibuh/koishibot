@@ -9,7 +9,6 @@ public record GetDragonPage();
 public class GetLiveStreamsController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Dragon Egg Quest"])]
-	[AllowAnonymous]
 	[HttpGet("page")]
 	public async Task<ActionResult> GetDragonPage()
 	{
