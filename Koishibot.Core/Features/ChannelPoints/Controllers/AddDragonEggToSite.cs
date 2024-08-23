@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Authorization;
 namespace Koishibot.Core.Features.ChannelPoints.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
-[Route("api/dragon-quest/")]
+[Route("api/dragon-quest")]
 public class AddDragonEggToSiteController : ApiControllerBase
 {
-	[SwaggerOperation(Tags = ["Dragon Egg Quest"])]
+	[SwaggerOperation(Tags = ["Dragon Quest"])]
 	[AllowAnonymous]
-	[HttpPost]
+	[HttpPost("wordpress")]
 	public async Task<ActionResult> AddDragonEggToSite
 		([FromBody] AddDragonEggToSiteCommand e)
 	{

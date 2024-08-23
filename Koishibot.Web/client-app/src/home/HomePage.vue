@@ -16,7 +16,7 @@ const checked = ref<Boolean>();
 
 async function testFeature() {
   console.log('Testing 1 2 3');
-  test.value = await http.post('api/dandle');
+  test.value = await http.post('/api/dragon-quest');
 }
 
 const bannerTest = () => {

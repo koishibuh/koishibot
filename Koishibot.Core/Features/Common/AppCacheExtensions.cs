@@ -34,6 +34,16 @@ public static class AppCacheExtensions
 		}
 	}
 
+	public static async Task UpdateServiceStatusOnline(this IAppCache cache, ServiceName serviceName)
+	{
+		await cache.UpdateServiceStatus(serviceName, ServiceStatusString.Online);
+	}
+
+	public static async Task UpdateServiceStatusOffline(this IAppCache cache, ServiceName serviceName)
+	{
+		await cache.UpdateServiceStatus(serviceName, ServiceStatusString.Offline);
+	}
+
 	public static int GetCurrentStreamId(this IAppCache cache)
 	{
 		var streamSessions = cache.Get<StreamSessions>(CacheName.StreamSessions);

@@ -38,7 +38,7 @@ IHttpClientFactory HttpClientFactory
 
 			await Cache
 			.AddDragonEggQuest(dragonEggQuest)
-			.UpdateDragonEggQuestServiceStatus(ServiceStatusString.Online);
+			.UpdateServiceStatusOnline(ServiceName.DragonEggQuest);
 
 			await ChannelPointsApi.EnableRedemption(reward.TwitchId);
 			await ChatReplyService.App(Command.DragonEggQuestEnabled);

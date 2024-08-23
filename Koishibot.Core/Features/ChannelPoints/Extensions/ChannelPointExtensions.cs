@@ -24,14 +24,6 @@ public static class ChannelPointExtensions
 		return result is false;
 	}
 
-
-	public static async Task<IAppCache> UpdateDragonEggQuestServiceStatus
-		(this IAppCache cache, string status)
-	{
-		await cache.UpdateServiceStatus(ServiceName.DragonEggQuest, status);
-		return cache;
-	}
-
 	public static DragonEggQuest? GetDragonEggQuest(this IAppCache cache)
 	{
 		return cache.Get<DragonEggQuest>(CacheName.DragonEggQuest);
