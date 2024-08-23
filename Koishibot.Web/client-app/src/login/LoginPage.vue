@@ -8,6 +8,16 @@ const route = useRouter();
 
 const username = ref<string>('');
 const password = ref<string>('');
+const buildTimestamp = ref(__BUILD_TIMESTAMP__);
+
+const formattedBuildTimestamp = ref(new Date(buildTimestamp.value).toLocaleString('en-GB', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false
+}).replace(',', ''));
 
 async function login() {
   try {
@@ -31,4 +41,6 @@ async function login() {
       <button type="submit" name="button" class="login-button">Login</button>
     </form>
   </div>
+
+  <p class="text-center">{{ formattedBuildTimestamp }}</p>
 </template>
