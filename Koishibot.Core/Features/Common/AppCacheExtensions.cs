@@ -54,4 +54,10 @@ public static class AppCacheExtensions
 		return cache.Get<StreamInfo>(CacheName.StreamInfo);
 	}
 
+	public static void CreateTimer(this IAppCache cache)
+	{
+		var timer = new CurrentTimer();
+		cache.AddNoExpire(CacheName.CurrentTimer, timer);
+	}
+
 }

@@ -167,17 +167,17 @@ public static class DandleExtensions
 
 	// SIGNALR
 
-	public static async Task EnableDandleOverlay
-		(this ISignalrService signalr)
+	public static async Task EnableOverlay
+		(this ISignalrService signalr, OverlayName overlayName)
 	{
-		var status = new OverlayStatus(OverlayName.Dandle, true);
+		var status = new OverlayStatus(overlayName, true);
 		await signalr.SendOverlayStatus(new OverlayStatusVm(status.Name, status.Status));
 	}
 
-	public static async Task DisableDandleOverlay
-		(this ISignalrService signalr)
+	public static async Task DisableOverlay
+		(this ISignalrService signalr, OverlayName overlayName)
 	{
-		var status = new OverlayStatus(OverlayName.Dandle, false);
+		var status = new OverlayStatus(overlayName, false);
 		await signalr.SendOverlayStatus(new OverlayStatusVm(status.Name, status.Status));
 	}
 

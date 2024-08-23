@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.TwitchAuthorization;
 using Koishibot.Core.Services.StreamElements;
@@ -19,6 +20,7 @@ ITwitchIrcService twitchIrcService,
 ITwitchEventSubService twitchEventSubService,
 IObsService obsService,
 IStreamElementsService streamElementsService,
+IStartupTwitchServices startupTwitchServices,
 [FromKeyedServices("notifications")]HubConnection signalrHub
 ) : BackgroundService
 {
@@ -35,6 +37,7 @@ IStreamElementsService streamElementsService,
 	{
 		appCache.InitializeServiceStatusCache();
 		appCache.CreateAttendanceCache();
+		appCache.CreateTimer();
 
 		await signalrHub.StartAsync(cancel);
 
@@ -42,6 +45,16 @@ IStreamElementsService streamElementsService,
 		twitchEventSubService.SetCancellationToken(cancel);
 		streamElementsService.SetCancellationToken(cancel);
 		obsService.SetCancellationToken(cancel);
+
+		if (settings.Value.DebugMode)
+		{
+			if (settings.Value.StreamerTokens.HasTokenExpired())
+			{
+				await refreshOAuthTokensService.Start();
+			}
+
+			await startupTwitchServices.Start();
+		}
 
 		_ = Task.Run(async () =>
 		{

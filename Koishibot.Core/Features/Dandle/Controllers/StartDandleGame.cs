@@ -1,4 +1,6 @@
-﻿namespace Koishibot.Core.Features.Dandle.Controllers;
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace Koishibot.Core.Features.Dandle.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/dandle")]
@@ -26,4 +28,4 @@ IDandleService DandleService
 }
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
-public record StartDandleGameCommand() : IRequest;
+public record StartDandleGameCommand : IRequest;

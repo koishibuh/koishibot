@@ -3,7 +3,7 @@
 public class CurrentTimer
 {
 	public string Title { get; set; } = string.Empty;
-	public DateTimeOffset EndsAt { get; set; }
+	public DateTimeOffset EndsAt { get; set; } = DateTimeOffset.UtcNow;
 	public OverlayTimerVm Model { get; set; } = new();
 
 	// == ⚫ == //

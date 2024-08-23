@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.AdBreak.Models;
-using Koishibot.Core.Features.Obs;
+﻿using Koishibot.Core.Features.Obs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Koishibot.Core.Features;
@@ -9,7 +8,6 @@ namespace Koishibot.Core.Features;
 public class ATestPlaygroundController : ApiControllerBase
 {
 	[HttpPost("test")]
-	[AllowAnonymous]
 	public async Task<ActionResult> TestPlayground()
 	{
 		var result = await Mediator.Send(new TestPlaygroundCommand());
@@ -24,7 +22,8 @@ public record TestPlaygroundCommand() : IRequest<string>;
 public record TestPlaygroundHandler(
 	ILogger<TestPlaygroundHandler> Log,
 	ISignalrService Signalr,
-	IObsService ObsService
+	IObsService ObsService,
+	IMediator Mediator
 	//IAdsApi AdsApi,
 	//IAppCache Cache,
 	//// IStreamOnlineHandler StreamOnlineHandler

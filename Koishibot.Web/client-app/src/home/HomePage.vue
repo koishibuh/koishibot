@@ -16,7 +16,7 @@ const checked = ref<Boolean>();
 
 async function testFeature() {
   console.log('Testing 1 2 3');
-  test.value = await http.get('/api/test');
+  test.value = await http.post('api/dandle');
 }
 
 const bannerTest = () => {
@@ -44,21 +44,4 @@ watch(
     <input type="checkbox" id="checkbox" v-model="checked" />
     <label for="checkbox">Attendance: {{ checked }}</label>
   </div>
-
-
-<!--  <div class="h-[200px] border-2 border-white rounded">-->
-<!--    <div v-if="store.logMessages.length >= 1">-->
-<!--      <div v-for="(message, index) in store.logMessages" :key="index">-->
-<!--        <div v-if="message.level === 'Info'">-->
-<!--          <p>🟢 {{ message.timestamp }} | {{ message.message }}</p>-->
-<!--        </div>-->
-<!--        <div v-else-if="message.level === 'Warning'">-->
-<!--          <p>🟡 {{ message.timestamp }} | {{ message.message }}</p>-->
-<!--        </div>-->
-<!--        <div v-else>-->
-<!--          <p>🔴 {{ message.timestamp }} | {{ message.message }}</p>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
 </template>

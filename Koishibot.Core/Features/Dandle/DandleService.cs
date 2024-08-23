@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Dandle.Controllers;
 using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
@@ -33,7 +34,7 @@ ILogger<DandleService> Log
 		Cache.UpdateDandle(dandleInfo);
 		Cache.EnableDandle();
 
-		await Signalr.EnableDandleOverlay();
+		await Signalr.EnableOverlay(OverlayName.Dandle);
 		await ChatReplyService.App(Command.NewGame);
 	}
 
@@ -44,7 +45,7 @@ ILogger<DandleService> Log
 
 		await Signalr.ClearDandleBoard();
 
-		await Signalr.DisableDandleOverlay();
+		await Signalr.DisableOverlay(OverlayName.Dandle);
 		await ChatReplyService.App(Command.GameOver);
 	}
 }
