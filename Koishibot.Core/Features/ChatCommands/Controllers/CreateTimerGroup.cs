@@ -4,77 +4,74 @@ using Koishibot.Core.Persistence;
 
 namespace Koishibot.Core.Features.ChatCommands.Controllers;
 
-
-// == ⚫ POST  == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/commands")]
 public class CreateTimerGroupController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Commands"])]
-	[HttpPost("/api/commands/timer-groups")]
+	[HttpPost("timer-groups")]
 	public async Task<ActionResult> CreateTimerGroup
-			([FromBody] CreateTimerGroupCommand e)
+	([FromBody] CreateTimerGroupCommand e)
 	{
 		var result = await Mediator.Send(e);
 		return Ok(result);
 	}
 }
 
-// == ⚫ HANDLER  == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// 
 /// </summary>
 public record CreateTimerGroupHandler(
-	IOptions<Settings> Settings,
-	KoishibotDbContext Database
-	) : IRequestHandler<CreateTimerGroupCommand, int>
+KoishibotDbContext Database
+) : IRequestHandler<CreateTimerGroupCommand, int>
 {
 	public async Task<int> Handle
-		(CreateTimerGroupCommand c, CancellationToken cancel)
+	(CreateTimerGroupCommand c, CancellationToken cancel)
 	{
 		var timerGroup = c.ConvertToModel();
 		var timerGroupId = await Database.UpdateEntry(timerGroup);
-
 		return timerGroupId;
 	}
 }
 
-// == ⚫ COMMAND  == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record CreateTimerGroupCommand(
-	string Name,
-	string? Description,
-	TimeSpan Interval
-	) : IRequest<int>
+string Name,
+string? Description,
+TimeSpan Interval
+) : IRequest<int>
 {
 	public TimerGroup ConvertToModel()
-	{
-		return new TimerGroup
-		{
-			Name = Name,
-			Description = Description ?? string.Empty,
-			Interval = Interval
+		=> new() {
+		Name = Name,
+		Description = Description ?? string.Empty,
+		Interval = Interval
 		};
+
+	public async Task<bool> IsTimerGroupNameUnique(KoishibotDbContext database)
+	{
+		var result = await database.TimerGroups
+		.FirstOrDefaultAsync(p => p.Name == Name);
+
+		return result is null;
 	}
-};
+}
 
-
-// == ⚫ VALIDATOR == //
-
-public class TimerGroupValidator
-		: AbstractValidator<CreateTimerGroupCommand>
+/*══════════════════【 VALIDATOR 】══════════════════*/
+public class TimerGroupValidator : AbstractValidator<CreateTimerGroupCommand>
 {
-	public KoishibotDbContext Database { get; }
+	private KoishibotDbContext Database { get; }
 
 	public TimerGroupValidator(KoishibotDbContext context)
 	{
 		Database = context;
 
 		RuleFor(p => p.Name)
-			.NotEmpty();
+		.NotEmpty();
 
 		RuleFor(p => p.Interval)
-			.NotEmpty();
+		.NotEmpty();
 
 		RuleFor(p => p)
 		.MustAsync(IsTimerGroupNameUnique)
@@ -82,8 +79,6 @@ public class TimerGroupValidator
 	}
 
 	private async Task<bool> IsTimerGroupNameUnique
-			(CreateTimerGroupCommand command, CancellationToken cancel)
-	{
-		return await command.IsTimerGroupNameUnique(Database);
-	}
+	(CreateTimerGroupCommand command, CancellationToken cancel)
+		=> await command.IsTimerGroupNameUnique(Database);
 }

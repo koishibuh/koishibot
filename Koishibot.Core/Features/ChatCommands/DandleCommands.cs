@@ -25,18 +25,16 @@ IDandleWordService DandleWordService
 		{
 			// add or remove word 
 			// if the user is spacey
-			if (c.User.Login is "spacey3d" || c.User.Login is "elysiagriffin")
+			if (c.User.Login is "spacey3d" or "elysiagriffin")
 			{
 				if (c.Command is "addword")
 				{
-					// add word
 					await DandleWordService.CreateWord(c);
 					return true;
 				}
 
 				if (c.Command is "removeword")
 				{
-					// remove
 					await DandleWordService.DeleteWord(c);
 					return true;
 				}
@@ -49,40 +47,34 @@ IDandleWordService DandleWordService
 
 		if (Cache.DandleAcceptingSuggestions())
 		{
-			if (c.Command == "guess" || c.Command == "g")
+			switch (c.Command)
 			{
-				// !guess
-				//if (c.User.Name != "ElysiaGriffin") { return true; }
-				c.Message = c.Message.ToLower();
-				await DandleSuggestionProcessor.Start(c);
+				case "guess" or "g":
+					// !guess
+					//if (c.User.Name != "ElysiaGriffin") { return true; }
+					c.Message = c.Message.ToLower();
+					await DandleSuggestionProcessor.Start(c);
+					return true;
 
-				return true;
-			}
-			else if (c.Command == "vote" || c.Command == "v")
-			{
-				// post in chat votes are closed?
-				return true;
-			}
-			else
-			{
-				return false;
+				case "vote" or "v":
+					// post in chat votes are closed?
+					return true;
+
+				default:
+					return false;
 			}
 		}
-		else if (Cache.DandleAcceptingVotes())
+
+		if (Cache.DandleAcceptingVotes())
 		{
 			// !vote
-			if (c.Command == "vote" || c.Command == "v")
-			{
-				await DandleVoteProcessor.ProcessVote(c);
-				return true;
-			}
+			if (c.Command is not ("vote" or "v")) return false;
+			await DandleVoteProcessor.ProcessVote(c);
+			return true;
 
-			return false;
 		}
-		else
-		{
-			// Dandle processing
-			return false;
-		}
+
+		// Dandle processing
+		return false;
 	}
 }

@@ -4,63 +4,65 @@ using Koishibot.Core.Persistence;
 
 namespace Koishibot.Core.Features.ChatCommands.Controllers;
 
-// == ⚫ POST  == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/commands")]
 public class CreateCommandNameController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Commands"])]
-	[HttpPost("/api/commands/names")]
+	[HttpPost("names")]
 	public async Task<ActionResult> CreateCommandName
-			([FromBody] CreateCommandNameCommand e)
+	([FromBody] CreateCommandNameCommand e)
 	{
 		var result = await Mediator.Send(e);
 		return Ok(result);
 	}
 }
 
-// == ⚫ HANDLER  == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// 
 /// </summary>
 public record CreateCommandNameHandler(
-	IOptions<Settings> Settings,
-	KoishibotDbContext Database
-	) : IRequestHandler<CreateCommandNameCommand, int>
+KoishibotDbContext Database
+) : IRequestHandler<CreateCommandNameCommand, int>
 {
 	public async Task<int> Handle
-		(CreateCommandNameCommand c, CancellationToken cancel)
+	(CreateCommandNameCommand c, CancellationToken cancel)
 	{
 		var commandName = c.ConvertToModel();
 		var commandNameId = await Database.UpdateEntry(commandName);
-
 		return commandNameId;
 	}
 }
 
-// == ⚫ COMMAND  == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record CreateCommandNameCommand(
-	string Name
-	) : IRequest<int>
+string Name
+) : IRequest<int>
 {
-	public CommandName ConvertToModel() => new(){ Name = Name };
+	public CommandName ConvertToModel() => new() { Name = Name };
+
+	public async Task<bool> IsCommandNameUnique(KoishibotDbContext database)
+	{
+		var result = await database.CommandNames
+		.FirstOrDefaultAsync(p => p.Name == Name);
+
+		return result is null;
+	}
 }
 
-
-// == ⚫ VALIDATOR == //
-
+/*══════════════════【 VALIDATOR 】══════════════════*/
 public class CreateCommandNameValidator
-		: AbstractValidator<CreateCommandNameCommand>
+: AbstractValidator<CreateCommandNameCommand>
 {
-	public KoishibotDbContext Database { get; }
+	private KoishibotDbContext Database { get; }
 
 	public CreateCommandNameValidator(KoishibotDbContext context)
 	{
 		Database = context;
 
 		RuleFor(p => p.Name)
-			.NotEmpty();
+		.NotEmpty();
 
 		RuleFor(p => p)
 		.MustAsync(IsCommandNameUnique)
@@ -68,8 +70,6 @@ public class CreateCommandNameValidator
 	}
 
 	private async Task<bool> IsCommandNameUnique
-			(CreateCommandNameCommand command, CancellationToken cancel)
-	{
-		return await command.IsCommandNameUnique(Database);
-	}
+	(CreateCommandNameCommand command, CancellationToken cancel)
+		=> await command.IsCommandNameUnique(Database);
 }

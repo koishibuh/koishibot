@@ -15,7 +15,7 @@ IChatReplyService BotIrc
 	{
 		// check winning user
 		var winner = Cache.GetDragonQuestWinner();
-		if (winner is null || winner.Name != c.User.Name) { return false; }
+		if (winner is null || winner.Name != c.User.Name) return false;
 
 		var url = c.Command switch
 		{
