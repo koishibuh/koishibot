@@ -31,7 +31,8 @@ public record TodoistService(
 
 		// Todo: Publish a message that task has been added
 
-		await ChatReply.Start(command, new UsernameData(username), PermissionLevel.Everyone);
+		var data = new  { User = username };
+		await ChatReply.Start(command, data, PermissionLevel.Everyone);
 	}
 
 	// == ⚫ == //

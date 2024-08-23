@@ -9,6 +9,7 @@ using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
+
 namespace Koishibot.Core.Features.ChannelPoints;
 
 public record DragonEggQuestService(
@@ -87,8 +88,7 @@ IHttpClientFactory HttpClientFactory
 			Cache.AddDragonEggQuest(quest);
 			// .DisableDragonEggQuestService();
 
-			var data = new UserCountData(user.Name, (successRange.Attempts + 1));
-
+			var data = new { User = user.Name, Number = (successRange.Attempts + 1) };
 			await ChatReplyService.App(Command.DragonEggQuestSuccessful, data);
 
 			var redemption = new ChannelPointRedemption()
@@ -109,7 +109,7 @@ IHttpClientFactory HttpClientFactory
 
 			await Database.UpdateRedemption(redemption);
 
-			var data = new UserCountData(user.Name, successRange.Attempts);
+			var data = new { User = user.Name, Number = successRange.Attempts };
 			await ChatReplyService.App(Command.DragonEggQuestFailed, data);
 		}
 	}

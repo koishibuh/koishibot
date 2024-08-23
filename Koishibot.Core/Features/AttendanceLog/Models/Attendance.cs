@@ -13,12 +13,10 @@ public class Attendance
 	public int StreakPersonalBest { get; set; }
 	public bool StreakOptOut { get; set; }
 
-	// == ⚫ NAVIGATION == //
-
+/*══════════════════【 NAVIGATION 】══════════════════*/
 	public TwitchUser User { get; set; } = null!;
 
-	// == ⚫ METHODS == //
-
+/*═══════════════════【 METHODS 】═══════════════════*/
 	public Attendance Set(TwitchUser user)
 	{
 		User = user;
@@ -33,16 +31,13 @@ public class Attendance
 
 	public Attendance UpdateStreakCount(DateOnly lastMandatoryStreamDate)
 	{
-		if (lastMandatoryStreamDate == LastUpdated
-						&& StreakOptOut == false)
+		if (lastMandatoryStreamDate == LastUpdated && StreakOptOut == false)
 		{
 			StreakCurrentCount++;
 			AttendanceCount++;
 
 			if (StreakPersonalBest < StreakCurrentCount)
-			{
 				StreakPersonalBest = StreakCurrentCount;
-			}
 		}
 		else
 		{
@@ -61,19 +56,13 @@ public class Attendance
 	}
 
 	public bool NewStreakStarted()
-	{
-		return StreakCurrentCount == 1;
-	}
+		=> StreakCurrentCount == 1;
 
 	public bool OptedOutFromStreaks()
-	{
-		return StreakOptOut is true;
-	}
+		=> StreakOptOut is true;
 
 	public bool OptStatusChanged(bool updatedOpt)
-	{
-		return updatedOpt != StreakOptOut;
-	}
+		=> updatedOpt != StreakOptOut;
 
 	public Attendance UpdateOptStatus(bool updatedOpt)
 	{
@@ -83,14 +72,5 @@ public class Attendance
 	}
 
 	public bool WasAlreadyRecordedToday()
-	{
-		return LastUpdated == DateOnly.FromDateTime(DateTime.Now);
-	}
-
-	public Code StreakOrAttendanceMessage()
-	{
-		return AttendanceCount > 1 
-			? Code.AttendanceCount 
-			: Code.Attendance;
-	}
+		=> LastUpdated == DateOnly.FromDateTime(DateTime.Now);
 }

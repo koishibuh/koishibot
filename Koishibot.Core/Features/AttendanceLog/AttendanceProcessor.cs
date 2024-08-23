@@ -10,16 +10,15 @@ using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.AttendanceLog;
 
 public record AttendanceProcessor(
-	KoishibotDbContext Database,
-	IChatReplyService ChatReplyService,
-	IAppCache Cache
-	) : IAttendanceProcessor
+KoishibotDbContext Database,
+IChatReplyService ChatReplyService,
+IAppCache Cache
+) : IAttendanceProcessor
 {
 	public async Task Start(TwitchUser user)
 	{
-		if (user.IsIgnored()) { return; }
-
-		if (Cache.AttendanceDisabled()) { return; }
+		if (user.IsIgnored()) return;
+		if (Cache.AttendanceDisabled()) return;
 
 		var attendance = await Database.GetAttendanceByUserId(user.Id);
 		if (attendance is null)
@@ -28,32 +27,32 @@ public record AttendanceProcessor(
 
 			await Database.UpdateAttendance(attendance);
 
-			var data = new UsernameData(user.Name);
-			await ChatReplyService.App(Command.StreakStarted, data);	
+			var data = new { User = user.Name };
+			await ChatReplyService.App(Command.StreakStarted, data);
 		}
 		else // Attendance record found
 		{
-			if (attendance.WasAlreadyRecordedToday()) { return; }
+			if (attendance.WasAlreadyRecordedToday()) return;
 
 			attendance
-				.UpdateStreakCount(Cache.GetLastMandatoryStreamDate())
-				.SetLastUpdatedDate();
+			.UpdateStreakCount(Cache.GetLastMandatoryStreamDate())
+			.SetLastUpdatedDate();
 
 			await Database.UpdateAttendance(attendance);
 
 			if (attendance.OptedOutFromStreaks())
 			{
-				var data = new UserCountData(user.Name, attendance.AttendanceCount);
+				var data = new { User = user.Name, Number = attendance.AttendanceCount };
 				await ChatReplyService.Start(Command.Attendance, data, PermissionLevel.Everyone);
 			}
 			else if (attendance.NewStreakStarted())
 			{
-				var data = new UsernameData(user.Name);
+				var data = new { User = user.Name };
 				await ChatReplyService.App(Command.StreakStarted, data);
 			}
 			else
 			{
-				var data = new UserCountData(user.Name, attendance.AttendanceCount);
+				var data = new { User = user.Name, Number = attendance.AttendanceCount };
 				await ChatReplyService.App(Command.StreakContinued, data);
 			}
 		}

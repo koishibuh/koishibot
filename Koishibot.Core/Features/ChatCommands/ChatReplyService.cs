@@ -13,6 +13,31 @@ public record ChatReplyService(
 	IServiceScopeFactory ScopeFactory
 	) : IChatReplyService
 {
+	public async Task Everyone<T>(string command, T data)
+	{
+		var result = Cache.GetCommand(command, PermissionLevel.Everyone);
+		if (result is null)
+		{
+			using var scope = ScopeFactory.CreateScope();
+			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+			var databaseResult = await database.GetCommand(command);
+			if (databaseResult is null)
+				throw new CustomException("Command not found");
+
+			Cache.AddCommand(databaseResult);
+
+			var successful = databaseResult.TryGetValue(command, out result);
+			if (successful is false)
+				throw new CustomException("Command not found");
+		}
+
+		var template = Handlebars.Compile(result!.Message);
+		var generatedText = template(data);
+
+		await TwitchIrc.BotSend(generatedText);
+	}
+
+
 	public async Task Start<T>(string command, T data, string permission)
 	{
 		var result = Cache.GetCommand(command, permission);
@@ -89,6 +114,7 @@ public record ChatReplyService(
 /*══════════════════【 INTERFACE 】══════════════════*/
 public interface IChatReplyService
 {
+	Task Everyone<T>(string command, T data);
 	Task Start<T>(string command, T data, string permission);
 	Task App(string command);
 	Task App<T>(string command, T data);

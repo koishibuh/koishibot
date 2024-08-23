@@ -16,22 +16,22 @@ public record UpdateAttendanceOptService(
 	public async Task Start(bool status, TwitchUser user)
 	{
 		var attendance = await Database.GetAttendanceByUserId(user.Id);
-		if (attendance is null) { return; }
+		if (attendance is null) return;
 
-		var data = new UsernameData(user.Name);
+		var data = new { User = user.Name };
 
 		if (attendance.OptStatusChanged(status))
 		{
 			attendance.UpdateOptStatus(status);
 			await Database.UpdateAttendance(attendance);
 
-			var code = status is true ? Command.StreakOptOut : Command.StreakOptIn;
-			await ChatReplyService.Start(code, data, PermissionLevel.Everyone);
+			var code = status ? Command.StreakOptOut : Command.StreakOptIn;
+			await ChatReplyService.Everyone(code, data);
 		}
 		else
 		{
-			var code = status is true ? Command.OptOutError : Command.OptInError;
-			await ChatReplyService.Start(code, data, PermissionLevel.Everyone);
+			var code = status ? Command.OptOutError : Command.OptInError;
+			await ChatReplyService.Everyone(code, data);
 		}
 	}
 }

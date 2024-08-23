@@ -18,7 +18,7 @@ public record DandleVoteProcessor(
 
 		if (index > 3 || index < 1)
 		{
-			var data = new UserNumberData(c.User.Name, c.Message);
+			var data = new { User = c.User.Name, Number = c.Message };
 			await ChatReplyService.App(Command.InvalidVote, data);
 
 			Log.LogInformation("Not a valid vote number");
@@ -31,7 +31,7 @@ public record DandleVoteProcessor(
 
 		if (dandleInfo.UserAlreadyVoted(c.User, index))
 		{
-			var data = new UsernameData(c.User.Name);
+			var data = new { User = c.User.Name };
 			await ChatReplyService.App(Command.AlreadyVoted, data);
 			Log.LogInformation("User has already voted");
 			return;

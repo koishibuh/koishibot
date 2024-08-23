@@ -15,8 +15,7 @@ public record RaidCommands(
 {
 	public async Task Process(ChatMessageDto cc)
 	{
-		var user = new UsernameData(cc.User.Name);
-
+		var data = new { User = cc.User.Name };
 
 		if (Cache.RaidSuggestionDisabled())
 		{
@@ -24,11 +23,11 @@ public record RaidCommands(
 		}
 		else if (Cache.UpdateStatusToVoting())
 		{
-			await ChatReplyService.App(Command.RaidSuggestionsClosed, user);
+			await ChatReplyService.App(Command.RaidSuggestionsClosed, data);
 		}
 		else if (cc.SuggestionCommandEmpty())
 		{
-			await ChatReplyService.App(Command.NoSuggestionMade, user);
+			await ChatReplyService.App(Command.NoSuggestionMade, data);
 		}
 		else
 		{
