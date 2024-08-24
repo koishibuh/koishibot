@@ -26,4 +26,4 @@ IDandleService DandleService
 }
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
-public record EndDandleGameCommand() : IRequest;
+public record EndDandleGameCommand : IRequest;

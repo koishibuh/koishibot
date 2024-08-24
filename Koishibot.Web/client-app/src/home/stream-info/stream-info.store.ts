@@ -12,14 +12,14 @@ export const useStreamInfoStore = defineStore('stream-info', () => {
   const notificationStore = useNotificationStore();
   const axios = useAxios();
 
-  const streamInfo = ref<IStreamInfo>({streamTitle: '', category: '', categoryId: ''});
+  const streamInfo = ref<IStreamInfo | null>({streamTitle: '', category: '', categoryId: ''});
 
   signalRConnection?.on('ReceiveStreamInfo', (info: IStreamInfo) => {
     streamInfo.value = info;
   });
 
   const getStreamInfo = async () => {
-    streamInfo.value = await axios.get('/api/stream-info/twitch');
+    streamInfo.value = await axios.get<IStreamInfo>('/api/stream-info/twitch', null);
   };
 
   const updateStreamInfo = async (request: IStreamInfoRequest) => {

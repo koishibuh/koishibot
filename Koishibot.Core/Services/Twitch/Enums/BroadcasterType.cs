@@ -22,6 +22,7 @@ public class BroadcasterTypeEnumConverter : JsonConverter<BroadcasterType>
 			"partner" => BroadcasterType.Partner,
 			"affiliate" => BroadcasterType.Affiliate,
 			"default" => BroadcasterType.Default,
+			"" => BroadcasterType.Default,
 			_ => throw new JsonException()
 		};
 	}

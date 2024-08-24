@@ -2,18 +2,21 @@
 import axios from 'axios';
 import {useNotificationStore} from '@/common/notifications/notification.store';
 
+
 export const useAxios = () => {
   const notificationStore = useNotificationStore();
 
-  const get = async (url: string) => {
+  const get = async <T> (url: string, data: any | null) : Promise<T | null> => {
     try {
-      const response = await axios.get(url);
+      const response = await axios.get(url, { params: data });
+      console.log("axios", response);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.status + ': ' + error.response?.data?.title;
-        await notificationStore.displayMessageNew(true, message);
+        await notificationStore.displayMessageNew(true, message)
       }
+      return null;
     }
   }
 
@@ -23,7 +26,7 @@ export const useAxios = () => {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const message = error.response?.data?.status + ': ' + error.response?.data?.title;
+        const message = error.response?.data?.status + ': ' + error.response?.data?.title + ' - ' + error.response?.data.errors[0];
         await notificationStore.displayMessageNew(true, message);
         throw error;
       }

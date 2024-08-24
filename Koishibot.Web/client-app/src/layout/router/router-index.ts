@@ -20,6 +20,11 @@ const router = createRouter({
           component: () => import('@/login/AuthenticatePage.vue')
         },
         {
+          path: '/attendance',
+          name: 'Attendance',
+          component: () => import('@/attendance/AttendancePage.vue')
+        },
+        {
           path: '/poll',
           name: 'Poll',
           component: () => import('@/polls/PollPage.vue')

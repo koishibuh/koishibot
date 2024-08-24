@@ -7,6 +7,7 @@ using Koishibot.Core.Features.Moderation.Enums;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatMessage;
+
 namespace Koishibot.Core.Features.ChatMessages.Events;
 
 /// <summary>

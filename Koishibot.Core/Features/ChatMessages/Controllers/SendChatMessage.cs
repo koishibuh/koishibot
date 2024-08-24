@@ -5,11 +5,12 @@ using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.ChatMessages.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/chat")]
 public class SendChatMessageController : ApiControllerBase
 {
-	[HttpPost("/api/chat")]
+	[HttpPost]
 	public async Task<ActionResult> SendChatMessage
-		([FromBody] SendChatMessageCommand command)
+	([FromBody] SendChatMessageCommand command)
 	{
 		await Mediator.Send(command);
 		return Ok();
@@ -18,10 +19,9 @@ public class SendChatMessageController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record SendChatMessageHandler(
-	IOptions<Settings> Settings,
-	ITwitchIrcService StreamerClient,
-	ITwitchApiRequest TwitchApiRequest
-	) : IRequestHandler<SendChatMessageCommand>
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest
+) : IRequestHandler<SendChatMessageCommand>
 {
 	public async Task Handle(SendChatMessageCommand command, CancellationToken cancel)
 	{
@@ -33,28 +33,25 @@ public record SendChatMessageHandler(
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
 public record SendChatMessageCommand(
-	string Message
-	) : IRequest
+string Message
+) : IRequest
 {
 	public SendChatMessageRequestBody CreateRequest(string streamerId)
-	{
-		return new SendChatMessageRequestBody
-		{
-			BroadcasterId = streamerId,
-			SenderId = streamerId,
-			Message = Message
+		=> new() {
+		BroadcasterId = streamerId,
+		SenderId = streamerId,
+		Message = Message
 		};
-	}
 }
 
 /*══════════════════【 VALIDATOR 】══════════════════*/
 public class SendChatMessageValidator
-		: AbstractValidator<SendChatMessageCommand>
+: AbstractValidator<SendChatMessageCommand>
 {
 	public SendChatMessageValidator()
 	{
 		RuleFor(p => p.Message)
-			.NotEmpty()
-			.MaximumLength(500);
+		.NotEmpty()
+		.MaximumLength(500);
 	}
 }

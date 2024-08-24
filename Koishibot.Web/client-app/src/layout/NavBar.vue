@@ -5,7 +5,7 @@ import { RouterLink } from 'vue-router';
 <template>
   <nav class="flex flex-col justify-between mt-[1px]">
     <RouterLink :to="{ name: 'Home' }">Home</RouterLink>
-    <p>Attendance</p>
+    <RouterLink :to="{ name: 'Attendance' }">Attendance</RouterLink>
     <p>Raid</p>
     <p>Game Jam</p>
     <RouterLink :to="{ name: 'Poll' }">Poll</RouterLink>
