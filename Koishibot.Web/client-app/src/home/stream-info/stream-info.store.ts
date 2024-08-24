@@ -11,19 +11,22 @@ export const useStreamInfoStore = defineStore('stream-info', () => {
   const notificationStore = useNotificationStore();
   const axios = useAxios();
 
-  const streamInfo = ref<IStreamInfo | null>({streamTitle: '', category: '', categoryId: ''});
+  const streamInfo = ref<IStreamInfo>({streamTitle: '', category: '', categoryId: ''});
 
   signalRConnection?.on('ReceiveStreamInfo', (info: IStreamInfo) => {
     streamInfo.value = info;
   });
 
   const getStreamInfo = async () => {
-    streamInfo.value = await axios.get<IStreamInfo>('/api/stream-info/twitch', null);
+    const response = await axios.get<IStreamInfo>('/api/stream-info/twitch', null);
+    if (response) {
+      streamInfo.value = response;
+    }
   };
 
   const updateStreamInfo = async (request: IStreamInfoRequest) => {
-      streamInfo.value = await axios.post('/api/stream-info/twitch', request);
-      await notificationStore.displayMessageNew(false, "Sent");
+    streamInfo.value = await axios.post('/api/stream-info/twitch', request);
+    await notificationStore.displayMessageNew(false, "Sent");
   };
 
   return {
