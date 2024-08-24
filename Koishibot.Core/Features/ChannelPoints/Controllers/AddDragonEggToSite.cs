@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Wordpress;
 using Koishibot.Core.Services.Wordpress.Requests;
 using Microsoft.AspNetCore.Authorization;
+
 namespace Koishibot.Core.Features.ChannelPoints.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
@@ -11,10 +12,9 @@ namespace Koishibot.Core.Features.ChannelPoints.Controllers;
 public class AddDragonEggToSiteController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Dragon Quest"])]
-	[AllowAnonymous]
 	[HttpPost("wordpress")]
 	public async Task<ActionResult> AddDragonEggToSite
-		([FromBody] AddDragonEggToSiteCommand e)
+	([FromBody] AddDragonEggToSiteCommand e)
 	{
 		var result = await Mediator.Send(e);
 		return Ok(result);
@@ -24,8 +24,6 @@ public class AddDragonEggToSiteController : ApiControllerBase
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record AddDragonEggToSiteHandler(
 IAppCache Cache,
-IOptions<Settings> Settings,
-IHttpClientFactory HttpClientFactory,
 KoishibotDbContext Database,
 IWordpressService WordpressService
 ) : IRequestHandler<AddDragonEggToSiteCommand, int>
@@ -46,39 +44,74 @@ IWordpressService WordpressService
 			await Database.SaveChangesAsync(cancel);
 		}
 
-		var htmlCode = $"<a href=\"https://dragcave.net/view/{command.Code}\"><img src=\"https://dragcave.net/image/{command.Code}.gif\" style=\"border-width:0\" alt=\"Adopt one today!\"/></a>";
+		var htmlCode = command.CreateHtmlCode();
 		var parameters = new AddItemRequest
 		{
-			Status = "publish",
-			Title = "?",
-			Content = htmlCode,
-			ItemCategory = 38,
-			ItemTag = databaseEntry.WordPressId
+		Status = "publish",
+		Title = "?",
+		Content = htmlCode,
+		ItemCategory = 38,
+		ItemTag = databaseEntry.WordPressId
 		};
 
 		var itemResult = await WordpressService.CreateItem(parameters);
 
 		var dragon = new KoiKinDragon
 		{
-			WordpressId = itemResult.Id,
-			Timestamp = itemResult.Date,
-			Code = command.Code,
-			Name = "?",
-			ItemTagId = databaseEntry.Id
+		WordpressId = itemResult.Id,
+		Timestamp = itemResult.Date,
+		Code = command.Code,
+		Name = "?",
+		ItemTagId = databaseEntry.Id
 		};
 
 		Database.Add(dragon);
 		await Database.SaveChangesAsync(cancel);
 
-		// post in chat link
-		// add to overlay
+		// TODO: post in chat link
+		// TODO: add to overlay
 
 		return dragon.Id;
 	}
 }
 
-
 /*═══════════════════【 COMMAND 】═══════════════════*/
 public record AddDragonEggToSiteCommand(
 string Code
-) : IRequest<int>;
+) : IRequest<int>
+{
+	public async Task<bool> IsDragonUnique(KoishibotDbContext database)
+	{
+		var result = await database.KoiKinDragons
+		.FirstOrDefaultAsync(x => x.Code == Code);
+
+		return result is null;
+	}
+
+	public string CreateHtmlCode()
+		=> $"<a href=\"https://dragcave.net/view/{Code}\"><img src=\"https://dragcave.net/image/{Code}.gif\"/></a>";
+};
+
+/*══════════════════【 VALIDATOR 】══════════════════*/
+public class AddDragonEggToSiteValidator
+: AbstractValidator<AddDragonEggToSiteCommand>
+{
+	public KoishibotDbContext Database { get; }
+
+	public AddDragonEggToSiteValidator(KoishibotDbContext context)
+	{
+		Database = context;
+
+		RuleFor(p => p.Code)
+		.NotEmpty()
+		.Length(5);
+
+		RuleFor(p => p)
+		.MustAsync(DragonUnique)
+		.WithMessage("Dragon Code already exists");
+	}
+
+	private async Task<bool> DragonUnique
+	(AddDragonEggToSiteCommand command, CancellationToken cancel)
+		=> await command.IsDragonUnique(Database);
+}

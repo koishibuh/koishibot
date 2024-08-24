@@ -13,6 +13,7 @@ import { RouterLink } from 'vue-router';
     <RouterLink :to="{ name: 'Channel Points' }">Channel Points</RouterLink>
     <RouterLink :to="{ name: 'Lights' }">Lights</RouterLink>
     <RouterLink :to="{ name: 'Dandle' }">Dandle</RouterLink>
+    <RouterLink :to="{ name: 'Misc' }">Misc</RouterLink>
     <RouterLink :to="{ name: 'Settings' }">Settings</RouterLink>
     <RouterLink :to="{ name: 'Log' }">Log</RouterLink>
   </nav>

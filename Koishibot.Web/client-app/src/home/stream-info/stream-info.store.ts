@@ -3,7 +3,6 @@ import {defineStore} from 'pinia';
 import {useSignalR} from '@/api/signalr.composable';
 import {useNotificationStore} from '@/common/notifications/notification.store';
 import type {IStreamInfo, IStreamInfoRequest} from './models/stream-info.interface';
-import http from '@/api/http';
 import {useAxios} from "@/api/newhttp";
 
 export const useStreamInfoStore = defineStore('stream-info', () => {

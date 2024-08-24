@@ -63,6 +63,11 @@ const router = createRouter({
           path: '/log',
           name: 'Log',
           component: () => import('@/console-log/LogPage.vue')
+        },
+        {
+          path: '/misc',
+          name: 'Misc',
+          component: () => import('@/misc/MiscPage.vue')
         }
       ]
     },

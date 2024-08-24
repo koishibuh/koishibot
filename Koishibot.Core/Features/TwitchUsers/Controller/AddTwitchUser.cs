@@ -29,21 +29,29 @@ KoishibotDbContext Database
 	public async Task<int> Handle
 	(AddTwitchUserCommand command, CancellationToken cancel)
 	{
-		// var parameters = command.CreateParameters();
-		// var response = await TwitchApiRequest.GetUsers(parameters);
-		//
-		// var twitchUser = new TwitchUser().Set(response[0]);
-		var twitchUser = command.CreateEntity();
-		await Database.UpdateUser(twitchUser);
+		var twitchUser = new TwitchUser();
 
+		if (command.Id is null)
+		{
+			var parameters = command.CreateParameters();
+			var response = await TwitchApiRequest.GetUsers(parameters);
+
+			twitchUser = twitchUser.Set(response[0]);
+		}
+		else
+		{
+			twitchUser = command.CreateEntity();
+		}
+
+		await Database.UpdateUser(twitchUser);
 		return twitchUser.Id;
 	}
 }
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
 public record AddTwitchUserCommand(
-string Id,
-string Login,
+string? Id,
+string? Login,
 string Name
 ) : IRequest<int>
 {
@@ -53,9 +61,9 @@ string Name
 	public TwitchUser CreateEntity()
 		=> new TwitchUser
 		{
-			TwitchId = Id,
-			Login = Login,
-			Name = Name
+		TwitchId = Id,
+		Login = Login,
+		Name = Name
 		};
 
 	public async Task<bool> IsUserUnique(KoishibotDbContext database)
