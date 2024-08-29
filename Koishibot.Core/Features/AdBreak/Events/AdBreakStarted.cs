@@ -2,6 +2,7 @@
 using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Services.Twitch.EventSubs.AdBreak;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.AdBreak.Events;
@@ -20,6 +21,8 @@ ITwitchApiRequest TwitchApiRequest,
 ISignalrService Signalr
 ) : IRequestHandler<AdBreakStartedCommand>
 {
+	private AdScheduleDto? AdInfo { get; set; }
+
 	public async Task Handle
 		(AdBreakStartedCommand command, CancellationToken cancel)
 	{
@@ -30,23 +33,18 @@ ISignalrService Signalr
 
 		await ChatReplyService.App(Command.AdNowPlaying);
 
-		var adInfo = await GetAdScheduleFromTwitch(command);
+		AdInfo = await GetAdScheduleFromTwitch(command);
 
-		await Signalr.SendInfo($"Ad started, delaying for {adInfo.AdDurationInSeconds}");
-		await Task.Delay(adInfo.AdDurationInSeconds, cancel);
+		await Signalr.SendInfo($"Ad started, delaying for {AdInfo.AdDurationInSeconds}");
+		var timer = Toolbox.CreateTimer(AdInfo.AdDurationInSeconds, AdsCompleted);
+		timer.Start();
+	}
 
+	private async void AdsCompleted()
+	{
 		await ChatReplyService.App(Command.AdCompleted);
 
-		var currentTimer = Cache.GetCurrentTimer();
-		if (currentTimer.TimerExpired())
-		{
-			await PomodoroService.StartTimer(adInfo);
-		}
-		else
-		{
-			await Task.Delay(currentTimer.TimeRemaining(), cancel);
-			await PomodoroService.StartTimer(adInfo);
-		}
+		await PomodoroService.StartTimer(AdInfo);
 	}
 
 /*═════════◣ ◢═════════*/
