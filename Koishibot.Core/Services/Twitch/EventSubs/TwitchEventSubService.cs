@@ -60,7 +60,7 @@ ITwitchApiRequest TwitchApiRequest
 	private WebSocketFactory Factory { get; set; } = new();
 	private WebSocketHandler? TwitchEventSub { get; set; }
 	private int _timeoutSeconds = 60;
-	private Timer? _keepaliveTimer;
+	private Timer Timer { get; } = new(TimeSpan.FromSeconds(63));
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
 		= new(25, x => x.MessageId);
 
@@ -108,16 +108,19 @@ ITwitchApiRequest TwitchApiRequest
 			{
 				case EventSubMessageType.Notification:
 					Log.LogInformation($"Twitch Notification {eventMessage.Metadata.Timestamp}");
+					OnEventReceived();
 					await ProcessNotificationMessage(eventMessage.Metadata.SubscriptionType, message.Message);
 					break;
 				case EventSubMessageType.SessionWelcome:
+					StartKeepaliveTimer();
 					await ProcessSessionWelcomeMessage(message.Message);
 					break;
 				case EventSubMessageType.SessionReconnect:
 					Log.LogInformation($"TwitchEventSub Reconnect Session {eventMessage.Payload.Session.ReconnectUrl}");
 					break;
 				case EventSubMessageType.SessionKeepalive:
-					Log.LogInformation($"TwitchEventSub Keepalive {eventMessage.Metadata.Timestamp}");
+					// Log.LogInformation($"TwitchEventSub Keepalive {eventMessage.Metadata.Timestamp}");
+					OnEventReceived();
 					//OnKeepAliveMessage?.Invoke(eventMessage.Metadata.MessageId);
 					break;
 				case EventSubMessageType.Revocation:
@@ -463,21 +466,20 @@ ITwitchApiRequest TwitchApiRequest
 
 	private void StartKeepaliveTimer()
 	{
-		_keepaliveTimer = new Timer(TimeSpan.FromSeconds(_timeoutSeconds));
-		_keepaliveTimer.Elapsed += async (_, _) =>
+		Timer.Elapsed += async (_, _) =>
 		{
-			var rightNow = DateTimeOffset.UtcNow;
-			var lastEvent = _eventSet.LastItem();
-			if (rightNow.Subtract(lastEvent.Timestamp).Seconds < _timeoutSeconds - 3)
-			{
-				return;
-			}
 			await DisconnectWebSocket();
 			await CreateWebSocket();
 		};
-		_keepaliveTimer.Start();
+
+		Timer.Start();
 	}
 
+	private void OnEventReceived()
+	{
+		Timer.Stop();
+		Timer.Start();
+	}
 
 	public CreateEventSubSubscriptionRequestBody CreateEventSubRequest
 		(EventSubSubscriptionType type, string sessionId)
