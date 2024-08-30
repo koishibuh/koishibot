@@ -2,7 +2,6 @@
 using Koishibot.Core.Services.Twitch;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -15,33 +14,32 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task SendShoutout(SendShoutoutParameters parameters)
 	{
 		var method = HttpMethod.Post;
-		var url = "chat/shoutouts";
+		const string url = "chat/shoutouts";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class SendShoutoutParameters
 {
 	///<summary>
 	///The ID of the broadcaster that’s sending the Shoutout.
 	///</summary>
 	[JsonPropertyName("from_broadcaster_id")]
-	public string FromBroadcasterId { get; set; }
+	public string FromBroadcasterId { get; set; } = null!;
 
 	///<summary>
 	///The ID of the broadcaster that’s receiving the Shoutout.
 	///</summary>
 	[JsonPropertyName("to_broadcaster_id")]
-	public string ToBroadcasterId { get; set; }
+	public string ToBroadcasterId { get; set; }  = null!;
 
 	///<summary>
 	///The ID of the broadcaster or a user that is one of the broadcaster’s moderators.<br/>
 	///This ID must match the user ID in the access token.
 	///</summary>
 	[JsonPropertyName("moderator_id")]
-	public string ModeratorId { get; set; }
+	public string ModeratorId { get; set; } = null!;
 }
