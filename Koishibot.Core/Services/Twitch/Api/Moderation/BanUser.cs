@@ -16,40 +16,39 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task BanUser(BanUserRequestParameters parameters, BanUserRequestBody requestBody)
 	{
 		var method = HttpMethod.Post;
-		var url = "moderation/bans";
+		const string url = "moderation/bans";
 		var query = parameters.ObjectQueryFormatter();
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
-		var response = await TwitchApiClient.SendRequest(method, url, body);
+		var response = await TwitchApiClient.SendRequest(method, url, query, body);
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class BanUserRequestParameters
 {
 	///<summary>
 	///The ID of the broadcaster whose chat room the user is being banned from.
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
-	public string BroadcasterId { get; set; }
+	public string BroadcasterId { get; set; } = null!;
 
 	///<summary>
 	///The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room.<br/>
 	///This ID must match the user ID in the user access token.
 	///</summary>
 	[JsonPropertyName("moderator_id")]
-	public string ModeratorId { get; set; }
+	public string ModeratorId { get; set; } = null!;
 }
 
-// == ⚫ REQUEST BODY == //
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class BanUserRequestBody
 {
 	///<summary>
 	///Identifies the user and type of ban.
 	///</summary>
 	[JsonPropertyName("data")]
-	public BanRequestData BanRequestData { get; set; }
+	public BanRequestData? BanRequestData { get; set; }
 }
 
 public class BanRequestData
@@ -58,7 +57,7 @@ public class BanRequestData
 	///The ID of the user to ban or put in a timeout.
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string UserId { get; set; }
+	public string? UserId { get; set; }
 
 	///<summary>
 	///To ban a user indefinitely, don’t include this field.<br/>
@@ -74,19 +73,18 @@ public class BanRequestData
 	///The text is user defined and is limited to a maximum of 500 characters.
 	///</summary>
 	[JsonPropertyName("reason")]
-	public string Reason { get; set; }
+	public string? Reason { get; set; }
 }
 
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class BanUserResponse
 {
 	///<summary>
 	///A list that contains the user you successfully banned or put in a timeout.
 	///</summary>
 	[JsonPropertyName("data")]
-	public List<BannedUserData> Data { get; set; }
+	public List<BannedUserData>? Data { get; set; }
 
 }
 
@@ -96,19 +94,19 @@ public class BannedUserData
 	///The broadcaster whose chat room the user was banned from chatting in.
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
-	public string BroadcasterId { get; set; }
+	public string? BroadcasterId { get; set; }
 
 	///<summary>
 	///The moderator that banned or put the user in the timeout.
 	///</summary>
 	[JsonPropertyName("moderator_id")]
-	public string ModeratorId { get; set; }
+	public string? ModeratorId { get; set; }
 
 	///<summary>
 	///The user that was banned or put in a timeout.
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string DisciplinedUser { get; set; }
+	public string? DisciplinedUser { get; set; }
 
 	///<summary>
 	///The timestamp when the ban or timeout was placed.<br/>
