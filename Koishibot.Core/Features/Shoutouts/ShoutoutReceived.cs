@@ -4,14 +4,7 @@ using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Shoutout;
 namespace Koishibot.Core.Features.Shoutouts;
 
 
-// == ⚫ COMMAND == //
-
-public record ShoutoutReceivedCommand
-	(ShoutoutReceivedEvent args) : IRequest;
-
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href=""/>Twitch Documentation</para>
 /// </summary>
@@ -28,3 +21,7 @@ public record ShoutoutReceivedHandler(
 		// TODO
 	}
 }
+
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record ShoutoutReceivedCommand
+(ShoutoutReceivedEvent args) : IRequest;
