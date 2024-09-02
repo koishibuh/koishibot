@@ -1,9 +1,10 @@
-﻿using Koishibot.Core.Services.Twitch;
+﻿using System.Text.Json;
+using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.Converters;
 using Koishibot.Core.Services.Twitch.Enums;
-using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -11,18 +12,24 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// Gets a list of Cheermotes that users can use to cheer Bits in any Bits-enabled channel’s chat room. Cheermotes are animated emotes that viewers can assign Bits to.<br/>
 	/// Required Scopes: User Access Token <br/>
 	/// </summary>
-	public async Task GetCheermotes(GetCheermotesRequestParameters parameters)
+	public async Task<GetCheermotesData> GetCheermotes(GetCheermotesRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "bits/cheermotes";
+		const string url = "bits/cheermotes";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+		var result = JsonSerializer.Deserialize<GetCheermotesResponse>(response)
+		             ?? throw new Exception("Failed to deserialize response");
+
+		if (result.Data.Count == 0)
+			throw new Exception("0 results found for Cheermotes Query");
+
+		return result.Data[0];
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class GetCheermotesRequestParameters
 {
 	///<summary>
@@ -35,9 +42,15 @@ public class GetCheermotesRequestParameters
 	public string BroadcasterId { get; set; } = null!;
 }
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class GetCheermotesResponse
+{
+	[JsonPropertyName("data")]
+	public List<GetCheermotesData>? Data { get; init; }
+}
+
+
+public class GetCheermotesData
 {
 	///<summary>
 	///The name portion of the Cheermote string that you use in chat to cheer Bits.<br/>
@@ -46,14 +59,14 @@ public class GetCheermotesResponse
 	///When the Cheermote string is entered in chat, Twitch converts it to the image associated with the Bits tier that was cheered.
 	///</summary>
 	[JsonPropertyName("prefix")]
-	public string Prefix { get; set; }
+	public string? Prefix { get; set; }
 
 	///<summary>
 	///A list of tier levels that the Cheermote supports.<br/>
 	///Each tier identifies the range of Bits that you can cheer at that tier level and an image that graphically identifies the tier level.
 	///</summary>
 	[JsonPropertyName("tiers")]
-	public List<CheermoteTier> CheermoteTiers { get; set; }
+	public List<CheermoteTier>? CheermoteTiers { get; set; }
 
 	///<summary>
 	///The type of Cheermote
@@ -107,7 +120,7 @@ public class CheermoteTier
 	///The hex code of the color associated with this tier level (for example, #979797).
 	///</summary>
 	[JsonPropertyName("color")]
-	public string Color { get; set; }
+	public string? Color { get; set; }
 
 	///<summary>
 	///The animated and static image sets for the Cheermote.<br/>
@@ -118,7 +131,7 @@ public class CheermoteTier
 	///The value of each size contains the URL to the image.
 	///</summary>
 	[JsonPropertyName("images")]
-	public Dictionary<string, string> Images { get; set; }
+	public Images Images { get; set; }
 
 	///<summary>
 	///A Boolean value that determines whether users can cheer at this tier level.
@@ -132,4 +145,22 @@ public class CheermoteTier
 	///</summary>
 	[JsonPropertyName("show_in_bits_card")]
 	public bool ShowInBitsCard { get; set; }
+}
+
+public class Images
+{
+	[JsonPropertyName("dark")]
+	public EmoteTypes Dark { get; set; }
+
+	[JsonPropertyName("light")]
+	public EmoteTypes Light { get; set; }
+}
+
+public class EmoteTypes
+{
+	[JsonPropertyName("animated")]
+	public Dictionary<string, string> Animated { get; set; }
+
+	[JsonPropertyName("static")]
+	public Dictionary<string, string> Static { get; set; }
 }

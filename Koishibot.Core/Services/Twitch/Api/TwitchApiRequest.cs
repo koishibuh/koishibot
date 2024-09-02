@@ -19,7 +19,7 @@ public interface ITwitchApiRequest
 
 	// BITS
 	Task<GetBitsLeaderboardData> GetBitsLeaderboard(GetBitsLeaderboardRequestParameters parameters);
-	Task GetCheermotes(GetCheermotesRequestParameters parameters);
+	Task<GetCheermotesData> GetCheermotes(GetCheermotesRequestParameters parameters);
 
 	// CHANNEL POINTS
 	Task CreateCustomReward(CreateCustomRewardRequestParameters parameters, CreateCustomRewardRequestBody requestBody);
