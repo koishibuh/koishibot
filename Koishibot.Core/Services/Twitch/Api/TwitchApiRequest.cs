@@ -18,7 +18,7 @@ public interface ITwitchApiRequest
 	Task GetGameAnalytics(GetGameAnalyticsRequestParameters parameters);
 
 	// BITS
-	Task GetBitsLeaderboard(GetBitsLeaderboardRequestParamaters parameters);
+	Task<GetBitsLeaderboardData> GetBitsLeaderboard(GetBitsLeaderboardRequestParameters parameters);
 	Task GetCheermotes(GetCheermotesRequestParameters parameters);
 
 	// CHANNEL POINTS
