@@ -16,7 +16,7 @@ public record DandleVoteProcessor(
 		int index;
 		var isNumber = int.TryParse(c.Message, out index);
 
-		if (index > 3 || index < 1)
+		if (index is > 3 or < 1)
 		{
 			var data = new { User = c.User.Name, Number = c.Message };
 			await ChatReplyService.App(Command.InvalidVote, data);
@@ -47,6 +47,7 @@ public record DandleVoteProcessor(
 	}
 }
 
+/*═══════════════════【 INTERFACE 】═══════════════════*/
 public interface IDandleVoteProcessor
 {
 	Task ProcessVote(ChatMessageDto c);

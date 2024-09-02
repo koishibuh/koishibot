@@ -53,6 +53,20 @@ public static class Toolbox
 		return timer;
 	}
 
+	public static ATimer CreateTimer(int delaySeconds, Action onComplete)
+	{
+		var seconds = TimeSpan.FromSeconds(delaySeconds);
+
+		var timer = new ATimer
+		{
+		AutoReset = false,
+		Interval = seconds.TotalMilliseconds
+		};
+
+		timer.Elapsed += (_, _) => { timer.Dispose(); onComplete(); };
+		return timer;
+	}
+
 	public static string CreateRandom32CharString()
 	{
 		return new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 32)

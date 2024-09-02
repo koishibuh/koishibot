@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Dandle.Controllers;
 using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Dandle.Interfaces;
@@ -19,13 +20,14 @@ public record DandleResultsProcessor(
 	public string gray = "#787c7e, #787c7e";
 	public string split = "54deg, #f5793a 50%, #44a8ff 50%";
 
-	public Dictionary<string, string> colorEmoji = new Dictionary<string, string>
+	private readonly Dictionary<string, string> _colorEmoji = new()
 	{
 		{ "#44a8ff, #44a8ff", "🟦" },
 		{ "#f5793a, #f5793a", "🟧" },
 		{ "#787c7e, #787c7e", "⬛" },
 	};
 
+	/*═════════◢◣═════════*/
 	public async Task DetermineScore()
 	{
 		var dandleInfo = Cache.GetDandleInfo();
@@ -38,94 +40,107 @@ public record DandleResultsProcessor(
 		// add guessed word to list
 		// send to client
 		// boards, keys,
-		dandleInfo = await NewBoard2(dandleInfo);
-
+		dandleInfo = await GetBoardColors(dandleInfo);
 
 		if (dandleInfo.GuessedWordIsTargetWord())
 		{
-			// if so, end game and display scores
-			//	bonus points for round?
-			// display score
-			// add bonus points
-
-			var scores = dandleInfo.UserPoints
-					.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-					.ToList();
-
-			foreach (var score in scores)
-			{
-				Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
-			}
-
-			await Signalr.SendDandleScore(scores);
-			await Signalr.SendDandleTimer(new DandleTimerVm("Solved!", 0, 0));
-
-			var data = new WordData(dandleInfo.TargetWord.Word);
-			await ChatReplyService.App(Command.SolvedWord, data);
-
-			await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
-
-			Cache.DisableDandle();
-			Cache.ResetDandle();
+			await GameWon(dandleInfo);
 		}
 		else
 		{
-			if (dandleInfo.GameRound < 6)
+			if (dandleInfo.WasFinalRound())
 			{
-				var scores = dandleInfo.UserPoints
-					.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-					.ToList();
-
-				foreach (var score in scores)
-				{
-					Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
-				}
-
-				await Signalr.SendDandleScore(scores);
-
-				dandleInfo.GameRound++;
-
-				Cache.UpdateDandle(dandleInfo);
-				await Task.Delay(TimeSpan.FromSeconds(5));
-
-
-				await Signalr.SendDandleTimer(new DandleTimerVm("!Guess A Word", 0, 0));
-				Cache.OpenDandleSuggestions();
-
-				var data = new NumberData(dandleInfo.GameRound);
-				await ChatReplyService.App(Command.NextRound, data);
+				await GameLost(dandleInfo);
 			}
 			else
 			{
-				// game lost
-				// display score
-				// add bonus points
-				var scores = dandleInfo.UserPoints
-					.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-					.ToList();
-
-				foreach (var score in scores)
-				{
-					Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
-				}
-
-				await Signalr.SendDandleScore(scores);
-				await Signalr.SendDandleTimer(new DandleTimerVm("Better luck next time!", 0, 0));
-
-				var data = new WordData(dandleInfo.TargetWord.Word);
-				await ChatReplyService.App(Command.GameLost, data);
-
-				await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
-
-				Cache.DisableDandle();
-				Cache.ResetDandle();
+				await StartNextRound(dandleInfo);
 			}
 		}
 	}
 
+	private async Task StartNextRound(DandleGame dandleInfo)
+	{
+		var scores = dandleInfo.UserPoints
+		.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
+		.ToList();
+
+		foreach (var score in scores)
+		{
+			Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
+		}
+
+		await Signalr.SendDandleScore(scores);
+
+		dandleInfo.GameRound++;
+
+		Cache.UpdateDandle(dandleInfo);
+		await Task.Delay(TimeSpan.FromSeconds(5));
 
 
-	public async Task<DandleGame> NewBoard2(DandleGame dandleInfo)
+		await Signalr.SendDandleTimer(new DandleTimerVm("!Guess A Word", 0, 0));
+		Cache.OpenDandleSuggestions();
+
+		var data = new NumberData(dandleInfo.GameRound);
+		await ChatReplyService.App(Command.NextRound, data);
+	}
+
+	private async Task GameLost(DandleGame dandleInfo)
+	{
+
+		// game lost
+		// display score
+		// add bonus points
+		var scores = dandleInfo.UserPoints
+		.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
+		.ToList();
+
+		foreach (var score in scores)
+		{
+			Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
+		}
+
+		await Signalr.SendDandleScore(scores);
+		await Signalr.SendDandleTimer(new DandleTimerVm("Better luck next time!", 0, 0));
+
+		var data = new WordData(dandleInfo.TargetWord.Word);
+		await ChatReplyService.App(Command.GameLost, data);
+
+		await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
+
+		Cache.DisableDandle();
+		Cache.ResetDandle();
+	}
+
+	private async Task GameWon(DandleGame dandleInfo)
+	{
+		// if so, end game and display scores
+		//	bonus points for round?
+		// display score
+		// add bonus points
+
+		var scores = dandleInfo.UserPoints
+		.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
+		.ToList();
+
+		foreach (var score in scores)
+		{
+			Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
+		}
+
+		await Signalr.SendDandleScore(scores);
+		await Signalr.SendDandleTimer(new DandleTimerVm("Solved!", 0, 0));
+
+		var data = new WordData(dandleInfo.TargetWord.Word);
+		await ChatReplyService.App(Command.SolvedWord, data);
+
+		await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
+
+		Cache.DisableDandle();
+		Cache.ResetDandle();
+	}
+
+	public async Task<DandleGame> GetBoardColors(DandleGame dandleInfo)
 	{
 		var guessedWord = dandleInfo.CurrentGuessedWord?.GetGuessedWord();
 		var targetWord = dandleInfo.GetTargetWord();
@@ -385,7 +400,7 @@ public record DandleResultsProcessor(
 		{
 			chatWord += board.Letter.ToUpper();
 
-			if (colorEmoji.TryGetValue(board.Color, out string? emoji))
+			if (_colorEmoji.TryGetValue(board.Color, out string? emoji))
 			{
 				chatColorBlock += emoji;
 			}
@@ -524,7 +539,8 @@ public record DandleResultsProcessor(
 		return dandleInfo;
 	}
 
-	public DandleGame ProcessAltWords(DandleGame dandleInfo)
+	/*═════════◢◣═════════*/
+	private DandleGame ProcessAltWords(DandleGame dandleInfo)
 	{
 		var altWords = dandleInfo.CurrentVotes;
 		// Going through alternative words
@@ -534,13 +550,11 @@ public record DandleResultsProcessor(
 			foreach (var voter in word.Voters)
 			{
 				var user = dandleInfo.GetDandleUserPoints(voter);
-				// target word
-				var targetWord = dandleInfo.GetTargetWord();
 
-				// guessed word
+				var targetWord = dandleInfo.GetTargetWord();
 				var guessedWord = word.GetGuessedWord();
 
-				for (int i = Math.Min(targetWord.Count, guessedWord.Count) - 1; i >= 0; i--)
+				for (var i = Math.Min(targetWord.Count, guessedWord.Count) - 1; i >= 0; i--)
 				{
 					// found match
 					if (guessedWord[i].Letter == targetWord[i].Letter)
@@ -590,9 +604,9 @@ public record DandleResultsProcessor(
 				}
 
 				// Go through remaining letters
-				for (int i = targetWord.Count - 1; i >= 0; i--)
+				for (var i = targetWord.Count - 1; i >= 0; i--)
 				{
-					for (int j = guessedWord.Count - 1; j >= 0; j--)
+					for (var j = guessedWord.Count - 1; j >= 0; j--)
 					{
 						if (guessedWord[j].Letter == targetWord[i].Letter)
 						{

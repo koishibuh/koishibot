@@ -2,9 +2,11 @@
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.Dandle;
 using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
+
 namespace Koishibot.Core.Features.StreamInformation.Events;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
@@ -12,18 +14,19 @@ namespace Koishibot.Core.Features.StreamInformation.Events;
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamonline">Stream Online EventSub Documentation</see></para>
 /// </summary>
 public record StreamOnlineHandler(
-	IAppCache Cache,
-	ISignalrService Signalr,
-	IStreamSessionService StreamSessionService,
-	IObsService ObsService,
-	IChannelPointStatusService ChannelPointStatusService
+IAppCache Cache,
+ISignalrService Signalr,
+IStreamSessionService StreamSessionService,
+IObsService ObsService,
+IChannelPointStatusService ChannelPointStatusService,
+IDandleService DandleService
 ) : IRequestHandler<StreamOnlineCommand>
 {
 	public async Task Handle(StreamOnlineCommand command, CancellationToken cancel)
 	{
 		await Cache
-			.ClearAttendanceCache()
-			.UpdateStreamStatusOnline();
+		.ClearAttendanceCache()
+		.UpdateStreamStatusOnline();
 
 		await ObsService.CreateWebSocket();
 
@@ -36,6 +39,8 @@ public record StreamOnlineHandler(
 		await ChannelPointStatusService.Enable();
 
 		await StreamSessionService.CreateOrReloadStreamSession();
+
+		await DandleService.StartGame();
 
 		// Todo: Enable stats
 	}
