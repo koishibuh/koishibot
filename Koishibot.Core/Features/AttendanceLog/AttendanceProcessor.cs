@@ -4,6 +4,7 @@ using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.StreamInformation.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.AttendanceLog;
@@ -11,6 +12,7 @@ namespace Koishibot.Core.Features.AttendanceLog;
 public record AttendanceProcessor(
 KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
+IStreamSessionService StreamSessionService,
 IAppCache Cache
 ) : IAttendanceProcessor
 {
@@ -33,8 +35,20 @@ IAppCache Cache
 		{
 			if (attendance.WasAlreadyRecordedToday()) return;
 
+			DateOnly date;
+
+			try
+			{
+				date = Cache.GetLastMandatoryStreamDate();
+			}
+			catch (Exception e)
+			{
+				await StreamSessionService.CreateOrReloadStreamSession();
+				date = Cache.GetLastMandatoryStreamDate();
+			}
+
 			attendance
-			.UpdateStreakCount(Cache.GetLastMandatoryStreamDate())
+			.UpdateStreakCount(date)
 			.SetLastUpdatedDate();
 
 			await Database.UpdateAttendance(attendance);
