@@ -1,5 +1,7 @@
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Services.TwitchApi.Models;
+using Microsoft.AspNetCore.Authorization;
+
 namespace Koishibot.Core.Features.Api.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
@@ -28,10 +30,12 @@ ITwitchApiRequest TwitchApiRequest
 
 		var parameters = query.CreateParameters(streamerName);
 		var result = await TwitchApiRequest.GetLiveStreams(parameters);
-		if (result.Data is null || result.Data.Count == 0)
-		{
-			throw new Exception("Unable to get stream info");
-		}
+
+		if (result.Data is null)
+			throw new Exception("GetLiveStreams was null");
+
+		if (result.Data.Count == 0)
+			throw new Exception("Stream is offline");
 
 		var stream = result.Data[0];
 		var liveStreamInfo = stream.ConvertToDto();

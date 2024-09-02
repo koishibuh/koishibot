@@ -7,15 +7,17 @@ using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.TwitchApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Koishibot.Core.Features.StreamInformation.Controllers;
 
-// == ⚫ GET == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/stream-info")]
+[AllowAnonymous]
 public class GetStreamInfoController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Stream Info"])]
-	[HttpGet("/api/stream-info/twitch")]
+	[HttpGet("twitch")]
 	public async Task<ActionResult> GetStreamInfo()
 	{
 		var result = await Mediator.Send(new GetStreamInfoQuery());
@@ -23,31 +25,28 @@ public class GetStreamInfoController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetStreamInfoHandler(
-	IAppCache Cache,
-	IOptions<Settings> Settings,
-	ITwitchApiRequest TwitchApiRequest,
-	KoishibotDbContext Database
-	) : IRequestHandler<GetStreamInfoQuery, StreamInfoVm>
+IAppCache Cache,
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest,
+KoishibotDbContext Database
+) : IRequestHandler<GetStreamInfoQuery, StreamInfoVm>
 {
-	public string StreamerId = Settings.Value.StreamerTokens.UserId;
-
 	public async Task<StreamInfoVm> Handle
-		(GetStreamInfoQuery query, CancellationToken cancel)
+	(GetStreamInfoQuery query, CancellationToken cancel)
 	{
+		var streamerId = Settings.Value.StreamerTokens.UserId;
+
 		if (Settings.Value.StreamerTokens.RefreshToken is null)
-		{
-			throw new Exception("Refresh Token not valid");
-		}
+			throw new Exception("Refresh Token is not found");
 
 		var streamInfo = Cache.GetStreamInfo();
 		if (streamInfo is null)
 		{
 			if (Cache.GetStatusByServiceName(ServiceName.TwitchWebsocket))
 			{
-				var parameters = query.CreateParameters(StreamerId);
+				var parameters = query.CreateParameters(streamerId);
 				var result = await TwitchApiRequest.GetChannelInfo(parameters);
 
 				if (result.Count < 0) throw new Exception("User not found");
@@ -55,8 +54,8 @@ public record GetStreamInfoHandler(
 				// Add Category name and Id to Database
 				var category = new StreamCategory
 				{
-					TwitchId = result[0].CategoryId,
-					Name = result[0].CategoryName
+				TwitchId = result[0].CategoryId,
+				Name = result[0].CategoryName
 				};
 
 				await category.UpsertEntry(Database);
@@ -64,13 +63,13 @@ public record GetStreamInfoHandler(
 				//await Database.UpdateEntry(category);
 
 				streamInfo = new StreamInfo(
-					new TwitchUserDto(
-						result[0].BroadcasterId,
-						result[0].BroadcasterLogin,
-						result[0].BroadcasterName),
-						result[0].StreamTitle,
-						result[0].CategoryName,
-						result[0].CategoryId);
+				new TwitchUserDto(
+				result[0].BroadcasterId,
+				result[0].BroadcasterLogin,
+				result[0].BroadcasterName),
+				result[0].StreamTitle,
+				result[0].CategoryName,
+				result[0].CategoryId);
 
 				Cache.UpdateStreamInfo(streamInfo);
 
@@ -86,11 +85,9 @@ public record GetStreamInfoHandler(
 	}
 }
 
-
-// == ⚫ QUERY == //
-
+/*════════════════════【 QUERY 】════════════════════*/
 public record GetStreamInfoQuery(
-	) : IRequest<StreamInfoVm>
+) : IRequest<StreamInfoVm>
 {
 	public GetChannelInfoQueryParameters CreateParameters(string streamerId)
 		=> new GetChannelInfoQueryParameters { BroadcasterIds = [streamerId] };

@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+﻿using Koishibot.Core.Exceptions;
+using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
@@ -6,39 +7,55 @@ using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.TwitchApi.Models;
+
 namespace Koishibot.Core.Features.StreamInformation;
 
 public record StreamSessionService(
-ILogger<StreamSessionService> Log,
 ITwitchApiRequest TwitchApiRequest,
-IOptions<Settings> Settings,
 KoishibotDbContext Database,
 IAppCache Cache
 ) : IStreamSessionService
 {
 	public async Task CreateOrReloadStreamSession()
 	{
-		var parameters = new GetLiveStreamsRequestParameters { UserLogins = [ "elysiagriffin" ] };
+		var parameters = new GetLiveStreamsRequestParameters { UserLogins = ["elysiagriffin"] };
 
-		var streamInfo = await TwitchApiRequest.GetLiveStreams(parameters);
-		if (streamInfo.Data is null || streamInfo.Data.Count == 0)
-		{
-			// Todo: Display something on the client that it was unable to get the stream info
-			Log.LogError("Stream info not found at startup");
-			return;
-		}
+		const int maxRetries = 3;
+		var delay = 1000;
 
-		var stream = streamInfo.Data[0];
-		var liveStreamInfo = stream.ConvertToDto();
+		for (var attempt = 1; attempt <= maxRetries; attempt++)
+		{
+			var streamInfo = await TwitchApiRequest.GetLiveStreams(parameters);
 
-		var sessionRepo = await Database.GetSessionByTwitchId(liveStreamInfo.StreamId);
-		if (sessionRepo is null)
-		{
-			await RecordNewSession(liveStreamInfo);
-		}
-		else
-		{
-			await ReloadCurrentSession(sessionRepo);
+			if (streamInfo.Data is not null)
+			{
+				var stream = streamInfo.Data[0];
+				var liveStreamInfo = stream.ConvertToDto();
+
+				var sessionRepo = await Database.GetSessionByTwitchId(liveStreamInfo.StreamId);
+				if (sessionRepo is null)
+				{
+					await RecordNewSession(liveStreamInfo);
+				}
+				else
+				{
+					await ReloadCurrentSession(sessionRepo);
+				}
+
+				return;
+			}
+
+			if (attempt < maxRetries)
+			{
+				await Task.Delay(delay);
+				delay *= 2;
+			}
+			else
+			{
+				var liveStreamInfo = new LiveStreamInfo("", "", "", "", "", 0, DateTimeOffset.UtcNow, "");
+				await RecordNewSession(liveStreamInfo);
+				throw new CustomException("Was not able to get stream info");
+			}
 		}
 	}
 
@@ -69,8 +86,8 @@ IAppCache Cache
 	public async Task ReloadCurrentSession(TwitchStream stream)
 	{
 		var status = stream.AttendanceMandatory
-			? ServiceStatusString.Online
-			: ServiceStatusString.Offline;
+		? ServiceStatusString.Online
+		: ServiceStatusString.Offline;
 
 		await Cache.UpdateServiceStatus(ServiceName.Attendance, status);
 
