@@ -1,4 +1,6 @@
-﻿namespace Koishibot.Core.Features.Obs.Controllers;
+﻿using Koishibot.Core.Services.OBS;
+
+namespace Koishibot.Core.Features.Obs.Controllers;
 
 // == ⚫ DELETE == //
 

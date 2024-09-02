@@ -1,5 +1,5 @@
-﻿using Google.Apis.Calendar.v3.Data;
-using Koishibot.Core.Exceptions;
+﻿using Koishibot.Core.Exceptions;
+using Koishibot.Core.Services.OBS;
 using Settings = Koishibot.Core.Common.Settings;
 
 namespace Koishibot.Core.Features.Obs.Controllers;

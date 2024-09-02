@@ -1,5 +1,5 @@
 ﻿using Koishibot.Core.Features.Lights;
-using Koishibot.Core.Features.Obs;
+using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.EventSubs;

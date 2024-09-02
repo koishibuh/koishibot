@@ -1,7 +1,7 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.Common;
-using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.TwitchAuthorization;
+using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch.EventSubs;
 using Koishibot.Core.Services.Twitch.Irc;

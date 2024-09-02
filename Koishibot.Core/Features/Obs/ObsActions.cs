@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Services.OBS.Common;
+﻿using Koishibot.Core.Services.OBS;
+using Koishibot.Core.Services.OBS.Common;
 using Koishibot.Core.Services.OBS.Scenes;
 
 namespace Koishibot.Core.Features.Obs;

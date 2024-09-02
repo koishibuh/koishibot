@@ -1,3 +1,4 @@
+using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.OBS.Common;
 using Koishibot.Core.Services.OBS.Scenes;
 using Microsoft.AspNetCore.Authorization;

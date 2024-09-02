@@ -3,9 +3,9 @@ using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Dandle;
-using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
+using Koishibot.Core.Services.OBS;
 
 namespace Koishibot.Core.Features.StreamInformation.Events;
 
