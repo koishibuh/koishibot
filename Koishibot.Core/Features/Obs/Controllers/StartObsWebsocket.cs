@@ -1,6 +1,5 @@
 ﻿using Koishibot.Core.Exceptions;
 using Koishibot.Core.Services.OBS;
-using Settings = Koishibot.Core.Common.Settings;
 
 namespace Koishibot.Core.Features.Obs.Controllers;
 
@@ -19,12 +18,12 @@ public class StartObsWebsocketController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record StartObsWebsocketHandler(
-	IOptions<Settings> Settings,
-	IObsService ObsService
-	) : IRequestHandler<StartObsWebsocketCommand>
+IOptions<Settings> Settings,
+IObsService ObsService
+) : IRequestHandler<StartObsWebsocketCommand>
 {
 	public async Task Handle
-		(StartObsWebsocketCommand c, CancellationToken cancel)
+	(StartObsWebsocketCommand c, CancellationToken cancel)
 	{
 		if (string.IsNullOrEmpty(Settings.Value.ObsSettings.WebsocketUrl))
 			throw new CustomException("Obs Websocket URL is empty");
