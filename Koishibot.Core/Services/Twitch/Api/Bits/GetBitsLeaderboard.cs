@@ -3,7 +3,6 @@ using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Twitch.Converters;
 
-
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 /*════════════════【 API REQUEST 】════════════════*/
@@ -70,10 +69,8 @@ public class GetBitsLeaderboardRequestParameters
 /*══════════════════【 RESPONSE 】══════════════════*/
 public class GetBitsLeaderboardResponse
 {
-	[JsonPropertyName("data")]
-	public List<GetBitsLeaderboardData>? Data { get; init; }
+	[JsonPropertyName("data")] public List<GetBitsLeaderboardData>? Data { get; init; }
 }
-
 
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/api/reference/#get-bits-leaderboard">Twitch Documentation</see><br/>

@@ -66,7 +66,7 @@ public interface ITwitchApiRequest
 	Task GetTopGames(GetTopGamesRequestParameters parameters);
 
 	// GOALS
-	Task GetCreatorGoals(GetCreatorGoalsRequestParameters parameters);
+	Task<CreatorGoalData> GetCreatorGoals(GetCreatorGoalsRequestParameters parameters);
 
 	// HYPE TRAIN
 	Task GetHypeTrainEvents(GetHypeTrainEventsRequestParameters parameters);
