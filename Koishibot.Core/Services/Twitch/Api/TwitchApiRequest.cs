@@ -18,8 +18,8 @@ public interface ITwitchApiRequest
 	Task GetGameAnalytics(GetGameAnalyticsRequestParameters parameters);
 
 	// BITS
-	Task GetBitsLeaderboard(GetBitsLeaderboardRequestParamaters parameters);
-	Task GetCheermotes(GetCheermotesRequestParameters parameters);
+	Task<GetBitsLeaderboardData> GetBitsLeaderboard(GetBitsLeaderboardRequestParameters parameters);
+	Task<GetCheermotesData> GetCheermotes(GetCheermotesRequestParameters parameters);
 
 	// CHANNEL POINTS
 	Task CreateCustomReward(CreateCustomRewardRequestParameters parameters, CreateCustomRewardRequestBody requestBody);
@@ -66,7 +66,7 @@ public interface ITwitchApiRequest
 	Task GetTopGames(GetTopGamesRequestParameters parameters);
 
 	// GOALS
-	Task GetCreatorGoals(GetCreatorGoalsRequestParameters parameters);
+	Task<CreatorGoalData> GetCreatorGoals(GetCreatorGoalsRequestParameters parameters);
 
 	// HYPE TRAIN
 	Task GetHypeTrainEvents(GetHypeTrainEventsRequestParameters parameters);

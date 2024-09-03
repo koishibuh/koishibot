@@ -300,6 +300,9 @@ public class DandleGame
 			$"{index + 1}. {word.Word.ToUpper()}"));
 	}
 
+	// if (dandleInfo.GameRound < 6)
+	public bool WasFinalRound() => GameRound > 6;
+
 
 	public List<PollChoiceInfo> CreatePollChoiceVm()
 	{

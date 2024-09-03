@@ -1,27 +1,26 @@
 ﻿namespace Koishibot.Core.Features.Obs.Controllers;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/obs")]
 public class EditObsSettingsController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["OBS"])]
-	[HttpPost("/api/obs")]
+	[HttpPost]
 	public async Task<ActionResult> EditObsSettings
-		([FromBody] EditObsSettingsCommand c)
+	([FromBody] EditObsSettingsCommand c)
 	{
 		await Mediator.Send(c);
 		return Ok();
 	}
 }
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record EditObsSettingsHandler(
-	IOptions<Settings> Settings
-	) : IRequestHandler<EditObsSettingsCommand>
+IOptions<Settings> Settings
+) : IRequestHandler<EditObsSettingsCommand>
 {
 	public async Task Handle
-			(EditObsSettingsCommand c, CancellationToken cancel)
+	(EditObsSettingsCommand c, CancellationToken cancel)
 	{
 		//Settings.Value.ObsSettings.WebsocketUrl = c.Request.WebsocketUrl;
 		//Settings.Value.ObsSettings.Port = c.Request.Port;
@@ -34,13 +33,12 @@ public record EditObsSettingsHandler(
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record EditObsSettingsCommand(
-	string WebsocketUrl,
-	string Port,
-	string Password
-	) : IRequest;
+string WebsocketUrl,
+string Port,
+string Password
+) : IRequest;
 
 //public record ObsRequest(
 //	string WebsocketUrl,
@@ -48,21 +46,19 @@ public record EditObsSettingsCommand(
 //	string Password
 //	);
 
-// == ⚫ VALIDATOR == //
-
+/*══════════════════【 VALIDATOR 】══════════════════*/
 public class EditObsSettingsValidator
-	: AbstractValidator<EditObsSettingsCommand>
+: AbstractValidator<EditObsSettingsCommand>
 {
-
 	public EditObsSettingsValidator()
 	{
 		RuleFor(p => p.WebsocketUrl)
-			.NotEmpty();
+		.NotEmpty();
 
 		RuleFor(p => p.Port)
-			.NotEmpty();
+		.NotEmpty();
 
 		RuleFor(p => p.Password)
-			.NotEmpty();
+		.NotEmpty();
 	}
 }

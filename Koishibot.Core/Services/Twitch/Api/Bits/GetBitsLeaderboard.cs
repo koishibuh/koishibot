@@ -1,12 +1,11 @@
-﻿using Koishibot.Core.Services.Twitch;
+﻿using System.Text.Json;
+using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.Common;
-using Koishibot.Core.Services.Twitch.Enums;
-using System.Text.Json.Serialization;
+using Koishibot.Core.Services.Twitch.Converters;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ GET == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -14,33 +13,38 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	/// Gets the Bits leaderboard for the authenticated broadcaster.<br/>
 	/// Required Scopes: bits:read
 	/// </summary>
-	public async Task GetBitsLeaderboard(GetBitsLeaderboardRequestParamaters parameters)
+	public async Task<GetBitsLeaderboardData> GetBitsLeaderboard(GetBitsLeaderboardRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
 		var url = "bits/leaderboard";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
+		var result = JsonSerializer.Deserialize<GetBitsLeaderboardResponse>(response)
+		             ?? throw new Exception("Failed to deserialize response");
+
+		if (result.Data.Count == 0)
+			throw new Exception("0 results found for BitLeaderboard Query");
+
+		return result.Data[0];
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
-public class GetBitsLeaderboardRequestParamaters
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
+public class GetBitsLeaderboardRequestParameters
 {
 	///<summary>
 	///The number of results to return.<br/>
 	///The minimum count is 1 and the maximum is 100. The default is 10.
 	///</summary>
 	[JsonPropertyName("count")]
-	public int Count { get; set; }
+	public int? Count { get; set; }
 
 	///<summary>
 	///The time period over which data is aggregated (uses the PST time zone).
 	///</summary>
 	[JsonPropertyName("period")]
-	[JsonConverter(typeof(PeriodEnumConverter))]
-	public Period Period { get; set; }
+	public string? Period { get; set; }
 
 	///<summary>
 	///The start date, in RFC3339 format, used for determining the aggregation period.<br/>
@@ -50,7 +54,8 @@ public class GetBitsLeaderboardRequestParamaters
 	/// If your start date uses the ‘+’ offset operator (for example, 2022-01-01T00:00:00.0+05:00), you must URL encode the start date.
 	///</summary>
 	[JsonPropertyName("started_at")]
-	public string StartedAt { get; set; }
+	[JsonConverter(typeof(NEWDateTimeOffsetRfc3339Converter))]
+	public DateTimeOffset? StartedAt { get; set; }
 
 	///<summary>
 	///An ID that identifies a user that cheered bits in the channel.<br/>
@@ -58,35 +63,38 @@ public class GetBitsLeaderboardRequestParamaters
 	///To get the leaderboard’s top leaders, don’t specify a user ID.
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string UserId { get; set; }
+	public string? UserId { get; set; }
 }
 
-
-// == ⚫ RESPONSE BODY == //
+/*══════════════════【 RESPONSE 】══════════════════*/
+public class GetBitsLeaderboardResponse
+{
+	[JsonPropertyName("data")] public List<GetBitsLeaderboardData>? Data { get; init; }
+}
 
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/api/reference/#get-bits-leaderboard">Twitch Documentation</see><br/>
 /// Gets the Bits leaderboard for the authenticated broadcaster.<br/>
 /// </summary>
-public class GetBitsLeaderboardResponse
+public class GetBitsLeaderboardData
 {
 	///<summary>
 	///An ID that identifies a user on the leaderboard.
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string UserId { get; set; }
+	public string? UserId { get; set; }
 
 	///<summary>
 	///The user’s login name.
 	///</summary>
 	[JsonPropertyName("user_login")]
-	public string UserLogin { get; set; }
+	public string? UserLogin { get; set; }
 
 	///<summary>
 	///The user’s display name.
 	///</summary>
 	[JsonPropertyName("user_name")]
-	public string UserName { get; set; }
+	public string? UserName { get; set; }
 
 	///<summary>
 	///The user’s position on the leaderboard.
@@ -106,12 +114,12 @@ public class GetBitsLeaderboardResponse
 	///If you don’t specify the started_at query parameter, the fields contain empty strings.
 	///</summary>
 	[JsonPropertyName("date_range")]
-	public DateRange DateRange { get; set; }
+	public DateRange? DateRange { get; set; }
 
 	///<summary>
 	///The number of ranked users in data.<br/>
 	///This is the value in the count query parameter or the total number of entries on the leaderboard, whichever is less.
 	///</summary>
 	[JsonPropertyName("total")]
-	public int Total { get; set; }
+	public int? Total { get; set; }
 }

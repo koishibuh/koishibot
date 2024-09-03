@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.Obs;
-using Microsoft.AspNetCore.Authorization;
+﻿using Koishibot.Core.Services.OBS;
 
 namespace Koishibot.Core.Features;
 
@@ -20,21 +19,21 @@ public record TestPlaygroundCommand() : IRequest<string>;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record TestPlaygroundHandler(
-	ILogger<TestPlaygroundHandler> Log,
-	ISignalrService Signalr,
-	IObsService ObsService,
-	IMediator Mediator
-	//IAdsApi AdsApi,
-	//IAppCache Cache,
-	//// IStreamOnlineHandler StreamOnlineHandler
+ILogger<TestPlaygroundHandler> Log,
+ISignalrService Signalr,
+IObsService ObsService,
+IMediator Mediator
+//IAdsApi AdsApi,
+//IAppCache Cache,
+//// IStreamOnlineHandler StreamOnlineHandler
 
-	//KoishibotDbContext Database,
-	//ISignalrService Signalr,
-	//IGoogleCalendarApi GoogleCalendarApi
-	) : IRequestHandler<TestPlaygroundCommand, string>
+//KoishibotDbContext Database,
+//ISignalrService Signalr,
+//IGoogleCalendarApi GoogleCalendarApi
+) : IRequestHandler<TestPlaygroundCommand, string>
 {
 	public async Task<string> Handle
-		(TestPlaygroundCommand c, CancellationToken cancel)
+	(TestPlaygroundCommand c, CancellationToken cancel)
 	{
 		// await ObsService.StartBreak();
 
@@ -46,7 +45,6 @@ public record TestPlaygroundHandler(
 
 		//var result = await GoogleCalendarApi.GetEvents("8kroeh9nkripcr3iu9m569fe28@group.calendar.google.com");
 		////await DandleVoting();
-
 
 
 		//var test1 = new OverlayStatus(OverlayName.Dandle, true);
@@ -165,8 +163,6 @@ public record TestPlaygroundHandler(
 
 		//await Signalr.SendDandleWordGuess(wordGuess1);
 		//await Signalr.SendDandleWordGuess(wordGuess1);
-
-
 
 
 		//await new StreamEventVm()
@@ -310,5 +306,5 @@ public record TestPlaygroundHandler(
 }
 
 public record testVm(
-	string Name,
-	Dictionary<string, int> Choices);
+string Name,
+Dictionary<string, int> Choices);

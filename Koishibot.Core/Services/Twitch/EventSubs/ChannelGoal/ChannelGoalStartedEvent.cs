@@ -37,7 +37,8 @@ public class ChannelGoalStartedEvent
 	/// The type of goal.
 	/// </summary>
 	[JsonPropertyName("type")]
-	public GoalType Type { get; set; }
+	[JsonConverter(typeof(GoalTypeEnumConverter))]
+	public string? Type { get; set; }
 
 	/// <summary>
 	/// A description of the goal, if specified. The description may contain a maximum of 40 characters.

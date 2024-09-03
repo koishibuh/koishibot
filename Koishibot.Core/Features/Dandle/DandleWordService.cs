@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Dandle.Enums;
@@ -7,63 +8,65 @@ using Koishibot.Core.Features.Dandle.Interfaces;
 using Koishibot.Core.Features.Dandle.Models;
 using Koishibot.Core.Persistence;
 using Newtonsoft.Json;
+
 namespace Koishibot.Core.Features.Dandle;
 
 public record DandleWordService(
-	KoishibotDbContext Database,
-	IChatReplyService ChatReplyService,
-	IHttpClientFactory HttpClientFactory
-	) : IDandleWordService
+KoishibotDbContext Database,
+IChatReplyService ChatReplyService,
+IHttpClientFactory HttpClientFactory
+) : IDandleWordService
 {
 	// todo: check if word is actual word
+
+	/*═════════◢◣═════════*/
 	public async Task CreateWord(ChatMessageDto c)
 	{
-		if (c.Message.Length != 5)
+		if (c.MessageCorrectLength(5) is false)
 		{
 			await ChatReplyService.App(Command.InvalidLength);
 			return;
 		}
 
-		if (Toolbox.StringContainsNonLetters(c.Message))
+		if (c.MessageContainsNonLetters())
 		{
 			await ChatReplyService.App(Command.InvalidWord);
 			return;
 		}
 
-		var result = await Database.DandleWords
-			.FirstOrDefaultAsync(p => p.Word == c.Message);
-
+		var result = await Database.FindDandleWord(c.Message);
 		if (result is not null)
 		{
-			var data = new WordData(result.Word);
+			var data = new { Word = c.Message };
 			await ChatReplyService.App(Command.WordExists, data);
 		}
 		else
 		{
 			var dandleWord = new DandleWord().Set(c.Message);
-			await Database.UpdateDandleWord(dandleWord);
+			await Database.UpdateEntry(dandleWord);
 
-			var data = new WordData(dandleWord.Word);
 			await ChatReplyService.App(Command.WordAdded);
 		}
 	}
 
+	/*═════════◢◣═════════*/
 	public async Task DeleteWord(ChatMessageDto c)
 	{
 		var word = await Database.FindDandleWord(c.Message);
 		if (word is not null)
 		{
 			await Database.RemoveDandleWord(word);
-			var data = new WordData(word.Word);
+			var data = new { Word = word.Word };
 			await ChatReplyService.App(Command.WordRemoved, data);
 		}
 		else
 		{
-			var data = new WordData(c.Message);
+			var data = new { Word = c.Message };
 			await ChatReplyService.App(Command.WordNotFound, data);
 		}
 	}
 
+	/*═════════◢◣═════════*/
 	public async Task DefineWord(string word)
 	{
 		var httpClient = HttpClientFactory.CreateClient("Dictionary");

@@ -1,4 +1,9 @@
-﻿using Koishibot.Core.Features.Obs.Models;
+﻿using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Koishibot.Core.Exceptions;
+using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.OBS.Authentication;
@@ -7,12 +12,8 @@ using Koishibot.Core.Services.OBS.Enums;
 using Koishibot.Core.Services.OBS.Inputs;
 using Koishibot.Core.Services.OBS.Scenes;
 using Koishibot.Core.Services.Websockets;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Koishibot.Core.Exceptions;
-namespace Koishibot.Core.Features.Obs;
+
+namespace Koishibot.Core.Services.OBS;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
 public record ObsService(
@@ -121,7 +122,7 @@ IServiceScopeFactory ScopeFactory
 		// Do things when Obs has connected
 		var request = new RequestWrapper
 		{
-			RequestType = ObsRequests.GetSceneList
+		RequestType = ObsRequests.GetSceneList
 		};
 
 		await SendRequest(new ObsRequest { Data = request });
@@ -200,7 +201,7 @@ IServiceScopeFactory ScopeFactory
 	{
 		var audio = args.Inputs
 		.Where(x => x.UnversionedInputKind is
-			InputTypes.AudioOutputCapture or InputTypes.AudioInputCapture)
+		InputTypes.AudioOutputCapture or InputTypes.AudioInputCapture)
 		.Select(x => new ObsItem
 		{
 		ObsId = x.InputUuid ?? string.Empty,

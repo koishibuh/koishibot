@@ -7,14 +7,13 @@ using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 
 namespace Koishibot.Core.Features.Dandle.Extensions;
+
 public static class DandleExtensions
 {
 	// MODEL
 
 
-
-	// CACHE 
-
+/*══════════════════【 CACHE 】══════════════════*/
 	public static void EnableDandle(this IAppCache cache)
 	{
 		cache.UpdateServiceStatus(ServiceName.Dandle, ServiceStatusString.Online);
@@ -43,24 +42,24 @@ public static class DandleExtensions
 	}
 
 	public static DandleGame GetDandleInfo
-		(this IAppCache cache)
+	(this IAppCache cache)
 	{
 		var dandleInfo = cache.Get<DandleGame>(CacheName.Dandle);
 
 		return dandleInfo is not null
-			? dandleInfo
-			: throw new Exception("Dandle Info not in cache");
+		? dandleInfo
+		: throw new Exception("Dandle Info not in cache");
 	}
 
 
 	public static bool DandleAcceptingSuggestions
-		(this IAppCache cache)
+	(this IAppCache cache)
 	{
 		var dandle = cache.Get<DandleGame>(CacheName.Dandle);
 
 		return dandle is null
-			? throw new Exception("Dandle Info not in cache")
-			: dandle.GamePhase is Phase.Suggestions;
+		? throw new Exception("Dandle Info not in cache")
+		: dandle.GamePhase is Phase.Suggestions;
 	}
 
 	public static bool DandleAcceptingVotes
@@ -69,8 +68,8 @@ public static class DandleExtensions
 		var dandle = cache.Get<DandleGame>(CacheName.Dandle);
 
 		return dandle is null
-			? throw new Exception("Dandle Info not in cache")
-			: dandle.GamePhase is Phase.Voting;
+		? throw new Exception("Dandle Info not in cache")
+		: dandle.GamePhase is Phase.Voting;
 	}
 
 
@@ -94,7 +93,7 @@ public static class DandleExtensions
 	public static void OpenDandleSuggestions(this IAppCache cache)
 	{
 		var result = cache.Get<DandleGame>(CacheName.Dandle)
-			?? throw new Exception("Dandle Info not found");
+		             ?? throw new Exception("Dandle Info not found");
 
 		result.GamePhase = Phase.Suggestions;
 		cache.Add(CacheName.Dandle, result);
@@ -103,7 +102,7 @@ public static class DandleExtensions
 	public static void CloseDandleSuggestions(this IAppCache cache)
 	{
 		var result = cache.Get<DandleGame>(CacheName.Dandle)
-			?? throw new Exception("Dandle Info not found");
+		             ?? throw new Exception("Dandle Info not found");
 
 		result.GamePhase = Phase.Processing;
 		cache.Add(CacheName.Dandle, result);
@@ -112,7 +111,7 @@ public static class DandleExtensions
 	public static void OpenDandleVoting(this IAppCache cache)
 	{
 		var result = cache.Get<DandleGame>(CacheName.Dandle)
-			?? throw new Exception("Dandle Info not found");
+		             ?? throw new Exception("Dandle Info not found");
 
 		result.GamePhase = Phase.Voting;
 		cache.Add(CacheName.Dandle, result);
@@ -121,14 +120,13 @@ public static class DandleExtensions
 	public static void CloseDandleVoting(this IAppCache cache)
 	{
 		var result = cache.Get<DandleGame>(CacheName.Dandle)
-			?? throw new Exception("Dandle Info not found");
+		             ?? throw new Exception("Dandle Info not found");
 
 		result.GamePhase = Phase.Processing;
 		cache.Add(CacheName.Dandle, result);
 	}
 
-	// DATABASE
-
+/*══════════════════【 DATABASE 】══════════════════*/
 	public static async Task<DandleWord> UpdateDandleWord
 	(this KoishibotDbContext database, DandleWord word)
 	{
@@ -145,46 +143,42 @@ public static class DandleExtensions
 	}
 
 	public static async Task<List<DandleWord>> GetDandleWords
-		(this KoishibotDbContext database)
+	(this KoishibotDbContext database)
 	{
 		var result = await database.DandleWords
 		.AsNoTracking()
 		.ToListAsync();
 
 		return result.Count > 0
-				? result
-				: throw new Exception("0 Dandle Words found");
+		? result
+		: throw new Exception("0 Dandle Words found");
 	}
 
 	public static async Task<DandleWord?> FindDandleWord
-		(this KoishibotDbContext database, string word)
-	{
-		return await database.DandleWords
-			.AsNoTracking()
-			.Where(x => x.Word == word)
-			.FirstOrDefaultAsync();
-	}
+	(this KoishibotDbContext database, string word) =>
+	await database.DandleWords
+	.AsNoTracking()
+	.FirstOrDefaultAsync(x => x.Word == word);
 
-	// SIGNALR
 
+/*══════════════════【 SIGNALR 】══════════════════*/
 	public static async Task EnableOverlay
-		(this ISignalrService signalr, OverlayName overlayName)
+	(this ISignalrService signalr, OverlayName overlayName)
 	{
 		var status = new OverlayStatus(overlayName, true);
 		await signalr.SendOverlayStatus(new OverlayStatusVm(status.Name, status.Status));
 	}
 
 	public static async Task DisableOverlay
-		(this ISignalrService signalr, OverlayName overlayName)
+	(this ISignalrService signalr, OverlayName overlayName)
 	{
 		var status = new OverlayStatus(overlayName, false);
 		await signalr.SendOverlayStatus(new OverlayStatusVm(status.Name, status.Status));
 	}
 
 	public static async Task ClearDandleBoard
-		(this ISignalrService signalr)
+	(this ISignalrService signalr)
 	{
 		await signalr.SendClearDandleBoard();
 	}
-
 }

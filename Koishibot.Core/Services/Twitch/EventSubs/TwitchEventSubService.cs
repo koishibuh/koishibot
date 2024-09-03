@@ -42,6 +42,7 @@ using Koishibot.Core.Services.TwitchApi.Models;
 using Koishibot.Core.Services.Websockets;
 using System.Text.Json;
 using Koishibot.Core.Exceptions;
+using Koishibot.Core.Features.Shoutouts.Events;
 using Timer = System.Timers.Timer;
 namespace Koishibot.Core.Services.Twitch.EventSubs;
 
@@ -431,9 +432,10 @@ ITwitchApiRequest TwitchApiRequest
 				var shieldModeEnded = JsonSerializer.Deserialize<EventMessage<ShieldModeEndedEvent>>(message);
 				await Send(new ShieldModeEndedCommand(shieldModeEnded.Payload.Event));
 				break;
-			//case SubscriptionType.ShoutoutCreate:
-			//	OnShoutoutCreate?.Invoke(eventMessage);
-			//	break;
+			case EventSubSubscriptionType.ShoutoutCreate:
+				var shoutoutCreated = JsonSerializer.Deserialize<EventMessage<ShoutoutCreatedEvent>>(message);
+				await Send(new ShoutoutSentCommand(shoutoutCreated.Payload.Event));
+				break;
 			case EventSubSubscriptionType.ShoutoutReceive:
 				var shoutoutReceived = JsonSerializer.Deserialize<EventMessage<ShoutoutReceivedEvent>>(message);
 				await Send(new ShoutoutReceivedCommand(shoutoutReceived.Payload.Event));

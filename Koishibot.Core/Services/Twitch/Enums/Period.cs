@@ -7,22 +7,18 @@ namespace Koishibot.Core.Services.Twitch.Enums;
 //year — A year spans from 00:00:00 on the first day of the year specified in started_at and runs through 00:00:00 of the first day of the next year.
 //all — Default.The lifetime of the broadcaster's channel.
 
-[JsonConverter(typeof(PeriodEnumConverter))]
-public enum Period
+public class Period
 {
-	Day = 1,
-	Week,
-	Month,
-	Year,
-	All
+	public const string Day = "day";
+	public const string Week = "week";
+	public const string Month = "month";
+	public const string Year = "year";
+	public const string All = "all";
 }
 
-
-// == ⚫ == //
-
-public class PeriodEnumConverter : JsonConverter<Period>
+public class PeriodEnumConverter : JsonConverter<string>
 {
-	public override Period Read
+	public override string Read
 	(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		var value = reader.GetString();
@@ -38,7 +34,7 @@ public class PeriodEnumConverter : JsonConverter<Period>
 	}
 
 	public override void Write
-		(Utf8JsonWriter writer, Period value, JsonSerializerOptions options)
+		(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
 	{
 		var mappedValue = value switch
 		{
@@ -55,4 +51,3 @@ public class PeriodEnumConverter : JsonConverter<Period>
 		}
 	}
 }
-

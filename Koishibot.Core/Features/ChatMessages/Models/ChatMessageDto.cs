@@ -53,6 +53,17 @@ public partial class ChatMessageDto
 
 	public bool MessageHasLink() => UrlRegex().IsMatch(Message);
 
+	public bool MessageCorrectLength(int length) => Message.Length == length;
+
+	public bool MessageContainsNonLetters()
+	{
+		var validCharacters = NonLettersRegex();
+		return !validCharacters.IsMatch(Message);
+	}
+
 	[GeneratedRegex(@"(https?:\/\/(?:[-\w]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?)")]
 	private static partial Regex UrlRegex();
+
+	[GeneratedRegex(@"^[a-zA-Z]+$")]
+	private static partial Regex NonLettersRegex();
 }

@@ -8,10 +8,11 @@ using Koishibot.Core.Features.Dandle.Models;
 namespace Koishibot.Core.Features.Dandle;
 
 public record DandleTimer(
-	IAppCache Cache, ISignalrService Signalr,
-	IChatReplyService ChatReplyService, ILogger<DandleTimer> Log,
-	IDandleResultsProcessor DandleVoteProcessor
-	) : IDandleTimer
+IAppCache Cache,
+ISignalrService Signalr,
+IChatReplyService ChatReplyService,
+IDandleResultsProcessor DandleVoteProcessor
+) : IDandleTimer
 {
 	public int VotingSeconds = 40;
 
@@ -36,11 +37,11 @@ public record DandleTimer(
 		}
 
 		await Signalr.SendDandleTimer(new DandleTimerVm(text, 0, SuggestionSeconds));
-		var timer = Toolbox.CreateTimer(TimeSpan.FromSeconds(SuggestionSeconds), () => CloseSuggestions());
+		var timer = Toolbox.CreateTimer(SuggestionSeconds, CloseSuggestions);
 		timer.Start();
 	}
 
-	public async void CloseSuggestions()
+	private async void CloseSuggestions()
 	{
 		Cache.CloseDandleSuggestions();
 		var dandleInfo = Cache.GetDandleInfo();
@@ -67,7 +68,7 @@ public record DandleTimer(
 			var wordString = dandleInfo.CreateDandleWordString();
 
 			var data = new WordsTimeData(wordString, VotingSeconds);
-			await ChatReplyService.App(Command.NowVoting, data);	
+			await ChatReplyService.App(Command.NowVoting, data);
 
 			await Signalr.SendDandleGuessChoices(dandleInfo.CreatePollChoiceVm());
 			await Signalr.SendDandleTimer(new DandleTimerVm("Now Voting", 0, VotingSeconds));
@@ -75,21 +76,21 @@ public record DandleTimer(
 		}
 	}
 
-	public void StartVotingTimer()
+	private void StartVotingTimer()
 	{
-		var timer = Toolbox.CreateTimer(TimeSpan.FromSeconds(VotingSeconds), () => CloseVoting());
+		var timer = Toolbox.CreateTimer(VotingSeconds, CloseVoting);
 		timer.Start();
 	}
 
-	public async void CloseVoting()
+	private async void CloseVoting()
 	{
 		Cache.CloseDandleVoting();
 		await DandleVoteProcessor.DetermineScore();
 	}
 }
 
+/*═══════════════════【 INTERFACE 】═══════════════════*/
 public interface IDandleTimer
 {
 	Task StartSuggestionTimer(int round);
 }
-
