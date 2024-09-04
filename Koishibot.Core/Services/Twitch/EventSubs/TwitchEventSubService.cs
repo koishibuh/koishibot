@@ -69,6 +69,7 @@ ITwitchApiRequest TwitchApiRequest
 	public async Task CreateWebSocket()
 	{
 		var url = $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
+		// var url = $"ws://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}";
 
 		try
 		{
@@ -413,15 +414,15 @@ ITwitchApiRequest TwitchApiRequest
 				await Send(new ChannelGoalEndedCommand(channelGoalEnded.Payload.Event));
 				break;
 			case EventSubSubscriptionType.HypeTrainBegin:
-				var hypeTrainStarted = JsonSerializer.Deserialize<EventMessage<HypeTrainEvent>>(message);
+				var hypeTrainStarted = JsonSerializer.Deserialize<EventMessage<HypeTrainStartedEvent>>(message);
 				await Send(new HypeTrainStartedCommand(hypeTrainStarted.Payload.Event));
 				break;
 			case EventSubSubscriptionType.HypeTrainProgress:
-				var hypeTrainProgressed = JsonSerializer.Deserialize<EventMessage<HypeTrainEvent>>(message);
+				var hypeTrainProgressed = JsonSerializer.Deserialize<EventMessage<HypeTrainProgressedEvent>>(message);
 				await Send(new HypeTrainProgressedCommand(hypeTrainProgressed.Payload.Event));
 				break;
 			case EventSubSubscriptionType.HypeTrainEnd:
-				var hypeTrainEnded = JsonSerializer.Deserialize<EventMessage<HypeTrainEvent>>(message);
+				var hypeTrainEnded = JsonSerializer.Deserialize<EventMessage<HypeTrainEndedEvent>>(message);
 				await Send(new HypeTrainEndedCommand(hypeTrainEnded.Payload.Event));
 				break;
 			case EventSubSubscriptionType.ShieldModeBegin:

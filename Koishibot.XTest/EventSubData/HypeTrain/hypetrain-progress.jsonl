@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.hype_train.progress",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "8b8593a9-4c19-7321-4d92-61601e86e2f7",
+      "status": "enabled",
+      "type": "channel.hype_train.progress",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "48860916"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:55:18.7109368Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "48860916",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "expires_at": "2024-09-03T18:00:18.7109368Z",
+      "goal": 27085,
+      "id": "72c5ee2e-dff7-fdfa-784e-58d45661e26b",
+      "last_contribution": {
+        "total": 924,
+        "type": "bits",
+        "user_id": "27804937",
+        "user_login": "cli_user2",
+        "user_name": "cli_user2"
+      },
+      "level": 4,
+      "progress": 123,
+      "started_at": "2024-09-03T17:55:18.7109368Z",
+      "top_contributions": [
+        {
+          "total": 483,
+          "type": "subscription",
+          "user_id": "78930836",
+          "user_login": "cli_user1",
+          "user_name": "cli_user1"
+        },
+        {
+          "total": 924,
+          "type": "bits",
+          "user_id": "27804937",
+          "user_login": "cli_user2",
+          "user_name": "cli_user2"
+        }
+      ],
+      "total": 216
+    }
+  }
+}

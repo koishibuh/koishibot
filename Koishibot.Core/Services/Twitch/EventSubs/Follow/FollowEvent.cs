@@ -50,6 +50,5 @@ public class FollowEvent
 	/// (RFC3339 converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("followed_at")]
-	[JsonConverter(typeof(DateTimeOffsetRFC3339Converter))]
 	public DateTimeOffset FollowedAt { get; set; }
 }

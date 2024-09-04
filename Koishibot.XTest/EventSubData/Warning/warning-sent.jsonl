@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.warning.send",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "7297f7eb-3bf5-461f-8ae6-7cd7781ebce3",
+      "status": "enabled",
+      "type": "channel.warning.send",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "423374343",
+        "moderator_user_id": "424596340"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-02-23T21:12:33.771005262Z"
+    },
+    "event": {
+      "broadcaster_user_id": "423374343",
+      "broadcaster_user_login": "glowillig",
+      "broadcaster_user_name": "glowillig",
+      "moderator_user_id": "424596340",
+      "moderator_user_login": "quotrok",
+      "moderator_user_name": "quotrok",
+      "user_id": "141981764",
+      "user_login": "twitchdev",
+      "user_name": "TwitchDev",
+      "reason": "cut it out",
+      "chat_rules_cited": null
+    }
+  }
+}

@@ -159,5 +159,5 @@ public class TopPredictor
 	///The number of Channel Points distributed to the viewer.
 	///</summary>
 	[JsonPropertyName("channel_points_won")]
-	public int ChannelPointsWon { get; set; }
+	public int? ChannelPointsWon { get; set; }
 }

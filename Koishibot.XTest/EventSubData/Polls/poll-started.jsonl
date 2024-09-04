@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.poll.begin",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "81852b31-6cfc-4a7c-de69-6e1f360b468e",
+      "status": "enabled",
+      "type": "channel.poll.begin",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "47335531"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:43:40.653037Z",
+      "cost": 0
+    },
+    "event": {
+      "bits_voting": {
+        "amount_per_vote": 10,
+        "is_enabled": true
+      },
+      "broadcaster_user_id": "47335531",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "channel_points_voting": {
+        "amount_per_vote": 500,
+        "is_enabled": true
+      },
+      "choices": [
+        {
+          "id": "9cf33617-041d-108d-f052-0841ccdf399d",
+          "title": "Yes but choice 1"
+        },
+        {
+          "id": "453d70a9-087e-a617-aff3-6dc62ce23e56",
+          "title": "Yes but choice 2"
+        },
+        {
+          "id": "029c8129-7538-fb50-7fce-cc588a57048d",
+          "title": "Yes but choice 3"
+        },
+        {
+          "id": "d9b2802c-76da-2df6-058a-d6d5d1dc0243",
+          "title": "Yes but choice 4"
+        }
+      ],
+      "ends_at": "2024-09-03T17:58:40.653037Z",
+      "id": "7f69c682-cf74-2d0e-3c7b-7d7c7aa2d7d9",
+      "started_at": "2024-09-03T17:43:40.653037Z",
+      "title": "Pineapple on pizza?"
+    }
+  }
+}

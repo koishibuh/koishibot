@@ -2,39 +2,39 @@
 namespace Koishibot.Core.Services.Twitch.Enums;
 
 
-[JsonConverter(typeof(SuspiciousTypeEnumConverter))]
-public enum SuspiciousType
-{
-	Manual = 1,
-	BanEvaderDetector,
-	SharedChannelBan
-}
+// [JsonConverter(typeof(SuspiciousTypeEnumConverter))]
+// public class SuspiciousType
+// {
+// 	public const string Manual = 1,
+// 	public const string BanEvaderDetector,
+// 	public const string SharedChannelBan
+// }
 
 // == ⚫ == //
 
-public class SuspiciousTypeEnumConverter : JsonConverter<SuspiciousType>
+public class SuspiciousTypeEnumConverter : JsonConverter<string>
 {
-	public override SuspiciousType Read
+	public override string Read
 					(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		var value = reader.GetString();
 		return value switch
 		{
-			"manual" => SuspiciousType.Manual,
-			"ban_evader_detector" => SuspiciousType.BanEvaderDetector,
-			"shared_channel_ban" => SuspiciousType.SharedChannelBan,
+			"manual" => "Manual",
+			"ban_evader_detector" => "BanEvaderDetector",
+			"shared_channel_ban" => "SharedChannelBan",
 			_ => throw new JsonException()
 		};
 	}
 
 	public override void Write
-					(Utf8JsonWriter writer, SuspiciousType value, JsonSerializerOptions options)
+					(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
 	{
 		var mappedValue = value switch
 		{
-			SuspiciousType.Manual => "manual",
-			SuspiciousType.BanEvaderDetector => "ban_evader_detector",
-			SuspiciousType.SharedChannelBan => "shared_channel_ban",
+			"Manual" => "manual",
+			"BanEvaderDetector" => "ban_evader_detector",
+			"SharedChannelBan" => "shared_channel_ban",
 			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 		};
 		if (writer.CurrentDepth.Equals(1))

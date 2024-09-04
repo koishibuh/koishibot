@@ -17,19 +17,19 @@ public class CharityCampaignProgressEvent
 	///<summary>
 	///An ID that identifies the broadcaster that’s running the campaign.
 	///</summary>
-	[JsonPropertyName("broadcaster_id")]
+	[JsonPropertyName("broadcaster_user_id")]
 	public string? BroadcasterId { get; set; }
 
 	///<summary>
 	///The broadcaster’s login name.
 	///</summary>
-	[JsonPropertyName("broadcaster_login")]
+	[JsonPropertyName("broadcaster_user_login")]
 	public string? BroadcasterLogin { get; set; }
 
 	///<summary>
 	///The broadcaster’s display name.
 	///</summary>
-	[JsonPropertyName("broadcaster_name")]
+	[JsonPropertyName("broadcaster_user_name")]
 	public string? BroadcasterName { get; set; }
 
 	///<summary>

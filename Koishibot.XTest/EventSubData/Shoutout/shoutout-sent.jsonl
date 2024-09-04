@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.shoutout.create",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "cd2e1fcf-1aee-57e3-3f71-bbf2a4b15a89",
+      "status": "enabled",
+      "type": "channel.shoutout.create",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "28381387",
+        "moderator_user_id": "3502151007"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:56:57.7157839Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "28381387",
+      "broadcaster_user_login": "testFromUser",
+      "broadcaster_user_name": "testFromUser",
+      "cooldown_ends_at": "2024-09-03T17:58:57.7157839Z",
+      "moderator_user_id": "3502151007",
+      "moderator_user_login": "trusteduser123",
+      "moderator_user_name": "TrustedUser123",
+      "started_at": "2024-09-03T17:56:57.7157839Z",
+      "target_cooldown_ends_at": "2024-09-03T18:56:57.7157839Z",
+      "to_broadcaster_user_id": "31988146",
+      "to_broadcaster_user_login": "testBroadcaster",
+      "to_broadcaster_user_name": "testBroadcaster",
+      "viewer_count": 797
+    }
+  }
+}

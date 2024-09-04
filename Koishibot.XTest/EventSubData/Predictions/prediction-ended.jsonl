@@ -1,0 +1,106 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.prediction.end",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "46150282-f840-3674-6624-faa72012cb23",
+      "status": "enabled",
+      "type": "channel.prediction.end",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "35632457"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:45:39.2918036Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "35632457",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "ended_at": "2024-09-03T17:55:39.2918036Z",
+      "id": "372e3ac0-bf66-e4c8-2a7d-e99840033264",
+      "outcomes": [
+        {
+          "channel_points": 9967,
+          "color": "blue",
+          "id": "05db002c-c76b-ec3a-f098-deabcf37663e",
+          "title": "yes",
+          "top_predictors": [
+            {
+              "channel_points_used": 1972,
+              "channel_points_won": 3944,
+              "user_id": "20748147",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 5651,
+              "channel_points_won": 11302,
+              "user_id": "9558003",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 2344,
+              "channel_points_won": 4688,
+              "user_id": "48189522",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            }
+          ],
+          "users": 3
+        },
+        {
+          "channel_points": 23168,
+          "color": "pink",
+          "id": "fa0ebafa-4319-8de3-715e-2d6d0a7d7332",
+          "title": "no",
+          "top_predictors": [
+            {
+              "channel_points_used": 8193,
+              "channel_points_won": 0,
+              "user_id": "14251801",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 7882,
+              "channel_points_won": 0,
+              "user_id": "60381728",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 1409,
+              "channel_points_won": 0,
+              "user_id": "8506494",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 5684,
+              "channel_points_won": 0,
+              "user_id": "45440947",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            }
+          ],
+          "users": 4
+        }
+      ],
+      "started_at": "2024-09-03T17:45:39.2918036Z",
+      "status": "resolved",
+      "title": "Will the developer finish this program?",
+      "winning_outcome_id": "05db002c-c76b-ec3a-f098-deabcf37663e"
+    }
+  }
+}

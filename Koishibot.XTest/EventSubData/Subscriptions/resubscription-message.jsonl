@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.subscription.message",
+    "subscription_version": "1"
+  },
+  "payload": {
+  "subscription": {
+    "id": "a788a95d-46f4-b8c0-8baf-cee1a1db09d2",
+    "status": "enabled",
+    "type": "channel.subscription.message",
+    "version": "1",
+    "condition": {
+      "broadcaster_user_id": "21941904"
+    },
+    "transport": {
+      "method": "websocket",
+      "session_id": "WebSocket-Server-Will-Set"
+    },
+    "created_at": "2024-09-03T17:28:50.4505531Z",
+    "cost": 0
+  },
+  "event": {
+    "broadcaster_user_id": "21941904",
+    "broadcaster_user_login": "testBroadcaster",
+    "broadcaster_user_name": "testBroadcaster",
+    "cumulative_months": 90,
+    "duration_months": 1,
+    "message": {
+      "emotes": [
+        {
+          "begin": 26,
+          "end": 39,
+          "id": "304456816"
+        }
+      ],
+      "text": "Hello from the Twitch CLI! twitchdevLeek"
+    },
+    "streak_months": null,
+    "tier": "1000",
+    "user_id": "80136871",
+    "user_login": "testFromUser",
+    "user_name": "testFromUser"
+  }
+}
+}

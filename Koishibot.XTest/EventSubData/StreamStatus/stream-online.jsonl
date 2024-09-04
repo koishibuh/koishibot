@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "stream.online",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "e3da3609-2d31-9f8f-5dba-be4af8ea0eff",
+      "status": "enabled",
+      "type": "stream.online",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "23710911"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:57:54.490406Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "23710911",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "id": "47318663",
+      "started_at": "2024-09-03T17:57:54.490406Z",
+      "type": "live"
+    }
+  }
+}
