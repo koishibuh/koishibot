@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
@@ -36,6 +37,13 @@ public static class AttendanceExtensions
 	public static IAppCache CreateAttendanceCache(this IAppCache cache)
 	{
 		cache.AddNoExpire(CacheName.Users, new List<TwitchUser>());
+		return cache;
+	}
+
+	public static IAppCache CreateCache(this IAppCache cache)
+	{
+		cache.AddNoExpire(CacheName.StreamEvents, new List<TwitchUser>());
+		cache.AddNoExpire(CacheName.CurrentTimer, new CurrentTimer());
 		return cache;
 	}
 

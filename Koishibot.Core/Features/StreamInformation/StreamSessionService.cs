@@ -13,7 +13,8 @@ namespace Koishibot.Core.Features.StreamInformation;
 public record StreamSessionService(
 ITwitchApiRequest TwitchApiRequest,
 KoishibotDbContext Database,
-IAppCache Cache
+IAppCache Cache,
+ILogger<StreamSessionService> Log
 ) : IStreamSessionService
 {
 	public async Task CreateOrReloadStreamSession()
@@ -27,7 +28,7 @@ IAppCache Cache
 		{
 			var streamInfo = await TwitchApiRequest.GetLiveStreams(parameters);
 
-			if (streamInfo.Data is not null)
+			if (streamInfo.Data is not null && streamInfo.Data.Count == 1)
 			{
 				var stream = streamInfo.Data[0];
 				var liveStreamInfo = stream.ConvertToDto();
@@ -54,7 +55,7 @@ IAppCache Cache
 			{
 				var liveStreamInfo = new LiveStreamInfo("", "", "", "", "", 0, DateTimeOffset.UtcNow, "");
 				await RecordNewSession(liveStreamInfo);
-				throw new CustomException("Was not able to get stream info");
+				Log.LogError("Was not able to get stream info");
 			}
 		}
 	}

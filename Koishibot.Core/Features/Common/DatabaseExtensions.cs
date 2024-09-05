@@ -5,6 +5,15 @@ namespace Koishibot.Core.Features.Common;
 
 public static class DatabaseExtensions
 {
+	public static async Task<TwitchStream?> GetLastStream
+	(this KoishibotDbContext database)
+	{
+		var result = await database.TwitchStreams
+		.OrderByDescending(s => s.Id)
+		.FirstOrDefaultAsync();
+
+		return result;
+	}
 
 	public static async Task<DateOnly?> GetLastMandatoryStreamDate
 			(this KoishibotDbContext database)

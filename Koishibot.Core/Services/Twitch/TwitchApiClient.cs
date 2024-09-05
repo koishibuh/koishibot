@@ -235,7 +235,7 @@ IRefreshAccessTokenService RefreshAccessTokenService
 		var accessToken = Settings.Value.StreamerTokens.AccessToken;
 		var authenticationHeader = new AuthenticationHeaderValue("Bearer", accessToken);
 
-		var httpClient = HttpClientFactory.CreateClient("TwitchTest");
+		var httpClient = HttpClientFactory.CreateClient("Twitch");
 		httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 		httpClient.DefaultRequestHeaders.Add("Client-Id", clientId);
 
