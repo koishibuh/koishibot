@@ -1,15 +1,12 @@
 ﻿using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
-using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Dandle;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
-using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.OBS;
-using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.StreamStatus;
 
 namespace Koishibot.Core.Features.StreamInformation.Events;
 

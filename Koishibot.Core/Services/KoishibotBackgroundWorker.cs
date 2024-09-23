@@ -1,10 +1,8 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.StreamInformation;
 using Koishibot.Core.Features.StreamInformation.Extensions;
-using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchAuthorization;
-using Koishibot.Core.Persistence;
-using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch.EventSubs;
@@ -25,8 +23,8 @@ ITwitchEventSubService twitchEventSubService,
 IObsService obsService,
 IStreamElementsService streamElementsService,
 IStartupTwitchServices startupTwitchServices,
-[FromKeyedServices("notifications")]HubConnection signalrHub,
-IServiceScopeFactory scopeFactory
+IStreamStatsService streamStatsService,
+[FromKeyedServices("notifications")]HubConnection signalrHub
 ) : BackgroundService
 {
 	protected override Task ExecuteAsync(CancellationToken cancel)
@@ -43,21 +41,6 @@ IServiceScopeFactory scopeFactory
 		appCache.InitializeServiceStatusCache();
 		appCache.CreateAttendanceCache();
 		appCache.CreateTimer();
-
-		using var scope = scopeFactory.CreateScope();
-		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-		// var lastStream = await database.GetLastStream();
-		// var lastMandatoryStreamDate = await database.GetLastMandatoryStreamDate();
-		// var streamSessions = new StreamSessions(lastStream, lastMandatoryStreamDate);
-		//
-		// appCache.AddStreamSessions(streamSessions);
-
-		// Add last mandatory stream session Id
-		// var result = await database.StreamSessions
-		// .OrderByDescending(x => x.Id)
-		// .FirstOrDefaultAsync(x => x.AttendanceMandatory == true);
-		//
-		// appCache.Add(CacheName.CurrentSession, new CurrentSession() { LastMandatorySessionId = result?.Id} );
 
 		await signalrHub.StartAsync(cancel);
 
@@ -76,9 +59,16 @@ IServiceScopeFactory scopeFactory
 			await startupTwitchServices.Start();
 		}
 
-		_ = Task.Run(async () =>
+		_ = Task.Run(async () => await TwitchTokenTimer(cancel), cancel);
+		_ = Task.Run(async () => await StreamStatTimer(cancel), cancel);
+
+	}
+
+	/*═════════◣ TWITCH TOKEN TIMER ◢═════════*/
+	private async Task TwitchTokenTimer(CancellationToken cancel)
+	{
 		{
-			var milliseconds = TimeSpan.FromHours(1);
+			var delay = TimeSpan.FromHours(1);
 			while (true)
 			{
 				if (cancel.IsCancellationRequested) { break; }
@@ -86,7 +76,7 @@ IServiceScopeFactory scopeFactory
 				var refreshToken = settings.Value.StreamerTokens.RefreshToken;
 				try
 				{
-					if (refreshToken is null) { return; }
+					if (refreshToken is null) { return;}
 					await refreshOAuthTokensService.Start();
 				}
 				catch (Exception)
@@ -94,9 +84,34 @@ IServiceScopeFactory scopeFactory
 					await signalR.SendError("Unable to refresh token");
 				}
 
-				await Task.Delay(milliseconds, cancel);
+				await Task.Delay(delay, cancel);
 			}
-		}, cancel);
+		}
+	}
+
+	/*═════════◣ STREAM STAT TIMER ◢═════════*/
+	private async Task StreamStatTimer(CancellationToken cancel)
+	{
+		{
+			var delay = TimeSpan.FromMinutes(5);
+			while (true)
+			{
+				if (cancel.IsCancellationRequested) { break; }
+
+				var streamOnline = appCache.StreamOnline();
+				try
+				{
+					if (streamOnline is false) { return; }
+					await streamStatsService.Start();
+				}
+				catch (Exception)
+				{
+					await signalR.SendError("Unable to fetch stream stats");
+				}
+
+				await Task.Delay(delay, cancel);
+			}
+		}
 	}
 
 	/*═════════◣ STOP ◢═════════*/

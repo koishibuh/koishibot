@@ -26,6 +26,29 @@ public class StreamCategory : IEntity
 	}
 }
 
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class StreamCategoryExtensions
+{
+	public static async Task<int> GetStreamCategoryId(this KoishibotDbContext database, string TwitchId, string Name)
+	{
+		var result = await database.StreamCategories
+		.FirstOrDefaultAsync(x => x.TwitchId == TwitchId);
+
+		if (result == null)
+		{
+			result = new StreamCategory
+			{
+				Name = Name,
+				TwitchId = TwitchId
+			};
+
+			await database.UpdateEntry(result);
+		}
+
+		return result.Id;
+	}
+}
+
 // == ⚫ == //
 
 public class StreamCategoryConfig : IEntityTypeConfiguration<StreamCategory>

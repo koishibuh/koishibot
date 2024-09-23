@@ -20,7 +20,6 @@ public class StreamSession : IEntity
 }
 
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/
-
 public static class StreamSessionExtensions
 {
 	public static async Task<StreamSession?> GetRecentStreamSession(this KoishibotDbContext database)

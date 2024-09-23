@@ -1,10 +1,11 @@
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.StreamInformation.Models;
 
 /*═════════════════【 ENTITY MODEL 】═════════════════*/
-public class StreamStats
+public class StreamStats : IEntity
 {
 	public int Id { get; set; }
 	public int StreamSessionId { get; set; }
