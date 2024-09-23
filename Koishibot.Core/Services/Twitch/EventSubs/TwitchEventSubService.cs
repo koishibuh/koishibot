@@ -169,7 +169,7 @@ ITwitchApiRequest TwitchApiRequest
 
 	public async Task DisconnectWebSocket()
 	{
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Offline);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Offline);
 		await Factory.Disconnect();
 		await SignalrService.SendInfo("TwitchEventSub Websocket Disconnected");
 	}
@@ -177,7 +177,7 @@ ITwitchApiRequest TwitchApiRequest
 
 	private async Task ProcessSessionWelcomeMessage(string message)
 	{
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Loading);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Loading);
 		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message);
 		var sessionId = eventMessage.Payload.Session.Id;
 
@@ -194,7 +194,7 @@ ITwitchApiRequest TwitchApiRequest
 
 		_timeoutSeconds = eventMessage.Payload.Session.KeepAliveTimeoutSeconds;
 		StartKeepaliveTimer();
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Online);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Online);
 		await SignalrService.SendInfo("TwitchEventSub Websocket Connected");
 	}
 

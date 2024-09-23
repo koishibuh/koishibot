@@ -4,6 +4,7 @@ using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchAuthorization;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch.EventSubs;
@@ -45,11 +46,18 @@ IServiceScopeFactory scopeFactory
 
 		using var scope = scopeFactory.CreateScope();
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-		var lastStream = await database.GetLastStream();
-		var lastMandatoryStreamDate = await database.GetLastMandatoryStreamDate();
-		var streamSessions = new StreamSessions(lastStream, lastMandatoryStreamDate);
+		// var lastStream = await database.GetLastStream();
+		// var lastMandatoryStreamDate = await database.GetLastMandatoryStreamDate();
+		// var streamSessions = new StreamSessions(lastStream, lastMandatoryStreamDate);
+		//
+		// appCache.AddStreamSessions(streamSessions);
 
-		appCache.AddStreamSessions(streamSessions);
+		// Add last mandatory stream session Id
+		// var result = await database.StreamSessions
+		// .OrderByDescending(x => x.Id)
+		// .FirstOrDefaultAsync(x => x.AttendanceMandatory == true);
+		//
+		// appCache.Add(CacheName.CurrentSession, new CurrentSession() { LastMandatorySessionId = result?.Id} );
 
 		await signalrHub.StartAsync(cancel);
 

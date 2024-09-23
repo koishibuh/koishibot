@@ -1,5 +1,5 @@
 ﻿namespace Koishibot.Core.Persistence.Cache.Enums;
-public class ServiceStatusString
+public class Status
 {
 	public const string Online = "Online";
 	public const string Offline = "Offline";

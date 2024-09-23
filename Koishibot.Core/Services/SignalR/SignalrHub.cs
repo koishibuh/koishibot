@@ -12,7 +12,7 @@ public class SignalrHub(IAppCache cache) : Hub<ISignalrHub>
 		await Clients.Client(Context.ConnectionId).ReceiveLog
 			(new LogVm($"SignalR is now connected", "i"));
 
-		await Cache.UpdateServiceStatus(ServiceName.SignalR, ServiceStatusString.Online);
+		await Cache.UpdateServiceStatus(ServiceName.SignalR, Status.Online);
 
 		await base.OnConnectedAsync();
 	}

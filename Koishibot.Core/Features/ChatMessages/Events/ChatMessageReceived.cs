@@ -26,14 +26,14 @@ IChatReplyService BotIrc
 	public async Task Handle
 	(ChatMessageReceivedCommand command, CancellationToken cancel)
 	{
-		var chatVm = command.CreateChatMessageVm();
+		var chatVm = command.CreateVm();
 		await Signalr.SendChatMessage(chatVm);
 
 		var userDto = command.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
 		var chat = command.CreateChatMessageDto(user);
 
-		if (chat.MessageHasLink() && chat.UserNotAllowed())
+		if (chat.HasSpamLink() && chat.UserNotAllowed())
 		{
 			await TimeoutUserService.TwoSeconds(chat.User.TwitchId);
 			await BotIrc.App(Command.LinkNotPermitted, new { user = chat.User.Name });
@@ -88,7 +88,7 @@ public partial record ChatMessageReceivedCommand(
 ChatMessageReceivedEvent E
 ) : IRequest
 {
-	public ChatMessageVm CreateChatMessageVm() =>
+	public ChatMessageVm CreateVm() =>
 	new ChatMessageVm(E.ChatterId, E.ChatterName, new List<KeyValuePair<string, string>>(),
 	E.Color, E.Message.Text ?? string.Empty);
 

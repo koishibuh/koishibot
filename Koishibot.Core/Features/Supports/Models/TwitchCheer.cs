@@ -3,8 +3,11 @@ using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.Supports.Models;
+
+/*═════════════════【 ENTITY MODEL 】═════════════════*/
 public class TwitchCheer : IEntity
 {
 	public int Id { get; set; }
@@ -43,5 +46,25 @@ public class TwitchCheer : IEntity
 			Timestamp = Timestamp.ToString("yyyy-MM-dd HH:mm"),
 			Message = $"{username} has cheered {BitsAmount}"
 		};
+	}
+}
+
+/*══════════════════【 CONFIGURATION 】═════════════════*/
+public class TwitchCheerConfig : IEntityTypeConfiguration<TwitchCheer>
+{
+	public void Configure(EntityTypeBuilder<TwitchCheer> builder)
+	{
+		builder.ToTable("Cheers");
+
+		builder.HasKey(p => p.Id);
+		builder.Property(p => p.Id);
+
+		builder.Property(p => p.Timestamp);
+
+		builder.Property(p => p.UserId);
+
+		builder.Property(p => p.BitsAmount);
+
+		builder.Property(p => p.Message);
 	}
 }

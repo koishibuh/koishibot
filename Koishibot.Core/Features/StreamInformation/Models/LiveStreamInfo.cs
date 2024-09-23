@@ -11,16 +11,16 @@ DateTimeOffset StartedAt,
 string ThumbnailUrl
 )
 {
-	public TwitchStream CreateTwitchStream(bool attendanceStatus, YearlyQuarter yearlyQuarter)
-	{
-		return new TwitchStream
-		{
-			StreamId = StreamId,
-			StartedAt = StartedAt,
-			AttendanceMandatory = attendanceStatus,
-			YearlyQuarter = yearlyQuarter
-		};
-	}
+	// public TwitchStream CreateTwitchStream(bool attendanceStatus, YearlyQuarter yearlyQuarter)
+	// {
+	// 	return new TwitchStream
+	// 	{
+	// 		StreamId = StreamId,
+	// 		StartedAt = StartedAt,
+	// 		AttendanceMandatory = attendanceStatus,
+	// 		YearlyQuarter = yearlyQuarter
+	// 	};
+	// }
 
 	public bool StreamerOverMaxViewerCount(int maxViewerCount)
 	{

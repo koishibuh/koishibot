@@ -1,3 +1,4 @@
+using Koishibot.Core.Features.StreamInformation.Interfaces;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.StreamInformation.Controllers;
 
@@ -19,11 +20,14 @@ public record ReconnectStreamHandler(
 ILogger<ReconnectStreamHandler> Log,
 IOptions<Settings> Settings,
 ITwitchApiRequest TwitchApiRequest,
-IServiceScopeFactory ScopeFactory
+IServiceScopeFactory ScopeFactory,
+IStreamSessionService StreamSessionService
 ) : IRequestHandler<ReconnectStreamCommand>
 {
 	public async Task Handle(ReconnectStreamCommand command, CancellationToken cancel)
 	{
+
+		await StreamSessionService.CreateOrReloadStreamSession();
 		if (await StreamIsOnline())
 		{
 			try

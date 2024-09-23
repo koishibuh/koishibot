@@ -5,26 +5,29 @@ using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
+using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Persistence.Cache.Enums;
+
 namespace Koishibot.Core.Features.AttendanceLog;
 
 public record AttendanceProcessor(
 KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
-IStreamSessionService StreamSessionService,
 IAppCache Cache
 ) : IAttendanceProcessor
 {
 	public async Task Start(TwitchUser user)
 	{
 		if (user.IsIgnored()) return;
-		if (Cache.AttendanceDisabled()) return;
+
+		var session = Cache.Get<CurrentSession>(CacheName.CurrentSession);
 
 		var attendance = await Database.GetAttendanceByUserId(user.Id);
 		if (attendance is null)
 		{
-			attendance = new Attendance().Set(user);
+			attendance = new Attendance().Set(user, session.LastMandatorySessionId);
 
 			await Database.UpdateAttendance(attendance);
 
@@ -33,23 +36,11 @@ IAppCache Cache
 		}
 		else // Attendance record found
 		{
-			if (attendance.WasAlreadyRecordedToday()) return;
-
-			DateOnly date;
-
-			try
-			{
-				date = Cache.GetLastMandatoryStreamDate();
-			}
-			catch (Exception e)
-			{
-				await StreamSessionService.CreateOrReloadStreamSession();
-				date = Cache.GetLastMandatoryStreamDate();
-			}
+			if (attendance.WasAlreadyRecordedToday(session.LastMandatorySessionId)) return;
 
 			attendance
-			.UpdateStreakCount(date)
-			.SetLastUpdatedDate();
+			.UpdateStreakCount(session.LastMandatorySessionId)
+			.SetLastUpdatedDate(session.LastMandatorySessionId);
 
 			await Database.UpdateAttendance(attendance);
 

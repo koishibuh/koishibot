@@ -2,6 +2,7 @@
 
 public enum CacheName
 {
+	CurrentSession,
 	ServiceStatus,
 	StreamSessions,
 	StreamEvents,

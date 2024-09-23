@@ -53,6 +53,17 @@ public partial class ChatMessageDto
 
 	public bool MessageHasLink() => UrlRegex().IsMatch(Message);
 
+	public bool HasSpamLink()
+	{
+		var spam = "ers on";
+		if (Message.Contains(spam, StringComparison.OrdinalIgnoreCase) is false) return false;
+
+		const string link = @"\b\w*[\./]\w*$";
+		var regex = new Regex(link);
+
+		return regex.IsMatch(Message);
+	}
+
 	public bool MessageCorrectLength(int length) => Message.Length == length;
 
 	public bool MessageContainsNonLetters()

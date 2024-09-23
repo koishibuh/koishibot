@@ -23,8 +23,9 @@ public static class StartupExtensions
 			builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 			builder.Configuration.AddJsonFile
 				("ASettings/settings.json", optional: false);
-			builder.Configuration.AddJsonFile
-				("ASettings/dbstring.json", optional: false);
+			// builder.Configuration.AddJsonFile
+			// 	("ASettings/dbstring.json", optional: false);
+			builder.Configuration.AddUserSecrets<Program>();
 			var appSettings = builder.Configuration.GetSection("AppSettings");
 			builder.Services.Configure<Settings>(appSettings);
 

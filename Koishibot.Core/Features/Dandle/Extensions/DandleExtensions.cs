@@ -16,12 +16,12 @@ public static class DandleExtensions
 /*══════════════════【 CACHE 】══════════════════*/
 	public static void EnableDandle(this IAppCache cache)
 	{
-		cache.UpdateServiceStatus(ServiceName.Dandle, ServiceStatusString.Online);
+		cache.UpdateServiceStatus(ServiceName.Dandle, Status.Online);
 	}
 
 	public static void DisableDandle(this IAppCache cache)
 	{
-		cache.UpdateServiceStatus(ServiceName.Dandle, ServiceStatusString.Offline);
+		cache.UpdateServiceStatus(ServiceName.Dandle, Status.Offline);
 	}
 
 

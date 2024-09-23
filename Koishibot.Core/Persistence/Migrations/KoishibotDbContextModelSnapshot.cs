@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Koishibot.Core.Migrations
+namespace Koishibot.Core.Persistence.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
     partial class KoishibotDbContextModelSnapshot : ModelSnapshot
@@ -21,21 +21,6 @@ namespace Koishibot.Core.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("ChatCommandTimerGroup", b =>
-                {
-                    b.Property<int>("CommandsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TimerGroupsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CommandsId", "TimerGroupsId");
-
-                    b.HasIndex("TimerGroupsId");
-
-                    b.ToTable("ChatCommandTimerGroup");
-                });
 
             modelBuilder.Entity("Koishibot.Core.Features.ApplicationAuthentication.Models.AppLogin", b =>
                 {
@@ -69,8 +54,8 @@ namespace Koishibot.Core.Migrations
                     b.Property<int>("AttendanceCount")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("LastUpdated")
-                        .HasColumnType("date");
+                    b.Property<int?>("LastAttendedSessionId")
+                        .HasColumnType("int");
 
                     b.Property<int>("StreakCurrentCount")
                         .HasColumnType("int");
@@ -192,28 +177,6 @@ namespace Koishibot.Core.Migrations
                     b.ToTable("ChannelPointRewards", (string)null);
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.ItemTag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WordPressId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("ItemTags", (string)null);
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>
                 {
                     b.Property<int>("Id")
@@ -246,6 +209,28 @@ namespace Koishibot.Core.Migrations
                     b.ToTable("KoiKinDragons", (string)null);
                 });
 
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WordPressId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("WordpressItemTags", (string)null);
+                });
+
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>
                 {
                     b.Property<int>("Id")
@@ -266,7 +251,8 @@ namespace Koishibot.Core.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Permissions")
                         .IsRequired()
@@ -277,7 +263,7 @@ namespace Koishibot.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChatCommands");
+                    b.ToTable("ChatCommands", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandName", b =>
@@ -292,13 +278,31 @@ namespace Koishibot.Core.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ChatCommandId");
 
-                    b.ToTable("CommandNames");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("CommandNames", (string)null);
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandTimerGroup", b =>
+                {
+                    b.Property<int>("ChatCommandId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TimerGroupId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ChatCommandId", "TimerGroupId");
+
+                    b.HasIndex("TimerGroupId");
+
+                    b.ToTable("CommandTimerGroup");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.TimerGroup", b =>
@@ -340,15 +344,9 @@ namespace Koishibot.Core.Migrations
                     b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("TwitchStreamId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DandleWordId");
-
-                    b.HasIndex("TwitchStreamId")
-                        .IsUnique();
 
                     b.ToTable("DandleResults", (string)null);
                 });
@@ -434,9 +432,6 @@ namespace Koishibot.Core.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("TwitchStreamId")
-                        .HasColumnType("int");
-
                     b.Property<int>("VoteFive")
                         .HasColumnType("int");
 
@@ -458,8 +453,6 @@ namespace Koishibot.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TwitchStreamId");
-
                     b.ToTable("Polls", (string)null);
                 });
 
@@ -474,20 +467,21 @@ namespace Koishibot.Core.Migrations
                     b.Property<int>("RaidedUserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SuggestedByUserId")
+                    b.Property<int?>("StreamSessionId")
+                        .IsRequired()
                         .HasColumnType("int");
 
-                    b.Property<int>("TwitchStreamId")
+                    b.Property<int>("SuggestedByUserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RaidedUserId");
 
-                    b.HasIndex("SuggestedByUserId");
-
-                    b.HasIndex("TwitchStreamId")
+                    b.HasIndex("StreamSessionId")
                         .IsUnique();
+
+                    b.HasIndex("SuggestedByUserId");
 
                     b.ToTable("OutgoingRaids", (string)null);
                 });
@@ -506,9 +500,6 @@ namespace Koishibot.Core.Migrations
                     b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("TwitchStreamId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ViewerCount")
                         .HasColumnType("int");
 
@@ -516,9 +507,38 @@ namespace Koishibot.Core.Migrations
 
                     b.HasIndex("RaidedByUserId");
 
-                    b.HasIndex("TwitchStreamId");
-
                     b.ToTable("IncomingRaids", (string)null);
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.LiveStream", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("StreamSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TwitchId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StreamSessionId");
+
+                    b.HasIndex("TwitchId")
+                        .IsUnique();
+
+                    b.ToTable("LiveStreams", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.StreamCategory", b =>
@@ -545,7 +565,7 @@ namespace Koishibot.Core.Migrations
                     b.ToTable("StreamCategories", (string)null);
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.TwitchStream", b =>
+            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.StreamSession", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -559,24 +579,42 @@ namespace Koishibot.Core.Migrations
                     b.Property<TimeSpan>("Duration")
                         .HasColumnType("time(6)");
 
-                    b.Property<DateTimeOffset>("StartedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("StreamId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
                     b.Property<int>("YearlyQuarterId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StreamId")
-                        .IsUnique();
-
                     b.HasIndex("YearlyQuarterId");
 
-                    b.ToTable("TwitchStreams", (string)null);
+                    b.ToTable("StreamSessions", (string)null);
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.StreamStats", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("StreamCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StreamSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StreamTitle")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ViewerCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StreamCategoryId");
+
+                    b.ToTable("StreamStats", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.YearlyQuarter", b =>
@@ -876,21 +914,6 @@ namespace Koishibot.Core.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("ChatCommandTimerGroup", b =>
-                {
-                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", null)
-                        .WithMany()
-                        .HasForeignKey("CommandsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.TimerGroup", null)
-                        .WithMany()
-                        .HasForeignKey("TimerGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.AttendanceLog.Models.Attendance", b =>
                 {
                     b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "User")
@@ -921,22 +944,22 @@ namespace Koishibot.Core.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.ItemTag", b =>
-                {
-                    b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "TwitchUser")
-                        .WithOne("WordpressItemTag")
-                        .HasForeignKey("Koishibot.Core.Features.ChannelPoints.Models.ItemTag", "UserId");
-
-                    b.Navigation("TwitchUser");
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>
                 {
-                    b.HasOne("Koishibot.Core.Features.ChannelPoints.Models.ItemTag", "ItemTag")
+                    b.HasOne("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", "ItemTag")
                         .WithMany("KoiKinDragons")
                         .HasForeignKey("ItemTagId");
 
                     b.Navigation("ItemTag");
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "TwitchUser")
+                        .WithOne("WordpressItemTag")
+                        .HasForeignKey("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", "UserId");
+
+                    b.Navigation("TwitchUser");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandName", b =>
@@ -948,6 +971,21 @@ namespace Koishibot.Core.Migrations
                     b.Navigation("ChatCommand");
                 });
 
+            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandTimerGroup", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", null)
+                        .WithMany()
+                        .HasForeignKey("ChatCommandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.TimerGroup", null)
+                        .WithMany()
+                        .HasForeignKey("TimerGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Koishibot.Core.Features.Dandle.Models.DandleResult", b =>
                 {
                     b.HasOne("Koishibot.Core.Features.Dandle.Models.DandleWord", "DandleWord")
@@ -956,26 +994,7 @@ namespace Koishibot.Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Koishibot.Core.Features.StreamInformation.Models.TwitchStream", "TwitchStream")
-                        .WithOne("DandleResult")
-                        .HasForeignKey("Koishibot.Core.Features.Dandle.Models.DandleResult", "TwitchStreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("DandleWord");
-
-                    b.Navigation("TwitchStream");
-                });
-
-            modelBuilder.Entity("Koishibot.Core.Features.Polls.Models.PollResult", b =>
-                {
-                    b.HasOne("Koishibot.Core.Features.StreamInformation.Models.TwitchStream", "TwitchStream")
-                        .WithMany("PollResults")
-                        .HasForeignKey("TwitchStreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TwitchStream");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.RaidSuggestions.Models.OutgoingRaid", b =>
@@ -985,22 +1004,22 @@ namespace Koishibot.Core.Migrations
                         .HasForeignKey("RaidedUserId")
                         .IsRequired();
 
+                    b.HasOne("Koishibot.Core.Features.StreamInformation.Models.StreamSession", "StreamSession")
+                        .WithOne("OutgoingRaid")
+                        .HasForeignKey("Koishibot.Core.Features.RaidSuggestions.Models.OutgoingRaid", "StreamSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "SuggestedByUser")
                         .WithMany("RaidsSuggestedByThisUser")
                         .HasForeignKey("SuggestedByUserId")
                         .IsRequired();
 
-                    b.HasOne("Koishibot.Core.Features.StreamInformation.Models.TwitchStream", "TwitchStream")
-                        .WithOne("OutgoingRaid")
-                        .HasForeignKey("Koishibot.Core.Features.RaidSuggestions.Models.OutgoingRaid", "TwitchStreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("RaidedUser");
 
-                    b.Navigation("SuggestedByUser");
+                    b.Navigation("StreamSession");
 
-                    b.Navigation("TwitchStream");
+                    b.Navigation("SuggestedByUser");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Raids.Models.IncomingRaid", b =>
@@ -1011,26 +1030,40 @@ namespace Koishibot.Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Koishibot.Core.Features.StreamInformation.Models.TwitchStream", "TwitchStream")
-                        .WithMany("IncomingRaids")
-                        .HasForeignKey("TwitchStreamId")
+                    b.Navigation("RaidedByUser");
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.LiveStream", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.StreamInformation.Models.StreamSession", "StreamSession")
+                        .WithMany("LiveStreams")
+                        .HasForeignKey("StreamSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("RaidedByUser");
-
-                    b.Navigation("TwitchStream");
+                    b.Navigation("StreamSession");
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.TwitchStream", b =>
+            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.StreamSession", b =>
                 {
                     b.HasOne("Koishibot.Core.Features.StreamInformation.Models.YearlyQuarter", "YearlyQuarter")
-                        .WithMany("TwitchStreams")
+                        .WithMany("StreamSessions")
                         .HasForeignKey("YearlyQuarterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("YearlyQuarter");
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.StreamStats", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.StreamInformation.Models.StreamCategory", "StreamCategory")
+                        .WithMany()
+                        .HasForeignKey("StreamCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StreamCategory");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Supports.Models.ChannelFollow", b =>
@@ -1111,7 +1144,7 @@ namespace Koishibot.Core.Migrations
                     b.Navigation("ChannelPointRedemptions");
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.ItemTag", b =>
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", b =>
                 {
                     b.Navigation("KoiKinDragons");
                 });
@@ -1126,21 +1159,16 @@ namespace Koishibot.Core.Migrations
                     b.Navigation("DandleResults");
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.TwitchStream", b =>
+            modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.StreamSession", b =>
                 {
-                    b.Navigation("DandleResult")
-                        .IsRequired();
-
-                    b.Navigation("IncomingRaids");
+                    b.Navigation("LiveStreams");
 
                     b.Navigation("OutgoingRaid");
-
-                    b.Navigation("PollResults");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.StreamInformation.Models.YearlyQuarter", b =>
                 {
-                    b.Navigation("TwitchStreams");
+                    b.Navigation("StreamSessions");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", b =>

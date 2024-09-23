@@ -36,6 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Persistence\Migrations\" />
     <Folder Include="Services\Twitch\EventSubs\Extensions\" />
   </ItemGroup>
 

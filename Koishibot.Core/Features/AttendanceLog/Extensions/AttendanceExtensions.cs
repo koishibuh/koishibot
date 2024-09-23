@@ -26,13 +26,13 @@ public static class AttendanceExtensions
 		return result is false;
 	}
 
-	public static DateOnly GetLastMandatoryStreamDate(this IAppCache cache)
-	{
-		var streamSessions = cache.Get<StreamSessions>(CacheName.StreamSessions)
-			?? throw new Exception("StreamSessions not found");
-
-		return streamSessions.LastMandatoryStreamDate;
-	}
+	// public static DateOnly GetLastMandatoryStreamDate(this IAppCache cache)
+	// {
+	// 	var streamSessions = cache.Get<StreamSessions>(CacheName.StreamSessions)
+	// 		?? throw new Exception("StreamSessions not found");
+	//
+	// 	return streamSessions.LastMandatoryStreamDate;
+	// }
 
 	public static IAppCache CreateAttendanceCache(this IAppCache cache)
 	{

@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.StreamInformation.Extensions;
@@ -24,26 +25,30 @@ public record StreamOfflineHandler(
 
 	public async Task Handle(StreamOfflineCommand command, CancellationToken cancel)
 	{
-		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, ServiceStatusString.Offline);
+		// Find stream session, set end
+
+		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, Status.Offline);
 
 		//await ObsService.StopWebsocket();
 
-		var todaysStream = Cache.GetCurrentTwitchStream();
+		var lastStream = await Database.GetLastStream();
 
-		var parameters = command.CreateParameters(StreamerId);
-		var response = await TwitchApiRequest.GetVideos(parameters);
-		// Check if this can be null or empty
+		lastStream.EndedAt = DateTimeOffset.UtcNow;
+		await Database.UpdateEntry(lastStream);
 
-		if (response.Data.Count > 0 && response.Data[0].VideoId == todaysStream.StreamId)
-		{
-			todaysStream.Duration = response.Data[0].Duration;
-		}
-		else
-		{
-			todaysStream.CalculateStreamDuration();
-		}
+		// var streamSessionId = Cache.GetCurrentStreamSessionId();
+		//
+		var streamSession = await Database.StreamSessions
+			.OrderByDescending(x => x.Id)
+			.FirstOrDefaultAsync();
 
-		await Database.AddStream(todaysStream);
+		var liveStreams = await Database.LiveStreams
+			.Where(x => x.StreamSessionId == streamSession.Id)
+			.OrderBy(x => x.StartedAt)
+			.ToListAsync(cancellationToken: cancel);
+
+		streamSession.Duration = (liveStreams.Last().EndedAt ?? DateTimeOffset.UtcNow) - liveStreams.First().StartedAt;
+		await Database.UpdateEntry(streamSession);
 
 		// Todo: Clear Stream Session from Cache?
 		// Todo: Disable any channel points
