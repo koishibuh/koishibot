@@ -19,7 +19,7 @@ public class UpdateAttendanceStatus : ApiControllerBase
 }
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
-public record EnableLightsHandler(
+public record UpdateAttendanceHandler(
 IAppCache Cache,
 KoishibotDbContext Database
 ) : IRequestHandler<UpdateAttendanceStatusCommand>
