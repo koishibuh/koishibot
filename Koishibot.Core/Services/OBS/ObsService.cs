@@ -117,7 +117,7 @@ IServiceScopeFactory ScopeFactory
 	private async Task OnAuthorized()
 	{
 		await Signalr.SendInfo("Obs WebSocket Connected");
-		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Online);
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, Status.Online);
 
 		// Do things when Obs has connected
 		var request = new RequestWrapper
@@ -329,7 +329,7 @@ IServiceScopeFactory ScopeFactory
 	public async Task Disconnect()
 	{
 		await Factory.Disconnect();
-		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, ServiceStatusString.Offline);
+		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, Status.Offline);
 		await Signalr.SendInfo("OBS Websocket Disconnected");
 	}
 

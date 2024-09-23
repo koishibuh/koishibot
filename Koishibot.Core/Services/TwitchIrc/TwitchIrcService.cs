@@ -63,7 +63,7 @@ ILogger<TwitchIrcService> Log
 
 		await Task.Delay(3000);
 
-		await Cache.UpdateServiceStatus(ServiceName.BotIrc, ServiceStatusString.Online);
+		await Cache.UpdateServiceStatus(ServiceName.BotIrc, Status.Online);
 	}
 
 	private async Task SendMessageToChat(string channelName, string message)
@@ -112,7 +112,7 @@ ILogger<TwitchIrcService> Log
 	public async Task DisconnectWebSocket()
 	{
 		await Factory.Disconnect();
-		await Cache.UpdateServiceStatus(ServiceName.BotIrc, ServiceStatusString.Offline);
+		await Cache.UpdateServiceStatus(ServiceName.BotIrc, Status.Offline);
 		await SignalrService.SendInfo("BotIrc Websocket Disconnected");
 	}
 }

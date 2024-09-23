@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.shield_mode.begin",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "4c476f93-dad5-f3bb-aa96-a6e0a7464dcb",
+      "status": "enabled",
+      "type": "channel.shield_mode.begin",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "15701695",
+        "moderator_user_id": "57170928"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:56:05.2307971Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "15701695",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "moderator_user_id": "57170928",
+      "moderator_user_login": "testFromUser",
+      "moderator_user_name": "testFromUser",
+      "started_at": "2024-09-03T17:46:05.2307971Z"
+    }
+  }
+}

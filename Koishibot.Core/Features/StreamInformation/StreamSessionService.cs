@@ -1,5 +1,5 @@
-﻿using Koishibot.Core.Exceptions;
-using Koishibot.Core.Features.AttendanceLog.Extensions;
+﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
@@ -13,7 +13,8 @@ namespace Koishibot.Core.Features.StreamInformation;
 public record StreamSessionService(
 ITwitchApiRequest TwitchApiRequest,
 KoishibotDbContext Database,
-IAppCache Cache
+IAppCache Cache,
+ILogger<StreamSessionService> Log
 ) : IStreamSessionService
 {
 	public async Task CreateOrReloadStreamSession()
@@ -27,21 +28,45 @@ IAppCache Cache
 		{
 			var streamInfo = await TwitchApiRequest.GetLiveStreams(parameters);
 
-			if (streamInfo.Data is not null)
+			if (streamInfo.Data is not null && streamInfo.Data.Count == 1)
 			{
 				var stream = streamInfo.Data[0];
-				var liveStreamInfo = stream.ConvertToDto();
+				// var liveStreamInfo = stream.ConvertToDto();
 
-				var sessionRepo = await Database.GetSessionByTwitchId(liveStreamInfo.StreamId);
-				if (sessionRepo is null)
-				{
-					await RecordNewSession(liveStreamInfo);
-				}
-				else
-				{
-					await ReloadCurrentSession(sessionRepo);
-				}
+				// check if Id exists
+				var storedLiveStream = await Database.LiveStreams
+				.FirstOrDefaultAsync(x => x.TwitchId == stream.VideoId);
 
+				if (storedLiveStream is null)
+				{
+					// create new livestream
+					storedLiveStream = new LiveStream
+					{
+					TwitchId = stream.VideoId,
+					StartedAt = stream.StartedAt,
+					EndedAt = null
+					};
+
+					storedLiveStream = await Database.UpdateEntryReturn(storedLiveStream);
+
+					// has it been 20 minutes since last livestream?
+					// Get previous livestream entry
+					var lastLiveStream = await Database.LiveStreams
+					.OrderByDescending(x => x.Id)
+					.Skip(1)
+					.FirstOrDefaultAsync();
+
+					// has been 20  minutes, create stream session
+					if (lastLiveStream is null ||
+					    lastLiveStream.EndedAt + TimeSpan.FromMinutes(20) < DateTimeOffset.UtcNow)
+					{
+						await RecordNewSession(storedLiveStream);
+					}
+					else
+					{
+						await ReloadCurrentSession(storedLiveStream);
+					}
+				}
 				return;
 			}
 
@@ -52,15 +77,13 @@ IAppCache Cache
 			}
 			else
 			{
-				var liveStreamInfo = new LiveStreamInfo("", "", "", "", "", 0, DateTimeOffset.UtcNow, "");
-				await RecordNewSession(liveStreamInfo);
-				throw new CustomException("Was not able to get stream info");
+				Log.LogError("Unable to get stream info, stream offline.");
 			}
 		}
 	}
 
 	/*═══════════◣ NEW SESSION ◢═══════════*/
-	public async Task RecordNewSession(LiveStreamInfo streamInfo)
+	public async Task RecordNewSession(LiveStream stream)
 	{
 		var yearlyQuarter = await Database.GetYearlyQuarter();
 		if (yearlyQuarter is null || yearlyQuarter.EndOfQuarter())
@@ -73,27 +96,52 @@ IAppCache Cache
 
 		var attendanceStatus = Cache.GetStatusByServiceName(ServiceName.Attendance);
 
-		var twitchStream = streamInfo.CreateTwitchStream(attendanceStatus, yearlyQuarter);
-		await Database.AddStream(twitchStream);
+		var streamSession = new StreamSession
+		{
+		Duration = TimeSpan.Zero,
+		AttendanceMandatory = attendanceStatus,
+		YearlyQuarterId = yearlyQuarter.Id
+		};
 
-		var lastStreamDate = await Database.GetLastMandatoryStreamDate();
-		var streamSessions = new StreamSessions(twitchStream, lastStreamDate);
+		streamSession.LiveStreams.Add(stream);
+		streamSession = await Database.UpdateEntryReturn(streamSession);
 
-		Cache.AddStreamSessions(streamSessions);
+		var lastMandatoryStreamId = await Database.GetLastMandatorySessionId();
+		var cacheSession = new CurrentSession
+		{
+		LiveStreamId = stream.Id,
+		StreamSessionId = streamSession.Id,
+		LastMandatorySessionId = lastMandatoryStreamId
+		};
+
+		Cache.Add(CacheName.CurrentSession, cacheSession);
 	}
 
 	/*═════════◣ CURRENT SESSION ◢═════════*/
-	public async Task ReloadCurrentSession(TwitchStream stream)
+	public async Task ReloadCurrentSession(LiveStream stream)
 	{
-		var status = stream.AttendanceMandatory
-		? ServiceStatusString.Online
-		: ServiceStatusString.Offline;
+		// use old stream session
+		var streamSession = await Database.StreamSessions
+		.OrderByDescending(x => x.Id)
+		.FirstOrDefaultAsync();
+
+		streamSession.LiveStreams.Add(stream);
+		await Database.SaveChangesAsync();
+		var lastMandatoryStreamId = await Database.GetLastMandatorySessionId();
+
+		var cacheSession = new CurrentSession
+		{
+		LiveStreamId = stream.Id,
+		StreamSessionId = streamSession.Id,
+		LastMandatorySessionId = lastMandatoryStreamId
+		};
+
+		Cache.Add(CacheName.CurrentSession, cacheSession);
+
+		var status = streamSession.AttendanceMandatory
+		? Status.Online
+		: Status.Offline;
 
 		await Cache.UpdateServiceStatus(ServiceName.Attendance, status);
-
-		var lastStreamDate = await Database.GetLastMandatoryStreamDate();
-		var streamSessions = new StreamSessions(stream, lastStreamDate);
-
-		Cache.AddStreamSessions(streamSessions);
 	}
 }

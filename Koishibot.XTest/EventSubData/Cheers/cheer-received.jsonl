@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.cheer",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "0d495922-7cca-9ae9-b207-119f34b5af7c",
+      "status": "enabled",
+      "type": "channel.cheer",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "74675621"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:31:08.032001Z",
+      "cost": 0
+    },
+    "event": {
+      "bits": 100,
+      "broadcaster_user_id": "74675621",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "is_anonymous": false,
+      "message": "This is a test event.",
+      "user_id": "23342703",
+      "user_login": "testFromUser",
+      "user_name": "testFromUser"
+    }
+  }
+}

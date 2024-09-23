@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.charity_campaign.stop",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "01a59491-5dec-d243-42e2-1b4f35d3101a",
+      "status": "enabled",
+      "type": "channel.charity_campaign.stop",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "99048678"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:52:22.9418163Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "99048678",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "charity_description": "Example Description",
+      "charity_logo": "https://abc.cloudfront.net/ppgf/1000/100.png",
+      "charity_name": "Example Charity",
+      "charity_website": "https://www.example.com",
+      "current_amount": {
+        "currency": "USD",
+        "decimal_places": 2,
+        "value": 1450000
+      },
+      "id": "dd85417e-6026-fd2f-5c79-dc1b4ff0c8d9",
+      "stopped_at": "2024-09-03T17:52:22.9418163Z",
+      "target_amount": {
+        "currency": "USD",
+        "decimal_places": 2,
+        "value": 1500000
+      }
+    }
+  }
+}

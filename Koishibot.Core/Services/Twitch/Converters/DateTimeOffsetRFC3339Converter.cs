@@ -3,19 +3,31 @@ using System.Text.Json;
 
 namespace Koishibot.Core.Services.Twitch.Converters;
 
-public class DateTimeOffsetRFC3339Converter : JsonConverter<DateTimeOffset>
+public class DateTimeOffsetRFC3339Converter : JsonConverter<DateTimeOffset?>
 {
-	public override DateTimeOffset Read
+	public override DateTimeOffset? Read
 		(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
+		if (reader.TokenType == JsonTokenType.Null)
+		{
+			return null;
+		}
+
 		return DateTimeOffset.Parse(reader.GetString(), null, System.Globalization.DateTimeStyles.RoundtripKind);
 	}
 
 	public override void Write
-		(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
+		(Utf8JsonWriter writer, DateTimeOffset? value, JsonSerializerOptions options)
 	{
 		// "o" is the format specifier for RFC3339
-		writer.WriteStringValue(value.ToString("o")); 
+		if (value.HasValue)
+		{
+			writer.WriteStringValue(value.Value.ToString("o"));
+		}
+		else
+		{
+			writer.WriteNullValue();
+		}
 	}
 }
 

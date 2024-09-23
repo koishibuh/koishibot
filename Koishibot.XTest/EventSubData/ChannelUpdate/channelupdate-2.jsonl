@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.update",
+    "subscription_version": "2"
+  },
+  "payload": {
+    "subscription": {
+      "id": "b6bc0796-c565-972a-52b0-5bce6aeae0e8",
+      "status": "enabled",
+      "type": "channel.update",
+      "version": "2",
+      "condition": {
+        "broadcaster_user_id": "95696263"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:00:46.9686322Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "95696263",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "category_id": "3203",
+      "category_name": "Just Chatting",
+      "content_classification_labels": [
+        "MatureGame",
+        "ViolentGraphic"
+      ],
+      "language": "en",
+      "title": "Example title from the CLI!"
+    }
+  }
+}

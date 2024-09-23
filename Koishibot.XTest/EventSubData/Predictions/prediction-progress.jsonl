@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.prediction.progress",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "84509414-95fc-3d06-c070-bfbe7b09f611",
+      "status": "enabled",
+      "type": "channel.prediction.progress",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "49903142"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:46:52.9208156Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "49903142",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "id": "8e68f461-4cce-b851-49cb-630592f59080",
+      "locks_at": "2024-09-03T17:56:52.9208156Z",
+      "outcomes": [
+        {
+          "channel_points": 10793,
+          "color": "blue",
+          "id": "e4cd5eff-fadc-1a4b-c88f-1e4cc2244a48",
+          "title": "yes",
+          "top_predictors": [
+            {
+              "channel_points_used": 313,
+              "channel_points_won": null,
+              "user_id": "56360218",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 4027,
+              "channel_points_won": null,
+              "user_id": "46715589",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 6453,
+              "channel_points_won": null,
+              "user_id": "33080813",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            }
+          ],
+          "users": 3
+        },
+        {
+          "channel_points": 29239,
+          "color": "pink",
+          "id": "df2ef84c-b99c-e84f-7186-ad12e6e7936d",
+          "title": "no",
+          "top_predictors": [
+            {
+              "channel_points_used": 8265,
+              "channel_points_won": null,
+              "user_id": "55185325",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 2199,
+              "channel_points_won": null,
+              "user_id": "68722172",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 9014,
+              "channel_points_won": null,
+              "user_id": "21828930",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 7271,
+              "channel_points_won": null,
+              "user_id": "4141944",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            },
+            {
+              "channel_points_used": 2490,
+              "channel_points_won": null,
+              "user_id": "88796133",
+              "user_login": "testLogin",
+              "user_name": "testLogin"
+            }
+          ],
+          "users": 5
+        }
+      ],
+      "started_at": "2024-09-03T17:46:52.9208156Z",
+      "title": "Will the developer finish this program?"
+    }
+  }
+}

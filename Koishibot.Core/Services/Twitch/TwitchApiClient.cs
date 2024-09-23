@@ -231,7 +231,13 @@ IRefreshAccessTokenService RefreshAccessTokenService
 	{
 		await EnsureValidToken();
 
-		var httpClient = CreateClient();
+		var clientId = Settings.Value.TwitchAppSettings.ClientId;
+		var accessToken = Settings.Value.StreamerTokens.AccessToken;
+		var authenticationHeader = new AuthenticationHeaderValue("Bearer", accessToken);
+
+		var httpClient = HttpClientFactory.CreateClient("Twitch");
+		httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
+		httpClient.DefaultRequestHeaders.Add("Client-Id", clientId);
 
 		var baseUri = httpClient.BaseAddress + endPoint;
 		var uriBuilder = new UriBuilder(baseUri);

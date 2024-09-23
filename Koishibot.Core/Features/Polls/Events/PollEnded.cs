@@ -123,7 +123,7 @@ public record PollEndedHandler(
 		return new PollResult
 		{
 			StartedAt = startedAt,
-			TwitchStreamId = streamSessionId,
+			// TwitchStreamId = streamSessionId,
 			Title = title,
 			ChoiceOne = results[0].Key,
 			VoteOne = results[0].Value,

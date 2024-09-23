@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Features.AdBreak.Events;
+﻿using System.Diagnostics;
+using Koishibot.Core.Features.AdBreak.Events;
 using Koishibot.Core.Features.ChannelPoints.Events;
 using Koishibot.Core.Features.ChatMessages.Events;
 using Koishibot.Core.Features.Moderation;
@@ -44,6 +45,7 @@ using System.Text.Json;
 using Koishibot.Core.Exceptions;
 using Koishibot.Core.Features.Shoutouts.Events;
 using Timer = System.Timers.Timer;
+
 namespace Koishibot.Core.Services.Twitch.EventSubs;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
@@ -62,13 +64,17 @@ ITwitchApiRequest TwitchApiRequest
 	private WebSocketHandler? TwitchEventSub { get; set; }
 	private int _timeoutSeconds = 60;
 	private Timer Timer { get; } = new(TimeSpan.FromSeconds(63));
+	private bool _useCli = false; // For testing on debug
+
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
-		= new(25, x => x.MessageId);
+	= new(25, x => x.MessageId);
 
 
 	public async Task CreateWebSocket()
 	{
-		var url = $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
+		var url = _useCli
+		? $"ws://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}"
+		: $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
 
 		try
 		{
@@ -88,7 +94,10 @@ ITwitchApiRequest TwitchApiRequest
 		// if timer has elapsed, reconnect
 		try
 		{
-			if (TwitchEventSub is null) { return;}
+			if (TwitchEventSub is null)
+			{
+				return;
+			}
 
 			if (message.IsPing())
 			{
@@ -160,7 +169,7 @@ ITwitchApiRequest TwitchApiRequest
 
 	public async Task DisconnectWebSocket()
 	{
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Offline);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Offline);
 		await Factory.Disconnect();
 		await SignalrService.SendInfo("TwitchEventSub Websocket Disconnected");
 	}
@@ -168,22 +177,24 @@ ITwitchApiRequest TwitchApiRequest
 
 	private async Task ProcessSessionWelcomeMessage(string message)
 	{
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Loading);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Loading);
 		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message);
 		var sessionId = eventMessage.Payload.Session.Id;
 
+		if (_useCli) return; // Testing
+
 		var eventsToSubscribeTo = Settings.Value.DebugMode
-			? TwitchApiHelper.DebugSubscribeToEvents()
-			: TwitchApiHelper.SubscribeToEvents();
+		? TwitchApiHelper.DebugSubscribeToEvents()
+		: TwitchApiHelper.SubscribeToEvents();
 
 		var requests = eventsToSubscribeTo.Select
-			(x => CreateEventSubRequest(x, sessionId)).ToList();
+		(x => CreateEventSubRequest(x, sessionId)).ToList();
 
 		await TwitchApiRequest.CreateEventSubSubscription(requests);
 
 		_timeoutSeconds = eventMessage.Payload.Session.KeepAliveTimeoutSeconds;
 		StartKeepaliveTimer();
-		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, ServiceStatusString.Online);
+		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Online);
 		await SignalrService.SendInfo("TwitchEventSub Websocket Connected");
 	}
 
@@ -238,6 +249,7 @@ ITwitchApiRequest TwitchApiRequest
 				{
 					// Upgraded bit tier
 				}
+
 				//if (args.Payload.Event.NoticeType == NoticeType.CharityDonation)
 				//{
 				//	// send to chat?
@@ -247,16 +259,17 @@ ITwitchApiRequest TwitchApiRequest
 				//	// send to chat?
 				//}
 				if (chatNotificationReceived.Payload.Event.NoticeType == NoticeType.Sub ||
-				chatNotificationReceived.Payload.Event.NoticeType == NoticeType.Resub ||
-				chatNotificationReceived.Payload.Event.NoticeType == NoticeType.SubGift ||
-				chatNotificationReceived.Payload.Event.NoticeType == NoticeType.CommunitySubGift ||
-				chatNotificationReceived.Payload.Event.NoticeType == NoticeType.GiftSubPaidUpgrade ||
-				chatNotificationReceived.Payload.Event.NoticeType == NoticeType.PrimeSubPaidUpgrade ||
-				chatNotificationReceived.Payload.Event.NoticeType == NoticeType.PayItForwardSub
-				)
+				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.Resub ||
+				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.SubGift ||
+				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.CommunitySubGift ||
+				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.GiftSubPaidUpgrade ||
+				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.PrimeSubPaidUpgrade ||
+				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.PayItForwardSub
+				   )
 				{
 					// send to chat?
 				}
+
 				break;
 			case EventSubSubscriptionType.ChannelChatSettingsUpdate:
 				var chatSettingsUpdated = JsonSerializer.Deserialize<EventMessage<ChatSettingsUpdatedEvent>>(message);
@@ -291,6 +304,7 @@ ITwitchApiRequest TwitchApiRequest
 				{
 					await Send(new OutgoingRaidCommand(raid.Payload.Event));
 				}
+
 				break;
 			case EventSubSubscriptionType.ChannelBan:
 				var userBanned = JsonSerializer.Deserialize<EventMessage<BannedUserEvent>>(message);
@@ -413,15 +427,15 @@ ITwitchApiRequest TwitchApiRequest
 				await Send(new ChannelGoalEndedCommand(channelGoalEnded.Payload.Event));
 				break;
 			case EventSubSubscriptionType.HypeTrainBegin:
-				var hypeTrainStarted = JsonSerializer.Deserialize<EventMessage<HypeTrainEvent>>(message);
+				var hypeTrainStarted = JsonSerializer.Deserialize<EventMessage<HypeTrainStartedEvent>>(message);
 				await Send(new HypeTrainStartedCommand(hypeTrainStarted.Payload.Event));
 				break;
 			case EventSubSubscriptionType.HypeTrainProgress:
-				var hypeTrainProgressed = JsonSerializer.Deserialize<EventMessage<HypeTrainEvent>>(message);
+				var hypeTrainProgressed = JsonSerializer.Deserialize<EventMessage<HypeTrainProgressedEvent>>(message);
 				await Send(new HypeTrainProgressedCommand(hypeTrainProgressed.Payload.Event));
 				break;
 			case EventSubSubscriptionType.HypeTrainEnd:
-				var hypeTrainEnded = JsonSerializer.Deserialize<EventMessage<HypeTrainEvent>>(message);
+				var hypeTrainEnded = JsonSerializer.Deserialize<EventMessage<HypeTrainEndedEvent>>(message);
 				await Send(new HypeTrainEndedCommand(hypeTrainEnded.Payload.Event));
 				break;
 			case EventSubSubscriptionType.ShieldModeBegin:
@@ -459,8 +473,8 @@ ITwitchApiRequest TwitchApiRequest
 			var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
 
 			await mediatr.Send(args);
-		} 
-		catch (Exception ex) 
+		}
+		catch (Exception ex)
 		{
 			Log.LogInformation($"{ex}");
 		}
@@ -484,16 +498,16 @@ ITwitchApiRequest TwitchApiRequest
 	}
 
 	public CreateEventSubSubscriptionRequestBody CreateEventSubRequest
-		(EventSubSubscriptionType type, string sessionId)
+	(EventSubSubscriptionType type, string sessionId)
 	{
 		var streamerId = Settings.Value.StreamerTokens.UserId;
 
 		return new CreateEventSubSubscriptionRequestBody
 		{
-			SubscriptionType = type,
-			Version = type.GetVersion(),
-			Condition = type.GetConditions(streamerId),
-			Transport = new TransportMethod { SessionId = sessionId },
+		SubscriptionType = type,
+		Version = type.GetVersion(),
+		Condition = type.GetConditions(streamerId),
+		Transport = new TransportMethod { SessionId = sessionId },
 		};
 	}
 

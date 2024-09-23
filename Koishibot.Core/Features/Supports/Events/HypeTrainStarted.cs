@@ -8,8 +8,7 @@ using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.HypeTrain;
 
 namespace Koishibot.Core.Features.Supports.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelhype_trainbegin">Twitch Documentation</see><br/>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-reference/#hype-train-begin-event"/>Eventsub Payload</see><br/>
@@ -17,12 +16,12 @@ namespace Koishibot.Core.Features.Supports.Events;
 /// When a hype train starts (100 bits, subs), posts message in chat and update overlay.
 /// </summary>
 public record HypeTrainStartedHandler(
-	IAppCache Cache,
-	ISignalrService Signalr,
-	ITwitchUserHub TwitchUserHub,
-	IChatReplyService ChatReplyService,
-	KoishibotDbContext Database
-	) : IRequestHandler<HypeTrainStartedCommand>
+IAppCache Cache,
+ISignalrService Signalr,
+ITwitchUserHub TwitchUserHub,
+IChatReplyService ChatReplyService,
+KoishibotDbContext Database
+) : IRequestHandler<HypeTrainStartedCommand>
 {
 	public async Task Handle(HypeTrainStartedCommand command, CancellationToken cancel)
 	{
@@ -37,11 +36,10 @@ public record HypeTrainStartedHandler(
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record HypeTrainStartedCommand(
-	HypeTrainEvent e
-	) : IRequest
+HypeTrainStartedEvent e
+) : IRequest
 {
 	public object CreateData()
 	{
@@ -52,9 +50,9 @@ public record HypeTrainStartedCommand(
 	{
 		return new StreamEventVm
 		{
-			EventType = StreamEventType.HypeTrain,
-			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
-			Message = "A hype train has started!"
+		EventType = StreamEventType.HypeTrain,
+		Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
+		Message = "A hype train has started!"
 		};
 	}
 };

@@ -4,6 +4,7 @@ namespace Koishibot.Core.Services.TwitchApi.Models;
 
 public partial record TwitchApiRequest(
 	ITwitchApiClient TwitchApiClient,
+	IOptions<Settings> Settings,
 	ILogger<TwitchApiRequest> Log
 	) : ITwitchApiRequest {}
 

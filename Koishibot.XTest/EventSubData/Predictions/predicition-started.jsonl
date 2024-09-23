@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.prediction.begin",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "2e2b3d69-160b-ce40-3ecf-1e963123cb84",
+      "status": "enabled",
+      "type": "channel.prediction.begin",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "48106161"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:46:20.5677213Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "48106161",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "id": "7442baf5-d933-8854-86c9-17a7097531d3",
+      "locks_at": "2024-09-03T17:56:20.5677213Z",
+      "outcomes": [
+        {
+          "color": "blue",
+          "id": "10a458a8-a93b-12c3-7fb4-b17f4f04ce09",
+          "title": "yes"
+        },
+        {
+          "color": "pink",
+          "id": "3fcb92eb-8af6-9613-f556-48050aaf2626",
+          "title": "no"
+        }
+      ],
+      "started_at": "2024-09-03T17:46:20.5677213Z",
+      "title": "Will the developer finish this program?"
+    }
+  }
+}

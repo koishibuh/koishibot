@@ -189,10 +189,10 @@ public static class ChannelPointExtensions
 			.ToList();
 	}
 
-	public static async Task<ItemTag?> GetItemTagByUserId
+	public static async Task<WordpressItemTag?> GetItemTagByUserId
 		(this KoishibotDbContext database, int userId)
 	{
-		return await database.ItemTags
+		return await database.WordpressItemTags
 		.Where(x => x.UserId == userId)
 		.FirstOrDefaultAsync();
 	}

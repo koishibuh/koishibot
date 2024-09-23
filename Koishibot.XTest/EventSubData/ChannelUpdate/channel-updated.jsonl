@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.update",
+    "subscription_version": "2"
+  },
+  "payload": {
+    "subscription": {
+      "id": "25e8ed75-c7a0-474b-b73e-7d9ce1cb7a55",
+      "status": "enabled",
+      "type": "channel.update",
+      "version": "2",
+      "condition": {
+        "broadcaster_user_id": "98683749"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "AgoQyTnjeqifTDW1qPgiKW17txIGY2VsbC1j"
+      },
+      "created_at": "2024-09-03T15:03:17.649303162Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "98683749",
+      "broadcaster_user_login": "elysiagriffin",
+      "broadcaster_user_name": "ElysiaGriffin",
+      "title": "c# vue site | !health !jetbrains",
+      "language": "en",
+      "category_id": "1469308723",
+      "category_name": "Software and Game Development",
+      "content_classification_labels": []
+    }
+  }
+}

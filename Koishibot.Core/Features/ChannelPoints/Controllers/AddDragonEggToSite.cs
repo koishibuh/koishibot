@@ -38,9 +38,9 @@ IWordpressService WordpressService
 		if (databaseEntry is null)
 		{
 			var result = await WordpressService.CreateItemTag(dragonQuest.SuccessfulUser.Name);
-			databaseEntry = new ItemTag { UserId = dragonQuest.SuccessfulUser.Id, WordPressId = result.Id };
+			databaseEntry = new WordpressItemTag { UserId = dragonQuest.SuccessfulUser.Id, WordPressId = result.Id };
 
-			Database.ItemTags.Add(databaseEntry);
+			Database.WordpressItemTags.Add(databaseEntry);
 			await Database.SaveChangesAsync(cancel);
 		}
 

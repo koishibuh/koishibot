@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.poll.progress",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "6c6946a3-2939-3d09-402b-c56644aca354",
+      "status": "enabled",
+      "type": "channel.poll.progress",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "60895266"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:44:28.8036788Z",
+      "cost": 0
+    },
+    "event": {
+      "bits_voting": {
+        "amount_per_vote": 10,
+        "is_enabled": true
+      },
+      "broadcaster_user_id": "60895266",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "channel_points_voting": {
+        "amount_per_vote": 500,
+        "is_enabled": true
+      },
+      "choices": [
+        {
+          "bits_votes": 7,
+          "channel_points_votes": 0,
+          "id": "de9fc186-37ae-5fc8-a889-f924e411ec01",
+          "title": "Yes but choice 1",
+          "votes": 15
+        },
+        {
+          "bits_votes": 3,
+          "channel_points_votes": 5,
+          "id": "647a1baa-a7f9-65a4-4bc4-777d9b0c1305",
+          "title": "Yes but choice 2",
+          "votes": 10
+        },
+        {
+          "bits_votes": 2,
+          "channel_points_votes": 3,
+          "id": "74dcce42-9055-798b-10eb-8a8362679416",
+          "title": "Yes but choice 3",
+          "votes": 9
+        },
+        {
+          "bits_votes": 8,
+          "channel_points_votes": 8,
+          "id": "438c115c-c250-009e-56d8-5bd42871e514",
+          "title": "Yes but choice 4",
+          "votes": 21
+        }
+      ],
+      "ends_at": "2024-09-03T17:59:28.8036788Z",
+      "id": "e7857385-0ef2-31fb-5783-e4af27bb4676",
+      "started_at": "2024-09-03T17:44:28.8036788Z",
+      "title": "Pineapple on pizza?"
+    }
+  }
+}

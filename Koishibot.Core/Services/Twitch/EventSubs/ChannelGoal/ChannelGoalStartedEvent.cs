@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Services.Twitch.Converters;
 using Koishibot.Core.Services.Twitch.Enums;
+
 namespace Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelGoal;
 
 /// <summary>
@@ -46,15 +47,6 @@ public class ChannelGoalStartedEvent
 	[JsonPropertyName("description")]
 	public string Description { get; set; } = string.Empty;
 
-
-	/// <summary>
-	/// "A Boolean value that indicates whether the broadcaster achieved their goal. Is true if the goal was achieved; otherwise, false.
-	/// Only the channel.goal.end event includes this field."
-	/// </summary>
-	[JsonPropertyName("is_achieved")]
-	public bool IsAchieved { get; set; }
-
-
 	/// <summary>
 	/// "The goal’s current value. The goal’s type determines how this value is increased or decreased.<br/>
 	/// Follow: Set to the broadcaster's current number of followers. Increases with new followers and decreases when users unfollow.<br/>
@@ -66,29 +58,17 @@ public class ChannelGoalStartedEvent
 	[JsonPropertyName("current_amount")]
 	public int CurrentAmount { get; set; }
 
-
 	/// <summary>
 	/// The goal’s target value. For example, if the broadcaster has 200 followers before creating the goal, and their goal is to double that number, this field is set to 400.
 	/// </summary>
 	[JsonPropertyName("target_amount")]
 	public int TargetAmount { get; set; }
 
-
 	/// <summary>
 	/// The timestamp which indicates when the broadcaster created the goal.<br/>
 	/// (RFC3339 format converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("started_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
+	// [JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartedAt { get; set; }
-
-
-	/// <summary>
-	/// The timestamp which indicates when the broadcaster ended the goal.<br/>
-	/// (RFC3339 format converted to DateTimeOffset)<br/>
-	/// Only the channel.goal.end event includes this field.
-	/// </summary>
-	[JsonPropertyName("ended_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset EndedAt { get; set; }
 }

@@ -34,12 +34,12 @@ public class UserMessagesClearedEvent
 	/// <summary>
 	/// The user login of the user that was banned or put in a timeout. (Lowercase)
 	/// </summary>
-	[JsonPropertyName("broadcaster_user_login")]
+	[JsonPropertyName("target_user_login")]
 	public string ViewerUserLogin { get; set; } = string.Empty;
 
 	/// <summary>
 	/// The user name of the user that was banned or put in a timeout.
 	/// </summary>
-	[JsonPropertyName("broadcaster_user_name")]
+	[JsonPropertyName("target_user_name")]
 	public string ViewerUserName { get; set; } = string.Empty;
 }

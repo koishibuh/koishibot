@@ -23,8 +23,9 @@ public static class StartupExtensions
 			builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 			builder.Configuration.AddJsonFile
 				("ASettings/settings.json", optional: false);
-			builder.Configuration.AddJsonFile
-				("ASettings/dbstring.json", optional: false);
+			// builder.Configuration.AddJsonFile
+			// 	("ASettings/dbstring.json", optional: false);
+			builder.Configuration.AddUserSecrets<Program>();
 			var appSettings = builder.Configuration.GetSection("AppSettings");
 			builder.Services.Configure<Settings>(appSettings);
 
@@ -99,7 +100,10 @@ public static class StartupExtensions
 			httpClient.BaseAddress = new Uri("https://wifij01us.magichue.net/app/"));
 
 		builder.Services.AddHttpClient("Twitch", httpClient =>
-			httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/"));
+			 httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/"));
+
+		builder.Services.AddHttpClient("TwitchTest", httpClient =>
+			httpClient.BaseAddress = new Uri("http://localhost:8080/"));
 
 		builder.Services.AddHttpClient("Wordpress", httpClient =>
 			httpClient.BaseAddress = new Uri("https://www.elysiagriffin.com/wp-json/wp/v2/"));

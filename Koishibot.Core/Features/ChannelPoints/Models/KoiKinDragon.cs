@@ -11,7 +11,7 @@ public class KoiKinDragon
 	public string Name { get; set; }
 
 	public int? ItemTagId { get; set; }
-	public ItemTag? ItemTag { get; set; }
+	public WordpressItemTag? ItemTag { get; set; }
 }
 
 public class KoiKinDragonConfig : IEntityTypeConfiguration<KoiKinDragon>

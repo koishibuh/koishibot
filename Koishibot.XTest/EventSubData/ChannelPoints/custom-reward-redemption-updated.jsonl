@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "message_id": "rITzygxLlWGQy8pu5lMeRZgvfrQ9ytUJY7SJ5J99swk\u003d",
+    "message_type": "notification",
+    "message_timestamp": "2024-09-03T15:03:30.247863891Z",
+    "subscription_type": "channel.channel_points_custom_reward_redemption.update",
+    "subscription_version": "1"
+  },
+  "payload": {
+    "subscription": {
+      "id": "36a1b4be-517a-04d9-0d58-346861386b65",
+      "status": "enabled",
+      "type": "channel.channel_points_custom_reward_redemption.update",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "82473578"
+      },
+      "transport": {
+        "method": "websocket",
+        "session_id": "WebSocket-Server-Will-Set"
+      },
+      "created_at": "2024-09-03T17:42:41.9324994Z",
+      "cost": 0
+    },
+    "event": {
+      "broadcaster_user_id": "82473578",
+      "broadcaster_user_login": "testBroadcaster",
+      "broadcaster_user_name": "testBroadcaster",
+      "id": "8e5e8ceb-9b4a-6ee7-2536-d6ba8dcf608a",
+      "redeemed_at": "2024-09-03T17:42:41.9324994Z",
+      "reward": {
+        "cost": 150,
+        "id": "8f4084ac-fbe7-6182-50b6-f5139758012e",
+        "prompt": "Redeem Your Test Reward from CLI",
+        "title": "Test Reward from CLI"
+      },
+      "status": "unfulfilled",
+      "user_id": "36079281",
+      "user_input": "Test Input From CLI",
+      "user_login": "testFromUser",
+      "user_name": "testFromUser"
+    }
+  }
+}

@@ -24,40 +24,36 @@ public static class AppCacheExtensions
 		var result = typeof(ServiceStatus).GetProperty(serviceName.ToString())
 			?? throw new Exception($"Property '{serviceName.ToString()}' not found in ServiceStatus");
 
-		if (result.GetValue(serviceStatus) == ServiceStatusString.Online)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return result.GetValue(serviceStatus) == Status.Online;
 	}
 
 	public static async Task UpdateServiceStatusOnline(this IAppCache cache, ServiceName serviceName)
 	{
-		await cache.UpdateServiceStatus(serviceName, ServiceStatusString.Online);
+		await cache.UpdateServiceStatus(serviceName, Status.Online);
 	}
 
 	public static async Task UpdateServiceStatusOffline(this IAppCache cache, ServiceName serviceName)
 	{
-		await cache.UpdateServiceStatus(serviceName, ServiceStatusString.Offline);
+		await cache.UpdateServiceStatus(serviceName, Status.Offline);
 	}
 
-	public static int GetCurrentStreamId(this IAppCache cache)
+	public static int? GetCurrentStreamId(this IAppCache cache)
 	{
-		var streamSessions = cache.Get<StreamSessions>(CacheName.StreamSessions);
-		if (streamSessions is null) { return 0; }
-		return streamSessions.CurrentStream.Id;
+		var streamInfo = cache.Get<CurrentSession>(CacheName.CurrentSession);
+		return streamInfo is null ? 0 : streamInfo.LiveStreamId;
 	}
 
-	public static TwitchStream GetCurrentTwitchStream(this IAppCache cache)
+	public static int? GetCurrentTwitchStream(this IAppCache cache)
 	{
-		var streamSessions = cache.Get<StreamSessions>(CacheName.StreamSessions);
-		return streamSessions!.CurrentStream;
+		var session = cache.Get<CurrentSession>(CacheName.CurrentSession);
+		return session.LiveStreamId;
 	}
 
-
+	public static int? GetCurrentStreamSessionId(this IAppCache cache)
+	{
+		var session = cache.Get<CurrentSession>(CacheName.CurrentSession);
+		return session.StreamSessionId;
+	}
 
 	public static StreamInfo? GetStreamInfo(this IAppCache cache)
 	{

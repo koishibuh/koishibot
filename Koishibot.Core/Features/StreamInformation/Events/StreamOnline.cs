@@ -1,11 +1,15 @@
 ﻿using Koishibot.Core.Features.AdBreak.Extensions;
 using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Dandle;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Interfaces;
+using Koishibot.Core.Features.StreamInformation.Models;
+using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.OBS;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.StreamStatus;
 
 namespace Koishibot.Core.Features.StreamInformation.Events;
 
@@ -19,11 +23,14 @@ ISignalrService Signalr,
 IStreamSessionService StreamSessionService,
 IObsService ObsService,
 IChannelPointStatusService ChannelPointStatusService,
-IDandleService DandleService
+IDandleService DandleService,
+KoishibotDbContext Database
 ) : IRequestHandler<StreamOnlineCommand>
 {
 	public async Task Handle(StreamOnlineCommand command, CancellationToken cancel)
 	{
+		await StreamSessionService.CreateOrReloadStreamSession();
+
 		await Cache
 		.ClearAttendanceCache()
 		.UpdateStreamStatusOnline();
@@ -38,8 +45,6 @@ IDandleService DandleService
 
 		await ChannelPointStatusService.Enable();
 
-		await StreamSessionService.CreateOrReloadStreamSession();
-
 		await DandleService.StartGame();
 
 		// Todo: Enable stats
@@ -47,4 +52,4 @@ IDandleService DandleService
 }
 
 /*════════════════════【 COMMAND 】════════════════════*/
-public record StreamOnlineCommand : IRequest;
+public record StreamOnlineCommand: IRequest;

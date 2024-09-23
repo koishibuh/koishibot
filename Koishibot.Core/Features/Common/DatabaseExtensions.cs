@@ -5,19 +5,38 @@ namespace Koishibot.Core.Features.Common;
 
 public static class DatabaseExtensions
 {
-
-	public static async Task<DateOnly?> GetLastMandatoryStreamDate
-			(this KoishibotDbContext database)
+	public static async Task<LiveStream?> GetLastStream
+	(this KoishibotDbContext database)
 	{
-		var result = await database.TwitchStreams
-				.OrderByDescending(s => s.Id)
-				.Skip(1)
-				.FirstOrDefaultAsync(s => s.AttendanceMandatory == true);
+		var result = await database.LiveStreams
+		.OrderByDescending(s => s.Id)
+		.FirstOrDefaultAsync();
 
-		return result is null
-		? null
-		: DateOnly.FromDateTime(result.StartedAt.DateTime);
+		return result;
 	}
+
+	public static async Task<int?> GetLastMandatorySessionId(this KoishibotDbContext database)
+	{
+		var result = await database.StreamSessions
+		.OrderByDescending(x => x.Id)
+		.Skip(1)
+		.FirstOrDefaultAsync();
+
+		return result.Id;
+	}
+
+	// public static async Task<DateOnly?> GetLastMandatoryStreamDate
+	// 		(this KoishibotDbContext database)
+	// {
+	// 	var result = await database.TwitchStreams
+	// 			.OrderByDescending(s => s.Id)
+	// 			.Skip(1)
+	// 			.FirstOrDefaultAsync(s => s.AttendanceMandatory == true);
+	//
+	// 	return result is null
+	// 	? null
+	// 	: DateOnly.FromDateTime(result.StartedAt.DateTime);
+	// }
 
 	public static async Task<YearlyQuarter?> GetYearlyQuarter
 			(this KoishibotDbContext database)

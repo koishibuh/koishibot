@@ -56,7 +56,7 @@ public record StreamElementsService(
 			else if (message.IsAuthenticated())
 			{
 				_eventSet.Add(new StreamElementsEvent{ CreatedAt = DateTimeOffset.UtcNow });
-				await Cache.UpdateServiceStatus(ServiceName.StreamElements, ServiceStatusString.Online);
+				await Cache.UpdateServiceStatus(ServiceName.StreamElements, Status.Online);
 				StartKeepaliveTimer();
 			}
 
@@ -129,7 +129,7 @@ public record StreamElementsService(
 		_keepaliveTimer.Stop();
 		_keepaliveTimer.Dispose();
 		await Factory.Disconnect();
-		await Cache.UpdateServiceStatus(ServiceName.StreamElements, ServiceStatusString.Offline);
+		await Cache.UpdateServiceStatus(ServiceName.StreamElements, Status.Offline);
 		await Signalr.SendInfo("StreamElements Websocket Disconnected");
 		// TODO: Proper retry
 		await CreateWebSocket();

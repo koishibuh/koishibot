@@ -47,14 +47,6 @@ public class ShieldModeEndedEvent
     public string ModeratorUserName { get; set; } = string.Empty;
 
     /// <summary>
-    /// The timestamp of when the moderator activated Shield Mode. <br/>
-    /// The object includes this field only for channel.shield_mode.begin events <br/>
-    /// (RFC3339 format converted to DateTimeOffset)
-    /// </summary>
-    [JsonPropertyName("started_at")]
-    public DateTimeOffset StartedAt { get; set; }
-
-    /// <summary>
     /// The timestamp of when the moderator deactivated Shield Mode. <br/>
     /// The object includes this field only for channel.shield_mode.end events<br/>
     /// (RFC3339 format converted to DateTimeOffset)

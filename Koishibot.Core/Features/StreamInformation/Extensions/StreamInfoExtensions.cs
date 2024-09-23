@@ -15,18 +15,18 @@ public static class StreamInfoExtensions
 		cache.AddNoExpire(CacheName.StreamInfo, info);
 
 	public static async Task UpdateStreamStatusOnline(this IAppCache cache) =>
-		await cache.UpdateServiceStatus(ServiceName.StreamOnline, ServiceStatusString.Online);
+		await cache.UpdateServiceStatus(ServiceName.StreamOnline, Status.Online);
 
-	public static void AddStreamSessions(this IAppCache cache, StreamSessions sessions) =>
-		cache.Add(CacheName.StreamSessions, sessions);
+	// public static void AddStreamSessions(this IAppCache cache, StreamSessions sessions) =>
+	// 	cache.Add(CacheName.StreamSessions, sessions);
 
 /*═══════════════════【 DATABASE 】═══════════════════*/
-	public static async Task<TwitchStream?> GetSessionByTwitchId
-		(this KoishibotDbContext database, string twitchStreamId)
-	{
-		return await database.TwitchStreams
-			.FirstOrDefaultAsync(s => s.StreamId == twitchStreamId);
-	}
+	// public static async Task<TwitchStream?> GetSessionByTwitchId
+	// 	(this KoishibotDbContext database, string twitchStreamId)
+	// {
+	// 	return await database.TwitchStreams
+	// 		.FirstOrDefaultAsync(s => s.StreamId == twitchStreamId);
+	// }
 
 	public static async Task<YearlyQuarter> AddYearlyQuarter
 		(this KoishibotDbContext database, YearlyQuarter yearlyQuarter)
@@ -36,10 +36,10 @@ public static class StreamInfoExtensions
 		return yearlyQuarter;
 	}
 
-	public static async Task AddStream
-		(this KoishibotDbContext database, TwitchStream stream)
-	{
-		database.Update(stream);
-		await database.SaveChangesAsync();
-	}
+	// public static async Task AddStream
+	// 	(this KoishibotDbContext database, TwitchStream stream)
+	// {
+	// 	database.Update(stream);
+	// 	await database.SaveChangesAsync();
+	// }
 }

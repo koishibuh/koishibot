@@ -48,13 +48,6 @@ public class ChannelGoalProgressEvent
 	public string Description { get; set; } = string.Empty;
 
 	/// <summary>
-	/// A Boolean value that indicates whether the broadcaster achieved their goal. Is true if the goal was achieved; otherwise, false.
-	/// Only the channel.goal.end event includes this field.
-	/// </summary>
-	[JsonPropertyName("is_achieved")]
-	public bool IsAchieved { get; set; }
-
-	/// <summary>
 	/// "The goal’s current value. The goal’s type determines how this value is increased or decreased.<br/>
 	/// Follow: Set to the broadcaster's current number of followers. Increases with new followers and decreases when users unfollow.<br/>
 	/// Subscription: Increased and decreased by the points value associated with the subscription tier. For example, if a tier-two subscription is worth 2 points, this field is increased or decreased by 2, not 1.<br/>
@@ -76,16 +69,6 @@ public class ChannelGoalProgressEvent
 	/// (RFC3339 format converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("started_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
+	// [JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartedAt { get; set; }
-
-
-	/// <summary>
-	/// The timestamp which indicates when the broadcaster ended the goal.<br/>
-	/// (RFC3339 format converted to DateTimeOffset)<br/>
-	/// Only the channel.goal.end event includes this field.
-	[JsonPropertyName("ended_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset EndedAt { get; set; }
-
 }

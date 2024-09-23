@@ -1,4 +1,6 @@
-﻿using Koishibot.Core.Features.ApplicationAuthentication.Models;
+﻿
+
+using Koishibot.Core.Features.ApplicationAuthentication.Models;
 using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands.Models;
@@ -17,7 +19,6 @@ public class KoishibotDbContext : DbContext
 	public DbSet<TwitchUser> Users => Set<TwitchUser>();
 	public DbSet<Attendance> Attendances => Set<Attendance>();
 	public DbSet<YearlyQuarter> YearlyQuarters => Set<YearlyQuarter>();
-	public DbSet<TwitchStream> TwitchStreams => Set<TwitchStream>();
 	public DbSet<ChannelPointRedemption> ChannelPointRedemptions => Set<ChannelPointRedemption>();
 	public DbSet<ChannelPointReward> ChannelPointRewards => Set<ChannelPointReward>();
 	public DbSet<IncomingRaid> IncomingRaids => Set<IncomingRaid>();
@@ -35,8 +36,10 @@ public class KoishibotDbContext : DbContext
 	public DbSet<SupportTotal> SupportTotals => Set<SupportTotal>();
 	public DbSet<ObsItem> ObsItems => Set<ObsItem>();
 	public DbSet<StreamCategory> StreamCategories => Set<StreamCategory>();
-	public DbSet<ItemTag> ItemTags => Set<ItemTag>();
 	public DbSet<KoiKinDragon> KoiKinDragons => Set<KoiKinDragon>();
+	public DbSet<WordpressItemTag> WordpressItemTags => Set<WordpressItemTag>();
+	public DbSet<LiveStream> LiveStreams => Set<LiveStream>();
+	public DbSet<StreamSession> StreamSessions => Set<StreamSession>();
 
 	public KoishibotDbContext(DbContextOptions<KoishibotDbContext> options)
 		: base(options)

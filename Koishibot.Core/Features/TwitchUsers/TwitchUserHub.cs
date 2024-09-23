@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Features.AttendanceLog.Interfaces;
+﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
@@ -16,6 +17,8 @@ public record TwitchUserHub(
 		if (notCached && Cache.StreamOnline())
 		{
 			if (Settings.Value.DebugMode is true) { return user; }
+			if (Cache.AttendanceDisabled()) return user;
+
 			await AttendanceProcessor.Start(user);
 		}
 

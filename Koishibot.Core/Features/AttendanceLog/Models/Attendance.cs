@@ -1,13 +1,16 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Enums;
 using Koishibot.Core.Features.TwitchUsers.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.AttendanceLog.Models;
 
+/*═════════════════【 ENTITY MODEL 】═════════════════*/
 public class Attendance
 {
 	public int Id { get; set; }
 	public int UserId { get; set; }
-	public DateOnly LastUpdated { get; set; }
+	public int? LastAttendedSessionId { get; set; } // new
+	// public DateOnly LastUpdated { get; set; }
 	public int AttendanceCount { get; set; }
 	public int StreakCurrentCount { get; set; }
 	public int StreakPersonalBest { get; set; }
@@ -17,10 +20,11 @@ public class Attendance
 	public TwitchUser User { get; set; } = null!;
 
 /*═══════════════════【 METHODS 】═══════════════════*/
-	public Attendance Set(TwitchUser user)
+	public Attendance Set(TwitchUser user, int? sessionId)
 	{
 		User = user;
-		LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
+		LastAttendedSessionId = sessionId;
+		// LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
 		StreakCurrentCount = 1;
 		StreakPersonalBest = 1;
 		AttendanceCount = 1;
@@ -29,9 +33,10 @@ public class Attendance
 		return this;
 	}
 
-	public Attendance UpdateStreakCount(DateOnly lastMandatoryStreamDate)
+	// public Attendance UpdateStreakCount(DateOnly lastMandatoryStreamDate)
+	public Attendance UpdateStreakCount(int? lastMandatorySessionId)
 	{
-		if (lastMandatoryStreamDate == LastUpdated && StreakOptOut == false)
+		if (lastMandatorySessionId == LastAttendedSessionId && StreakOptOut == false)
 		{
 			StreakCurrentCount++;
 			AttendanceCount++;
@@ -48,10 +53,9 @@ public class Attendance
 		return this;
 	}
 
-	public Attendance SetLastUpdatedDate()
+	public Attendance SetLastUpdatedDate(int? lastMandatorySessionId)
 	{
-		var today = DateOnly.FromDateTime(DateTime.UtcNow);
-		LastUpdated = today;
+		LastAttendedSessionId = lastMandatorySessionId;
 		return this;
 	}
 
@@ -71,6 +75,29 @@ public class Attendance
 		return this;
 	}
 
-	public bool WasAlreadyRecordedToday()
-		=> LastUpdated == DateOnly.FromDateTime(DateTime.Now);
+	public bool WasAlreadyRecordedToday(int? lastMandatorySessionId)
+		=> LastAttendedSessionId == lastMandatorySessionId;
+}
+
+/*══════════════════【 CONFIGURATION 】═════════════════*/
+public class AttendanceConfig : IEntityTypeConfiguration<Attendance>
+{
+	public void Configure(EntityTypeBuilder<Attendance> builder)
+	{
+		builder.ToTable("Attendances");
+
+		builder.HasKey(p => p.Id);
+
+		builder.Property(p => p.Id);
+
+		builder.Property(p => p.UserId);
+
+		builder.Property(p => p.AttendanceCount);
+
+		builder.Property(p => p.StreakCurrentCount);
+
+		builder.Property(p => p.StreakPersonalBest);
+
+		builder.Property(p => p.StreakOptOut);
+	}
 }

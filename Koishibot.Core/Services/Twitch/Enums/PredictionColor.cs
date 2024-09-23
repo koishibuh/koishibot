@@ -20,7 +20,9 @@ public class PredictionColorEnumConverter : JsonConverter<PredictionColor>
 		return value switch
 		{
 			"PINK" => PredictionColor.Pink,
+			"pink" => PredictionColor.Pink,
 			"BLUE" => PredictionColor.Blue,
+			"blue" => PredictionColor.Blue,
 			_ => throw new JsonException()
 		};
 	}

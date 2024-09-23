@@ -4,8 +4,7 @@ using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.HypeTrain;
 
 namespace Koishibot.Core.Features.Supports.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelhype_trainprogress">Twitch Documentation</see><br/>
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-reference/#hype-train-progress-event"/>Eventsub Payload</see><br/>
@@ -13,11 +12,11 @@ namespace Koishibot.Core.Features.Supports.Events;
 /// When an event is received to progress the hype train.
 /// </summary>
 public record HypeTrainProgressedHandler(
-	IAppCache Cache,
-	ISignalrService Signalr,
-	ITwitchUserHub TwitchUserHub,
-	KoishibotDbContext Database
-	) : IRequestHandler<HypeTrainProgressedCommand>
+IAppCache Cache,
+ISignalrService Signalr,
+ITwitchUserHub TwitchUserHub,
+KoishibotDbContext Database
+) : IRequestHandler<HypeTrainProgressedCommand>
 {
 	public async Task Handle(HypeTrainProgressedCommand command, CancellationToken cancel)
 	{
@@ -28,11 +27,9 @@ public record HypeTrainProgressedHandler(
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record HypeTrainProgressedCommand(
-	HypeTrainEvent args
-	) : IRequest
+HypeTrainProgressedEvent args
+) : IRequest
 {
-
 };

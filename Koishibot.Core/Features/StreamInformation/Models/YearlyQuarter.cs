@@ -1,5 +1,8 @@
-﻿namespace Koishibot.Core.Features.StreamInformation.Models;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+namespace Koishibot.Core.Features.StreamInformation.Models;
+
+/*═════════════════【 ENTITY MODEL 】═════════════════*/
 public class YearlyQuarter
 {
 	public int Id { get; set; }
@@ -8,7 +11,8 @@ public class YearlyQuarter
 
 	// Navigation
 
-	public IList<TwitchStream> TwitchStreams { get; set; } = [];
+	// public IList<TwitchStream> TwitchStreams { get; set; } = [];
+	public List<StreamSession> StreamSessions { get; set; } = [];
 
 	// == ⚫ == //
 
@@ -38,5 +42,26 @@ public class YearlyQuarter
 	{
 		var today = DateTime.UtcNow;
 		return DateOnly.FromDateTime(today) > EndDate;
+	}
+}
+
+/*══════════════════【 CONFIGURATION 】═════════════════*/
+public class YearlyQuarterConfig : IEntityTypeConfiguration<YearlyQuarter>
+{
+	public void Configure(EntityTypeBuilder<YearlyQuarter> builder)
+	{
+		builder.ToTable("YearlyQuarters");
+
+		builder.HasKey(p => p.Id);
+		builder.Property(p => p.Id);
+
+		builder.Property(p => p.StartDate);
+
+		builder.Property(p => p.EndDate);
+
+		builder.HasMany(p => p.StreamSessions)
+		.WithOne(p => p.YearlyQuarter)
+		.HasForeignKey(p => p.YearlyQuarterId)
+		.IsRequired();
 	}
 }

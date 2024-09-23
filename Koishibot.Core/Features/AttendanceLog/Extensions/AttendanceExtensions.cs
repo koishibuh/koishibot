@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
@@ -25,17 +26,24 @@ public static class AttendanceExtensions
 		return result is false;
 	}
 
-	public static DateOnly GetLastMandatoryStreamDate(this IAppCache cache)
-	{
-		var streamSessions = cache.Get<StreamSessions>(CacheName.StreamSessions)
-			?? throw new Exception("StreamSessions not found");
-
-		return streamSessions.LastMandatoryStreamDate;
-	}
+	// public static DateOnly GetLastMandatoryStreamDate(this IAppCache cache)
+	// {
+	// 	var streamSessions = cache.Get<StreamSessions>(CacheName.StreamSessions)
+	// 		?? throw new Exception("StreamSessions not found");
+	//
+	// 	return streamSessions.LastMandatoryStreamDate;
+	// }
 
 	public static IAppCache CreateAttendanceCache(this IAppCache cache)
 	{
 		cache.AddNoExpire(CacheName.Users, new List<TwitchUser>());
+		return cache;
+	}
+
+	public static IAppCache CreateCache(this IAppCache cache)
+	{
+		cache.AddNoExpire(CacheName.StreamEvents, new List<TwitchUser>());
+		cache.AddNoExpire(CacheName.CurrentTimer, new CurrentTimer());
 		return cache;
 	}
 

@@ -29,7 +29,7 @@ public record AppCache(
 		var value = Cache.Get<T>(name);
 		return value as T;
 	}
-
+	
 	public void Remove(CacheName name)
 	{
 		Cache.Remove(name);
