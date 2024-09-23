@@ -1,7 +1,6 @@
 using Koishibot.Core.Features.ChatCommands.Extensions;
-using Koishibot.Core.Features.Polls.Models;
-using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
+using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.StreamInformation.Models;
@@ -18,6 +17,18 @@ public class StreamSession : IEntity
 
 	public List<LiveStream> LiveStreams { get; set; } = [];
 	public OutgoingRaid? OutgoingRaid { get; set; }
+}
+
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+
+public static class StreamSessionExtensions
+{
+	public static async Task<StreamSession?> GetRecentStreamSession(this KoishibotDbContext database)
+	{
+		return await database.StreamSessions
+		.OrderByDescending(x => x.Id)
+		.FirstOrDefaultAsync();
+	}
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/

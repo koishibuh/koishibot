@@ -26,7 +26,8 @@ const bannerTest = () => {
 watch(
   () => checked.value,
   async () => {
-    await http.patch('/api/service-status', { ServiceName: 'Attendance', Status: checked.value });
+    // await http.patch('/api/attendance/status', { ServiceName: 'Attendance', Status: checked.value });
+    await http.post('/api/attendance/status', { Status: checked.value });
   }
 );
 </script>
