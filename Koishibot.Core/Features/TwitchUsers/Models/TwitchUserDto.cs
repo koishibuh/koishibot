@@ -9,6 +9,6 @@ string Name
 	public bool IsIgnoredUser()
 	{
 		// Todo: Tolower
-		return Name == "koishibuh" || Name == "StreamElements";
+		return Name is "koishibuh" or "StreamElements";
 	}
 }

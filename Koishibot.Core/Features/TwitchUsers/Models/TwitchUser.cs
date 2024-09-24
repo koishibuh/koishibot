@@ -20,7 +20,6 @@ public class TwitchUser
 	public string Permissions { get; set; } = PermissionLevel.Everyone;
 
 	// NAVIGATION
-
 	public Attendance? Attendance { get; set; }
 	public IList<OutgoingRaid> RaidsSuggestedByThisUser { get; set; } = [];
 	public IList<OutgoingRaid> UsersSuggestingThisRaidTarget { get; set; } = [];
@@ -36,16 +35,9 @@ public class TwitchUser
 	public WordpressItemTag? WordpressItemTag { get; set; }
 
 	// == ⚫ == //
+	public bool IsIgnored() => Permissions == PermissionLevel.Ignore;
+	public bool ChangedUsername(string currentName) => currentName != Name;
 
-	public bool IsIgnored()
-	{
-		return Permissions == PermissionLevel.Ignore;
-	}
-
-	public bool ChangedUsername(string currentName)
-	{
-		return currentName != Name;
-	}
 
 	public TwitchUser UpdateUserInfo(TwitchUserDto currentUser)
 	{

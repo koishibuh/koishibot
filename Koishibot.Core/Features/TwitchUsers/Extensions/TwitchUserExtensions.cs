@@ -3,22 +3,24 @@ using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 
 namespace Koishibot.Core.Features.TwitchUsers.Extensions;
+
 public static class TwitchUserExtension
 {
 	// CACHE
 
 	public static TwitchUser? FindUserByTwitchId(this IAppCache cache, string id)
 	{
-		var userList = cache.Get<List<TwitchUser>>(CacheName.Users);
-		userList ??= new List<TwitchUser>();
+		var userList = cache.Get<List<TwitchUser>>(CacheName.Users)
+		               ?? new List<TwitchUser>();
 
+		// userList ??= new List<TwitchUser>();
 		return userList.Find(x => x.TwitchId == id);
 	}
 
 	public static void AddUser(this IAppCache cache, TwitchUser user)
 	{
-		var userList = cache.Get<List<TwitchUser>>(CacheName.Users);
-		userList ??= new List<TwitchUser>();
+		var userList = cache.Get<List<TwitchUser>>(CacheName.Users)
+		               ?? new List<TwitchUser>();
 
 		userList.Add(user);
 		cache.Add(CacheName.Users, userList, TimeSpan.FromDays(1));
@@ -26,8 +28,8 @@ public static class TwitchUserExtension
 
 	public static void UpdateUser(this IAppCache cache, TwitchUser user)
 	{
-		var userList = cache.Get<List<TwitchUser>>(CacheName.Users);
-		userList ??= new List<TwitchUser>();
+		var userList = cache.Get<List<TwitchUser>>(CacheName.Users)
+		               ?? new List<TwitchUser>();
 
 		var index = userList!.FindIndex(x => x.TwitchId == user.TwitchId);
 
@@ -42,17 +44,17 @@ public static class TwitchUserExtension
 	// DATABASE
 
 	public static async Task<TwitchUser?> GetUserByTwitchId
-		(this KoishibotDbContext Context, string twitchId)
+	(this KoishibotDbContext Context, string twitchId)
 	{
 		return await Context.Users
-				.FirstOrDefaultAsync(tu => tu.TwitchId == twitchId);
+		.FirstOrDefaultAsync(tu => tu.TwitchId == twitchId);
 	}
 
 	public static async Task<TwitchUser?> GetUserByLogin
-		(this KoishibotDbContext context, string userlogin)
+	(this KoishibotDbContext context, string userlogin)
 	{
 		return await context.Users
-			.FirstOrDefaultAsync(x => x.Login == userlogin);
+		.FirstOrDefaultAsync(x => x.Login == userlogin);
 	}
 
 	public static async Task<TwitchUser> UpdateUser

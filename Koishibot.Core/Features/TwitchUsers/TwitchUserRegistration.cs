@@ -42,6 +42,7 @@ public record TwitchUserRegistration(
 			if (storedUser.Permissions == PermissionLevel.Everyone)
 			{
 				storedUser.UpgradePermissions();
+				await Database.UpdateUser(storedUser);
 			}
 
 			if (storedUser.ChangedUsername(userDto.Name))
@@ -60,4 +61,3 @@ public record TwitchUserRegistration(
 		return (storedUser, true);
 	}
 }
-
