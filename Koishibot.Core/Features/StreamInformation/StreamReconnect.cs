@@ -1,7 +1,6 @@
 ﻿using Koishibot.Core.Features.AdBreak;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.StreamInformation.Extensions;
-using Koishibot.Core.Features.StreamInformation.Interfaces;
 namespace Koishibot.Core.Features.StreamInformation;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
@@ -19,7 +18,6 @@ IChannelPointStatusService ChannelPointStatusService
 		await ChannelPointStatusService.Enable();
 		await StreamSessionService.CreateOrReloadStreamSession();
 		await PomodoroTimer.GetAdSchedule();
-		// TODO: Stats
 	}
 }
 

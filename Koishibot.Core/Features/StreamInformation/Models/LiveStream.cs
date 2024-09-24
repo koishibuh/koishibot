@@ -10,12 +10,15 @@ namespace Koishibot.Core.Features.StreamInformation.Models;
 public class LiveStream : IEntity
 {
 	public int Id { get; set; }
-	public string TwitchId { get; set; }
+	public string TwitchId { get; set; } // TwitchVideoId
 	public DateTimeOffset StartedAt { get; set; }
 	public DateTimeOffset? EndedAt { get; set; }
 
 	public int StreamSessionId { get; set; }
 	public StreamSession StreamSession { get; set; }
+
+	public bool GracePeriodElapsed(int time, DateTimeOffset startedAt)
+		=> (EndedAt + TimeSpan.FromMinutes(time)) < startedAt;
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/

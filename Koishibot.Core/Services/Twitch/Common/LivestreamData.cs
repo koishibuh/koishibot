@@ -1,12 +1,11 @@
 ﻿using Koishibot.Core.Features.StreamInformation.Models;
-using Koishibot.Core.Services.Twitch.Converters;
 using Koishibot.Core.Services.Twitch.Enums;
 namespace Koishibot.Core.Services.Twitch.Common;
 
 public class LivestreamData
 {
 	///<summary>
-	///An ID that identifies the stream.<br/>
+	///An ID that identifies the stream - matches GetVideo's Id<br/>
 	///You can use this ID later to look up the video on demand (VOD).
 	///</summary>
 	[JsonPropertyName("id")]
