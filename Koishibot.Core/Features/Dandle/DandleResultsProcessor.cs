@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Dandle.Controllers;
 using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
@@ -9,16 +10,17 @@ namespace Koishibot.Core.Features.Dandle;
 
 // TODO: uppercase letters from guesses
 public record DandleResultsProcessor(
-	IAppCache Cache, ISignalrService Signalr,
-	IChatReplyService ChatReplyService, 
-	ILogger<DandleResultsProcessor> Log,
-	IDandleWordService DandleWordService
-	) : IDandleResultsProcessor
+IAppCache Cache, ISignalrService Signalr,
+IChatReplyService ChatReplyService,
+ILogger<DandleResultsProcessor> Log,
+IDandleWordService DandleWordService,
+IDandleService DandleService
+) : IDandleResultsProcessor
 {
-	public string blue = "#44a8ff, #44a8ff";
-	public string orange = "#f5793a, #f5793a";
-	public string gray = "#787c7e, #787c7e";
-	public string split = "54deg, #f5793a 50%, #44a8ff 50%";
+	string blue = "#44a8ff, #44a8ff";
+	string orange = "#f5793a, #f5793a";
+	string gray = "#787c7e, #787c7e";
+	string split = "54deg, #f5793a 50%, #44a8ff 50%";
 
 	private readonly Dictionary<string, string> _colorEmoji = new()
 	{
@@ -62,8 +64,8 @@ public record DandleResultsProcessor(
 	private async Task StartNextRound(DandleGame dandleInfo)
 	{
 		var scores = dandleInfo.UserPoints
-		.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-		.ToList();
+			.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
+			.ToList();
 
 		foreach (var score in scores)
 		{
@@ -92,8 +94,8 @@ public record DandleResultsProcessor(
 		// display score
 		// add bonus points
 		var scores = dandleInfo.UserPoints
-		.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-		.ToList();
+			.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
+			.ToList();
 
 		foreach (var score in scores)
 		{
@@ -120,8 +122,8 @@ public record DandleResultsProcessor(
 		// add bonus points
 
 		var scores = dandleInfo.UserPoints
-		.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-		.ToList();
+			.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
+			.ToList();
 
 		foreach (var score in scores)
 		{
