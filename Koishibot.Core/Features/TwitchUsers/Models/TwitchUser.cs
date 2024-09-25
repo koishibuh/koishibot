@@ -82,14 +82,13 @@ public class TwitchUser
 	}
 }
 
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
 public static class TwitchUserExtension
 {
-	// CACHE
-
 	public static TwitchUser? FindUserByTwitchId(this IAppCache cache, string id)
 	{
 		var userList = cache.Get<List<TwitchUser>>(CacheName.Users)
-		               ?? new List<TwitchUser>();
+			?? new List<TwitchUser>();
 
 		// userList ??= new List<TwitchUser>();
 		return userList.Find(x => x.TwitchId == id);
@@ -98,7 +97,7 @@ public static class TwitchUserExtension
 	public static void AddUser(this IAppCache cache, TwitchUser user)
 	{
 		var userList = cache.Get<List<TwitchUser>>(CacheName.Users)
-		               ?? new List<TwitchUser>();
+			?? new List<TwitchUser>();
 
 		userList.Add(user);
 		cache.Add(CacheName.Users, userList, TimeSpan.FromDays(1));
@@ -107,7 +106,7 @@ public static class TwitchUserExtension
 	public static void UpdateUser(this IAppCache cache, TwitchUser user)
 	{
 		var userList = cache.Get<List<TwitchUser>>(CacheName.Users)
-		               ?? new List<TwitchUser>();
+			?? new List<TwitchUser>();
 
 		var index = userList!.FindIndex(x => x.TwitchId == user.TwitchId);
 
@@ -121,29 +120,27 @@ public static class TwitchUserExtension
 
 
 	public static async Task<TwitchUser?> GetUserByTwitchId
-	(this KoishibotDbContext Context, string twitchId)
+		(this KoishibotDbContext Context, string twitchId)
 	{
 		return await Context.Users
-		.FirstOrDefaultAsync(tu => tu.TwitchId == twitchId);
+			.FirstOrDefaultAsync(tu => tu.TwitchId == twitchId);
 	}
 
 	public static async Task<TwitchUser?> GetUserByLogin
-	(this KoishibotDbContext context, string userlogin)
+		(this KoishibotDbContext context, string userlogin)
 	{
 		return await context.Users
-		.FirstOrDefaultAsync(x => x.Login == userlogin);
+			.FirstOrDefaultAsync(x => x.Login == userlogin);
 	}
 
 	public static async Task<TwitchUser> UpdateUser
-	(this KoishibotDbContext database, TwitchUser user)
+		(this KoishibotDbContext database, TwitchUser user)
 	{
 		database.Update(user);
 		await database.SaveChangesAsync();
 		return user;
 	}
 }
-
-
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/
 public class UserConfig : IEntityTypeConfiguration<TwitchUser>
@@ -157,7 +154,7 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 		builder.Property(p => p.TwitchId);
 
 		builder.HasIndex(p => p.TwitchId)
-		.IsUnique();
+			.IsUnique();
 
 		builder.Property(p => p.Login);
 
@@ -166,46 +163,46 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 		builder.Property(p => p.Permissions);
 
 		builder.HasOne(p => p.Attendance)
-		.WithOne(p => p.User)
-		.HasForeignKey<Attendance>(p => p.UserId);
+			.WithOne(p => p.User)
+			.HasForeignKey<Attendance>(p => p.UserId);
 
 		builder.HasMany(p => p.ChannelFollows)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey(p => p.UserId)
-		.IsRequired();
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired();
 
 		builder.HasMany(p => p.Cheers)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey(p => p.UserId)
-		.IsRequired();
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired();
 
 		builder.HasMany(p => p.Subscriptions)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey(p => p.UserId)
-		.IsRequired();
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired();
 
 		builder.HasMany(p => p.GiftedSubscriptions)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey(p => p.UserId)
-		.IsRequired();
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired();
 
 		builder.HasOne(p => p.SupportTotal)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey<SupportTotal>(p => p.UserId);
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey<SupportTotal>(p => p.UserId);
 
 		builder.HasMany(p => p.KofiSupport)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey(p => p.UserId)
-		.IsRequired(false);
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired(false);
 
 		builder.HasMany(p => p.SETips)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey(p => p.UserId)
-		.IsRequired(false);
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey(p => p.UserId)
+			.IsRequired(false);
 
 		builder.HasOne(p => p.WordpressItemTag)
-		.WithOne(p => p.TwitchUser)
-		.HasForeignKey<WordpressItemTag>(p => p.UserId)
-		.IsRequired(false);
+			.WithOne(p => p.TwitchUser)
+			.HasForeignKey<WordpressItemTag>(p => p.UserId)
+			.IsRequired(false);
 	}
 }

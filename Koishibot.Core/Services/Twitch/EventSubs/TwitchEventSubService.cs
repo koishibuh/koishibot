@@ -62,19 +62,19 @@ ITwitchApiRequest TwitchApiRequest
 
 	private WebSocketFactory Factory { get; set; } = new();
 	private WebSocketHandler? TwitchEventSub { get; set; }
-	private int _timeoutSeconds = 60;
+	private int? _timeoutSeconds = 60;
 	private Timer Timer { get; } = new(TimeSpan.FromSeconds(63));
 	private bool _useCli = false; // For testing on debug
 
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
-	= new(25, x => x.MessageId);
+		= new(25, x => x.MessageId);
 
 
 	public async Task CreateWebSocket()
 	{
 		var url = _useCli
-		? $"ws://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}"
-		: $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
+			? $"ws://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}"
+			: $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
 
 		try
 		{
@@ -184,11 +184,11 @@ ITwitchApiRequest TwitchApiRequest
 		if (_useCli) return; // Testing
 
 		var eventsToSubscribeTo = Settings.Value.DebugMode
-		? TwitchApiHelper.DebugSubscribeToEvents()
-		: TwitchApiHelper.SubscribeToEvents();
+			? TwitchApiHelper.DebugSubscribeToEvents()
+			: TwitchApiHelper.SubscribeToEvents();
 
 		var requests = eventsToSubscribeTo.Select
-		(x => CreateEventSubRequest(x, sessionId)).ToList();
+			(x => CreateEventSubRequest(x, sessionId)).ToList();
 
 		await TwitchApiRequest.CreateEventSubSubscription(requests);
 
@@ -196,6 +196,7 @@ ITwitchApiRequest TwitchApiRequest
 		StartKeepaliveTimer();
 		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Online);
 		await SignalrService.SendInfo("TwitchEventSub Websocket Connected");
+
 	}
 
 
@@ -498,16 +499,16 @@ ITwitchApiRequest TwitchApiRequest
 	}
 
 	public CreateEventSubSubscriptionRequestBody CreateEventSubRequest
-	(EventSubSubscriptionType type, string sessionId)
+		(EventSubSubscriptionType type, string sessionId)
 	{
 		var streamerId = Settings.Value.StreamerTokens.UserId;
 
 		return new CreateEventSubSubscriptionRequestBody
 		{
-		SubscriptionType = type,
-		Version = type.GetVersion(),
-		Condition = type.GetConditions(streamerId),
-		Transport = new TransportMethod { SessionId = sessionId },
+			SubscriptionType = type,
+			Version = type.GetVersion(),
+			Condition = type.GetConditions(streamerId),
+			Transport = new TransportMethod { SessionId = sessionId },
 		};
 	}
 

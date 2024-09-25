@@ -2,33 +2,24 @@
 using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Supports.Models;
-using Koishibot.Core.Features.TwitchUsers.Extensions;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Kofi;
 using System.Text.Json;
 namespace Koishibot.Core.Features.Supports.Controllers;
 
-
-// == ⚫ POST == //
-
-public class ProcessKofiController : ApiControllerBase
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/kofi")]
+public class ProcessKofiController(IOptions<Settings> settings) : ApiControllerBase
 {
-	private readonly IOptions<Settings> _settings;
-
-	public ProcessKofiController(IOptions<Settings> Settings)
-	{
-		_settings = Settings;
-	}
-
 	[SwaggerOperation(Tags = ["Kofi"])]
-	[HttpPost("/api/kofi")]
+	[HttpPost]
 	public async Task<ActionResult> ProcessKofi([FromForm] string data)
 	{
 		var kofiData = JsonSerializer.Deserialize<KofiEvent>(data)
 			?? throw new Exception("KofiData is null");
 
-		if (kofiData.VerificationToken != _settings.Value.KofiVerificationToken)
+		if (kofiData.VerificationToken != settings.Value.KofiVerificationToken)
 		{
 			return new BadRequestObjectResult(new { error = "Invalid verification token" });
 		}
@@ -38,17 +29,16 @@ public class ProcessKofiController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record ProcessKofiHandler(
-	KoishibotDbContext Database,
-	ISignalrService Signalr
-		) : IRequestHandler<ProcessKofiCommand>
+KoishibotDbContext Database,
+ISignalrService Signalr
+) : IRequestHandler<ProcessKofiCommand>
 {
 	public async Task Handle
-			(ProcessKofiCommand command, CancellationToken cancel)
+		(ProcessKofiCommand command, CancellationToken cancel)
 	{
-		var userLogin = command.GetUserlogin();
+		var userLogin = command.GetUserLogin();
 		var user = await Database.GetUserByLogin(userLogin);
 
 		var kofi = command.CreateModel(user);
@@ -56,45 +46,36 @@ public record ProcessKofiHandler(
 
 		var kofiVm = command.CreateVm();
 		await Signalr.SendStreamEvent(kofiVm);
-		
+
 		// Update overlay bar
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public class ProcessKofiCommand : IRequest
 {
 	public KofiEvent Data { get; set; }
 
-	public string GetUserlogin()
-	{
-		return Data.FromName.ToLower();
-	}
+	public string GetUserLogin() => Data.FromName.ToLower();
 
-	public Kofi CreateModel(TwitchUser? user)
+	public Kofi CreateModel(TwitchUser? user) => new Kofi
 	{
-		return new Kofi
-		{
-			KofiTransactionId = Data.KofiTransactionId,
-			Timestamp = Data.Timestamp,
-			TransactionUrl = Data.Url,
-			KofiType = Data.Type,
-			UserId = user is not null ? user.Id : null,
-			Username = Data.FromName,
-			Message = Data.Message ?? string.Empty,
-			Currency = Data.Currency,
-			Amount = Data.Amount
-		};
-	}
+		KofiTransactionId = Data.KofiTransactionId,
+		Timestamp = Data.Timestamp,
+		TransactionUrl = Data.Url,
+		KofiType = Data.Type,
+		UserId = user?.Id,
+		Username = Data.FromName,
+		Message = Data.Message ?? string.Empty,
+		Currency = Data.Currency,
+		Amount = Data.Amount
+	};
 
-	public StreamEventVm CreateVm()
+
+	public StreamEventVm CreateVm() => new StreamEventVm
 	{
-		return new StreamEventVm
-		{
-			EventType = StreamEventType.Kofi,
-			Timestamp = Data.Timestamp.ToString("yyyy-MM-dd HH:mm"),
-			Message = $"{Data.FromName} tipped {Data.Amount} via Kofi"
-		};
-	}
+		EventType = StreamEventType.Kofi,
+		Timestamp = Data.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+		Message = $"{Data.FromName} tipped {Data.Amount} via Kofi"
+	};
 }

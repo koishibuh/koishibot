@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Services.Twitch.Enums;
 namespace Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatNotifications;
+
 public class Resubscription
 {
 	/// <summary>
@@ -15,10 +16,11 @@ public class Resubscription
 	public int DurationMonths { get; set; }
 
 	/// <summary>
-	/// The total number of months the user has subscribed.
+	/// The total number of months the user has subscribed. <br/>
+	/// Possibly null if not shared per Resub Event, not on ChatNotification doc
 	/// </summary>
 	[JsonPropertyName("streak_months")]
-	public int StreakMonths { get; set; }
+	public int? StreakMonths { get; set; }
 
 	/// <summary>
 	/// The type of subscription plan being used.
