@@ -63,7 +63,6 @@ public class PollBeginEvent
 	/// (Converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("started_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartedAt { get; set; }
 
 	/// <summary>
@@ -71,7 +70,6 @@ public class PollBeginEvent
 	/// (Converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("ends_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset EndsAt { get; set; }
 
 }

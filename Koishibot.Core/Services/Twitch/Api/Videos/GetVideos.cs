@@ -7,21 +7,19 @@ using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-
-// == ⚫ GET == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
 	/// <see href="https://dev.twitch.tv/docs/api/reference/#get-videos">Twitch Documentation</see><br/>
-	/// Gets information about one or more published videos. You may get videos by ID, by user, or by game/category.<br/>
+	/// Gets information about one or more published videos - this does not list unpublished videos. You may get videos by ID, by user, or by game/category.<br/>
 	/// Required Scopes: User Access Token
 	/// </summary>
 
 	public async Task<GetVideosResponse> GetVideos(GetVideosRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "videos";
+		const string url = "videos";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
@@ -33,8 +31,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class GetVideosRequestParameters
 {
 		///<summary>
@@ -123,8 +120,7 @@ public class GetVideosRequestParameters
 	public string? PaginationBefore { get; set; }
 }
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class GetVideosResponse
 {
 	///<summary>
@@ -139,13 +135,12 @@ public class GetVideosResponse
 	///</summary>
 	[JsonPropertyName("pagination")]
 	public Pagination Pagination { get; set; }
-
 }
 
 public class VideoData
 {
 	///<summary>
-	///An ID that identifies the video.
+	///An ID that identifies the video - matches GetLiveStream's Id
 	///</summary>
 	[JsonPropertyName("id")]
 	public string VideoId { get; set; }
@@ -192,25 +187,24 @@ public class VideoData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 
 	///<summary>
-	///The timestamp of when the video was published.<br/> 
+	///The timestamp of when the video was published.<br/>
+	///This is the same as CreatedAt
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("published_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset PublishedAt { get; set; }
 
 	///<summary>
-	///The video's URL.
+	///The video's URL - uses the Id, not StreamId.
 	///</summary>
 	[JsonPropertyName("url")]
 	public string Url { get; set; }
 
 	///<summary>
-	///A URL to a thumbnail image of the video.<br/>
+	///A URL to a thumbnail image of the video - uses the StreamId<br/>
 	///Before using the URL, you must replace the %{width} and %{height} placeholders with the width and height of the thumbnail you want returned.<br/>
 	///Due to current limitations, ${width} must be 320 and ${height} must be 180.
 	///</summary>
@@ -250,7 +244,7 @@ public class VideoData
 	///For example, 3m21s represents 3 minutes, 21 seconds.
 	///</summary>
 	[JsonPropertyName("duration")]
-	[JsonConverter(typeof(IsoDateTimeConverter))]
+	[JsonConverter(typeof(IsoTimespanConverter))]
 	public TimeSpan Duration { get; set; }
 
 	///<summary>

@@ -19,7 +19,7 @@ public static class DatabaseExtensions
 	{
 		var result = await database.StreamSessions
 		.OrderByDescending(x => x.Id)
-		.Skip(1)
+		// .Skip(1)
 		.FirstOrDefaultAsync();
 
 		return result.Id;

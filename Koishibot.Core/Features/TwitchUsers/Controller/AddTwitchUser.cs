@@ -1,5 +1,4 @@
-﻿using Koishibot.Core.Features.TwitchUsers.Extensions;
-using Koishibot.Core.Features.TwitchUsers.Models;
+﻿using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.TwitchApi.Models;
 
@@ -12,7 +11,7 @@ public class AddTwitchUserController : ApiControllerBase
 	[SwaggerOperation(Tags = ["Twitch User"])]
 	[HttpPost]
 	public async Task<ActionResult> AddTwitchUser
-	([FromBody] AddTwitchUserCommand command)
+		([FromBody] AddTwitchUserCommand command)
 	{
 		var result = await Mediator.Send(command);
 		return Ok(result);
@@ -27,7 +26,7 @@ KoishibotDbContext Database
 ) : IRequestHandler<AddTwitchUserCommand, int>
 {
 	public async Task<int> Handle
-	(AddTwitchUserCommand command, CancellationToken cancel)
+		(AddTwitchUserCommand command, CancellationToken cancel)
 	{
 		var twitchUser = new TwitchUser();
 
@@ -56,44 +55,50 @@ string Name
 ) : IRequest<int>
 {
 	public GetUsersRequestParameters CreateParameters()
-		=> new() { UserLogins = new List<string> { Name.ToLower() } };
+	{
+		return new GetUsersRequestParameters { UserLogins = new List<string> { Name.ToLower() } };
+	}
 
 	public TwitchUser CreateEntity()
-		=> new TwitchUser
+	{
+		return new TwitchUser()
 		{
-		TwitchId = Id,
-		Login = Login,
-		Name = Name
+			TwitchId = Id,
+			Login = Login,
+			Name = Name
 		};
+	}
 
 	public async Task<bool> IsUserUnique(KoishibotDbContext database)
 	{
 		var result = await database.Users
-		.FirstOrDefaultAsync(x => x.Name == Name);
+			.FirstOrDefaultAsync(x => x.Name == Name);
 
 		return result is null;
 	}
-};
+}
 
 /*══════════════════【 VALIDATOR 】══════════════════*/
 public class AddTwitchUserValidator
-: AbstractValidator<AddTwitchUserCommand>
+	: AbstractValidator<AddTwitchUserCommand>
 {
-	private KoishibotDbContext Database { get; set; }
-
 	public AddTwitchUserValidator(KoishibotDbContext context)
 	{
 		Database = context;
 
 		RuleFor(p => p.Name)
-		.NotEmpty();
+			.NotEmpty();
 
 		RuleFor(p => p)
-		.MustAsync(TwitchUserUnique)
-		.WithMessage("Twitch User already exists");
+			.MustAsync(TwitchUserUnique)
+			.WithMessage("Twitch User already exists");
 	}
 
+	private KoishibotDbContext Database { get; }
+
 	private async Task<bool> TwitchUserUnique
-	(AddTwitchUserCommand command, CancellationToken cancel)
-		=> await command.IsUserUnique(Database);
+		(AddTwitchUserCommand command, CancellationToken cancel)
+	{
+		return await command.IsUserUnique(Database);
+	}
 }

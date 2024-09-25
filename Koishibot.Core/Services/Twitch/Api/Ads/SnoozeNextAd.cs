@@ -5,8 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ POST == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -18,20 +17,17 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task<SnoozeNextAdResponse> SnoozeNextAd(SnoozeNextAdRequestParameters parameters)
 	{
 		var method = HttpMethod.Post;
-		var url = "ads/schedule/snooze";
+		const string url = "ads/schedule/snooze";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
 
 		var result = JsonSerializer.Deserialize<SnoozeNextAdResponse>(response);
-		return result is not null
-			? result
-			: throw new Exception("Failed to deserialize response");
+		return result ?? throw new Exception("Failed to deserialize response");
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class SnoozeNextAdRequestParameters
 {
 	///<summary>
@@ -42,8 +38,7 @@ public class SnoozeNextAdRequestParameters
 	public string BroadcasterId { get; set; } = null!;
 }
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 ///<summary>
 ///<see href="https://dev.twitch.tv/docs/api/reference/#snooze-next-ad">Twitch Documentation</see><br/>
 ///Info about the channel’s snoozes and next upcoming ad after successfully snoozing.
@@ -61,7 +56,6 @@ public class SnoozeNextAdResponse
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("snooze_refresh_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset GainNextSnoozeAt { get; set; }
 
 	///<summary>
@@ -69,9 +63,7 @@ public class SnoozeNextAdResponse
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("next_ad_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset NextAdScheduledAt { get; set; }
-
 
 	public SnoozeNextAdDto ConvertToDto()
 	{

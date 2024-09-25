@@ -4,8 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ GET == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -16,15 +15,14 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task SearchChannels(SearchChannelsRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "search/channels";
+		const string url = "search/channels";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class SearchChannelsRequestParameters
 {
 	///<summary>
@@ -57,9 +55,7 @@ public class SearchChannelsRequestParameters
 	public string After { get; set; }
 }
 
-
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class SearchChannelsResponse
 {
 	///<summary>
@@ -139,6 +135,5 @@ public class SearchedChannelData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("started_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset StartedAt { get; set; }
+	public DateTimeOffset? StartedAt { get; set; }
 }

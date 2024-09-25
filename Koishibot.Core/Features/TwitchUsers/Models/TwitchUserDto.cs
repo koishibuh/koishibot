@@ -6,9 +6,5 @@ string Login,
 string Name
 )
 {
-	public bool IsIgnoredUser()
-	{
-		// Todo: Tolower
-		return Name == "koishibuh" || Name == "StreamElements";
-	}
+	public bool IsIgnoredUser() => Login is "koishibuh" or "streamelements";
 }

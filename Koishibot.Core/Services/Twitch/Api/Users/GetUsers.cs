@@ -6,6 +6,7 @@ using System.Text.Json;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -18,7 +19,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task<List<UserData>> GetUsers(GetUsersRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "users";
+		const string url = "users";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
@@ -30,8 +31,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class GetUsersRequestParameters
 {
 	///<summary>
@@ -49,9 +49,7 @@ public class GetUsersRequestParameters
 	public List<string>? UserLogins { get; set; }
 }
 
-
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class GetUsersResponse
 {
 	///<summary>
@@ -129,11 +127,10 @@ public class UserData
 	public string Email { get; set; }
 
 	///<summary>
-	///The timestamp that the user’s account was created.</br>
+	///The timestamp that the user’s account was created.<br/>
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 
 	public UserInfo CreateDto()

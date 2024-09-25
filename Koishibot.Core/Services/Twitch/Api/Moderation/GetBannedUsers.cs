@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -15,20 +16,19 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task GetBannedUsers(GetBannedUsersRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "moderation/banned";
+		const string url = "moderation/banned";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class GetBannedUsersRequestParameters
 {
 
 	///<summary>
-	///The ID of the broadcaster whose list of banned users you want to get.<br/.
+	///The ID of the broadcaster whose list of banned users you want to get.<br/>
 	///This ID must match the user ID in the access token.
 	///</summary>
 	[JsonPropertyName("broadcaster_id")]
@@ -66,9 +66,7 @@ public class GetBannedUsersRequestParameters
 	public string Before { get; set; }
 }
 
-
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class GetBannedUsersResponse
 {
 	///<summary>
@@ -91,8 +89,7 @@ public class BannedUserListData
 	///The ID of the banned user.
 	///</summary>
 	[JsonPropertyName("user_id")]
-	public string BannedUserId
-	{ get; set; }
+	public string BannedUserId { get; set; }
 
 	///<summary>
 	///The banned user’s login name.
@@ -107,20 +104,18 @@ public class BannedUserListData
 	public string BannedUsername { get; set; }
 
 	///<summary>
-	///The teimstamp of when the timeout expires, or an empty string if the user is permanently banned.<br/>
+	///The timestamp of when the timeout expires, or an empty string if the user is permanently banned.<br/>
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("expires_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public string ExpiresAt { get; set; }
+	public DateTimeOffset? ExpiresAt { get; set; }
 
 	///<summary>
 	///The timestamp of when the user was banned.<br/>
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public string CreatedAt { get; set; }
+	public DateTimeOffset? CreatedAt { get; set; }
 
 	///<summary>
 	///The reason the user was banned or put in a timeout if the moderator provided one.

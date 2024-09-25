@@ -113,7 +113,6 @@ public class BannedUserData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 
 	///<summary>
@@ -123,5 +122,5 @@ public class BannedUserData
 	///</summary>
 	[JsonPropertyName("end_time")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset EndingAt { get; set; }
+	public DateTimeOffset? EndingAt { get; set; }
 }

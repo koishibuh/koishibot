@@ -78,7 +78,7 @@ public record StreamElementsService(
 					_eventSet.Add(eventData);
 				}
 
-				if (eventData.Type == EventType.Tip)
+				if (eventData.Type == "Tip")
 				{
 					using var scope = ScopeFactory.CreateScope();
 					var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();

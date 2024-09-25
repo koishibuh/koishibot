@@ -18,6 +18,8 @@ ISignalrService Signalr
 {
 	public async Task StartGame()
 	{
+		await Signalr.ClearDandleBoard();
+		
 		if (Cache.DandleIsEnabled()) return;
 
 		var dandleDictionary = await GetDandleDictionary();

@@ -38,7 +38,6 @@ public class Metadata
 	/// (Converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("message_timestamp")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset Timestamp { get; set; }
 
 	/// <summary>
@@ -100,10 +99,11 @@ public class Session
 	/// <summary>
 	/// The maximum number of seconds that you should expect silence before receiving a keepalive message.<br/>
 	/// For a welcome message, this is the number of seconds that you have to subscribe to an event after receiving the welcome message.<br/>
-	/// If you don’t subscribe to an event within this window, the socket is disconnected.
+	/// If you don’t subscribe to an event within this window, the socket is disconnected.<br/>
+	/// Set to null on Reconnect Message.
 	/// </summary>
 	[JsonPropertyName("keepalive_timeout_seconds")]
-	public int KeepAliveTimeoutSeconds { get; set; }
+	public int? KeepAliveTimeoutSeconds { get; set; }
 
 	/// <summary>
 	/// The URL to reconnect to if you get a Reconnect message.<br/>
@@ -113,11 +113,10 @@ public class Session
 	public string? ReconnectUrl { get; set; }
 
 	/// <summary>
-	/// The timestamp when the connection was created.</br>
+	/// The timestamp when the connection was created.<br/>
 	/// (Convert to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("connected_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset ConnectedAt { get; set; }
 }
 
@@ -174,7 +173,6 @@ public class Subscription
 	/// (Converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 }
 

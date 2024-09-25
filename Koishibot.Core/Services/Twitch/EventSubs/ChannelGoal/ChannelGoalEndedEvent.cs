@@ -64,13 +64,11 @@ public class ChannelGoalEndedEvent
 	[JsonPropertyName("current_amount")]
 	public int CurrentAmount { get; set; }
 
-
 	/// <summary>
 	/// The goal’s target value. For example, if the broadcaster has 200 followers before creating the goal, and their goal is to double that number, this field is set to 400.
 	/// </summary>
 	[JsonPropertyName("target_amount")]
 	public int TargetAmount { get; set; }
-
 
 	/// <summary>
 	/// The timestamp which indicates when the broadcaster created the goal.<br/>
@@ -79,7 +77,6 @@ public class ChannelGoalEndedEvent
 	[JsonPropertyName("started_at")]
 	public DateTimeOffset StartedAt { get; set; }
 
-
 	/// <summary>
 	/// The timestamp which indicates when the broadcaster ended the goal.<br/>
 	/// (RFC3339 format converted to DateTimeOffset)<br/>
@@ -87,5 +84,5 @@ public class ChannelGoalEndedEvent
 	/// </summary>
 	[JsonPropertyName("ended_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset EndedAt { get; set; }
+	public DateTimeOffset? EndedAt { get; set; }
 }

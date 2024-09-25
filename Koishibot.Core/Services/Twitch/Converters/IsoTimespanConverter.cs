@@ -1,24 +1,32 @@
 ﻿using System.Text.Json;
-namespace Koishibot.Core.Services.Twitch.Converters;
+using System.Text.RegularExpressions;
 
+namespace Koishibot.Core.Services.Twitch.Converters;
 
 public class IsoTimespanConverter : JsonConverter<TimeSpan>
 {
-    public override TimeSpan Read
-        (ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        string durationString = reader.GetString();
+	public override TimeSpan Read
+	(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		//43h54m58s
+		//1m30s
+		var durationString = reader.GetString();
 
-        // Parse the ISO 8601 duration string
-        var duration = System.Xml.XmlConvert.ToTimeSpan(durationString);
+		var match = Regex.Match(durationString, @"(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?");
+		var hours = match.Groups[1].Success ? int.Parse(match.Groups[1].Value) : 0;
+		var minutes = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : 0;
+		var seconds = match.Groups[3].Success ? int.Parse(match.Groups[3].Value) : 0;
 
-        return duration;
-    }
+		return new TimeSpan(hours, minutes, seconds);
 
-    public override void Write
-        (Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options)
-    {
-        string durationString = System.Xml.XmlConvert.ToString(value);
-        writer.WriteStringValue(durationString);
-    }
+		// // Parse the ISO 8601 duration string
+		// var duration = System.Xml.XmlConvert.ToTimeSpan(durationString);
+	}
+
+	public override void Write
+	(Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options)
+	{
+		string durationString = System.Xml.XmlConvert.ToString(value);
+		writer.WriteStringValue(durationString);
+	}
 }

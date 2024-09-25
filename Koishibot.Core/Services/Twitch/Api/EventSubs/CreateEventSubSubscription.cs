@@ -4,7 +4,7 @@ using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-
+/*════════════════【 API REQUEST 】════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/api/reference/#create-eventsub-subscription">Twitch Documentation</see><br/>
 /// Creates an EventSub subscription.<br/>
@@ -30,8 +30,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	} 
 }
 
-// == ⚫ REQUEST BODY == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class CreateEventSubSubscriptionRequestBody
 {
 	///<summary>
@@ -48,7 +47,6 @@ public class CreateEventSubSubscriptionRequestBody
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 
 	///<summary>
@@ -72,10 +70,7 @@ public class CreateEventSubSubscriptionRequestBody
 	public TransportMethod Transport { get; set; } = null!;
 }
 
-
-
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class CreateEventSubSubscriptionResponse
 {
 	///<summary>
@@ -148,7 +143,6 @@ public class EventSubSubscriptionData
 	///The timestamp the WebSocket connection was established.
 	///</summary>
 	[JsonPropertyName("connected_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset ConnectedAt { get; set; }
 
 	/////<summary>

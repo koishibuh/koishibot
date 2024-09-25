@@ -25,30 +25,12 @@ public record StreamOfflineHandler(
 
 	public async Task Handle(StreamOfflineCommand command, CancellationToken cancel)
 	{
-		// Find stream session, set end
-
 		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, Status.Offline);
 
 		//await ObsService.StopWebsocket();
 
-		var lastStream = await Database.GetLastStream();
-
-		lastStream.EndedAt = DateTimeOffset.UtcNow;
-		await Database.UpdateEntry(lastStream);
-
-		// var streamSessionId = Cache.GetCurrentStreamSessionId();
-		//
-		var streamSession = await Database.StreamSessions
-			.OrderByDescending(x => x.Id)
-			.FirstOrDefaultAsync();
-
-		var liveStreams = await Database.LiveStreams
-			.Where(x => x.StreamSessionId == streamSession.Id)
-			.OrderBy(x => x.StartedAt)
-			.ToListAsync(cancellationToken: cancel);
-
-		streamSession.Duration = (liveStreams.Last().EndedAt ?? DateTimeOffset.UtcNow) - liveStreams.First().StartedAt;
-		await Database.UpdateEntry(streamSession);
+		await UpdateLiveStreamEndedAt();
+		await UpdateStreamSessionDuration();
 
 		// Todo: Clear Stream Session from Cache?
 		// Todo: Disable any channel points
@@ -61,10 +43,31 @@ public record StreamOfflineHandler(
 
 		await BotIrc.BotSend("Stream is over, thanks for hanging out!");
 	}
+
+	private async Task UpdateLiveStreamEndedAt()
+	{
+		var lastStream = await Database.GetLastStream();
+		lastStream.EndedAt = DateTimeOffset.UtcNow;
+		await Database.UpdateEntry(lastStream);
+	}
+
+	private async Task UpdateStreamSessionDuration()
+	{
+		var streamSession = await Database.StreamSessions
+		.OrderByDescending(x => x.Id)
+		.FirstOrDefaultAsync();
+
+		var liveStreams = await Database.LiveStreams
+		.Where(x => x.StreamSessionId == streamSession.Id)
+		.OrderBy(x => x.StartedAt)
+		.ToListAsync();
+
+		streamSession.Duration = (liveStreams.Last().EndedAt ?? DateTimeOffset.UtcNow) - liveStreams.First().StartedAt;
+		await Database.UpdateEntry(streamSession);
+	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record StreamOfflineCommand() : IRequest
 {
 	public GetVideosRequestParameters CreateParameters(string streamerId)

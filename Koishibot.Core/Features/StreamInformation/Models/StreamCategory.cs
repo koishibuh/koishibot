@@ -4,20 +4,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.StreamInformation.Models;
 
+/*═════════════════【 ENTITY MODEL 】═════════════════*/
 public class StreamCategory : IEntity
 {
 	public int Id { get; set; }
 	public string Name { get; set; } = string.Empty;
 	public string TwitchId { get; set; } = string.Empty;
 
-	// == ⚫ == //
-
 	public async Task<StreamCategory> UpsertEntry(KoishibotDbContext database)
 	{
 		var result = await database.StreamCategories
 			.FirstOrDefaultAsync(x => x.TwitchId == TwitchId);
 
-		if (result == null)
+		if (result is null)
 		{
 			await database.UpdateEntry(this);
 		}
@@ -26,8 +25,46 @@ public class StreamCategory : IEntity
 	}
 }
 
-// == ⚫ == //
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class StreamCategoryExtensions
+{
+	public static async Task<int> GetStreamCategoryId(this KoishibotDbContext database, string TwitchId, string Name)
+	{
+		var result = await database.StreamCategories
+		.FirstOrDefaultAsync(x => x.TwitchId == TwitchId);
 
+		if (result == null)
+		{
+			result = new StreamCategory
+			{
+				Name = Name,
+				TwitchId = TwitchId
+			};
+
+			await database.UpdateEntry(result);
+		}
+
+		return result.Id;
+	}
+
+	public static async Task UpsertCategory(this KoishibotDbContext database, StreamCategory streamCategory)
+	{
+		var result = await database.StreamCategories
+		.FirstOrDefaultAsync(x => x.TwitchId == streamCategory.TwitchId);
+
+		if (result is null)
+		{
+			result = await database.UpdateEntryReturn(streamCategory);
+		}
+
+		if (result.Name != streamCategory.Name)
+		{
+
+		}
+	}
+}
+
+/*══════════════════【 CONFIGURATION 】═════════════════*/
 public class StreamCategoryConfig : IEntityTypeConfiguration<StreamCategory>
 {
 	public void Configure(EntityTypeBuilder<StreamCategory> builder)

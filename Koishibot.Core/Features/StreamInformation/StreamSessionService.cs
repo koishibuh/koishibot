@@ -1,11 +1,12 @@
-﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+﻿using Koishibot.Core.Exceptions;
+using Koishibot.Core.Features.AttendanceLog.Extensions;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.StreamInformation.Extensions;
-using Koishibot.Core.Features.StreamInformation.Interfaces;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
+using Koishibot.Core.Services.Twitch.Enums;
 using Koishibot.Core.Services.TwitchApi.Models;
 
 namespace Koishibot.Core.Features.StreamInformation;
@@ -14,76 +15,86 @@ public record StreamSessionService(
 ITwitchApiRequest TwitchApiRequest,
 KoishibotDbContext Database,
 IAppCache Cache,
-ILogger<StreamSessionService> Log
+IOptions<Settings> Settings
 ) : IStreamSessionService
 {
 	public async Task CreateOrReloadStreamSession()
 	{
-		var parameters = new GetLiveStreamsRequestParameters { UserLogins = ["elysiagriffin"] };
+		var currentVod = await GetCurrentVodTwitch();
+		var lastLiveStreamDb = await Database.GetLastStream();
 
-		const int maxRetries = 3;
-		var delay = 1000;
-
-		for (var attempt = 1; attempt <= maxRetries; attempt++)
+		// New database
+		if (lastLiveStreamDb is null)
 		{
-			var streamInfo = await TwitchApiRequest.GetLiveStreams(parameters);
+			var streamSessionId = await CreateNewSession();
+			var liveStreamId = await CreateNewLiveStream(currentVod, streamSessionId);
+			await AddCurrentSessionToCache(liveStreamId, streamSessionId);
+			return;
+		}
 
-			if (streamInfo.Data is not null && streamInfo.Data.Count == 1)
-			{
-				var stream = streamInfo.Data[0];
-				// var liveStreamInfo = stream.ConvertToDto();
+		// If crash occured but stream still valid with disconnect protection (90 sec)
+		if (lastLiveStreamDb.TwitchId == currentVod.VideoId)
+		{
+			var streamSession = await Database.GetRecentStreamSession();
+			if (streamSession is null) throw new CustomException("StreamSession is null");
 
-				// check if Id exists
-				var storedLiveStream = await Database.LiveStreams
-				.FirstOrDefaultAsync(x => x.TwitchId == stream.VideoId);
+			await AddCurrentSessionToCache(lastLiveStreamDb.Id, streamSession.Id);
 
-				if (storedLiveStream is null)
-				{
-					// create new livestream
-					storedLiveStream = new LiveStream
-					{
-					TwitchId = stream.VideoId,
-					StartedAt = stream.StartedAt,
-					EndedAt = null
-					};
+			await UpdateAttendanceServiceStatus(streamSession);
+			return;
+		}
 
-					storedLiveStream = await Database.UpdateEntryReturn(storedLiveStream);
+		// If crash occured and bot missed stream end event to record duration
+		if (lastLiveStreamDb.EndedAt is null)
+		{
+			var lastLiveStreamTwitch = new GetVideosRequestParameters { VideoIds = [currentVod.VideoId] };
 
-					// has it been 20 minutes since last livestream?
-					// Get previous livestream entry
-					var lastLiveStream = await Database.LiveStreams
-					.OrderByDescending(x => x.Id)
-					.Skip(1)
-					.FirstOrDefaultAsync();
+			var lastVodResponse = await TwitchApiRequest.GetVideos(lastLiveStreamTwitch);
+			if (lastVodResponse.Data.Count == 0)
+				throw new Exception("Unable to get last livestream VOD from Twitch");
 
-					// has been 20  minutes, create stream session
-					if (lastLiveStream is null ||
-					    lastLiveStream.EndedAt + TimeSpan.FromMinutes(20) < DateTimeOffset.UtcNow)
-					{
-						await RecordNewSession(storedLiveStream);
-					}
-					else
-					{
-						await ReloadCurrentSession(storedLiveStream);
-					}
-				}
-				return;
-			}
+			lastLiveStreamDb.EndedAt = lastLiveStreamDb.StartedAt + lastVodResponse.Data[0].Duration;
+			await Database.UpdateEntry(lastLiveStreamDb);
+		}
 
-			if (attempt < maxRetries)
-			{
-				await Task.Delay(delay);
-				delay *= 2;
-			}
-			else
-			{
-				Log.LogError("Unable to get stream info, stream offline.");
-			}
+		// Check if 20 minutes has elapsed since last stream
+		if (lastLiveStreamDb.GracePeriodElapsed(20, currentVod.CreatedAt))
+		{
+			var streamSessionId = await CreateNewSession();
+			var liveStreamId = await CreateNewLiveStream(currentVod, streamSessionId);
+			await AddCurrentSessionToCache(liveStreamId, streamSessionId);
+		}
+		else
+		{
+			// stream crashed, new livestream created & 20 minutes has not elapsed
+			var streamSession = await Database.GetRecentStreamSession();
+			if (streamSession is null) throw new CustomException("StreamSession is null");
+
+			var liveStreamId = await CreateNewLiveStream(currentVod, streamSession.Id);
+
+			await AddCurrentSessionToCache(liveStreamId, streamSession.Id);
+			await UpdateAttendanceServiceStatus(streamSession);
 		}
 	}
 
-	/*═══════════◣ NEW SESSION ◢═══════════*/
-	public async Task RecordNewSession(LiveStream stream)
+	/*═════════◣ ◢═════════*/
+	private async Task<VideoData> GetCurrentVodTwitch()
+	{
+		var videoParameters = new GetVideosRequestParameters
+		{
+		BroadcasterId = Settings.Value.StreamerTokens.UserId,
+		ItemsPerPage = "1",
+		VideoType = VideoType.Archive
+		};
+
+		var response = await TwitchApiRequest.GetVideos(videoParameters);
+		if (response.Data.Count == 0)
+			throw new Exception("Unable to get last VOD from Twitch");
+
+		return response.Data[0];
+	}
+
+	private async Task<int> GetYearlyQuarterId()
 	{
 		var yearlyQuarter = await Database.GetYearlyQuarter();
 		if (yearlyQuarter is null || yearlyQuarter.EndOfQuarter())
@@ -94,54 +105,62 @@ ILogger<StreamSessionService> Log
 			await Database.ResetAttendanceStreaks();
 		}
 
+		return yearlyQuarter.Id;
+	}
+
+	private async Task<int> CreateNewSession()
+	{
+		var yearlyQuarterId = await GetYearlyQuarterId();
 		var attendanceStatus = Cache.GetStatusByServiceName(ServiceName.Attendance);
 
 		var streamSession = new StreamSession
 		{
 		Duration = TimeSpan.Zero,
 		AttendanceMandatory = attendanceStatus,
-		YearlyQuarterId = yearlyQuarter.Id
+		YearlyQuarterId = yearlyQuarterId
 		};
 
-		streamSession.LiveStreams.Add(stream);
-		streamSession = await Database.UpdateEntryReturn(streamSession);
+		return await Database.UpdateEntry(streamSession);
+	}
 
+	private async Task<int> CreateNewLiveStream(VideoData video, int streamSessionId)
+	{
+		var liveStream = new LiveStream
+		{
+		StartedAt = video.CreatedAt,
+		StreamSessionId = streamSessionId,
+		TwitchId = video.VideoId
+		};
+
+		return await Database.UpdateEntry(liveStream);
+	}
+
+	private async Task AddCurrentSessionToCache(int liveStreamId, int streamSessionId)
+	{
 		var lastMandatoryStreamId = await Database.GetLastMandatorySessionId();
+
 		var cacheSession = new CurrentSession
 		{
-		LiveStreamId = stream.Id,
-		StreamSessionId = streamSession.Id,
+		LiveStreamId = liveStreamId,
+		StreamSessionId = streamSessionId,
 		LastMandatorySessionId = lastMandatoryStreamId
 		};
 
 		Cache.Add(CacheName.CurrentSession, cacheSession);
 	}
 
-	/*═════════◣ CURRENT SESSION ◢═════════*/
-	public async Task ReloadCurrentSession(LiveStream stream)
+	private async Task UpdateAttendanceServiceStatus(StreamSession streamSession)
 	{
-		// use old stream session
-		var streamSession = await Database.StreamSessions
-		.OrderByDescending(x => x.Id)
-		.FirstOrDefaultAsync();
-
-		streamSession.LiveStreams.Add(stream);
-		await Database.SaveChangesAsync();
-		var lastMandatoryStreamId = await Database.GetLastMandatorySessionId();
-
-		var cacheSession = new CurrentSession
-		{
-		LiveStreamId = stream.Id,
-		StreamSessionId = streamSession.Id,
-		LastMandatorySessionId = lastMandatoryStreamId
-		};
-
-		Cache.Add(CacheName.CurrentSession, cacheSession);
-
 		var status = streamSession.AttendanceMandatory
 		? Status.Online
 		: Status.Offline;
 
 		await Cache.UpdateServiceStatus(ServiceName.Attendance, status);
 	}
+}
+
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+public interface IStreamSessionService
+{
+	Task CreateOrReloadStreamSession();
 }

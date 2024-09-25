@@ -88,7 +88,6 @@ public class GetCheermotesData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("last_updated")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset LastUpdated { get; set; }
 
 	///<summary>

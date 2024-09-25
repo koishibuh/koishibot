@@ -134,14 +134,13 @@ public class CustomRewardData
 
 	///<summary>
 	///The timestamp of when the cooldown period expires.<br/>
-	///Is null if the reward isn’t in a cooldown state (see the global_cooldown_setting field).<br/>
+	///Is null if the reward isn’t in a cooldown state - see the global_cooldown_setting field.<br/>
 	///(Converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("cooldown_expires_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset CooldownExpiresAt { get; set; }
+	public DateTimeOffset? CooldownExpiresAt { get; set; }
 }
-
 
 
 public class MaxPerStreamSetting

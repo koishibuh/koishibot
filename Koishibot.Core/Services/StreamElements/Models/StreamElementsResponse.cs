@@ -27,10 +27,10 @@ public class StreamElementsEvent
 	public string Provider { get; set; } = string.Empty;
 
 	[JsonPropertyName("type")]
-	public EventType Type { get; set; }
+	public string Type { get; set; }
 
 	[JsonPropertyName("createdAt")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
+	// [JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset CreatedAt { get; set; }
 
 	//[JsonPropertyName("isMock")]
@@ -40,7 +40,7 @@ public class StreamElementsEvent
 	public Data Data { get; set; }
 
 	[JsonPropertyName("updatedAt")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
+	// [JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset UpdatedAt { get; set; }
 
 	[JsonPropertyName("_id")]

@@ -5,17 +5,18 @@ using Koishibot.Core.Features.RaidSuggestions.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
-using Koishibot.Core.Features.TwitchUsers.Extensions;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.RaidSuggestions;
 
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record SelectRaidCandidatesService(
-	IOptions<Settings> Settings,
-	IAppCache Cache,
-	ITwitchApiRequest TwitchApiRequest,
-	IChatReplyService ChatReplyService,
-	ISignalrService Signalr
-	) : ISelectRaidCandidatesService
+IOptions<Settings> Settings,
+IAppCache Cache,
+ITwitchApiRequest TwitchApiRequest,
+IChatReplyService ChatReplyService,
+ISignalrService Signalr
+) : ISelectRaidCandidatesService
 {
 	public async Task Start()
 	{
@@ -23,17 +24,20 @@ public record SelectRaidCandidatesService(
 		await ChatReplyService.App(Command.VotingSoon);
 
 		var suggestions = Cache.GetRaidSuggestions();
-		if (suggestions.Count is 0)
+		switch (suggestions.Count)
 		{
-			suggestions = await GetSuggestionsFromFollowList(5);
-			Cache.AddRaidSuggestions(suggestions);
-		}
-		else if (suggestions.Count < 3)
-		{
-			var result = await GetSuggestionsFromFollowList(3);
-			suggestions.AddRange(result);
+			case 0:
+				suggestions = await GetSuggestionsFromFollowList(5);
+				Cache.AddRaidSuggestions(suggestions);
+				break;
+			case < 3:
+			{
+				var result = await GetSuggestionsFromFollowList(3);
+				suggestions.AddRange(result);
 
-			Cache.AddRaidSuggestions(suggestions);
+				Cache.AddRaidSuggestions(suggestions);
+				break;
+			}
 		}
 
 		var selectedCandidates = suggestions.Select3RandomCandidates();
@@ -46,8 +50,7 @@ public record SelectRaidCandidatesService(
 	}
 
 	// == ⚫  == //
-
-	public async Task<List<RaidSuggestion>> GetSuggestionsFromFollowList(int number)
+	private async Task<List<RaidSuggestion>> GetSuggestionsFromFollowList(int number)
 	{
 
 		var parameters = new GetFollowedLiveStreamsRequestParameters
@@ -56,14 +59,13 @@ public record SelectRaidCandidatesService(
 		};
 
 		var results = await TwitchApiRequest.GetFollowedLiveStreams(parameters);
-
-
+		
 		var random = new Random();
 		var selectedSuggestions = results.Data
-						.OrderBy(r => random.Next())
-						.Where(r => r.ViewerCount < 100)
-						.Take(number)
-						.ToList();
+			.OrderBy(r => random.Next())
+			.Where(r => r.ViewerCount < 100)
+			.Take(number)
+			.ToList();
 
 		var raidCandidates = new List<RaidSuggestion>();
 

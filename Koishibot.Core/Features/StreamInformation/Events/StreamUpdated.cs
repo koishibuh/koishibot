@@ -4,6 +4,7 @@ using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelUpdate;
+
 namespace Koishibot.Core.Features.StreamInformation.Events;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
@@ -19,10 +20,10 @@ KoishibotDbContext Database
 ) : IRequestHandler<StreamUpdatedCommand>
 {
 	public async Task Handle
-		(StreamUpdatedCommand command, CancellationToken cancellationToken)
+	(StreamUpdatedCommand command, CancellationToken cancellationToken)
 	{
 		var category = command.CreateModel();
-		await category.UpsertEntry(Database);
+		await Database.UpsertCategory(category);
 
 		var streamInfo = command.ConvertToDto();
 		Cache.UpdateStreamInfo(streamInfo);
@@ -48,12 +49,9 @@ public record StreamUpdatedCommand(ChannelUpdatedEvent e) : IRequest
 		e.CategoryId);
 	}
 
-	public StreamCategory CreateModel()
+	public StreamCategory CreateModel() => new StreamCategory
 	{
-		return new StreamCategory
-		{
 		Name = e.CategoryName,
 		TwitchId = e.CategoryId
-		};
-	}
+	};
 }

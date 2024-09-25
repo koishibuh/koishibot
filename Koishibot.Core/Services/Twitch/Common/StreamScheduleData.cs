@@ -49,7 +49,6 @@ public class StreamSegmentsData
 	///The UTC date and time (in RFC3339 format) of when the broadcast starts.
 	///</summary>
 	[JsonPropertyName("start_time")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartTime
 	{ get; set; }
 
@@ -57,7 +56,6 @@ public class StreamSegmentsData
 	///The UTC date and time (in RFC3339 format) of when the broadcast ends.
 	///</summary>
 	[JsonPropertyName("end_time")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset EndTime { get; set; }
 
 	///<summary>
@@ -73,7 +71,7 @@ public class StreamSegmentsData
 	///</summary>
 	[JsonPropertyName("canceled_until")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset CanceledUntil { get; set; }
+	public DateTimeOffset? CanceledUntil { get; set; }
 
 	///<summary>
 	///The type of content that the broadcaster plans to stream or null if not specified.

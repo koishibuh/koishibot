@@ -22,7 +22,6 @@ public class AdBreakBeginEvent
     /// There is potential delay between this event, when the streamer requested the ad break, and when the viewers will see ads.
     /// </summary>
     [JsonPropertyName("started_at")]
-    [JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
     public DateTimeOffset StartedAt { get; set; }
 
     /// <summary>

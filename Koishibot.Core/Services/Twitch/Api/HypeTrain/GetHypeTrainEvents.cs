@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -16,15 +17,14 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task GetHypeTrainEvents(GetHypeTrainEventsRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "hypetrain/events";
+		const string url = "hypetrain/events";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class GetHypeTrainEventsRequestParameters
 {
 
@@ -50,9 +50,7 @@ public class GetHypeTrainEventsRequestParameters
 	public string After { get; set; }
 
 
-	// == ⚫ RESPONSE BODY == //
-
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 	public class GetHypeTrainEventsResponse
 	{
 		///<summary>
@@ -91,7 +89,6 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("event_timestamp")]
-		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset EventTimestamp { get; set; }
 
 		///<summary>
@@ -128,7 +125,6 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("cooldown_end_time")]
-		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset CooldownEndTime { get; set; }
 
 		///<summary>
@@ -136,7 +132,6 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("expires_at")]
-		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset ExpiresAt { get; set; }
 
 		///<summary>
@@ -168,7 +163,6 @@ public class GetHypeTrainEventsRequestParameters
 		///(RFC3339 format converted to DateTimeOffset)
 		///</summary>
 		[JsonPropertyName("started_at")]
-		[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 		public DateTimeOffset StartedAt { get; set; }
 
 		///<summary>
