@@ -64,8 +64,7 @@ public class PredictionData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public string? CreatedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; set; }
 
 	///<summary>
 	///The timestamp of when the Prediction ended.<br/>
@@ -74,7 +73,7 @@ public class PredictionData
 	///</summary>
 	[JsonPropertyName("ended_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public string? EndedAt { get; set; }
+	public DateTimeOffset? EndedAt { get; set; }
 
 	///<summary>
 	///The timestamp of when the Prediction was locked.<br/>
@@ -83,12 +82,11 @@ public class PredictionData
 	///</summary>
 	[JsonPropertyName("locked_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public string? LockedAt { get; set; }
+	public DateTimeOffset? LockedAt { get; set; }
 }
 
 public class Outcome
 {
-
 	///<summary>
 	///An ID that identifies this outcome.
 	///</summary>

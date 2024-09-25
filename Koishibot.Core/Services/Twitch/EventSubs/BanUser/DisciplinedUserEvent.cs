@@ -74,7 +74,6 @@ public class DisciplinedUserEvent
 	/// (RFC3339 format converted to DateTimeOffset)
 	/// </summary>
 	[JsonPropertyName("banned_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset BannedAt { get; set; }
 
 	/// <summary>
@@ -91,5 +90,4 @@ public class DisciplinedUserEvent
 	/// </summary>
 	[JsonPropertyName("is_permanent")]
 	public bool IsPermanent { get; set; }
-
 }

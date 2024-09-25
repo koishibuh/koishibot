@@ -85,7 +85,6 @@ public class FollowerData
 	///(Converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("followed_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset FollowedAt { get; set; }
 
 	///<summary>

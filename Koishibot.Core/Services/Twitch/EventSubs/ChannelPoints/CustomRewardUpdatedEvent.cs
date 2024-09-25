@@ -119,12 +119,12 @@ public class CustomRewardUpdatedEvent
 	public GlobalCooldown? GlobalCooldown { get; set; }
 
 	///<summary>
-	///Timestamp of the cooldown expiration. null if the reward isn’t on cooldown.br/>
+	///Timestamp of the cooldown expiration. Is null if the reward isn’t on cooldown.br/>
 	///(Converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("cooldown_expires_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset CooldownExpiresAt { get; set; }
+	public DateTimeOffset? CooldownExpiresAt { get; set; }
 
 	///<summary>
 	///The number of redemptions redeemed during the current live stream.<br/>

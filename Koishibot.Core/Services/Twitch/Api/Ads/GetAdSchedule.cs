@@ -4,8 +4,7 @@ using Koishibot.Core.Services.Twitch.Converters;
 using System.Text.Json;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ GET == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/api/reference/#get-ad-schedule">Twitch Documentation</see><br/>
 /// Returns ad schedule related information, including snooze, when the last ad was run, when the next ad is scheduled, and if the channel is currently in pre-roll free time.<br/>
@@ -17,7 +16,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task<AdScheduleData> GetAdSchedule(GetAdScheduleRequestParameters parameters)
 	{
 		var method = HttpMethod.Get;
-		var url = "channels/ads";
+		const string url = "channels/ads";
 		var query = parameters.ObjectQueryFormatter();
 
 		var response = await TwitchApiClient.SendRequest(method, url, query);
@@ -43,8 +42,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class GetAdScheduleRequestParameters
 {
 	/// <summary>
@@ -55,8 +53,7 @@ public class GetAdScheduleRequestParameters
 	public string BroadcasterId { get; set; } = null!;
 }
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 /// <summary>
 /// <see href="https://dev.twitch.tv/docs/api/reference/#get-ad-schedule">Twitch Documentation</see><br/>
 /// Information related to the channel’s ad schedule.
@@ -78,20 +75,20 @@ public class AdScheduleData
 	///<summary>
 	///The timestamp when the broadcaster will gain an additional snooze.<br/>
 	///Only valid while stream is live, Twitch returns 0 if stream is offline.
-	///(RFC3339 format converted to DateTimeOffset, set to Jan 1 1970 if empty)
+	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("snooze_refresh_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset GainNextSnoozeAt { get; set; }
+	public DateTimeOffset? GainNextSnoozeAt { get; set; }
 
 	///<summary>
 	///The timestamp of the broadcaster’s next scheduled ad.<br/>
 	///Twitch returns 0 if channel has no ad scheduled or is not live.<br/>
-	///(RFC3339 format converted to DateTimeOffset, set to Jan 1 1970 if empty)
+	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("next_ad_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset NextAdScheduledAt { get; set; }
+	public DateTimeOffset? NextAdScheduledAt { get; set; }
 
 	///<summary>
 	///The length in seconds of the scheduled upcoming ad break.
@@ -104,11 +101,11 @@ public class AdScheduleData
 	///<summary>
 	///The UTC timestamp of the broadcaster’s last ad-break.<br/>
 	///Twitch returns 0 if the channel has not run an ad or is not live.<br/>
-	///(RFC3339 format converted to DateTimeOffset, set to Jan 1 1970 if empty)
+	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("last_ad_at")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset LastAdPlayedAt { get; set; }
+	public DateTimeOffset? LastAdPlayedAt { get; set; }
 
 	///<summary>
 	///The amount of pre-roll free time remaining for the channel in seconds.<br/>
@@ -117,21 +114,14 @@ public class AdScheduleData
 	[JsonPropertyName("preroll_free_time")]
 	public int RemainingPrerollFreeTimeInSeconds { get; set; }
 
-	// == ⚫  == //
+	public AdScheduleDto ConvertToDto() => new(
+		AvailableSnoozeCount,
+		GainNextSnoozeAt,
+		NextAdScheduledAt,
+		AdDuration,
+		LastAdPlayedAt,
+		RemainingPrerollFreeTimeInSeconds);
 
-	public AdScheduleDto ConvertToDto()
-	{
-		return new AdScheduleDto(
-			AvailableSnoozeCount,
-			GainNextSnoozeAt,
-			NextAdScheduledAt,
-			AdDuration,
-			LastAdPlayedAt,
-			RemainingPrerollFreeTimeInSeconds);
-	}
-
-	public bool NextAdTimeStillValid()
-	{
-		return DateTimeOffset.UtcNow < NextAdScheduledAt;
-	}
+	public bool NextAdTimeStillValid() =>
+		DateTimeOffset.UtcNow < NextAdScheduledAt;
 }

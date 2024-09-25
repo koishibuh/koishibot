@@ -4,8 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ POST == //
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -17,15 +16,14 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task CreateStreamMarker(CreateStreamMarkerRequestBody requestBody)
 	{
 		var method = HttpMethod.Post;
-		var url = "streams/markers";
+		const string url = "streams/markers";
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
 		var response = await TwitchApiClient.SendRequest(method, url, body);
 	}
 }
 
-// == ⚫ REQUEST BODY == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class CreateStreamMarkerRequestBody
 {
 	///<summary>
@@ -43,8 +41,7 @@ public class CreateStreamMarkerRequestBody
 	public string Description { get; set; }
 }
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class CreateStreamMarkerResponse
 {
 	///<summary>
@@ -67,15 +64,14 @@ public class CreatedStreamMarkerData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("created_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public string CreatedAt { get; set; }
 
 	///<summary>
 	///The relative offset (in seconds) of the marker from the beginning of the stream.
 	///</summary>
 	[JsonPropertyName("position_seconds")]
-
 	public int PositionInSeconds { get; set; }
+
 	///<summary>
 	///A description that the user gave the marker to help them remember why they marked the location.
 	///</summary>

@@ -65,7 +65,6 @@ public class LivestreamData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("started_at")]
-	// [JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset StartedAt { get; set; }
 
 	///<summary>

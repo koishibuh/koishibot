@@ -38,6 +38,5 @@ public class ShieldModeData
 	///(RFC3339 format converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("last_activated_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset LastActivatedAt { get; set; }
+	public DateTimeOffset? LastActivatedAt { get; set; }
 }

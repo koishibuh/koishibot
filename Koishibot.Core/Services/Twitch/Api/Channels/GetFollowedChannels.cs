@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -23,8 +23,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class GetFollowedChannelsRequestParamaters
 {
 	///<summary>
@@ -60,8 +59,7 @@ public class GetFollowedChannelsRequestParamaters
 }
 
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 /// <summary>
 ///  List of broadcasters that the user follows.<br/>
 ///  The list is in descending order by followed_at (with the most recently followed broadcaster first).<br/>
@@ -111,6 +109,5 @@ public class FollowedChannelData
 	///(Converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("followed_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset FollowedAt { get; set; }
 }

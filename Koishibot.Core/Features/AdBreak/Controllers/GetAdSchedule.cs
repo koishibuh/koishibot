@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Services.TwitchApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Koishibot.Core.Features.AdBreak.Controllers;
 

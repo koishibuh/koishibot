@@ -76,6 +76,5 @@ public class RewardRedemptionUpdatedEvent
 	///(RFC3339 converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("redeemed_at")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset RedeemedAt { get; set; }
 }

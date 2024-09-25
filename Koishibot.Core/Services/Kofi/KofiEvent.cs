@@ -12,7 +12,6 @@ public class KofiEvent
 	public string MessageId { get; set; } = string.Empty;
 
 	[JsonPropertyName("timestamp")]
-	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
 	public DateTimeOffset Timestamp { get; set; }
 
 	[JsonPropertyName("type")]

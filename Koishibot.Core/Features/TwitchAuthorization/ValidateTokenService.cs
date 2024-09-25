@@ -66,7 +66,7 @@ public class ValidateTokenResponse
 
 	[JsonPropertyName("expires_in")]
 	[JsonConverter(typeof(RFCToDateTimeOffsetConverter))]
-	public DateTimeOffset ExpiresAt { get; init; }
+	public DateTimeOffset? ExpiresAt { get; init; }
 }
 
 /*══════════════════【 INTERFACE 】══════════════════*/
