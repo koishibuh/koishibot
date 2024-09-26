@@ -10,8 +10,10 @@ public static class TwitchApiHelper
 	public static List<EventSubSubscriptionType> DebugSubscribeToEvents()
 	{
 		return [
-			EventSubSubscriptionType.ChannelUpdate,
-			EventSubSubscriptionType.ChannelChatMessage,
+			// EventSubSubscriptionType.ChannelUpdate,
+			// EventSubSubscriptionType.ChannelChatMessage,
+			EventSubSubscriptionType.StreamOnline,
+			EventSubSubscriptionType.StreamOffline
 		];
 	}
 

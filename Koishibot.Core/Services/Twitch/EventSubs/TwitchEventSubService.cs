@@ -117,7 +117,7 @@ ITwitchApiRequest TwitchApiRequest
 			switch (eventMessage.Metadata.Type)
 			{
 				case EventSubMessageType.Notification:
-					Log.LogInformation($"Twitch Notification {eventMessage.Metadata.Timestamp}");
+					Log.LogInformation($"Twitch Notification {eventMessage.Metadata.SubscriptionType}");
 					OnEventReceived();
 					await ProcessNotificationMessage(eventMessage.Metadata.SubscriptionType, message.Message);
 					break;
@@ -206,7 +206,7 @@ ITwitchApiRequest TwitchApiRequest
 		{
 			case EventSubSubscriptionType.StreamOnline:
 				var streamOnline = JsonSerializer.Deserialize<EventMessage<StreamOnlineEvent>>(message);
-				await Send(new StreamOnlineCommand());
+				await Send(new StreamOnlineCommand(streamOnline.Payload.Event));
 				break;
 			case EventSubSubscriptionType.StreamOffline:
 				var streamOffline = JsonSerializer.Deserialize<EventMessage<StreamOfflineEvent>>(message);
@@ -408,7 +408,7 @@ ITwitchApiRequest TwitchApiRequest
 			//	break;
 			//case SubscriptionType.CharityCampaignStart:
 			//	OnCharityCampaignStart?.Invoke(eventMessage);
-			//	break;	
+			//	break;
 			//case SubscriptionType.CharityCampaignProgress:
 			//	OnCharityCampaignProgress?.Invoke(eventMessage);
 			//	break;

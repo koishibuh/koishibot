@@ -33,7 +33,11 @@ IServiceScopeFactory ScopeFactory
 
 	public async Task CreateWebSocket()
 	{
-		// if (ObsWebSocket is not null) return;
+		if (ObsWebSocket is not null)
+		{
+			Log.LogInformation("Obs WebSocket already created");
+			return;
+		}
 
 		var url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
 
