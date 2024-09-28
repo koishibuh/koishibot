@@ -28,9 +28,9 @@ IAppCache Cache,
 KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
 IChannelPointsApi ChannelPointsApi
-) : IRequestHandler<EnableDragonQuestCommand>
+) : IRequestHandler<DisableDragonQuestCommand>
 {
-	public async Task Handle(EnableDragonQuestCommand command, CancellationToken cancel)
+	public async Task Handle(DisableDragonQuestCommand command, CancellationToken cancel)
 	{
 		var alreadyDisabled = Cache.GetStatusByServiceName(ServiceName.DragonQuest);
 		if (alreadyDisabled) throw new CustomException("Dragon Quest already disabled");
@@ -44,7 +44,7 @@ IChannelPointsApi ChannelPointsApi
 			.UpdateServiceStatusOffline(ServiceName.DragonQuest);
 
 		await ChannelPointsApi.DisableRedemption(reward.TwitchId);
-		await ChatReplyService.App(Command.DragonQuestDisabled);
+		await ChatReplyService.App(Command.DragonQuestClosed);
 	}
 }
 

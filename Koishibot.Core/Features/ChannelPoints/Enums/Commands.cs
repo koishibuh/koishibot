@@ -5,6 +5,7 @@ public class Command
 	public const string DragonQuestDisabled = "dragonquest-disabled";
 	public const string DragonQuestSuccessful = "dragonquest-successful";
 	public const string DragonQuestFailed = "dragonquest-failed";
+	public const string DragonQuestClosed = "dragonquest-nowclosed";
 
 	/// <summary>
 	/// Template: User, Choice1, Choice2, Choice3
