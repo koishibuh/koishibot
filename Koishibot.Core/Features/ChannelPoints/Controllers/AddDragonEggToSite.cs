@@ -52,11 +52,6 @@ IChannelPointsApi ChannelPointsApi
 		var template = command.CreateTemplate();
 		await ChatReplyService.App(Command.DragonQuestNewestEgg, template);
 
-		var reward = await Database.GetChannelRewardByName("Dragon Egg Quest");
-		if (reward is null) throw new NullException("Reward not found in database");
-
-		await ChannelPointsApi.DisableRedemption(reward.TwitchId);
-
 		await Cache
 			.RemoveDragonQuest()
 			.UpdateServiceStatusOffline(ServiceName.DragonQuest);
