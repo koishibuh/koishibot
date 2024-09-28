@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Enums;
 using Koishibot.Core.Features.TwitchUsers.Models;
+using Koishibot.Core.Persistence.Cache.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.AttendanceLog.Models;
@@ -77,6 +78,16 @@ public class Attendance
 
 	public bool WasAlreadyRecordedToday(int? lastMandatorySessionId)
 		=> LastAttendedSessionId == lastMandatorySessionId;
+}
+
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class AttendanceExtensions
+{
+	public static IAppCache ClearAttendanceCache(this IAppCache cache)
+	{
+		cache.AddNoExpire(CacheName.Users, new List<TwitchUser>());
+		return cache;
+	}
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/

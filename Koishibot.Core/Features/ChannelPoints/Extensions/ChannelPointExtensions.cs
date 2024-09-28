@@ -17,33 +17,6 @@ public static class ChannelPointExtensions
 		return todayRedeems.Select(x => x.WasSuccesful == true).Any();
 	}
 
-	// CACHE
-	public static bool DragonEggQuestClosed(this IAppCache cache)
-	{
-		var result = cache.GetStatusByServiceName(ServiceName.DragonEggQuest);
-		return result is false;
-	}
-
-	public static DragonEggQuest? GetDragonEggQuest(this IAppCache cache)
-	{
-		return cache.Get<DragonEggQuest>(CacheName.DragonEggQuest);
-	}
-
-	public static TwitchUser? GetDragonQuestWinner(this IAppCache cache)
-	{
-		var result = cache.Get<DragonEggQuest>(CacheName.DragonEggQuest)
-		       ?? throw new Exception("DragonEggQuest not in cache");
-		return result.SuccessfulUser;
-	}
-
-	public static IAppCache AddDragonEggQuest(this IAppCache cache, DragonEggQuest quest)
-	{
-		cache.Add(CacheName.DragonEggQuest, quest);
-		return cache;
-	}
-
-
-
 	// DATABASE
 	public static async Task<int> UpdateReward
 	(this KoishibotDbContext database, ChannelPointReward reward)
@@ -187,13 +160,5 @@ public static class ChannelPointExtensions
 				reward.ImageUrl
 			))
 			.ToList();
-	}
-
-	public static async Task<WordpressItemTag?> GetItemTagByUserId
-		(this KoishibotDbContext database, int userId)
-	{
-		return await database.WordpressItemTags
-		.Where(x => x.UserId == userId)
-		.FirstOrDefaultAsync();
 	}
 }

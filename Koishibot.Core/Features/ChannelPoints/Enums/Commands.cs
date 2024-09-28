@@ -1,13 +1,18 @@
 ﻿namespace Koishibot.Core.Features.ChannelPoints.Enums;
 public class Command
 {
-	public const string DragonEggQuestEnabled = "dragonquest-enabled";
-	public const string DragonEggQuestDisabled = "dragonquest-disabled";
-	public const string DragonEggQuestSuccessful = "dragonquest-successful";
-	public const string DragonEggQuestFailed = "dragonquest-failed";
+	public const string DragonQuestEnabled = "dragonquest-enabled";
+	public const string DragonQuestDisabled = "dragonquest-disabled";
+	public const string DragonQuestSuccessful = "dragonquest-successful";
+	public const string DragonQuestFailed = "dragonquest-failed";
 
 	/// <summary>
 	/// Template: User, Choice1, Choice2, Choice3
 	/// </summary>
-	public const string DragonEggQuestPickEgg = "dragonquest-pickegg";
+	public const string DragonQuestPickEgg = "dragonquest-pickegg";
+
+	/// <summary>
+	///  Template: Url
+	/// </summary>
+	public const string DragonQuestNewestEgg = "dragonquest-newegg";
 }

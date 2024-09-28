@@ -11,7 +11,7 @@ public enum CacheName
 	CurrentPoll,
 	Users,
 	Dandle,
-	DragonEggQuest,
+	DragonQuest,
 	Raid,
 	LedLights,
 	Commands

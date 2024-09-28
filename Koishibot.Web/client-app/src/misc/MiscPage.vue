@@ -2,9 +2,13 @@
 import {ref, watch} from "vue";
 import {useAxios} from "@/api/newhttp";
 import {useNotificationStore} from "@/common/notifications/notification.store";
+import {type IDragonEgg} from "@/misc/models/dragon-eggs.interface";
+import dragonEggData from "@/misc/data/dragonEggData.json";
 
 const http = useAxios();
 const notifications = useNotificationStore();
+
+const eggDescription = ref<IDragonEgg | null>();
 
 const code = ref<string>('');
 const saveDragon = async () => {
@@ -19,11 +23,32 @@ const saveDragon = async () => {
 
   await http.post('/api/dragon-quest/wordpress', {code: code.value});
   code.value = '';
+  eggDescription.value = null;
+}
+
+const getEggs = async (location: string) => {
+  const url = `https://dragcave.net/locations/${location}`;
+  window.open(url);
+  const result: IDragonEgg = await http.post('/api/dragon-quest/page', {location: url});
+  eggDescription.value = result;
 }
 </script>
 
 <template>
   <div class="border-2 p-2 border-gray-500 rounded flex-col items-center gap-2">
+    <div v-if="eggDescription">
+      <div v-for="(item, index) in eggDescription" :key="index">
+        <p>Egg {{ index }} - {{ item }}</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button class="primary-button w-full" @click="getEggs('5-alpine')">Alpine</button>
+      <button class="primary-button w-full" @click="getEggs('1-coast')">Coast</button>
+      <button class="primary-button w-full" @click="getEggs('2-desert')">Desert</button>
+      <button class="primary-button w-full" @click="getEggs('3-forest')">Forest</button>
+      <button class="primary-button w-full" @click="getEggs('4-jungle')">Jungle</button>
+      <button class="primary-button w-full" @click="getEggs('6-volcano')">Volcano</button>
+    </div>
     <form @submit.prevent="saveDragon()" class="flex flex-col gap-2 my-4">
       <label for="username">Dragon Code</label>
       <input type="text" v-model="code" id="code" class="text-black"/>

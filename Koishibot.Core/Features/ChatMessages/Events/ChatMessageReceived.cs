@@ -43,10 +43,6 @@ IChatReplyService BotIrc
 		{
 			await ChatCommandProcessor.Start(chat);
 		}
-
-		// await (Settings.Value.DebugMode is true
-		// ? DebugProcess(command)
-		// : Process(command));
 	}
 
 /*════════════════════【 🐌 DEBUG 】════════════════════*/

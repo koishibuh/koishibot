@@ -1,8 +1,9 @@
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.ChannelPoints.Models;
 
-public class KoiKinDragon
+public class KoiKinDragon : IEntity
 {
 	public int Id { get; set; }
 	public int WordpressId { get; set; }

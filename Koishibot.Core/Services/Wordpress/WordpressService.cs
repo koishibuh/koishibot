@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Koishibot.Core.Features.ChannelPoints.Controllers;
 using Koishibot.Core.Services.Twitch;
 using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Wordpress.Requests;
@@ -9,21 +8,20 @@ using Koishibot.Core.Services.Wordpress.Responses;
 
 namespace Koishibot.Core.Services.Wordpress;
 
+/*═══════════════════【 INTERFACE 】═══════════════════*/
 public interface IWordpressService
 {
 	Task<WordPressResponse> CreateItemTag(string username);
 	Task<AddItemResponse> CreateItem(AddItemRequest parameters);
 }
 
-
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record WordpressService(
-	IOptions<Settings> Settings,
-	IAppCache Cache,
-	ISignalrService Signalr,
-	IHttpClientFactory HttpClientFactory
-	) : IWordpressService
+IOptions<Settings> Settings,
+IHttpClientFactory HttpClientFactory
+) : IWordpressService
 {
-	public HttpClient CreateClient()
+	private HttpClient CreateClient()
 	{
 		var username = Settings.Value.WordpressCredentials.Username;
 		var password = Settings.Value.WordpressCredentials.Password;
@@ -91,29 +89,4 @@ public record WordpressService(
 
 		return result;
 	}
-
-	// == ⚫ == //
-
-	//public async Task<string> SendRequest
-	//		(HttpMethod httpMethod, string endPoint)
-	//{
-
-	//	var httpClient = CreateClient();
-
-	//	var baseUri = httpClient.BaseAddress + endPoint;
-	//	var uriBuilder = new UriBuilder(httpClient.BaseAddress + endPoint);
-
-	//	var request = new HttpRequestMessage(httpMethod, uriBuilder.Uri);
-	//	using var response = await httpClient.SendAsync(request);
-
-	//	var content = await response.Content.ReadAsStringAsync();
-	//	if (!response.IsSuccessStatusCode)
-	//	{
-	//		var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(content);
-	//		// custom exception here
-	//		throw new Exception($"Api request failed, {errorResponse?.Message}");
-	//	}
-
-	//	return content;
-	//}
 }

@@ -10,7 +10,7 @@ public enum ServiceName
 	StreamElements,
 
 	Attendance,
-	DragonEggQuest,
+	DragonQuest,
 	Dandle,
 	Raid,
 	LedLights

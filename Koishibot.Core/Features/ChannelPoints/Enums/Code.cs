@@ -2,8 +2,8 @@
 
 public enum Code
 {
-	DragonEggQuestEnabled = 0,
-	DragonEggQuestDisabled = 1,
+	DragonQuestEnabled = 0,
+	DragonQuestDisabled = 1,
 	Successful = 2,
 	Fail = 3,
 }

@@ -29,6 +29,14 @@ public class ChannelPointReward
 	// == ⚫ == //
 }
 
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class ChannelPointExtensions
+{
+	public static bool NoRedemptionsToday(this List<ChannelPointRedemption> redemptions)
+		=> redemptions.Count == 0;
+}
+
+
 /*══════════════════【 CONFIGURATION 】═════════════════*/
 public class ChannelPointRewardConfig : IEntityTypeConfiguration<ChannelPointReward>
 {

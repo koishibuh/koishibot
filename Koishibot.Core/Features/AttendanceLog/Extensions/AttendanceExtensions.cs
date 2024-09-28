@@ -47,12 +47,6 @@ public static class AttendanceExtensions
 		return cache;
 	}
 
-	public static IAppCache ClearAttendanceCache(this IAppCache cache)
-	{
-		cache.AddNoExpire(CacheName.Users, new List<TwitchUser>());
-		return cache;
-	}
-
 	// DATABASE
 
 	public static async Task<Attendance> UpdateAttendance

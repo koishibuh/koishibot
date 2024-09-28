@@ -32,19 +32,19 @@ IChannelPointsApi ChannelPointsApi
 {
 	public async Task Handle(EnableDragonQuestCommand command, CancellationToken cancel)
 	{
-		var alreadyEnabled = Cache.GetStatusByServiceName(ServiceName.DragonEggQuest);
+		var alreadyEnabled = Cache.GetStatusByServiceName(ServiceName.DragonQuest);
 		if (alreadyEnabled) throw new CustomException("Dragon Quest already enabled");
 
 		var reward = await Database.GetChannelRewardByName("Dragon Egg Quest");
 		if (reward is null) throw new NullException("Reward not found in database");
 
-		var dragonEggQuest = new DragonEggQuest().Set(reward, 0);
+		var dragonEggQuest = new DragonQuest(reward, 0);
 		await Cache
-		.AddDragonEggQuest(dragonEggQuest)
-		.UpdateServiceStatusOnline(ServiceName.DragonEggQuest);
+			.AddDragonQuest(dragonEggQuest)
+			.UpdateServiceStatusOnline(ServiceName.DragonQuest);
 
 		await ChannelPointsApi.EnableRedemption(reward.TwitchId);
-		await ChatReplyService.App(Command.DragonEggQuestEnabled);
+		await ChatReplyService.App(Command.DragonQuestEnabled);
 	}
 }
 
