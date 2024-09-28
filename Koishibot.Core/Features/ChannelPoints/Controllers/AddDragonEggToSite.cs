@@ -1,6 +1,4 @@
-using Koishibot.Core.Exceptions;
 using Koishibot.Core.Features.ChannelPoints.Enums;
-using Koishibot.Core.Features.ChannelPoints.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Extensions;
@@ -33,8 +31,7 @@ public record AddDragonEggToSiteHandler(
 IAppCache Cache,
 KoishibotDbContext Database,
 IWordpressService WordpressService,
-IChatReplyService ChatReplyService,
-IChannelPointsApi ChannelPointsApi
+IChatReplyService ChatReplyService
 ) : IRequestHandler<AddDragonEggToSiteCommand, int>
 {
 	public async Task<int> Handle(AddDragonEggToSiteCommand command, CancellationToken cancel)
@@ -71,20 +68,20 @@ IChannelPointsApi ChannelPointsApi
 		return databaseEntry;
 	}
 
-	private async Task<AddItemResponse> CreateWordpressItem(AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
+	private async Task<ItemResponse> CreateWordpressItem(AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
 	{
 		var parameters = command.CreateWordpressItem(itemTagDb.WordPressId);
 		return await WordpressService.CreateItem(parameters);
 	}
 
-	private async Task<int> SaveDragonToDatabase(AddItemResponse itemResult, AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
+	private async Task<int> SaveDragonToDatabase(ItemResponse itemResult, AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
 	{
 		var dragon = new KoiKinDragon
 		{
 			WordpressId = itemResult.WordpressId,
 			Timestamp = itemResult.Date,
 			Code = command.Code,
-			Name = "?",
+			Name = itemResult.Title.Rendered ?? "",
 			ItemTagId = itemTagDb.Id
 		};
 

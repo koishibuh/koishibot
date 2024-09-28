@@ -12,7 +12,10 @@ namespace Koishibot.Core.Services.Wordpress;
 public interface IWordpressService
 {
 	Task<WordPressResponse> CreateItemTag(string username);
-	Task<AddItemResponse> CreateItem(AddItemRequest parameters);
+	Task<ItemResponse> CreateItem(AddItemRequest parameters);
+	Task<List<GetItemTagResponse>> GetItemTags();
+	Task<List<ItemResponse>> GetItems();
+	Task<GetItemTagResponse> GetItemTagById(string wordpressId);
 }
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
@@ -65,7 +68,7 @@ IHttpClientFactory HttpClientFactory
 		return result;
 	}
 
-	public async Task<AddItemResponse> CreateItem(AddItemRequest parameters)
+	public async Task<ItemResponse> CreateItem(AddItemRequest parameters)
 	{
 		var httpClient = CreateClient();
 		const string endpoint = "items";
@@ -83,10 +86,106 @@ IHttpClientFactory HttpClientFactory
 			throw new Exception($"{errorResponse?.Message}");
 		}
 
-		var result = JsonSerializer.Deserialize<AddItemResponse>(content);
+		var result = JsonSerializer.Deserialize<ItemResponse>(content);
 		if (result is null)
 			throw new Exception("Unable to deserialize response");
 
 		return result;
 	}
+
+	public async Task<List<GetItemTagResponse>> GetItemTags()
+	{
+		var httpClient = CreateClient();
+		const string endpoint = "item_tag";
+
+		var uriBuilder = new UriBuilder(httpClient.BaseAddress + endpoint);
+
+		var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+		using var response = await httpClient.SendAsync(request);
+
+		var content = await response.Content.ReadAsStringAsync();
+		if (!response.IsSuccessStatusCode)
+		{
+			var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(content);
+			throw new Exception($"{errorResponse?.Message}");
+		}
+
+		var result = JsonSerializer.Deserialize<List<GetItemTagResponse>>(content);
+		if (result is null)
+			throw new Exception("Unable to deserialize response");
+
+		return result;
+	}
+
+	public async Task<GetItemTagResponse> GetItemTagById(string wordpressId)
+	{
+		var httpClient = CreateClient();
+		var endpoint = $"item_tag/{wordpressId}";
+
+		var uriBuilder = new UriBuilder(httpClient.BaseAddress + endpoint);
+
+		var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+		using var response = await httpClient.SendAsync(request);
+
+		var content = await response.Content.ReadAsStringAsync();
+		if (!response.IsSuccessStatusCode)
+		{
+			var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(content);
+			throw new Exception($"{errorResponse?.Message}");
+		}
+
+		var result = JsonSerializer.Deserialize<GetItemTagResponse>(content);
+		if (result is null)
+			throw new Exception("Unable to deserialize response");
+
+		return result;
+	}
+
+	public async Task<List<ItemResponse>> GetItems()
+	{
+		var httpClient = CreateClient();
+		const string endpoint = "items";
+
+		var result = new List<ItemResponse>();
+
+		var pageNumber = 1;
+		while (true)
+		{
+			var response = await GetPageAsync(httpClient, endpoint, pageNumber);
+
+			if (!response.IsSuccessStatusCode)
+			{
+				throw new Exception($"Error: {response.StatusCode}");
+			}
+
+			var pageResult = await DeserializeResponseAsync(response);
+			result.AddRange(pageResult);
+
+			var totalPages = int.Parse(response.Headers.GetValues("X-WP-TotalPages").FirstOrDefault());
+			if (pageNumber >= totalPages)
+			{
+				break;
+			}
+
+			pageNumber++;
+		}
+
+		return result;
+	}
+
+	async Task<HttpResponseMessage> GetPageAsync(HttpClient httpClient, string endpoint, int pageNumber)
+	{
+		var uriBuilder = new UriBuilder(httpClient.BaseAddress + endpoint);
+		uriBuilder.Query = $"page={pageNumber}";
+
+		var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+		return await httpClient.SendAsync(request);
+	}
+
+	async Task<List<ItemResponse>> DeserializeResponseAsync(HttpResponseMessage response)
+	{
+		var content = await response.Content.ReadAsStringAsync();
+		return JsonSerializer.Deserialize<List<ItemResponse>>(content);
+	}
+
 }

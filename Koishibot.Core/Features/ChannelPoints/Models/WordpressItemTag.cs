@@ -29,6 +29,14 @@ public static class WordpressItemTagExtensions
 			.Where(x => x.UserId == userId)
 			.FirstOrDefaultAsync();
 	}
+
+	public static async Task<WordpressItemTag?> GetItemTagByWordpressId
+		(this KoishibotDbContext database, int wordpressId)
+	{
+		return await database.WordpressItemTags
+			.Where(x => x.WordPressId == wordpressId)
+			.FirstOrDefaultAsync();
+	}
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/

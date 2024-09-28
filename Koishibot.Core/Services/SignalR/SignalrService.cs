@@ -10,12 +10,15 @@ namespace Koishibot.Core.Services.SignalR;
 // == ⚫ GENERAL == //
 
 public partial record SignalrService(
-	IHubContext<SignalrHub, ISignalrHub> HubContext
-	): ISignalrService
+IHubContext<SignalrHub,
+ISignalrHub> HubContext,
+ILogger<SignalrService> Log
+) : ISignalrService
 {
 
 	public async Task SendError(string message)
 	{
+		Log.LogError(message);
 		var log = new LogVm(message, "Error");
 		await HubContext.Clients.All.ReceiveLog(log);
 	}
@@ -29,7 +32,7 @@ public partial record SignalrService(
 	public async Task SendNewNotification(NotificationVm notificationVm) =>
 		await HubContext.Clients.All.ReceiveNewNotification(notificationVm);
 
-	public async Task SendNotification(string content) => 
+	public async Task SendNotification(string content) =>
 		await HubContext.Clients.All.ReceiveNotification(content);
 
 	public async Task SendChatMessage(ChatMessageVm chatMessageVM) =>
@@ -39,16 +42,16 @@ public partial record SignalrService(
 		await HubContext.Clients.All.ReceiveStatusUpdate(serviceStatusVM);
 
 	public async Task SendStreamEvent(StreamEventVm streamEventVm) =>
-	await HubContext.Clients.All.ReceiveStreamEvent(streamEventVm);
+		await HubContext.Clients.All.ReceiveStreamEvent(streamEventVm);
 
 	public async Task SendStreamInfo(StreamInfoVm streamInfoVM) =>
 		await HubContext.Clients.All.ReceiveStreamInfo(streamInfoVM);
 
 	public async Task SendOverlayStatus(OverlayStatusVm overlayStatusVm) =>
-	await HubContext.Clients.All.ReceiveOverlayStatus(overlayStatusVm);
+		await HubContext.Clients.All.ReceiveOverlayStatus(overlayStatusVm);
 
 	public async Task SendOverlayTimer(OverlayTimerVm overlayTimerVm) =>
-	await HubContext.Clients.All.ReceiveOverlayTimer(overlayTimerVm);
+		await HubContext.Clients.All.ReceiveOverlayTimer(overlayTimerVm);
 
 	public async Task SendPromoVideoUrl(string url) =>
 		await HubContext.Clients.All.ReceivePromoVideoUrl(url);
@@ -60,7 +63,6 @@ public partial record SignalrService(
 		await HubContext.Clients.All.ReceiveAdStartedEvent(adBreakVm);
 
 }
-
 
 // == ⚫ SEND INTERFACE == //
 public partial interface ISignalrService
@@ -79,7 +81,6 @@ public partial interface ISignalrService
 	Task SendPoll(PollVm pollVm);
 	Task SendAdStartedEvent(AdBreakVm adBreakVm);
 }
-
 
 // == ⚫ RECEIVE INTERFACE == //
 

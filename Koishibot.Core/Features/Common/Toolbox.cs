@@ -94,4 +94,11 @@ public static class Toolbox
 		var jsonPayload = JsonConvert.SerializeObject(payload);
 		return new StringContent(jsonPayload,	Encoding.UTF8, "application/json");
 	}
+
+	public static bool NotInDatabase<T>(this T? item) where T : class =>
+		item is null;
+
+	public static bool IsEmpty<T>(this List<T>? list) =>
+		list == null || list.Count == 0;
+
 }
