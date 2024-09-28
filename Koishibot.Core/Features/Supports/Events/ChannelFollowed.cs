@@ -1,6 +1,7 @@
-﻿using Koishibot.Core.Features.Common.Enums;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.Supports.Extensions;
 using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
@@ -8,52 +9,43 @@ using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Follow;
 namespace Koishibot.Core.Features.Supports.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelfollow">Channel Followed EventSub Documentation</see></para>
 /// </summary>
 public record ChannelFollowedHandler(
-	IAppCache Cache, ISignalrService Signalr,
-	ITwitchUserHub TwitchUserHub,
-	KoishibotDbContext Database
-	) : IRequestHandler<ChannelFollowedCommand>
+ISignalrService Signalr,
+ITwitchUserHub TwitchUserHub,
+KoishibotDbContext Database
+) : IRequestHandler<ChannelFollowedCommand>
 {
 	public async Task Handle
 		(ChannelFollowedCommand command, CancellationToken cancellationToken)
 	{
 		var userDto = command.CreateUserDto();
-
 		var user = await TwitchUserHub.Start(userDto);
 
-		var follow = new ChannelFollow().Initialize(user);
-		await Database.AddFollow(follow);
+		var follow = new ChannelFollow(user.Id);
+		await Database.UpdateEntry(follow);
 
 		var eventVm = command.CreateVm();
 		await Signalr.SendStreamEvent(eventVm);
 	}
 }
 
-// == ⚫ COMMAND == //
-
-public record ChannelFollowedCommand
-	(FollowEvent args) : IRequest
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record ChannelFollowedCommand(FollowEvent args) : IRequest
 {
-	public TwitchUserDto CreateUserDto()
-	{
-		return new TwitchUserDto(
+	public TwitchUserDto CreateUserDto() =>
+		new(
 			args.FollowerId,
 			args.FollowerLogin,
 			args.FollowerName);
-	}
 
-	public StreamEventVm CreateVm()
+	public StreamEventVm CreateVm() => new()
 	{
-		return new StreamEventVm
-		{
-			EventType = StreamEventType.Follow,
-			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
-			Message = $"{args.FollowerName} has followed"
-		};
-	}
+		EventType = StreamEventType.Follow,
+		Timestamp = Toolbox.CreateUITimestamp(),
+		Message = $"{args.FollowerName} has followed"
+	};
 };

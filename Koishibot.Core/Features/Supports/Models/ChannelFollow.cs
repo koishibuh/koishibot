@@ -1,27 +1,18 @@
-﻿using Koishibot.Core.Features.TwitchUsers.Models;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.Supports.Models;
 
 /*═════════════════【 ENTITY MODEL 】═════════════════*/
-public class ChannelFollow
+public class ChannelFollow(int id) : IEntity
 {
-	public int Id { get; set; }
-	public DateTimeOffset Timestamp { get; set; }
-	public int UserId { get; set; }
 
-	// == ⚫ NAVIGATION == //
+	public int Id { get; set; }
+	public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+	public int UserId { get; set; } = id;
 
 	public TwitchUser TwitchUser { get; set; } = null!;
-
-	// == ⚫ METHODS == //
-
-	public ChannelFollow Initialize(TwitchUser user)
-	{
-		Timestamp = DateTimeOffset.UtcNow;
-		TwitchUser = user;
-		return this;
-	}
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/
@@ -34,7 +25,6 @@ public class ChannelFollowConfig : IEntityTypeConfiguration<ChannelFollow>
 		builder.HasKey(p => p.Id);
 
 		builder.Property(p => p.Timestamp);
-
 		builder.Property(p => p.UserId);
 	}
 }

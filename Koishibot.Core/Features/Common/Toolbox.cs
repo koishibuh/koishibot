@@ -98,7 +98,12 @@ public static class Toolbox
 	public static bool NotInDatabase<T>(this T? item) where T : class =>
 		item is null;
 
+	public static bool InCache<T>(this T? item) where T : class =>
+		item is not null;
+
 	public static bool IsEmpty<T>(this List<T>? list) =>
 		list == null || list.Count == 0;
 
+	public static string CreateUITimestamp() =>
+		(DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm");
 }

@@ -81,6 +81,9 @@ public class TwitchUser : IEntity
 		Permissions = PermissionLevel.Everyone;
 		return this;
 	}
+
+	public bool HasEveryonePermissions() =>
+		Permissions == PermissionLevel.Everyone;
 }
 
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/
