@@ -12,7 +12,7 @@ public class ServiceStatus
 
 	public string StreamOnline { get; set; } = Status.Offline;
 	public string Attendance { get; set; } = Status.Online;
-	public string DragonEggQuest { get; set; } = Status.Offline;
+	public string DragonQuest { get; set; } = Status.Offline;
 	public string Dandle { get; set; } = Status.Offline;
 	public string Raid { get; set; } = Status.Offline;
 }

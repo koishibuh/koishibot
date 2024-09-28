@@ -14,7 +14,7 @@ namespace Koishibot.Core.Features.ChannelPoints.Events;
 /// <param name="e"></param>
 public record RewardRedeemedHandler(
 ITwitchUserHub TwitchUserHub,
-IDragonEggQuestService DragonEggQuestService
+IDragonQuestService DragonQuestService
 ) : IRequestHandler<RedeemedRewardCommand>
 {
 	public async Task Handle
@@ -25,7 +25,7 @@ IDragonEggQuestService DragonEggQuestService
 
 		if (reward.Title == "Dragon Egg Quest")
 		{
-			await DragonEggQuestService.GetResult(user, reward.RedeemedAt);
+			await DragonQuestService.GetResult(user, reward.RedeemedAt);
 		}
 	}
 }

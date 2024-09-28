@@ -1,9 +1,11 @@
 ﻿using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.ChannelPoints;
 
-public record ChannelPointsApi(IOptions<Settings> Settings,
-	ITwitchApiRequest TwitchApiRequest,
-	ILogger<ChannelPointsApi> Log) : IChannelPointsApi
+public record ChannelPointsApi(
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest,
+ILogger<ChannelPointsApi> Log
+) : IChannelPointsApi
 {
 	/// <summary>
 	/// <see href="https://dev.twitch.tv/docs/api/reference/#update-custom-reward">Update Custom Reward Api Documentation</see>
@@ -27,19 +29,14 @@ public record ChannelPointsApi(IOptions<Settings> Settings,
 		await TwitchApiRequest.UpdateCustomReward(parameters, body);
 	}
 
-	public async Task EnableRedemption(string rewardTwitchId)
-	{
+	public async Task EnableRedemption(string rewardTwitchId) =>
 		await UpdateCustomRewardStatus(rewardTwitchId, false);
-	}
 
-	public async Task DisableRedemption(string rewardTwitchId)
-	{
+	public async Task DisableRedemption(string rewardTwitchId) =>
 		await UpdateCustomRewardStatus(rewardTwitchId, true);
-	}
 }
 
-// == ⚫ INTERFACE == //
-
+/*═══════════════════【 INTERFACE 】═══════════════════*/
 public interface IChannelPointsApi
 {
 	Task UpdateCustomRewardStatus(string rewardTwitchId, bool status);

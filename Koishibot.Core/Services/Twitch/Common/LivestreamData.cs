@@ -5,11 +5,12 @@ namespace Koishibot.Core.Services.Twitch.Common;
 public class LivestreamData
 {
 	///<summary>
-	///An ID that identifies the stream - matches GetVideo's Id<br/>
-	///You can use this ID later to look up the video on demand (VOD).
+	///An Id that identifies the stream<br/>
+	///This id matches the StreamId field on GetVideos, but you can't query for the StreamId.<br/>
+	///Need to fetch list of videos and see if the StreamId matches - this only shows public videos, not unpublished.
 	///</summary>
 	[JsonPropertyName("id")]
-	public string? VideoId { get; set; }
+	public string? StreamId { get; set; }
 
 	///<summary>
 	///The ID of the user that’s broadcasting the stream.
@@ -98,7 +99,7 @@ public class LivestreamData
 	{
 		return new LiveStreamInfo(
 			BroadcasterId ?? string.Empty,
-			VideoId ?? string.Empty,
+			StreamId ?? string.Empty,
 			CategoryId ?? string.Empty,
 			CategoryName ?? string.Empty,
 			StreamTitle,

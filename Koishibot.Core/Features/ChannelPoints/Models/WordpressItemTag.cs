@@ -1,14 +1,15 @@
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.TwitchUsers.Models;
+using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.ChannelPoints.Models;
 
 /*═════════════════【 ENTITY MODEL 】═════════════════*/
-public class WordpressItemTag : IEntity
+public class WordpressItemTag(int id, int wordPressId) : IEntity
 {
-	public int Id { get; set; }
-	public int WordPressId { get; set; }
+	public int Id { get; set; } = id;
+	public int WordPressId { get; set; } = wordPressId;
 
 	// NAVIGATION
 
@@ -16,6 +17,18 @@ public class WordpressItemTag : IEntity
 	public TwitchUser? TwitchUser { get; set; }
 
 	public List<KoiKinDragon> KoiKinDragons { get; set; } = [];
+}
+
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class WordpressItemTagExtensions
+{
+	public static async Task<WordpressItemTag?> GetItemTagByUserId
+		(this KoishibotDbContext database, int userId)
+	{
+		return await database.WordpressItemTags
+			.Where(x => x.UserId == userId)
+			.FirstOrDefaultAsync();
+	}
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/

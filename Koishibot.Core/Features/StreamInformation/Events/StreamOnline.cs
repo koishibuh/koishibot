@@ -1,11 +1,11 @@
 ﻿using Koishibot.Core.Features.AdBreak.Extensions;
-using Koishibot.Core.Features.AttendanceLog.Extensions;
+using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Dandle;
 using Koishibot.Core.Features.StreamInformation.Extensions;
-using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.OBS;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.StreamStatus;
 
 namespace Koishibot.Core.Features.StreamInformation.Events;
 
@@ -19,33 +19,31 @@ ISignalrService Signalr,
 IStreamSessionService StreamSessionService,
 IObsService ObsService,
 IChannelPointStatusService ChannelPointStatusService,
-IDandleService DandleService,
-KoishibotDbContext Database
+IDandleService DandleService
 ) : IRequestHandler<StreamOnlineCommand>
 {
 	public async Task Handle(StreamOnlineCommand command, CancellationToken cancel)
 	{
-		await StreamSessionService.CreateOrReloadStreamSession();
+		await StreamSessionService.CreateOrReloadStreamSession(command.e.StreamId, command.e.StartedAt);
 
 		await Cache
-		.ClearAttendanceCache()
-		.UpdateStreamStatusOnline();
+			.ClearAttendanceCache()
+			.UpdateStreamStatusOnline();
 
 		await ObsService.CreateWebSocket();
+		await InitializeTimer();
+		// await ChannelPointStatusService.Enable();
+		// await DandleService.StartGame();
+	}
 
+	private async Task InitializeTimer()
+	{
 		var timer = new CurrentTimer().SetStartingSoon();
 		Cache.AddCurrentTimer(timer);
-
 		var vm = timer.ConvertToVm();
 		await Signalr.UpdateTimerOverlay(vm);
-
-		await ChannelPointStatusService.Enable();
-
-		await DandleService.StartGame();
-
-		// Todo: Enable stats
 	}
 }
 
 /*════════════════════【 COMMAND 】════════════════════*/
-public record StreamOnlineCommand: IRequest;
+public record StreamOnlineCommand(StreamOnlineEvent e) : IRequest;

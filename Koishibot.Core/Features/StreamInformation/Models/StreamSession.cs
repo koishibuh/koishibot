@@ -17,6 +17,12 @@ public class StreamSession : IEntity
 
 	public List<LiveStream> LiveStreams { get; set; } = [];
 	public OutgoingRaid? OutgoingRaid { get; set; }
+
+	public StreamSession ResetDuration()
+	{
+		Duration = TimeSpan.Zero;
+		return this;
+	}
 }
 
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/
@@ -25,8 +31,8 @@ public static class StreamSessionExtensions
 	public static async Task<StreamSession?> GetRecentStreamSession(this KoishibotDbContext database)
 	{
 		return await database.StreamSessions
-		.OrderByDescending(x => x.Id)
-		.FirstOrDefaultAsync();
+			.OrderByDescending(x => x.Id)
+			.FirstOrDefaultAsync();
 	}
 }
 
@@ -44,13 +50,13 @@ public class StreamSessionConfig : IEntityTypeConfiguration<StreamSession>
 		builder.Property(p => p.AttendanceMandatory);
 
 		builder.HasMany(p => p.LiveStreams)
-		.WithOne(p => p.StreamSession)
-		.HasForeignKey(p => p.StreamSessionId)
-		.IsRequired();
+			.WithOne(p => p.StreamSession)
+			.HasForeignKey(p => p.StreamSessionId)
+			.IsRequired();
 
 		builder.HasOne(p => p.OutgoingRaid)
-		.WithOne(p => p.StreamSession)
-		.HasForeignKey<OutgoingRaid>(p => p.StreamSessionId)
-		.IsRequired();
+			.WithOne(p => p.StreamSession)
+			.HasForeignKey<OutgoingRaid>(p => p.StreamSessionId)
+			.IsRequired();
 	}
 }
