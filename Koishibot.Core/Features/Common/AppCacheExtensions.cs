@@ -27,10 +27,8 @@ public static class AppCacheExtensions
 		return result.GetValue(serviceStatus) == Status.Online;
 	}
 
-	public static async Task UpdateServiceStatusOnline(this IAppCache cache, ServiceName serviceName)
-	{
+	public static async Task UpdateServiceStatusOnline(this IAppCache cache, ServiceName serviceName) =>
 		await cache.UpdateServiceStatus(serviceName, Status.Online);
-	}
 
 	public static async Task UpdateServiceStatusOffline(this IAppCache cache, ServiceName serviceName)
 	{
