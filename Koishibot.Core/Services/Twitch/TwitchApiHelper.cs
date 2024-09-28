@@ -13,7 +13,8 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelUpdate,
 			// EventSubSubscriptionType.ChannelChatMessage,
 			EventSubSubscriptionType.StreamOnline,
-			EventSubSubscriptionType.StreamOffline
+			EventSubSubscriptionType.StreamOffline,
+			EventSubSubscriptionType.ChannelUpdate
 		];
 	}
 
@@ -26,7 +27,7 @@ public static class TwitchApiHelper
 			// //EventSubSubscriptionType.AutomodMessageUpdate,
 			// //EventSubSubscriptionType.AutomodSettingsUpdate,
 			// //EventSubSubscriptionType.AutomodTermsUpdate,
-			// EventSubSubscriptionType.ChannelUpdate,
+			EventSubSubscriptionType.ChannelUpdate,
 			// EventSubSubscriptionType.ChannelFollow,
 			EventSubSubscriptionType.ChannelAdBreakBegin,
 			// //EventSubSubscriptionType.ChannelChatClear,
