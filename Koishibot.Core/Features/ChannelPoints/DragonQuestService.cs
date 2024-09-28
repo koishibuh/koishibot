@@ -2,6 +2,7 @@
 using Koishibot.Core.Features.ChannelPoints.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
@@ -41,7 +42,7 @@ IChannelPointsApi ChannelPointsApi
 			return;
 		}
 
-		if (redemptions.WasSucessfullyRedeemedToday())
+		if (redemptions.WasSuccessfullyRedeemedToday())
 		{
 			await ChannelPointsApi.DisableRedemption(reward.TwitchId);
 		}
@@ -85,7 +86,7 @@ IChannelPointsApi ChannelPointsApi
 			var redemption = new ChannelPointRedemption()
 				.Set(reward, user, redeemedAt, true);
 
-			await Database.UpdateRedemption(redemption);
+			await Database.UpdateEntry(redemption);
 		}
 		else
 		{
@@ -98,7 +99,7 @@ IChannelPointsApi ChannelPointsApi
 			var redemption = new ChannelPointRedemption()
 				.Set(reward, user, redeemedAt, false);
 
-			await Database.UpdateRedemption(redemption);
+			await Database.UpdateEntry(redemption);
 
 			var data = new { User = user.Name, Number = successRange.Attempts };
 			await ChatReplyService.App(Command.DragonQuestFailed, data);
