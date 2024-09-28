@@ -1,4 +1,6 @@
+using Koishibot.Core.Exceptions;
 using Koishibot.Core.Features.ChannelPoints.Enums;
+using Koishibot.Core.Features.ChannelPoints.Extensions;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Extensions;
@@ -8,6 +10,7 @@ using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.Wordpress;
 using Koishibot.Core.Services.Wordpress.Requests;
+using Koishibot.Core.Services.Wordpress.Responses;
 
 namespace Koishibot.Core.Features.ChannelPoints.Controllers;
 
@@ -30,7 +33,8 @@ public record AddDragonEggToSiteHandler(
 IAppCache Cache,
 KoishibotDbContext Database,
 IWordpressService WordpressService,
-IChatReplyService ChatReplyService
+IChatReplyService ChatReplyService,
+IChannelPointsApi ChannelPointsApi
 ) : IRequestHandler<AddDragonEggToSiteCommand, int>
 {
 	public async Task<int> Handle(AddDragonEggToSiteCommand command, CancellationToken cancel)
@@ -38,31 +42,27 @@ IChatReplyService ChatReplyService
 		var dragonQuestWinner = Cache.GetDragonQuestWinner();
 		if (dragonQuestWinner is null) throw new Exception("Winning User not found");
 
-		var databaseEntry = await Database.GetItemTagByUserId(dragonQuestWinner.Id)
+		var itemTagDb = await Database.GetItemTagByUserId(dragonQuestWinner.Id)
 			?? await CreateUserItemTag(dragonQuestWinner);
 
-		var parameters = command.CreateWordpressItemTag(databaseEntry.Id);
-		var itemResult = await WordpressService.CreateItem(parameters);
+		var itemResult = await CreateWordpressItem(command, itemTagDb);
 
-		var dragon = new KoiKinDragon
-		{
-			WordpressId = itemResult.Id,
-			Timestamp = itemResult.Date,
-			Code = command.Code,
-			Name = "?",
-			ItemTagId = databaseEntry.Id
-		};
-
-		await Database.UpdateEntry(dragon);
+		var dragon = await SaveDragonToDatabase(itemResult, command, itemTagDb);
 
 		var template = command.CreateTemplate();
 		await ChatReplyService.App(Command.DragonQuestNewestEgg, template);
 
-		Cache.Remove(CacheName.DragonQuest);
-		await Cache.UpdateServiceStatusOffline(ServiceName.DragonQuest);
+		var reward = await Database.GetChannelRewardByName("Dragon Egg Quest");
+		if (reward is null) throw new NullException("Reward not found in database");
+
+		await ChannelPointsApi.DisableRedemption(reward.TwitchId);
+
+		await Cache
+			.RemoveDragonQuest()
+			.UpdateServiceStatusOffline(ServiceName.DragonQuest);
 
 		// TODO: add to overlay
-		return dragon.Id;
+		return dragon;
 	}
 
 	/*═══════════════════【】═══════════════════*/
@@ -74,6 +74,26 @@ IChatReplyService ChatReplyService
 		Database.WordpressItemTags.Add(databaseEntry);
 		await Database.SaveChangesAsync();
 		return databaseEntry;
+	}
+
+	private async Task<AddItemResponse> CreateWordpressItem(AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
+	{
+		var parameters = command.CreateWordpressItem(itemTagDb.WordPressId);
+		return await WordpressService.CreateItem(parameters);
+	}
+
+	private async Task<int> SaveDragonToDatabase(AddItemResponse itemResult, AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
+	{
+		var dragon = new KoiKinDragon
+		{
+			WordpressId = itemResult.WordpressId,
+			Timestamp = itemResult.Date,
+			Code = command.Code,
+			Name = "?",
+			ItemTagId = itemTagDb.Id
+		};
+
+		return await Database.UpdateEntry(dragon);
 	}
 }
 
@@ -90,7 +110,7 @@ string Code
 		return result is null;
 	}
 
-	public AddItemRequest CreateWordpressItemTag(int id) => new()
+	public AddItemRequest CreateWordpressItem(int id) => new()
 	{
 		Status = "publish",
 		Title = "?",

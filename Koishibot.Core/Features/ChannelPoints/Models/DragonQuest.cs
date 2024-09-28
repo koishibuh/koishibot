@@ -58,6 +58,12 @@ public static class DragonQuestExtensions
 		return cache;
 	}
 
+	public static IAppCache RemoveDragonQuest(this IAppCache cache)
+	{
+		cache.Remove(CacheName.DragonQuest);
+		return cache;
+	}
+
 	public static TwitchUser? GetDragonQuestWinner(this IAppCache cache)
 	{
 		var result = cache.Get<DragonQuest>(CacheName.DragonQuest)

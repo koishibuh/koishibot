@@ -3,7 +3,7 @@ namespace Koishibot.Core.Services.Wordpress.Responses;
 public class AddItemResponse
 {
 	[JsonPropertyName("id")]
-	public int Id { get; set; }
+	public int WordpressId { get; set; }
 
 	[JsonPropertyName("date")]
 	public DateTimeOffset Date {get; set; }
