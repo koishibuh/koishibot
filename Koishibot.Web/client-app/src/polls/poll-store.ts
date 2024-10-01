@@ -46,6 +46,16 @@ export const usePollStore = defineStore('poll-store', () => {
     }
   });
 
+  signalRConnection?.on('ReceivePollCancelled', () => {
+    pollVotes.value = [];
+    enableOverlay.value = false;
+    voteCountTotal.value = 0;
+
+    if (!displayForm.value) {
+      displayForm.value = true;
+    }
+  });
+
   signalRConnection?.on('ReceivePollVote', (votes: IPollChoiceInfo[]) => {
     pollVotes.value = votes;
     voteCountTotal.value = voteCountTotal.value + 1;

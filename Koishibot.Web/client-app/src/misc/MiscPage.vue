@@ -32,6 +32,16 @@ const getEggs = async (location: string) => {
   const result: IDragonEgg = await http.post('/api/dragon-quest/page', {location: url});
   eggDescription.value = result;
 }
+
+const username = ref<string>('');
+
+const createUserItemTag = async () => {
+  try {
+    await http.post('/api/wordpress/item-tag', {username: username.value.toLowerCase()});
+  } catch (error) {
+    console.log('Unable to add item tag for user');
+  }
+}
 </script>
 
 <template>
@@ -50,8 +60,16 @@ const getEggs = async (location: string) => {
       <button class="primary-button w-full" @click="getEggs('6-volcano')">Volcano</button>
     </div>
     <form @submit.prevent="saveDragon()" class="flex flex-col gap-2 my-4">
-      <label for="username">Dragon Code</label>
+      <label for="code">Dragon Code</label>
       <input type="text" v-model="code" id="code" class="text-black"/>
+      <button class="primary-button">Save</button>
+    </form>
+  </div>
+
+  <div>
+    <form @submit.prevent="createUserItemTag()" class="flex flex-col gap-2 my-4">
+      <label for="username">Twitch Username</label>
+      <input type="text" v-model="username" id="username" class="text-black"/>
       <button class="primary-button">Save</button>
     </form>
   </div>

@@ -63,6 +63,9 @@ ILogger<SignalrService> Log
 	public async Task SendPollStarted(PollVm pollVm) =>
 		await HubContext.Clients.All.ReceivePollStarted(pollVm);
 
+	public async Task SendPollCancelled() =>
+		await HubContext.Clients.All.ReceivePollCancelled();
+
 	public async Task SendPollVote(List<PollChoiceInfo> pollVotesVm) =>
 		await HubContext.Clients.All.ReceivePollVote(pollVotesVm);
 
@@ -71,7 +74,6 @@ ILogger<SignalrService> Log
 
 	public async Task SendAdStartedEvent(AdBreakVm adBreakVm) =>
 		await HubContext.Clients.All.ReceiveAdStartedEvent(adBreakVm);
-
 }
 
 /*═══════════════【 SEND INTERFACE 】═══════════════*/
@@ -89,6 +91,7 @@ public partial interface ISignalrService
 	Task SendOverlayTimer(OverlayTimerVm timer);
 	Task SendPromoVideoUrl(string url);
 	Task SendPollStarted(PollVm pollVm);
+	Task SendPollCancelled();
 	Task SendPollVote(List<PollChoiceInfo> pollChoiceInfo);
 	Task SendPollEnded(string winner);
 	Task SendAdStartedEvent(AdBreakVm adBreakVm);
@@ -109,6 +112,7 @@ public partial interface ISignalrHub
 	Task ReceiveOverlayTimer(OverlayTimerVm overlayTimerVm);
 	Task ReceivePromoVideoUrl(string url);
 	Task ReceivePollStarted(PollVm pollVm);
+	Task ReceivePollCancelled();
 	Task ReceivePollVote(List<PollChoiceInfo> pollChoiceInfo);
 	Task ReceivePollEnded(string winner);
 	Task ReceiveAdStartedEvent(AdBreakVm adBreakVm);

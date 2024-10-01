@@ -1,6 +1,7 @@
-﻿using Koishibot.Core.Features.Common.Models;
+﻿using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Services.Twitch;
-using Koishibot.Core.Services.Twitch.Converters;
 using Koishibot.Core.Services.Twitch.Enums;
 using System.Text.Json;
 
@@ -137,4 +138,17 @@ public class UserData
 	{
 		return new UserInfo(Id, Login, Name, BroadcasterType.ToString(), ChannelDescription, ProfileImageUrl);
 	}
+}
+
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class GetUsersExtensions
+{
+	public static TwitchUser CreateTwitchUser(this UserData userData) =>
+		new()
+		{
+			Login = userData.Login,
+			Name = userData.Name,
+			TwitchId = userData.Id,
+			Permissions = PermissionLevel.Everyone
+		};
 }
