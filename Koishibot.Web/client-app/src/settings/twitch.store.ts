@@ -20,7 +20,7 @@ export const useTwitchStore = defineStore('twitchStore', () => {
       await notificationStore.displayMessage('Getting Authorization Link');
       return await http.get<string>('/api/twitch-auth/url');
     } catch (error) {
-      await notificationStore.displayMessage((error as Error).message);
+      await notificationStore.displayErrorMessage((error as Error).message);
     }
   }
 
@@ -29,7 +29,7 @@ export const useTwitchStore = defineStore('twitchStore', () => {
       await notificationStore.displayMessage('Starting Twitch Services');
       return await http.post<string>('/api/stream/reconnect', null);
     } catch (error) {
-      await notificationStore.displayMessage("Stream is offline");
+      await notificationStore.displayErrorMessage((error as Error).message);
     }
   };
 
@@ -43,7 +43,7 @@ export const useTwitchStore = defineStore('twitchStore', () => {
         await notificationStore.displayMessage('Twitch Irc Disconnected');
       }
     } catch (error) {
-      await notificationStore.displayMessage((error as Error).message);
+      await notificationStore.displayErrorMessage((error as Error).message);
     }
   };
 
@@ -57,7 +57,7 @@ export const useTwitchStore = defineStore('twitchStore', () => {
         await notificationStore.displayMessage('Twitch EventSub Disconnected');
       }
     } catch (error) {
-      await notificationStore.displayMessage((error as Error).message);
+      await notificationStore.displayErrorMessage((error as Error).message);
     }
   };
 

@@ -1,6 +1,4 @@
-﻿
-
-using Koishibot.Core.Features.ApplicationAuthentication.Models;
+﻿using Koishibot.Core.Features.ApplicationAuthentication.Models;
 using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands.Models;
