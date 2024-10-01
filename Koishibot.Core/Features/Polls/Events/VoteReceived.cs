@@ -1,8 +1,6 @@
-﻿using Koishibot.Core.Features.Polls.Extensions;
-using Koishibot.Core.Features.Polls.Models;
+﻿using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Polls;
-using Koishibot.Core.Services.Twitch.Irc;
 
 namespace Koishibot.Core.Features.Polls.Events;
 
@@ -11,55 +9,40 @@ namespace Koishibot.Core.Features.Polls.Events;
 /// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelpollprogress">Channel Poll Progress</see>
 /// </summary>
 public record VoteReceivedHandler(
-	IAppCache Cache,
-	ITwitchIrcService BotIrc,
-	ISignalrService Signalr
-	) : IRequestHandler<PollVoteReceivedCommand>
+IAppCache Cache,
+ISignalrService Signalr
+) : IRequestHandler<PollVoteReceivedCommand>
 {
 	public async Task Handle(PollVoteReceivedCommand command, CancellationToken cancel)
 	{
 		var poll = command.CreateDto();
 		Cache.AddPoll(poll);
 
-		var pollVm = poll.ConvertToVm();
-		await Signalr.SendPoll(pollVm);
+		// var pollVm = poll.ConvertToVm();
+		// await Signalr.SendPoll(pollVm);
 
 		//Update Overlay that vote was received
 		if (command.IsRaidPoll())
 		{
-			var raidPollVm = new RaidPollVm().Set(poll.Choices);
-			await Signalr.SendRaidPollVote(raidPollVm);
+			// var raidPollVm = new PollVotesVm().Set(poll.Choices);
+			// await Signalr.SendRaidPollVote(raidPollVm);
+		}
+		else
+		{
+			await Signalr.SendPollVote(poll.Choices);
 		}
 	}
 }
 
-// == ⚫  == //
-
-public record VoteReceivedEvent(
-	string Id,
-	string Title,
-	DateTimeOffset StartedAt,
-	DateTimeOffset EndingAt,
-	Dictionary<string, int> Choices) : INotification
-{
-	public TimeSpan Duration => StartedAt - EndingAt;
-
-	public bool IsRaidPoll()
-	{
-		return Title == "Who should we raid?";
-	}
-}
-
-// == ⚫ COMMAND == //
-
-public record PollVoteReceivedCommand
-	(PollProgressEvent e) : IRequest
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record PollVoteReceivedCommand(PollProgressEvent e) : IRequest
 {
 	public CurrentPoll CreateDto()
 	{
 		var pollChoices = e.Choices?
-		.GroupBy(choice => choice.Title)
-		.ToDictionary(group => group.Key, group => group.Sum(choice => choice.Votes));
+			.GroupBy(choice => choice.Title)
+			.Select(x => new PollChoiceInfo(x.Key, x.Sum(y => y.Votes)))
+			.ToList();
 
 		return new CurrentPoll
 		{
@@ -71,9 +54,6 @@ public record PollVoteReceivedCommand
 			Choices = pollChoices
 		};
 	}
-	public bool IsRaidPoll()
-	{
-		return e.Title == "Who should we raid?";
-	}
 
-};
+	public bool IsRaidPoll() => e.Title == "Who should we raid?";
+}
