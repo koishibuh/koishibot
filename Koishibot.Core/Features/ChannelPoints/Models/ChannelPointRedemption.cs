@@ -1,10 +1,11 @@
-﻿using Koishibot.Core.Features.TwitchUsers.Models;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.ChannelPoints.Models;
 
 /*═════════════════【 ENTITY MODEL 】═════════════════*/
-public class ChannelPointRedemption
+public class ChannelPointRedemption : IEntity
 {
 	public int Id { get; set; }
 	public int ChannelPointRewardId { get; set; }
@@ -14,8 +15,7 @@ public class ChannelPointRedemption
 	public ChannelPointReward ChannelPointReward { get; set; } = null!;
 	public TwitchUser User { get; set; } = null!;
 
-	// == ⚫  == //
-
+/*══════════════════【】═════════════════*/
 	public ChannelPointRedemption Set(ChannelPointReward reward,
 			TwitchUser user, DateTimeOffset redeemedAt, bool wasSuccesful)
 	{

@@ -20,7 +20,7 @@ KoishibotDbContext Database
 ) : IRequestHandler<StreamUpdatedCommand>
 {
 	public async Task Handle
-	(StreamUpdatedCommand command, CancellationToken cancellationToken)
+		(StreamUpdatedCommand command, CancellationToken cancellationToken)
 	{
 		var category = command.CreateModel();
 		await Database.UpsertCategory(category);
@@ -37,19 +37,17 @@ KoishibotDbContext Database
 /*═══════════════════【 COMMAND 】═══════════════════*/
 public record StreamUpdatedCommand(ChannelUpdatedEvent e) : IRequest
 {
-	public StreamInfo ConvertToDto()
-	{
-		return new StreamInfo(
-		new TwitchUserDto(
-		e.BroadcasterId,
-		e.BroadcasterLogin,
-		e.BroadcasterName),
-		e.StreamTitle,
-		e.CategoryName,
-		e.CategoryId);
-	}
+	public StreamInfo ConvertToDto() =>
+		new(
+			new TwitchUserDto(
+				e.BroadcasterId,
+				e.BroadcasterLogin,
+				e.BroadcasterName),
+			e.StreamTitle,
+			e.CategoryName,
+			e.CategoryId);
 
-	public StreamCategory CreateModel() => new StreamCategory
+	public StreamCategory CreateModel() => new()
 	{
 		Name = e.CategoryName,
 		TwitchId = e.CategoryId

@@ -12,6 +12,16 @@ export const useLogStore = defineStore('logStore', () => {
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
 
+  signalRConnection?.on('ReceiveInfo', (log: ILog) => {
+    notificationStore.displayMessage(log.message);
+    logMessages.value.push(log);
+  });
+
+  signalRConnection?.on('ReceiveError', (log: ILog) => {
+    notificationStore.displayErrorMessage(log.message);
+    logMessages.value.push(log);
+  });
+
   signalRConnection?.on('ReceiveLog', (log: ILog) => {
     logMessages.value.push(log);
   });

@@ -1,4 +1,6 @@
-﻿using Koishibot.Core.Features.ChatCommands.Models;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
@@ -14,22 +16,21 @@ public record TwitchUserRegistration(
 	{
 		// Find user in Cache
 		var cachedUser = Cache.FindUserByTwitchId(userDto.TwitchId);
-		if (cachedUser is not null)
+		if (cachedUser.InCache())
 		{
-			if (cachedUser.ChangedUsername(userDto.Name))
-			{
-				cachedUser.UpdateUserInfo(userDto);
+			if (!cachedUser.ChangedUsername(userDto.Name))
+				return (cachedUser, false);
 
-				await Database.UpdateUser(cachedUser);
-				Cache.UpdateUser(cachedUser);
-			}
+			cachedUser.UpdateUserInfo(userDto);
+			await Database.UpdateEntry(cachedUser);
+			Cache.UpdateUser(cachedUser);
 
 			return (cachedUser, false);
 		}
 
 		// Find user in Database
 		var storedUser = await Database.GetUserByTwitchId(userDto.TwitchId);
-		if (storedUser is null)
+		if (storedUser.NotInDatabase())
 		{
 			storedUser = new TwitchUser().Initialize(userDto);
 
@@ -38,7 +39,7 @@ public record TwitchUserRegistration(
 		}
 		else
 		{
-			if (storedUser.Permissions == PermissionLevel.Everyone)
+			if (storedUser!.HasEveryonePermissions())
 			{
 				storedUser.UpgradePermissions();
 				await Database.UpdateUser(storedUser);

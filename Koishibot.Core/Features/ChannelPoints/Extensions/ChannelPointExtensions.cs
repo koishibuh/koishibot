@@ -1,8 +1,5 @@
 ﻿using Koishibot.Core.Features.ChannelPoints.Models;
-using Koishibot.Core.Features.Common;
-using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.Twitch.Common;
 
 namespace Koishibot.Core.Features.ChannelPoints.Extensions;
@@ -10,7 +7,7 @@ public static class ChannelPointExtensions
 {
 	// MODEL
 
-	public static bool WasSucessfullyRedeemedToday
+	public static bool WasSuccessfullyRedeemedToday
 		(this List<ChannelPointRedemption>? todayRedeems)
 	{
 		if (todayRedeems is null) { return false; }
@@ -66,14 +63,6 @@ public static class ChannelPointExtensions
 				&& p.RedeemedAt.Date == DateTime.UtcNow.Date)
 			.ToListAsync();
 	}
-
-	public static async Task UpdateRedemption
-		(this KoishibotDbContext database, ChannelPointRedemption redemption)
-	{
-		database.Update(redemption);
-		await database.SaveChangesAsync();
-	}
-
 	public static async Task<List<ChannelPointReward>> AddRewards
 		(this KoishibotDbContext database, List<CustomRewardData> rewards)
 	{

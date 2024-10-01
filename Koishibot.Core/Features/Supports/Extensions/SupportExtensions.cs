@@ -6,12 +6,6 @@ public static class SupportExtensions
 {
 	// DATABASE
 
-	public static async Task AddFollow(this KoishibotDbContext database, ChannelFollow follow)
-	{
-		database.Update(follow);
-		await database.SaveChangesAsync();
-	}
-
 	public static async Task AddCheer(this KoishibotDbContext database, TwitchCheer cheer)
 	{
 		database.Update(cheer);

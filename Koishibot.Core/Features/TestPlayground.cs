@@ -1,4 +1,6 @@
 ﻿using Koishibot.Core.Services.OBS;
+using Microsoft.AspNetCore.Authorization;
+using Todoist.Net.Models;
 
 namespace Koishibot.Core.Features;
 
@@ -15,7 +17,7 @@ public class ATestPlaygroundController : ApiControllerBase
 }
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
-public record TestPlaygroundCommand() : IRequest<string>;
+public record TestPlaygroundCommand() : IRequest<object>;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record TestPlaygroundHandler(
@@ -30,10 +32,10 @@ IMediator Mediator
 //KoishibotDbContext Database,
 //ISignalrService Signalr,
 //IGoogleCalendarApi GoogleCalendarApi
-) : IRequestHandler<TestPlaygroundCommand, string>
+) : IRequestHandler<TestPlaygroundCommand, object>
 {
-	public async Task<string> Handle
-	(TestPlaygroundCommand c, CancellationToken cancel)
+	public async Task<object> Handle
+		(TestPlaygroundCommand c, CancellationToken cancel)
 	{
 		// await ObsService.StartBreak();
 
@@ -43,7 +45,10 @@ IMediator Mediator
 		// return "hi";
 		await Task.CompletedTask;
 
-		//var result = await GoogleCalendarApi.GetEvents("8kroeh9nkripcr3iu9m569fe28@group.calendar.google.com");
+
+		return "test";
+
+	//var result = await GoogleCalendarApi.GetEvents("8kroeh9nkripcr3iu9m569fe28@group.calendar.google.com");
 		////await DandleVoting();
 
 
@@ -270,8 +275,8 @@ IMediator Mediator
 		//var currentPollVm = new PollVm("0", "A test poll", DateTimeOffset.UtcNow, DateTimeOffset.Now, TimeSpan.FromMinutes(3), choices);
 
 		//await Notification.SendPoll(currentPollVm);
-
-		return "done";
+		//
+		// return "done";
 	}
 
 	//public async Task DandleVoting()

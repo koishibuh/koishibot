@@ -8,6 +8,7 @@ using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.Wordpress;
 using Koishibot.Core.Services.Wordpress.Requests;
+using Koishibot.Core.Services.Wordpress.Responses;
 
 namespace Koishibot.Core.Features.ChannelPoints.Controllers;
 
@@ -38,31 +39,22 @@ IChatReplyService ChatReplyService
 		var dragonQuestWinner = Cache.GetDragonQuestWinner();
 		if (dragonQuestWinner is null) throw new Exception("Winning User not found");
 
-		var databaseEntry = await Database.GetItemTagByUserId(dragonQuestWinner.Id)
+		var itemTagDb = await Database.GetItemTagByUserId(dragonQuestWinner.Id)
 			?? await CreateUserItemTag(dragonQuestWinner);
 
-		var parameters = command.CreateWordpressItemTag(databaseEntry.Id);
-		var itemResult = await WordpressService.CreateItem(parameters);
+		var itemResult = await CreateWordpressItem(command, itemTagDb);
 
-		var dragon = new KoiKinDragon
-		{
-			WordpressId = itemResult.Id,
-			Timestamp = itemResult.Date,
-			Code = command.Code,
-			Name = "?",
-			ItemTagId = databaseEntry.Id
-		};
-
-		await Database.UpdateEntry(dragon);
+		var dragon = await SaveDragonToDatabase(itemResult, command, itemTagDb);
 
 		var template = command.CreateTemplate();
 		await ChatReplyService.App(Command.DragonQuestNewestEgg, template);
 
-		Cache.Remove(CacheName.DragonQuest);
-		await Cache.UpdateServiceStatusOffline(ServiceName.DragonQuest);
+		await Cache
+			.RemoveDragonQuest()
+			.UpdateServiceStatusOffline(ServiceName.DragonQuest);
 
 		// TODO: add to overlay
-		return dragon.Id;
+		return dragon;
 	}
 
 	/*═══════════════════【】═══════════════════*/
@@ -74,6 +66,26 @@ IChatReplyService ChatReplyService
 		Database.WordpressItemTags.Add(databaseEntry);
 		await Database.SaveChangesAsync();
 		return databaseEntry;
+	}
+
+	private async Task<ItemResponse> CreateWordpressItem(AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
+	{
+		var parameters = command.CreateWordpressItem(itemTagDb.WordPressId);
+		return await WordpressService.CreateItem(parameters);
+	}
+
+	private async Task<int> SaveDragonToDatabase(ItemResponse itemResult, AddDragonEggToSiteCommand command, WordpressItemTag itemTagDb)
+	{
+		var dragon = new KoiKinDragon
+		{
+			WordpressId = itemResult.WordpressId,
+			Timestamp = itemResult.Date,
+			Code = command.Code,
+			Name = itemResult.Title.Rendered ?? "",
+			ItemTagId = itemTagDb.Id
+		};
+
+		return await Database.UpdateEntry(dragon);
 	}
 }
 
@@ -90,7 +102,7 @@ string Code
 		return result is null;
 	}
 
-	public AddItemRequest CreateWordpressItemTag(int id) => new()
+	public AddItemRequest CreateWordpressItem(int id) => new()
 	{
 		Status = "publish",
 		Title = "?",

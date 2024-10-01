@@ -30,10 +30,7 @@ public record AppCache(
 		return value as T;
 	}
 	
-	public void Remove(CacheName name)
-	{
-		Cache.Remove(name);
-	}
+	public void Remove(CacheName name) => Cache.Remove(name);
 
 	// == ⚫ == //
 

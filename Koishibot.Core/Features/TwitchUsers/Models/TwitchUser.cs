@@ -1,5 +1,6 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Models;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Raids.Models;
@@ -13,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Koishibot.Core.Features.TwitchUsers.Models;
 
 /*═════════════════【 ENTITY MODEL 】═════════════════*/
-public class TwitchUser
+public class TwitchUser : IEntity
 {
 	public int Id { get; set; }
 	public string TwitchId { get; set; } = null!;
@@ -80,6 +81,9 @@ public class TwitchUser
 		Permissions = PermissionLevel.Everyone;
 		return this;
 	}
+
+	public bool HasEveryonePermissions() =>
+		Permissions == PermissionLevel.Everyone;
 }
 
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/
@@ -93,6 +97,9 @@ public static class TwitchUserExtension
 		// userList ??= new List<TwitchUser>();
 		return userList.Find(x => x.TwitchId == id);
 	}
+
+	public static async Task<TwitchUser?> FindUserByTwitchName(this KoishibotDbContext database, string name) =>
+		await database.Users.Where(x => x.Name == name).FirstOrDefaultAsync();
 
 	public static void AddUser(this IAppCache cache, TwitchUser user)
 	{

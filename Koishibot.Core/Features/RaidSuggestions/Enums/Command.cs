@@ -1,6 +1,11 @@
 ﻿namespace Koishibot.Core.Features.RaidSuggestions.Enums;
 public class Command
 {
+	// Poll
+	/// <summary> Title, Winner </summary>
+	public const string PollWinner = "poll-winner";
+	public const string PollCancelled = "poll-cancelled";
+	
 	// OpenRaidSuggestionsHandler
 
 	public const string SuggestionsNowOpen = "raidsuggestion-nowopen";

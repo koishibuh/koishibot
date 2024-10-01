@@ -37,13 +37,12 @@ IChannelPointsApi ChannelPointsApi
 
 		var reward = await Database.GetChannelRewardByName("Dragon Egg Quest");
 		if (reward is null) throw new NullException("Reward not found in database");
+		await ChannelPointsApi.DisableRedemption(reward.TwitchId);
 
-		var dragonEggQuest = new DragonQuest(reward, 0);
 		await Cache
-			.AddDragonQuest(dragonEggQuest)
+			.RemoveDragonQuest()
 			.UpdateServiceStatusOffline(ServiceName.DragonQuest);
 
-		await ChannelPointsApi.DisableRedemption(reward.TwitchId);
 		await ChatReplyService.App(Command.DragonQuestClosed);
 	}
 }
