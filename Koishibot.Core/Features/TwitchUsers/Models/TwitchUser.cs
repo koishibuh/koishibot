@@ -94,7 +94,6 @@ public static class TwitchUserExtension
 		var userList = cache.Get<List<TwitchUser>>(CacheName.Users)
 			?? new List<TwitchUser>();
 
-		// userList ??= new List<TwitchUser>();
 		return userList.Find(x => x.TwitchId == id);
 	}
 
@@ -122,7 +121,7 @@ public static class TwitchUserExtension
 			userList[index] = user;
 		}
 
-		cache.Add(CacheName.Users, cache, TimeSpan.FromDays(1));
+		cache.Add(CacheName.Users, userList, TimeSpan.FromDays(1));
 	}
 
 
