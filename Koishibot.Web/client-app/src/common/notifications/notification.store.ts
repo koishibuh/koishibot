@@ -17,27 +17,35 @@ export const useNotificationStore = defineStore('notification', () => {
 
   const color = ref<boolean>(false);
 
-  async function delay(milliseconds: number) {
+  async function delay(seconds: number) {
+    const milliseconds: number = seconds * 1000;
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
 
   const displayMessage = async (message: string) => {
     notificationMessage.value = message;
-    await delay(2000);
+    await delay(2);
     notificationMessage.value = '';
   };
 
   const displayMessageNew = async (error: boolean,  message: string) => {
     notificationMessage.value = message;
     color.value = error;
-    await delay(2000);
+    await delay(2);
     notificationMessage.value = '';
   };
+
+  const displayErrorMessage = async (message : string) => {
+    notificationMessage.value = message;
+    color.value = true;
+    await delay(2);
+    notificationMessage.value = '';
+  }
 
   signalRConnection?.on('ReceiveNewNotification', async (notification: INotification) => {
     color.value = notification.error;
     notificationMessage.value = notification.message;
-    await delay(2000);
+    await delay(2);
     notificationMessage.value = '';
   })
 
@@ -52,7 +60,7 @@ export const useNotificationStore = defineStore('notification', () => {
     if (index !== undefined && index !== -1 && serviceStatuses.value !== undefined) {
       serviceStatuses.value[index] = status;
     }
-    const boolStatus = status.status === 'Offline' ? false : true;
+    const boolStatus = status.status !== 'Offline';
 
     if (status.name === 'ObsWebsocket') {
       obsStore.settings.connectionStatus = boolStatus;
@@ -61,7 +69,7 @@ export const useNotificationStore = defineStore('notification', () => {
 
   const getStatusByName = (serviceName: string): boolean => {
     const result = serviceStatuses.value?.find((x) => x.name === serviceName);
-    const boolStatus = result?.status === 'Offline' ? false : true;
+    const boolStatus = result?.status !== 'Offline';
     if (result) {
       return boolStatus;
     } else {
@@ -80,6 +88,8 @@ export const useNotificationStore = defineStore('notification', () => {
     getStatus,
     displayMessage,
     displayMessageNew,
-    color
+    displayErrorMessage,
+    color,
+    delay
   };
 });

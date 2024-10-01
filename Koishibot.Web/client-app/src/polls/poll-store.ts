@@ -1,38 +1,116 @@
-import { ref } from 'vue';
-import { defineStore } from 'pinia';
-import { useSignalR } from '@/api/signalr.composable';
-import type { IPoll, IPollChoice } from './models/poll.interface';
+import {ref} from 'vue';
+import {defineStore} from 'pinia';
+import {useSignalR} from '@/api/signalr.composable';
+import type {IPoll, IPollChoice} from './models/poll.interface';
+import pollVoteData from '@/polls/sample/pollVoteData.json';
+import type {IPollChoiceInfo} from "@/raids/models/raid-poll.interface";
+import type {IPendingPoll} from "@/polls/models/pending-poll.interface";
+import {useNotificationStore} from "@/common/notifications/notification.store";
+import http from "@/api/http";
+// import {usePollTimerStore} from "@/timers/polltimer.store";
 
 export const usePollStore = defineStore('poll-store', () => {
-  const { getConnectionByHub } = useSignalR();
+  const {getConnectionByHub} = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
+  const notificationStore = useNotificationStore();
 
-  const choices: IPollChoice = { choice1: 1, choice2: 4, choice3: 10 };
-  const testPoll: IPoll = {
-    id: '0',
-    title: 'A poll title1',
-    startedAt: new Date(2024, 5, 1),
-    endingAt: new Date(2024, 5, 2),
-    duration: '0',
-    choices: choices
+  const pollDefault = {
+    title: '',
+    choices: new Array(5).fill(''),
+    duration: 300
   };
 
-  const currentPollDuration = ref<string>('');
+  const pendingPoll = ref<IPendingPoll>({...pollDefault});
 
-  const currentPoll = ref<IPoll | null>(testPoll);
+  const enableOverlay = ref<boolean>(false);
+  const displayForm = ref<boolean>(true);
 
-  signalRConnection?.on('ReceivePoll', (poll: IPoll) => {
-    if (currentPoll.value !== null && poll.id === currentPoll.value.id) {
-      currentPoll.value == poll;
-    } else {
-      currentPoll.value = poll;
-      currentPollDuration.value = poll.duration;
-      console.log(currentPoll.value.duration);
+  const pollId = ref<string>("");
+  const pollTitle = ref<string>("");
+  const pollDuration = ref<string>('00:00:00');
+
+  const pollVotes = ref<IPollChoiceInfo[] | null>();
+  const voteCountTotal = ref<number>(0);
+  const winningChoice = ref<string>('');
+
+  signalRConnection?.on('ReceivePollStarted', (poll: IPoll) => {
+    voteCountTotal.value = 0;
+    pollId.value = poll.id;
+    pollTitle.value = poll.title;
+    pollVotes.value = poll.choices;
+    pollDuration.value = poll.duration;
+    enableOverlay.value = true;
+
+    if (displayForm.value) {
+      displayForm.value = false;
     }
   });
 
+  signalRConnection?.on('ReceivePollVote', (votes: IPollChoiceInfo[]) => {
+    pollVotes.value = votes;
+    voteCountTotal.value = voteCountTotal.value + 1;
+  });
+
+  signalRConnection?.on('ReceivePollEnded', (winner: string) => {
+    winningChoice.value = winner;
+
+    pollVotes.value = [];
+    enableOverlay.value = false;
+    voteCountTotal.value = 0;
+
+    if (!displayForm.value) {
+      displayForm.value = true;
+    }
+  });
+
+  const submitPoll = async () => {
+    try {
+      if (pendingPoll.value.title === '') {
+        await notificationStore.displayMessageNew(true, 'Poll title missing');
+        return;
+      }
+
+      const poll: IPendingPoll = {
+        title: pendingPoll.value.title,
+        choices: pendingPoll.value.choices.filter(x => x !== ''),
+        duration: pendingPoll.value.duration
+      };
+
+
+      if (poll.choices.length < 2) {
+        await notificationStore.displayMessageNew(true, 'Need at least 2 choices');
+        return;
+      }
+
+      await http.post('/api/polls/twitch', poll);
+      await notificationStore.displayMessageNew(false, 'Was successful');
+
+      pendingPoll.value = {...pollDefault, choices: new Array(5).fill('')};
+    } catch (error) {
+      await notificationStore.displayMessage((error as Error).message);
+    }
+  }
+
+  const cancelPoll = async () => {
+    try {
+      await http.delete('/api/polls/twitch');
+      await notificationStore.delay(1);
+      displayForm.value = true;
+    } catch (error) {
+      await notificationStore.displayMessage((error as Error).message);
+    }
+  }
+
   return {
-    currentPoll,
-    currentPollDuration
+    pendingPoll,
+    pollTitle,
+    pollVotes,
+    pollDuration,
+    voteCountTotal,
+    winningChoice,
+    displayForm,
+    enableOverlay,
+    submitPoll,
+    cancelPoll
   };
 });

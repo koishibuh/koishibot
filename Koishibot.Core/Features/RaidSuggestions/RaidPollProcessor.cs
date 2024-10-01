@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Features.ChatCommands;
-using Koishibot.Core.Features.Polls.Extensions;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Extensions;
@@ -30,8 +29,9 @@ public record RaidPollProcessor(
 		pollResults.Remove(raidTargetName);
 
 		var pollChoices = e.Choices?
-		.GroupBy(choice => choice.Title)
-		.ToDictionary(group => group.Key, group => group.Sum(choice => choice.Votes));
+			.GroupBy(choice => choice.Title)
+			.Select(x => new PollChoiceInfo(x.Key, x.Sum(y => y.Votes)))
+			.ToList();
 
 		
 		var poll = new CurrentPoll{

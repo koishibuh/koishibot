@@ -2,8 +2,7 @@
 using Koishibot.Core.Services.Twitch.Common;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -15,15 +14,14 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	public async Task CreatePoll(CreatePollRequestBody requestBody)
 	{
 		var method = HttpMethod.Post;
-		var url = "polls";
+		const string url = "polls";
 		var body = TwitchApiHelper.ConvertToStringContent(requestBody);
 
 		await TwitchApiClient.SendRequest(method, url, body);
 	}
 }
 
-// == ⚫ REQUEST BODY == //
-
+/*════════════════【 REQUEST BODY 】════════════════*/
 public class CreatePollRequestBody
 {
 	///<summary>
@@ -49,7 +47,7 @@ public class CreatePollRequestBody
 	///REQUIRED
 	///</summary>
 	[JsonPropertyName("choices")]
-	public List<string> Choices { get; set; }
+	public List<ChoiceTitle> Choices { get; set; }
 
 	///<summary>
 	///The length of time (in seconds) that the poll will run for.<br/>
@@ -76,19 +74,17 @@ public class CreatePollRequestBody
 	public int ChannelPointsPerVote { get; set; }
 }
 
-//public class ChoiceTitle
-//{
-//	///<summary>
-//	///One of the choices the viewer may select.<br/>
-//	///The choice may contain a maximum of 25 characters.
-//	///</summary>
-//	[JsonPropertyName("title")]
-//	public string Title { get; set; }
+public class ChoiceTitle
+{
+	///<summary>
+	///One of the choices the viewer may select.<br/>
+	///The choice may contain a maximum of 25 characters.
+	///</summary>
+	[JsonPropertyName("title")]
+	public string Title { get; set; }
+}
 
-//}
-
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class CreatePolLResponse
 {
 	///<summary>

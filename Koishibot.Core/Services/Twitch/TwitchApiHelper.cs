@@ -14,7 +14,9 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelChatMessage,
 			EventSubSubscriptionType.StreamOnline,
 			EventSubSubscriptionType.StreamOffline,
-			// EventSubSubscriptionType.ChannelUpdate,
+			EventSubSubscriptionType.ChannelPollBegin,
+			EventSubSubscriptionType.ChannelPollProgress,
+			EventSubSubscriptionType.ChannelPollEnd
 		];
 	}
 
@@ -62,9 +64,9 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelPointsCustomRewardRemove,
 			EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd,
 			// EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionUpdate,
-			// EventSubSubscriptionType.ChannelPollBegin,
-			// EventSubSubscriptionType.ChannelPollProgress,
-			// EventSubSubscriptionType.ChannelPollEnd,
+			EventSubSubscriptionType.ChannelPollBegin,
+			EventSubSubscriptionType.ChannelPollProgress,
+			EventSubSubscriptionType.ChannelPollEnd,
 			// EventSubSubscriptionType.ChannelPredictionBegin,
 			// EventSubSubscriptionType.ChannelPredictionProgress,
 			// EventSubSubscriptionType.ChannelPredictionLock,

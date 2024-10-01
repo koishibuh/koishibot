@@ -3,37 +3,41 @@ using Koishibot.Core.Features.Application.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Polls.Models;
+using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.StreamInformation.ViewModels;
 using Microsoft.AspNetCore.SignalR;
 namespace Koishibot.Core.Services.SignalR;
 
-// == ⚫ GENERAL == //
-
+/*═══════════════════【 GENERAL 】═══════════════════*/
 public partial record SignalrService(
 IHubContext<SignalrHub,
 ISignalrHub> HubContext,
 ILogger<SignalrService> Log
 ) : ISignalrService
 {
+	public async Task SendInfo(string message)
+	{
+		Log.LogInformation(message);
+		var log = new LogVm(message, "Info");
+		await HubContext.Clients.All.ReceiveInfo(log);
+	}
 
 	public async Task SendError(string message)
 	{
 		Log.LogError(message);
 		var log = new LogVm(message, "Error");
-		await HubContext.Clients.All.ReceiveLog(log);
+		await HubContext.Clients.All.ReceiveError(log);
 	}
 
-	public async Task SendInfo(string message)
+	public async Task SendLog(string message)
 	{
+		Log.LogInformation(message);
 		var log = new LogVm(message, "Info");
 		await HubContext.Clients.All.ReceiveLog(log);
 	}
 
 	public async Task SendNewNotification(NotificationVm notificationVm) =>
 		await HubContext.Clients.All.ReceiveNewNotification(notificationVm);
-
-	public async Task SendNotification(string content) =>
-		await HubContext.Clients.All.ReceiveNotification(content);
 
 	public async Task SendChatMessage(ChatMessageVm chatMessageVM) =>
 		await HubContext.Clients.All.ReceiveChatMessage(chatMessageVM);
@@ -56,20 +60,26 @@ ILogger<SignalrService> Log
 	public async Task SendPromoVideoUrl(string url) =>
 		await HubContext.Clients.All.ReceivePromoVideoUrl(url);
 
-	public async Task SendPoll(PollVm pollVm) =>
-		await HubContext.Clients.All.ReceivePoll(pollVm);
+	public async Task SendPollStarted(PollVm pollVm) =>
+		await HubContext.Clients.All.ReceivePollStarted(pollVm);
+
+	public async Task SendPollVote(List<PollChoiceInfo> pollVotesVm) =>
+		await HubContext.Clients.All.ReceivePollVote(pollVotesVm);
+
+	public async Task SendPollEnded(string winner) =>
+		await HubContext.Clients.All.ReceivePollEnded(winner);
 
 	public async Task SendAdStartedEvent(AdBreakVm adBreakVm) =>
 		await HubContext.Clients.All.ReceiveAdStartedEvent(adBreakVm);
 
 }
 
-// == ⚫ SEND INTERFACE == //
+/*═══════════════【 SEND INTERFACE 】═══════════════*/
 public partial interface ISignalrService
 {
 	Task SendInfo(string message);
 	Task SendError(string message);
-	Task SendNotification(string content);
+	Task SendLog(string message);
 	Task SendNewNotification(NotificationVm notificationVm);
 	Task SendChatMessage(ChatMessageVm chatMessageVm);
 	Task SendStatusUpdate(ServiceStatusVm serviceStatusVM);
@@ -78,16 +88,18 @@ public partial interface ISignalrService
 	Task SendOverlayStatus(OverlayStatusVm overlayStatusVm);
 	Task SendOverlayTimer(OverlayTimerVm timer);
 	Task SendPromoVideoUrl(string url);
-	Task SendPoll(PollVm pollVm);
+	Task SendPollStarted(PollVm pollVm);
+	Task SendPollVote(List<PollChoiceInfo> pollChoiceInfo);
+	Task SendPollEnded(string winner);
 	Task SendAdStartedEvent(AdBreakVm adBreakVm);
 }
 
-// == ⚫ RECEIVE INTERFACE == //
-
+/*═════════════【 RECEIVE INTERFACE 】═════════════*/
 public partial interface ISignalrHub
 {
 	Task ReceiveLog(LogVm log);
-	Task ReceiveNotification(string content);
+	Task ReceiveInfo(LogVm log);
+	Task ReceiveError(LogVm log);
 	Task ReceiveNewNotification(NotificationVm notificationVm);
 	Task ReceiveChatMessage(ChatMessageVm chatMessageVm);
 	Task ReceiveStatusUpdate(ServiceStatusVm serviceStatusVM);
@@ -96,6 +108,8 @@ public partial interface ISignalrHub
 	Task ReceiveOverlayStatus(OverlayStatusVm overlayStatusVm);
 	Task ReceiveOverlayTimer(OverlayTimerVm overlayTimerVm);
 	Task ReceivePromoVideoUrl(string url);
-	Task ReceivePoll(PollVm pollVm);
+	Task ReceivePollStarted(PollVm pollVm);
+	Task ReceivePollVote(List<PollChoiceInfo> pollChoiceInfo);
+	Task ReceivePollEnded(string winner);
 	Task ReceiveAdStartedEvent(AdBreakVm adBreakVm);
 }

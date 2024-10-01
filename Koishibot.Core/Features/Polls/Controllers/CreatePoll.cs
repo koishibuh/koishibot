@@ -1,12 +1,14 @@
-﻿using Koishibot.Core.Services.TwitchApi.Models;
+﻿using Koishibot.Core.Features.Polls.Models;
+using Koishibot.Core.Services.TwitchApi.Models;
+
 namespace Koishibot.Core.Features.Polls;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/polls")]
 public class CreatePollController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Polls"])]
-	[HttpPost("/api/polls/twitch")]
+	[HttpPost("twitch")]
 	public async Task<ActionResult> CreatePoll
 		([FromBody] CreatePollCommand command)
 	{
@@ -15,12 +17,11 @@ public class CreatePollController : ApiControllerBase
 	}
 }
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record CreatePollHandler(
-	IOptions<Settings> Settings,
-	ITwitchApiRequest TwitchApiRequest
-	) : IRequestHandler<CreatePollCommand>
+IOptions<Settings> Settings,
+ITwitchApiRequest TwitchApiRequest
+) : IRequestHandler<CreatePollCommand>
 {
 	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
@@ -33,24 +34,20 @@ public record CreatePollHandler(
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record CreatePollCommand(
-	string Title,
-	List<string> Choices,
-	int Duration
-	) : IRequest
+string Title,
+List<string> Choices,
+int Duration
+) : IRequest
 {
-	public CreatePollRequestBody CreateRequestBody(string streamerId)
+	public CreatePollRequestBody CreateRequestBody(string streamerId) => new()
 	{
-		return new CreatePollRequestBody
-		{
-			BroadcasterId = streamerId,
-			PollTitle = Title,
-			Choices = Choices
-				.Select(title => title )
-				.ToList(),
-			DurationInSeconds = Duration
-		};
-	}
-};
+		BroadcasterId = streamerId,
+		PollTitle = Title,
+		Choices = Choices
+			.Select(x => new ChoiceTitle{Title = x})
+			.ToList(),
+		DurationInSeconds = Duration
+	};
+}

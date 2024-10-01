@@ -1,4 +1,6 @@
-﻿namespace Koishibot.Core.Features.Polls.Models;
+﻿using Koishibot.Core.Features.RaidSuggestions.Models;
+using Koishibot.Core.Persistence.Cache.Enums;
+namespace Koishibot.Core.Features.Polls.Models;
 
 public class CurrentPoll
 {
@@ -7,15 +9,20 @@ public class CurrentPoll
 	public DateTimeOffset StartedAt { get; set; }
 	public DateTimeOffset EndingAt { get; set; }
 	public TimeSpan Duration { get; set; }
-	public Dictionary<string, int> Choices { get; set; } = [];
+	public List<PollChoiceInfo> Choices { get; set; } = [];
 
-	public TimeSpan CalculateDuration()
-	{
-		return StartedAt - EndingAt;
-	}
+	public TimeSpan CalculateDuration() => StartedAt - EndingAt;
+}
 
-	public PollVm ConvertToVm()
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class CurrentPollExtensions
+{
+	public static void AddPoll(this IAppCache cache, CurrentPoll poll) =>
+		cache.Add(CacheName.CurrentPoll, poll);
+
+	public static string? GetCurrentPollId(this IAppCache cache)
 	{
-		return new PollVm(Id, Title, StartedAt, EndingAt, Duration, Choices);
+		var result = cache.Get<CurrentPoll>(CacheName.CurrentPoll);
+		return result?.Id;
 	}
-};
+}

@@ -4,12 +4,12 @@ using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.RaidSuggestions;
 
-// == ⚫ POST == //
-
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/raid")]
 public class CreateRaidPollController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Outgoing Raid"])]
-	[HttpPost("/api/raid/poll")]
+	[HttpPost("poll")]
 	public async Task<ActionResult> CreateRaidPoll()
 	{
 		await Mediator.Send(new CreateRaidPollCommands());
@@ -17,22 +17,17 @@ public class CreateRaidPollController : ApiControllerBase
 	}
 }
 
-// == ⚫ COMMAND  == //
-
-public record CreateRaidPollCommands : IRequest;
-
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record CreateRaidPollHandler(
-		IOptions<Settings> Settings,
-	ILogger<CreateRaidPollHandler> Log,
-	ITwitchApiRequest TwitchApiRequest,
-	IAppCache Cache, ITwitchIrcService BotIrc, 
-	//IRaidSuggestionsApi StartRaidPollApi,
-	ISignalrService Signalr
-	) : IRequestHandler<CreateRaidPollCommands>
+IOptions<Settings> Settings,
+ILogger<CreateRaidPollHandler> Log,
+ITwitchApiRequest TwitchApiRequest,
+IAppCache Cache,
+ISignalrService Signalr
+) : IRequestHandler<CreateRaidPollCommands>
 {
 	public async Task Handle
-					(CreateRaidPollCommands e, CancellationToken cancel)
+		(CreateRaidPollCommands e, CancellationToken cancel)
 	{
 		await Signalr.SendRaidOverlayStatus(true);
 
@@ -53,26 +48,25 @@ public record CreateRaidPollHandler(
 		var three = raidCandidates[2];
 
 		var message = $"Here are your raid options to vote on: " +
-				$"1. {one.Streamer.Name} - {one.StreamInfo.GameName} ({one.StreamInfo.ViewerCount} Viewers), " +
-				$"2. {two.Streamer.Name} - {two.StreamInfo.GameName} ({two.StreamInfo.ViewerCount} Viewers), " +
-				$"3. {three.Streamer.Name} - {three.StreamInfo.GameName} ({three.StreamInfo.ViewerCount} Viewers)";
+			$"1. {one.Streamer.Name} - {one.StreamInfo.GameName} ({one.StreamInfo.ViewerCount} Viewers), " +
+			$"2. {two.Streamer.Name} - {two.StreamInfo.GameName} ({two.StreamInfo.ViewerCount} Viewers), " +
+			$"3. {three.Streamer.Name} - {three.StreamInfo.GameName} ({three.StreamInfo.ViewerCount} Viewers)";
 
 		var body = new SendAnnouncementRequestBody
 		{
 			Message = message,
 		};
 
-
 		await TwitchApiRequest.SendAnnouncement(parameters, body);
 
 		var choices = raidCandidates.CreatePollChoices();
 
-	
 		var pollBody = new CreatePollRequestBody
 		{
 			BroadcasterId = Settings.Value.StreamerTokens.UserId,
 			PollTitle = "Who should we raid?",
-			Choices = choices,
+			Choices = choices.Select(x => new ChoiceTitle { Title = x })
+				.ToList(),
 			DurationInSeconds = 180
 		};
 
@@ -80,3 +74,6 @@ public record CreateRaidPollHandler(
 
 	}
 }
+
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record CreateRaidPollCommands : IRequest;

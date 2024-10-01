@@ -51,12 +51,8 @@ const sendCommand = async () => {
 };
 
 async function createCommandName() {
-  try {
     await store.createCommandName(commandName.value.toLowerCase());
     commandName.value = '';
-  } catch (error) {
-    message.value = (error as Error).message;
-  }
 }
 
 async function optionSelected(selection: any) {

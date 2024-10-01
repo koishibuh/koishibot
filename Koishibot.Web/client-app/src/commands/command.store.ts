@@ -1,5 +1,5 @@
-import { ref } from 'vue';
-import { defineStore } from 'pinia';
+import {ref} from 'vue';
+import {defineStore} from 'pinia';
 import http from '@/api/http';
 import type {
   ICommand,
@@ -7,8 +7,8 @@ import type {
   IChatCommandInfo,
   ICommandRequest
 } from './models/command-interface';
-import type { IDropdownMenu } from '@/common/dropdown-menu/dropdownmenu-interface';
-import { useNotificationStore } from '@/common/notifications/notification.store';
+import type {IDropdownMenu} from '@/common/dropdown-menu/dropdownmenu-interface';
+import {useNotificationStore} from '@/common/notifications/notification.store';
 
 export const useCommandStore = defineStore('command-store', () => {
   const notificationStore = useNotificationStore();
@@ -25,7 +25,11 @@ export const useCommandStore = defineStore('command-store', () => {
   });
 
   const createCommandName = async (name: string) => {
-    return await http.post('/api/commands/names', { name: name });
+    try {
+      return await http.post('/api/commands/name', {name: name});
+    } catch (error) {
+      await notificationStore.displayErrorMessage((error as Error).message);
+    }
   };
 
   const getCommands = async () => {
@@ -38,13 +42,13 @@ export const useCommandStore = defineStore('command-store', () => {
         availableNamesOptions.value.options.push(...result.commandNames);
       }
     } catch (error) {
-      notificationStore.displayMessage((error as Error).message);
+      await notificationStore.displayMessage((error as Error).message);
     }
   };
 
   const createCommand = async (request: ICommandRequest) => {
     try {
-      const result: number = await http.post('/api/commands', { request: request });
+      const result: number = await http.post('/api/commands', {request: request});
 
       const index = availableNamesOptions.value.options.findIndex(
         (option) => option.id === request.commandNames[0].id

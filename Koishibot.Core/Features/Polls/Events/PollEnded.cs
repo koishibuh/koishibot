@@ -1,22 +1,17 @@
-﻿using Koishibot.Core.Features.Common;
-using Koishibot.Core.Features.Polls.Extensions;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Polls.Models;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.RaidSuggestions.Interfaces;
+using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.Twitch.Common;
+using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.Twitch.Enums;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Polls;
-using Koishibot.Core.Services.Twitch.Irc;
-using Koishibot.Core.Services.TwitchApi.Models;
+
 namespace Koishibot.Core.Features.Polls.Events;
 
-// == ⚫ COMMAND == //
-
-public record PollEndedCommand
-	(PollEndedEvent args) : IRequest;
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelpollend">Channel Poll End</see></para>
 /// <para>When poll is completed and the banner is displaying at the top of chat, this triggers the OnPollEnd with the status: Completed</para>
@@ -25,145 +20,103 @@ public record PollEndedCommand
 /// <param name="sender"></param>
 /// <param name="e"></param>
 public record PollEndedHandler(
-	IAppCache Cache,
-		IOptions<Settings> Settings,
-	ITwitchApiRequest TwitchApiRequest,
-		ISignalrService Signalr,
-		ITwitchIrcService BotIrc,
-		IRaidPollProcessor RaidPollProcessor,
-		KoishibotDbContext Database
-		) : IRequestHandler<PollEndedCommand>
+IAppCache Cache,
+ISignalrService Signalr,
+IRaidPollProcessor RaidPollProcessor,
+IChatReplyService ChatReplyService,
+KoishibotDbContext Database
+) : IRequestHandler<PollEndedCommand>
 {
 	public async Task Handle(PollEndedCommand command, CancellationToken cancel)
 	{
-		if (command.args.Status == PollStatus.Archived) { return; }
+		if (command.PollStatusIsArchived()) { return; }
 
-		if (command.args.Title == "Who should we raid?")
-		{
-			await RaidPollProcessor.Start(command.args);
-			return;
-		}
+		// if (command.PollIsRaid())
+		// {
+		// 	await RaidPollProcessor.Start(command.args);
+		// 	return;
+		// }
 
-		var random = new Random();
-		var sortedChoices = command.args.Choices
-						 .OrderBy(x => random.Next())
-						 .ToDictionary(x => x.Title, x => x.Votes);
+		command.RankChoices();
+		command.DetermineWinner();
 
-		var winner = sortedChoices.MaxBy(p => p.Value);
+		ClearPollCache();
 
+		await PostChatResponse(command);
 
-		await BotIrc.PollResult(command.args.Title, winner.Key);
+		// var pollVm = poll.ConvertToVm();
+		// await Signalr.SendPoll(pollVm);
 
-		var poll = new CurrentPoll
-		{
-			Id = command.args.PollId,
-			Title = command.args.Title,
-			StartedAt = command.args.StartedAt,
-			EndingAt = command.args.EndedAt,
-			Duration = (command.args.StartedAt - command.args.EndedAt),
-			Choices = sortedChoices
-		};
+		await AddResultToDatabase(command);
 
-		Cache.AddPoll(poll);
-		var pollVm = poll.ConvertToVm();
-		await Signalr.SendPoll(pollVm);
-
-		var streamSessionId = Cache.GetCurrentStreamId();
-
-
-
-		var pollResult = ConvertToEntity(sortedChoices, command.args.Title, command.args.StartedAt, winner.Key, 1);
-		await Database.AddPollResult(pollResult);
-
-		// Todo: Update Overlay that poll ended 
+		await Signalr.SendPollEnded(command.winner.Choice);
 	}
 
-	public static Dictionary<string, int> AddVotesToDictionary(List<Choice> pollChoices)
+	private async Task PostChatResponse(PollEndedCommand command)
 	{
-		var pollResults = new Dictionary<string, int>();
-		foreach (var pollChoice in pollChoices)
-		{
-			pollResults[pollChoice.Title]
-					= pollResults.TryGetValue(pollChoice.Title, out int currentVoteCount)
-							? currentVoteCount + pollChoice.Votes
-							: pollChoice.Votes;
-			// ?? if null then 0; coalesce operator
-		}
-
-		return pollResults;
+		var data = command.CreateTemplate();
+		await ChatReplyService.App(Command.PollWinner, data);
 	}
 
-	public PollResult ConvertToEntity(Dictionary<string, int> Choices, string title,
-		DateTimeOffset startedAt, string winner, int streamSessionId)
+	private void ClearPollCache() => Cache.Remove(CacheName.CurrentPoll);
+
+	private async Task AddResultToDatabase(PollEndedCommand command)
 	{
-		var count = Choices.Count;
-
-		switch (count)
-		{
-			case 2:
-				Choices.Add("None 3", 0);
-				Choices.Add("None 4", 0);
-				Choices.Add("None 5", 0);
-				break;
-			case 3:
-				Choices.Add("None 4", 0);
-				Choices.Add("None 5", 0);
-				break;
-			case 4:
-				Choices.Add("None 5", 0);
-				break;
-
-			default: break;
-		}
-
-		var results = Choices
-						 .Select(p => new KeyValuePair<string, int>(p.Key, p.Value))
-						 .ToList();
-
-		return new PollResult
-		{
-			StartedAt = startedAt,
-			// TwitchStreamId = streamSessionId,
-			Title = title,
-			ChoiceOne = results[0].Key,
-			VoteOne = results[0].Value,
-			ChoiceTwo = results[1].Key,
-			VoteTwo = results[1].Value,
-			ChoiceThree = results[2].Key,
-			VoteThree = results[2].Value,
-			ChoiceFour = results[3].Key,
-			VoteFour = results[3].Value,
-			ChoiceFive = results[4].Key,
-			VoteFive = results[4].Value,
-			WinningChoice = winner
-		};
-	}
-
-
-	// == ⚫ == //
-
-	public record PollEndedEventModel(
-					string Id,
-					string Title,
-					DateTimeOffset StartedAt,
-					DateTimeOffset EndingAt,
-					Dictionary<string, int> Choices) : INotification
-	{
-		public TimeSpan Duration => StartedAt - EndingAt;
-
-		public bool IsRaidPoll()
-		{
-			return Title == "Who should we raid?";
-		}
-
-
+		var pollResult = command.CreateEntity();
+		await Database.UpdateEntry(pollResult);
 	}
 }
 
-public static class PollChatReply
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record PollEndedCommand(PollEndedEvent args) : IRequest
 {
-	public static async Task PollResult(this ITwitchIrcService irc, string title, string winningChoice)
+	public List<PollChoiceInfo> rankedChoices = [];
+	public PollChoiceInfo? winner;
+
+	public bool PollStatusIsArchived() => args.Status == PollStatus.Archived;
+	public bool PollIsRaid() => args.Title == "Who should we raid?";
+
+	public void RankChoices()
 	{
-		await irc.BotSend($"For '{title}', the koimmunity popular vote was {winningChoice}");
+		var random = new Random();
+		rankedChoices = args.Choices
+			.OrderByDescending(x => x.Votes)
+			.ThenBy(x => random.Next())
+			.Select(x => new PollChoiceInfo(x.Title, x.Votes))
+			.ToList();
 	}
+
+	public void DetermineWinner() =>
+		winner = rankedChoices.FirstOrDefault();
+
+	public CurrentPoll CreatePoll() =>
+		new()
+		{
+			Id = args.PollId,
+			Title = args.Title,
+			StartedAt = args.StartedAt,
+			EndingAt = args.EndedAt,
+			Duration = (args.StartedAt - args.EndedAt),
+			Choices = rankedChoices
+		};
+
+	public PollResult CreateEntity() => new()
+	{
+		StartedAt = args.StartedAt,
+		Title = args.Title,
+		ChoiceOne = rankedChoices[0].Choice,
+		VoteOne = rankedChoices[0].VoteCount,
+		ChoiceTwo = rankedChoices[1].Choice,
+		VoteTwo = rankedChoices[1].VoteCount,
+		ChoiceThree = rankedChoices.Count >= 3 ? rankedChoices[2].Choice : null,
+		VoteThree = rankedChoices.Count >= 3 ? rankedChoices[2].VoteCount : null,
+		ChoiceFour = rankedChoices.Count >= 4 ? rankedChoices[3].Choice : null,
+		VoteFour = rankedChoices.Count >= 4 ? rankedChoices[3].VoteCount : null,
+		ChoiceFive = rankedChoices.Count >= 5 ? rankedChoices[4].Choice : null,
+		VoteFive = rankedChoices.Count >= 5 ? rankedChoices[4].VoteCount : null,
+		WinningChoice = winner.Choice
+	};
+
+
+	public object CreateTemplate() => new { Title = args.Title, Winner = winner.Choice };
 }
