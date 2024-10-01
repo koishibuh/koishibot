@@ -16,7 +16,8 @@ public static class TwitchApiHelper
 			EventSubSubscriptionType.StreamOffline,
 			EventSubSubscriptionType.ChannelPollBegin,
 			EventSubSubscriptionType.ChannelPollProgress,
-			EventSubSubscriptionType.ChannelPollEnd
+			EventSubSubscriptionType.ChannelPollEnd,
+			EventSubSubscriptionType.ChannelChatMessage
 		];
 	}
 

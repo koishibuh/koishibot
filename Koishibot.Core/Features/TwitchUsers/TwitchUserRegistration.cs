@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Extensions;
-using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
@@ -9,8 +8,9 @@ namespace Koishibot.Core.Features.TwitchUsers;
 // Todo: Logic if attendance status is changed when stream is live.
 
 public record TwitchUserRegistration(
-	IAppCache Cache, KoishibotDbContext Database
-	) : ITwitchUserRegistration
+IAppCache Cache,
+KoishibotDbContext Database
+) : ITwitchUserRegistration
 {
 	public async Task<(TwitchUser user, bool notCached)> Start(TwitchUserDto userDto)
 	{

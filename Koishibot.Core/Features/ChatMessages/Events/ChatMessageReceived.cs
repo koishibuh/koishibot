@@ -15,7 +15,6 @@ namespace Koishibot.Core.Features.ChatMessages.Events;
 /// Publish to UI, Log User, Save Attendance if Enabled, Check Command
 /// </summary>
 public record ChatMessageReceived(
-IAppCache Cache,
 ISignalrService Signalr,
 IChatCommandProcessor ChatCommandProcessor,
 ITwitchUserHub TwitchUserHub,

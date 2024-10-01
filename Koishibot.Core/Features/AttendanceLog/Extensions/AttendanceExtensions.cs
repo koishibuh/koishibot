@@ -40,12 +40,12 @@ public static class AttendanceExtensions
 		return cache;
 	}
 
-	public static IAppCache CreateCache(this IAppCache cache)
-	{
-		cache.AddNoExpire(CacheName.StreamEvents, new List<TwitchUser>());
-		cache.AddNoExpire(CacheName.CurrentTimer, new CurrentTimer());
-		return cache;
-	}
+	// public static IAppCache CreateCache(this IAppCache cache)
+	// {
+	// 	// cache.AddNoExpire(CacheName.StreamEvents, new List<TwitchUser>());
+	// 	cache.AddNoExpire(CacheName.CurrentTimer, new CurrentTimer());
+	// 	return cache;
+	// }
 
 	// DATABASE
 
