@@ -31,8 +31,6 @@ IServiceScopeFactory ScopeFactory
 	private readonly JsonSerializerOptions _options =
 		new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-	string _url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
-
 	public async Task CreateWebSocket()
 	{
 		if (ObsWebSocket is not null)
@@ -43,7 +41,8 @@ IServiceScopeFactory ScopeFactory
 
 		try
 		{
-			ObsWebSocket = await Factory.Create(_url, 3, ProcessMessage, Error, Closed);
+			var url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
+			ObsWebSocket = await Factory.Create(url, 3, ProcessMessage, Error, Closed);
 		}
 		catch (Exception e)
 		{

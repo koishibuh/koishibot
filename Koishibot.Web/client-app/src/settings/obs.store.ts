@@ -20,8 +20,8 @@ export const useObsStore = defineStore('obs-store', () => {
   const saveSettings = async (settings: IObsRequest) => {
     try {
       await http.post('/api/obs', settings);
-    } catch (e) {
-      notificationStore.displayMessage('Error with saving settings');
+    } catch (error) {
+      await notificationStore.displayErrorMessage((error as Error).message);
     }
   };
 
@@ -37,9 +37,7 @@ export const useObsStore = defineStore('obs-store', () => {
         settings.value.connectionStatus = false;
       }
     } catch (error) {
-
-        // notificationStore.displayMessage(error.response);
-
+      await notificationStore.displayErrorMessage((error as Error).message);
     }
   };
 
