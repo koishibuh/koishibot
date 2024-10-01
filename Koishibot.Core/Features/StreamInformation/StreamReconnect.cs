@@ -14,7 +14,7 @@ IChannelPointStatusService ChannelPointStatusService
 	public async Task Handle
 		(StreamReconnectCommand command, CancellationToken cancel)
 	{
-		// await Cache.UpdateStreamStatusOnline();
+		await Cache.UpdateStreamStatusOnline();
 		// await ChannelPointStatusService.Enable();
 		await StreamSessionService.Reconnect();
 		// await PomodoroTimer.GetAdSchedule();
