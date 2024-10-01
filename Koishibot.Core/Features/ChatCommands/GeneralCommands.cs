@@ -1,17 +1,15 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Enums;
 using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatMessages.Models;
+using Koishibot.Core.Features.Polls;
 using Koishibot.Core.Features.Polls.Enums;
-using Koishibot.Core.Features.Polls.Interfaces;
-using Koishibot.Core.Features.Todoist.Enums;
 using Koishibot.Core.Features.Todoist.Interface;
-using Koishibot.Core.Features.Todoist.Models;
 namespace Koishibot.Core.Features.ChatCommands;
 
 public record GeneralCommands(
-	IPresetPollService PresetPollService,
-	ITodoistService TodoistService
-	) : IGeneralCommands
+IPresetPollService PresetPollService,
+ITodoistService TodoistService
+) : IGeneralCommands
 {
 	public async Task<bool> Process(ChatMessageDto cc)
 	{
