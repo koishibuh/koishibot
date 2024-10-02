@@ -48,38 +48,30 @@ ISignalrService SignalrService
 				continue;
 			}
 
-			var itemTagWordpress = await Database.GetItemTagByWordpressId(dragon.ItemTagIds[0]);
-			if (itemTagWordpress.NotInDatabase())
+			var itemTag = await Database.GetItemTagByWordpressId(dragon.ItemTagIds[0]);
+			if (itemTag.NotInDatabase())
 			{
 				var id = dragon.ItemTagIds[0].ToString();
-				var response = await WordpressService.GetItemTagById(id);
+				var itemTagWp = await WordpressService.GetItemTagById(id);
 
-				var user = await Database.FindUserByTwitchName(response.Name);
+				var user = await Database.FindUserByTwitchName(itemTagWp.Name);
 				if (user.NotInDatabase())
 				{
-					var userResponse = await GetUserFromTwitch(user!.Name);
-					if (userResponse.IsEmpty())
+					var usersTwitch = await GetUserFromTwitch(itemTagWp.Name);
+					if (usersTwitch.IsEmpty())
 					{
-						await SignalrService.SendError($"No tags found for Dragon {response.Name}");
+						await SignalrService.SendError($"No tags found for Dragon {itemTagWp.Name}");
 						continue;
 					}
 
-					user = await AddUserToDatabase(userResponse[0]);
+					user = await AddUserToDatabase(usersTwitch[0]);
 				}
 
-				itemTagWordpress = new WordpressItemTag(user!.Id, dragon.ItemTagIds[0]);
-				await Database.UpdateEntry(itemTagWordpress);
+				itemTag = new WordpressItemTag(user!.Id, dragon.ItemTagIds[0]);
+				await Database.UpdateEntry(itemTag);
 			}
 
-			var koiKinDragon = new KoiKinDragon
-			{
-				WordpressId = dragon.WordpressId,
-				Timestamp = dragon.Date,
-				Code = code,
-				Name = dragon.Title.Rendered ?? "",
-				ItemTagId = itemTagWordpress!.Id
-			};
-
+			var koiKinDragon = dragon.CreateEntity(code, itemTag);
 			await Database.UpdateEntry(koiKinDragon);
 		}
 	}

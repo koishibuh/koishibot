@@ -1,3 +1,4 @@
+using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Services.Wordpress.Responses;
 
@@ -7,7 +8,7 @@ public class ItemResponse
 	public int WordpressId { get; set; }
 
 	[JsonPropertyName("date")]
-	public DateTimeOffset Date {get; set; }
+	public DateTimeOffset Date { get; set; }
 
 	[JsonPropertyName("status")]
 	public string Status { get; set; }
@@ -25,7 +26,6 @@ public class ItemResponse
 	public List<int> ItemTagIds { get; set; }
 }
 
-
 public class Title
 {
 	[JsonPropertyName("raw")]
@@ -34,7 +34,6 @@ public class Title
 	[JsonPropertyName("rendered")]
 	public string Rendered { get; set; }
 }
-
 
 public class Content
 {
@@ -46,4 +45,14 @@ public static class ItemResponseExtensions
 {
 	public static bool DragonRecorded(this KoishibotDbContext database, ItemResponse item) =>
 		database.KoiKinDragons.Any(x => x.WordpressId == item.WordpressId);
+
+	public static KoiKinDragon CreateEntity(this ItemResponse item, string code, WordpressItemTag itemTag)
+		=> new()
+		{
+			WordpressId = item.WordpressId,
+			Timestamp = item.Date,
+			Code = code,
+			Name = item.Title.Rendered ?? "",
+			ItemTagId = itemTag.Id
+		};
 }

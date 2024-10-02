@@ -16,7 +16,7 @@ public interface IWordpressService
 	Task<ItemResponse> CreateItem(AddItemRequest parameters);
 	Task<List<GetItemTagResponse>> GetItemTags();
 	Task<List<ItemResponse>> GetItems();
-	Task<GetItemTagResponse> GetItemTagById(string wordpressId);
+	Task<WordPressResponse> GetItemTagById(string wordpressId);
 	Task<WordPressResponse?> GetItemTagByName(string username);
 }
 
@@ -119,7 +119,7 @@ IHttpClientFactory HttpClientFactory
 		return result;
 	}
 
-	public async Task<GetItemTagResponse> GetItemTagById(string wordpressId)
+	public async Task<WordPressResponse> GetItemTagById(string wordpressId)
 	{
 		var httpClient = CreateClient();
 		var endpoint = $"item_tag/{wordpressId}";
@@ -136,7 +136,7 @@ IHttpClientFactory HttpClientFactory
 			throw new Exception($"{errorResponse?.Message}");
 		}
 
-		var result = JsonSerializer.Deserialize<GetItemTagResponse>(content);
+		var result = JsonSerializer.Deserialize<WordPressResponse>(content);
 		if (result is null)
 			throw new Exception("Unable to deserialize response");
 

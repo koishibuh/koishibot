@@ -29,12 +29,11 @@ public static class KoiKinDragonExtensions
 			.OrderBy(x => x.Timestamp)
 			.Include(x => x.ItemTag)
 			.ThenInclude(x => x.TwitchUser)
-			.Select(x => new KoiKinDragonVm(x.WordpressId, x.Code, x.ItemTag.TwitchUser.Name ?? "" ) )
+			.Select(x => new KoiKinDragonVm(x.WordpressId, x.Code, x.ItemTag.TwitchUser.Name ?? ""))
 			.AsNoTracking()
 			.FirstOrDefaultAsync();
 	}
 }
-
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/
 public class KoiKinDragonConfig : IEntityTypeConfiguration<KoiKinDragon>
@@ -46,7 +45,11 @@ public class KoiKinDragonConfig : IEntityTypeConfiguration<KoiKinDragon>
 
 		builder.Property(p => p.WordpressId);
 		builder.Property(p => p.Timestamp);
+
 		builder.Property(p => p.Code);
+		builder.HasIndex(p => p.Code)
+			.IsUnique();
+
 		builder.Property(p => p.Name);
 	}
 }
