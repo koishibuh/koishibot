@@ -29,7 +29,14 @@ KoishibotDbContext Database
 {
 	public async Task Handle(PollEndedCommand command, CancellationToken cancel)
 	{
-		if (command.PollStatusIsArchived()) { return; }
+		ClearPollCache();
+
+		if (command.PollStatusIsArchived())
+		{
+			// When poll is cancelled or hides from Twitch chat
+			await Signalr.SendPollCancelled();
+			return;
+		}
 
 		// if (command.PollIsRaid())
 		// {
@@ -39,8 +46,6 @@ KoishibotDbContext Database
 
 		command.RankChoices();
 		command.DetermineWinner();
-
-		ClearPollCache();
 
 		await PostChatResponse(command);
 

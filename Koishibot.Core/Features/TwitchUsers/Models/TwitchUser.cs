@@ -136,7 +136,7 @@ public static class TwitchUserExtension
 		(this KoishibotDbContext context, string userlogin)
 	{
 		return await context.Users
-			.FirstOrDefaultAsync(x => x.Login == userlogin);
+			.FirstOrDefaultAsync(x => x.Login == userlogin.ToLower());
 	}
 
 	public static async Task<TwitchUser> UpdateUser

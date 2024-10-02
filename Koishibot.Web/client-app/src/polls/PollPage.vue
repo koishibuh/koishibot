@@ -40,6 +40,20 @@ const formattedMinutes = computed(() => {
   return minutes.value < 1 ? '00' : minutes.value.toString().padStart(2, '0');
 });
 
+const isLoading = ref<boolean>();
+
+const submitPoll = (async () => {
+  isLoading.value = true;
+  await store.submitPoll();
+  isLoading.value = false;
+})
+
+const cancelPoll = (async () => {
+  isLoading.value = true;
+  await store.cancelPoll();
+  isLoading.value = false;
+})
+
 watch(
     () => store.pollDuration,
     (newTimer) => {
@@ -51,7 +65,7 @@ watch(
 </script>
 
 <template>
-  <form v-if="store.displayForm" @submit.prevent="store.submitPoll" class="flex flex-col gap-2 my-4">
+  <form v-if="store.displayForm" @submit.prevent="submitPoll" class="flex flex-col gap-2 my-4">
     <LabelField :text-limit="60" label="Poll Title" label-id="pollTitle" :text="store.pendingPoll.title"/>
 
     <div class="flex flex-wrap justify-evenly gap-2">
@@ -80,7 +94,7 @@ watch(
       <label for="minute30">30 Minutes</label>
     </div>
 
-    <button class="primary-button">Send</button>
+    <button class="primary-button" :disabled="isLoading">Send</button>
   </form>
   <div v-else>
     <div v-if="store.pollVotes" class="mt-2 border-2 rounded p-2 mb-2">
@@ -93,7 +107,7 @@ watch(
       {{ formattedMinutes }}:{{ seconds }}
 
     </div>
-    <button @click="store.cancelPoll" class="primary-button">Cancel Poll</button>
+    <button @click="cancelPoll" class="primary-button" :disabled="isLoading">Cancel Poll</button>
   </div>
       Winner: {{store.winningChoice}}
 </template>
