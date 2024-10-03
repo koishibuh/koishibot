@@ -3,11 +3,12 @@ using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.Application.Controllers;
 
-// == ⚫ GET == //
+/*══════════════════【 CONTROLLER 】══════════════════*/
+[Route("api/event-feed")]
 public class GetEventFeedController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Event Feed"])]
-	[HttpGet("/api/event-feed")]
+	[HttpGet]
 	public async Task<ActionResult> GetEventFeed()
 	{
 		var result = await Mediator.Send(new GetEventFeedCommand());
@@ -15,15 +16,9 @@ public class GetEventFeedController : ApiControllerBase
 	}
 }
 
-// == ⚫ QUERY == //
-
-public record GetEventFeedCommand()
-	: IRequest<List<StreamEventVm>>;
-
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetEventFeedHandler(
-	KoishibotDbContext Database
+KoishibotDbContext Database
 ) : IRequestHandler<GetEventFeedCommand, List<StreamEventVm>>
 {
 	public async Task<List<StreamEventVm>> Handle
@@ -34,8 +29,10 @@ public record GetEventFeedHandler(
 	}
 }
 
-// == ⚫ EXTENSIONS == //
+/*════════════════════【 QUERY 】════════════════════*/
+public record GetEventFeedCommand : IRequest<List<StreamEventVm>>;
 
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
 public static class GetEventFeedExtensions
 {
 	public static async Task<List<StreamEventVm>> GetRecentStreamEvents
@@ -105,6 +102,19 @@ public static class GetEventFeedExtensions
 				Message = $"{f.TwitchUser.Name} has gifted {f.Total} {f.Tier} subs!"
 			})
 			.ToListAsync();
+
+		// var pointRedemption = await database.ChannelPointRedemptions
+		// 	.AsNoTracking()
+		// 	.Include(x => )
+		// 	.OrderByDescending(f => f.Timestamp)
+		// 	.Take(50)
+		// 	.Select(f => new StreamEventVm
+		// 	{
+		// 		EventType = StreamEventType.Sub,
+		// 		Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+		// 		Message = $"{f.TwitchUser.Name} has gifted {f.Total} {f.Tier} subs!"
+		// 	})
+		// 	.ToListAsync();
 
 		var list = new List<StreamEventVm>();
 		list.AddRange(follows);

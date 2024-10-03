@@ -12,12 +12,21 @@ public static class TwitchApiHelper
 		return [
 			// EventSubSubscriptionType.ChannelUpdate,
 			// EventSubSubscriptionType.ChannelChatMessage,
-			EventSubSubscriptionType.StreamOnline,
-			EventSubSubscriptionType.StreamOffline,
-			EventSubSubscriptionType.ChannelPollBegin,
-			EventSubSubscriptionType.ChannelPollProgress,
-			EventSubSubscriptionType.ChannelPollEnd,
-			EventSubSubscriptionType.ChannelChatMessage
+			// EventSubSubscriptionType.StreamOnline,
+			// EventSubSubscriptionType.StreamOffline,
+			// EventSubSubscriptionType.ChannelPollBegin,
+			// EventSubSubscriptionType.ChannelPollProgress,
+			// EventSubSubscriptionType.ChannelPollEnd,
+			// EventSubSubscriptionType.ChannelChatMessage,
+			EventSubSubscriptionType.ChannelFollow,
+			EventSubSubscriptionType.ChannelSubscribe,
+			EventSubSubscriptionType.ChannelSubscriptionEnd,
+			EventSubSubscriptionType.ChannelSubscriptionGift,
+			EventSubSubscriptionType.ChannelSubscriptionMessage,
+			EventSubSubscriptionType.ChannelCheer,
+			EventSubSubscriptionType.ChannelRaidSent,
+			EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption,
+			EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd
 		];
 	}
 

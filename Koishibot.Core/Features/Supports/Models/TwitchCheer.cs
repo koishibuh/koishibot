@@ -1,8 +1,10 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.Twitch.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.Supports.Models;
@@ -43,8 +45,18 @@ public class TwitchCheer : IEntity
 		return new StreamEventVm
 		{
 			EventType = StreamEventType.Cheer,
-			Timestamp = Timestamp.ToString("yyyy-MM-dd HH:mm"),
+			Timestamp = Toolbox.CreateUITimestamp(),
 			Message = $"{username} has cheered {BitsAmount}"
+		};
+	}
+
+	public StreamEventVm CreateVm(string username, RewardType rewardType)
+	{
+		return new StreamEventVm
+		{
+			EventType = StreamEventType.Cheer,
+			Timestamp = Toolbox.CreateUITimestamp(),
+			Message = $"{username} has cheered {BitsAmount} bits by {rewardType}"
 		};
 	}
 }

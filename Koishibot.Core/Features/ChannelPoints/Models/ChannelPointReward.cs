@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.ChannelPoints.Models;
 
 /*═════════════════【 ENTITY MODEL 】═════════════════*/
-public class ChannelPointReward
+public class ChannelPointReward : IEntity
 {
 	public int Id { get; set; }
 	public DateTimeOffset CreatedOn { get; set; }
