@@ -64,7 +64,7 @@ ITwitchApiRequest TwitchApiRequest
 	private WebSocketHandler? TwitchEventSub { get; set; }
 	private int? _timeoutSeconds = 60;
 	private Timer Timer { get; } = new(TimeSpan.FromSeconds(63));
-	private bool _useCli = false; // For testing on debug
+	private bool _useCli = true; // For testing on debug
 
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
 		= new(25, x => x.MessageId);

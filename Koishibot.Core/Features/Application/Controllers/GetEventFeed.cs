@@ -123,7 +123,7 @@ public static class GetEventFeedExtensions
 		list.AddRange(subs);
 		list.AddRange(giftsub);
 		list.AddRange(pointRedemption);
-		var updatedList = list.OrderByDescending(x => x.Timestamp).ToList();
+		var updatedList = list.OrderBy(x => x.Timestamp).ToList();
 		return updatedList;
 	}
 }
