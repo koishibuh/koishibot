@@ -51,7 +51,7 @@ public static class DatabaseExtensions
 	{
 		var result = await database.ChannelPointRedemptions
 				.Where(p => p.ChannelPointRewardId == rewardId
-						&& p.RedeemedAt.Date == DateTime.UtcNow.Date
+						&& p.Timestamp.Date == DateTime.UtcNow.Date
 						&& p.WasSuccesful == true)
 				.FirstOrDefaultAsync();
 

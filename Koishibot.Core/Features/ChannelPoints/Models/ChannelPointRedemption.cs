@@ -13,7 +13,7 @@ public class ChannelPointRedemption : IEntity
 {
 	public int Id { get; set; }
 	public int ChannelPointRewardId { get; set; }
-	public DateTimeOffset RedeemedAt { get; set; }
+	public DateTimeOffset Timestamp { get; set; }
 	public int UserId { get; set; }
 	public bool WasSuccesful { get; set; }
 	public ChannelPointReward ChannelPointReward { get; set; } = null!;
@@ -24,7 +24,7 @@ public class ChannelPointRedemption : IEntity
 			TwitchUser user, DateTimeOffset redeemedAt, bool wasSuccesful)
 	{
 		ChannelPointRewardId = reward.Id;
-		RedeemedAt = redeemedAt;
+		Timestamp = redeemedAt;
 		UserId = user.Id;
 		WasSuccesful = wasSuccesful;
 		return this;
@@ -48,7 +48,7 @@ public class ChannelPointRedemptionConfig
 
 		builder.Property(p => p.ChannelPointRewardId);
 
-		builder.Property(p => p.RedeemedAt);
+		builder.Property(p => p.Timestamp);
 
 		builder.Property(p => p.UserId);
 

@@ -104,7 +104,7 @@ ISignalrService Signalr
 		var redemption = new ChannelPointRedemption()
 		{
 			ChannelPointRewardId = channelPointReward.Id,
-			RedeemedAt = command.E.RedeemedAt,
+			Timestamp = command.E.RedeemedAt,
 			UserId = user.Id,
 			WasSuccesful = true
 		};

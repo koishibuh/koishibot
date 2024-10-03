@@ -139,7 +139,7 @@ AutomaticRewardRedemptionEvent args
 		new()
 		{
 			ChannelPointRewardId = id,
-			RedeemedAt = args.RedeemedAt,
+			Timestamp = args.RedeemedAt,
 			UserId = user.Id,
 			WasSuccesful = true
 		};

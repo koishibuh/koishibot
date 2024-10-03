@@ -100,14 +100,14 @@ public class ChannelPointRewardTests : IClassFixture<KoishibotDbContext>
 				new()
 				{
 					ChannelPointRewardId = 1,
-					RedeemedAt = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(-5),
+					Timestamp = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(-5),
 					UserId = 1,
 					WasSuccesful = false
 				},
 				new()
 				{
 					ChannelPointRewardId = 1,
-					RedeemedAt = DateTimeOffset.UtcNow,
+					Timestamp = DateTimeOffset.UtcNow,
 					UserId = 1,
 					WasSuccesful = false
 				}

@@ -103,18 +103,18 @@ public static class GetEventFeedExtensions
 			})
 			.ToListAsync();
 
-		// var pointRedemption = await database.ChannelPointRedemptions
-		// 	.AsNoTracking()
-		// 	.Include(x => )
-		// 	.OrderByDescending(f => f.Timestamp)
-		// 	.Take(50)
-		// 	.Select(f => new StreamEventVm
-		// 	{
-		// 		EventType = StreamEventType.Sub,
-		// 		Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
-		// 		Message = $"{f.TwitchUser.Name} has gifted {f.Total} {f.Tier} subs!"
-		// 	})
-		// 	.ToListAsync();
+		var pointRedemption = await database.ChannelPointRedemptions
+			.AsNoTracking()
+			.Include(x => x.TwitchUser)
+			.OrderByDescending(x => x.Timestamp)
+			.Take(50)
+			.Select(x => new StreamEventVm
+			{
+				EventType = StreamEventType.ChannelPoint,
+				Timestamp = x.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+				Message = $"{x.TwitchUser.Name} has redeemed {x.ChannelPointReward.Title}"
+			})
+			.ToListAsync();
 
 		var list = new List<StreamEventVm>();
 		list.AddRange(follows);
@@ -122,6 +122,7 @@ public static class GetEventFeedExtensions
 		list.AddRange(cheers);
 		list.AddRange(subs);
 		list.AddRange(giftsub);
+		list.AddRange(pointRedemption);
 		var updatedList = list.OrderByDescending(x => x.Timestamp).ToList();
 		return updatedList;
 	}
