@@ -7,62 +7,86 @@ using Koishibot.Core.Services.TwitchApi.Models;
 namespace Koishibot.Core.Features.Shoutouts;
 
 public record PromoVideoService(
-		IOptions<Settings> Settings,
-		ITwitchApiRequest TwitchApiRequest
-		//IPromoVideoApi PromoVideoApi
-		) : IPromoVideoService
+ITwitchApiRequest TwitchApiRequest
+//IPromoVideoApi PromoVideoApi
+) : IPromoVideoService
 {
 	public async Task<string?> Start(TwitchUser user)
 	{
-		var videoUrl = "https://player.twitch.tv/?muted=false&parent=twitch.tv&video=";
+		const string videoUrl = "https://player.twitch.tv/?muted=false&parent=twitch.tv&video=";
 
 		await Task.Delay(300);
 
+		var channelTrailer = await GetChannelTrailer(user.TwitchId);
+		if (channelTrailer is not null)
+		{
+			return $"{videoUrl}{channelTrailer}";
+		}
 
+		await Task.Delay(300);
+
+		var recentVod = await GetRecentVod(user.TwitchId);
+		if (recentVod is not null)
+		{
+			return $"{videoUrl}{recentVod}";
+		}
+
+		await Task.Delay(300);
+
+		var recentTopClip = await GetRecentTopClip(user.TwitchId);
+
+		return recentTopClip
+			?? null;
+	}
+
+	/*═════════════【】═════════════*/
+	private async Task<string?> GetChannelTrailer(string userId)
+	{
 		var parameters = new GetVideosRequestParameters
 		{
-			BroadcasterId = user.TwitchId,
+			BroadcasterId = userId,
 			ItemsPerPage = "20",
 			VideoType = VideoType.Upload
 		};
 		var channelTrailer = await TwitchApiRequest.GetVideos(parameters);
-		var channelTrailerResult = channelTrailer.FindChannelTrailerUrl();
-		if (channelTrailerResult is not null) { return $"{videoUrl}{channelTrailer}"; }
+		return channelTrailer.Data.Count == 0
+			? null
+			: channelTrailer.Data
+				.Where(t => t.Title.Contains("Channel Trailer"))
+				.Select(t => t.VideoId)
+				.FirstOrDefault();
+	}
 
-		await Task.Delay(300);
-
-		var vodparameters = new GetVideosRequestParameters
+	private async Task<string?> GetRecentVod(string userId)
+	{
+		var parameters = new GetVideosRequestParameters
 		{
-			BroadcasterId = user.TwitchId,
+			BroadcasterId = userId,
 			ItemsPerPage = "1",
 			VideoType = VideoType.Archive
 		};
 
-		var recentVod = await TwitchApiRequest.GetVideos(vodparameters);
-		if (recentVod is not null) { return $"{videoUrl}{recentVod}"; }
+		var response = await TwitchApiRequest.GetVideos(parameters);
+		return response.Data.Count == 1
+			? response.Data[0].Url
+			: null;
+	}
 
-		await Task.Delay(300);
-
+	private async Task<string?> GetRecentTopClip(string userId)
+	{
 		var dateRange = Toolbox.DateRangeOfLast30Days();
-		
-		
+
 		var clipParameters = new GetClipsRequestParameters
 		{
-			BroadcasterId = user.TwitchId,
+			BroadcasterId = userId,
 			StartedAt = dateRange[0],
 			EndedAt = dateRange[1],
 			ResultsPerPage = 1
 		};
 
 		var clip = await TwitchApiRequest.GetClips(clipParameters);
-		var clipresult = clip.GetTopClip();
-
-		if (clipresult is not null) { return clipresult; }
-
-
-
-		return null;
+		return clip.Data.Count == 1
+			? clip.Data[0].ClipUrl
+			: null;
 	}
-
-
 }

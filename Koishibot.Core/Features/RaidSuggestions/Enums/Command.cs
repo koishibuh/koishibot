@@ -1,11 +1,16 @@
 ﻿namespace Koishibot.Core.Features.RaidSuggestions.Enums;
+
 public class Command
 {
+	// Raid
+	/// <summary> Username, Title, Category </summary>
+	public const string RaidReceived = "raid-received";
+
 	// Poll
 	/// <summary> Title, Winner </summary>
 	public const string PollWinner = "poll-winner";
 	public const string PollCancelled = "poll-cancelled";
-	
+
 	// OpenRaidSuggestionsHandler
 
 	public const string SuggestionsNowOpen = "raidsuggestion-nowopen";
@@ -18,7 +23,7 @@ public class Command
 
 	// RaidSuggestionValidation
 
-	public const string CantSuggestMe  = "raidsuggestion-me";
+	public const string CantSuggestMe = "raidsuggestion-me";
 	public const string DupeSuggestion = "raidsuggestion-dupe";
 	public const string NotValidUser = "raidsuggestion-invaliduser";
 	public const string StreamerOffline = "raidsuggestion-offline";

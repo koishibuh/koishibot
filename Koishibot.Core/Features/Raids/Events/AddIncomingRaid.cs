@@ -1,74 +1,105 @@
-﻿using Koishibot.Core.Features.Common.Models;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Raids.Interfaces;
+using Koishibot.Core.Features.Raids.Models;
+using Koishibot.Core.Features.RaidSuggestions.Enums;
+using Koishibot.Core.Features.StreamInformation.Models;
+using Koishibot.Core.Features.StreamInformation.ViewModels;
 using Koishibot.Core.Features.TwitchUsers.Interfaces;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Raids;
-using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
 
 namespace Koishibot.Core.Features.Raids.Events;
-
-// == ⚫ COMMAND == //
-
-public record IncomingRaidCommand(
-RaidEvent args
-) : IRequest;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record AddIncomingRaidHandler(
 IOptions<Settings> Settings,
 ITwitchApiRequest TwitchApiRequest,
-ITwitchIrcService BotIrc,
 ITwitchUserHub TwitchUserHub,
 ISignalrService Signalr,
-//IShoutoutApi ShoutoutApi,
-IAppCache Cache,
 KoishibotDbContext Database,
-IPromoVideoService PromoVideoService
+IPromoVideoService PromoVideoService,
+IChatReplyService ChatReplyService
 ) : IRequestHandler<IncomingRaidCommand>
 {
 	public async Task Handle(IncomingRaidCommand command, CancellationToken cancellationToken)
 	{
-		var e = new TwitchUserDto(command.args.FromBroadcasterId, command.args.FromBroadcasterLogin,
-		command.args.FromBroadcasterName);
+		var userDto = command.CreateUserDto();
+		var user = await TwitchUserHub.Start(userDto);
 
-		// do obs things 
+		await SendShoutout(user.TwitchId);
 
-		// send link to client through signalR
+		var videoUrl = await PromoVideoService.Start(user);
+		if (videoUrl is not null)
+		{
+			await Signalr.SendPromoVideoUrl(videoUrl);
+		}
 
-		// TODO: handle linkydo on the client
+		// TODO: Figure out setup in OBS
+		// Check if OBS has a way to open interact window for video
+		// Overlay have follow clicky animation after shoutout
 
-		var user = await TwitchUserHub.Start(e);
+		// Get Streamer Info for chat message
 
-		//var stream = await ShoutoutApi.GetStreamInfo(user.TwitchId);
+		var streamInfo = await GetStreamInfo(user.TwitchId);
 
-		//var videoUrl = await PromoVideoService.Start(user);
-		//if (videoUrl is not null)
-		//{
-		//	await Signalr.SendPromoVideoUrl(videoUrl);
-		//}
+		// Add category to database
+		await Database.GetStreamCategoryId(streamInfo.Category, streamInfo.CategoryId);
 
-		//await ShoutoutApi.SendShoutout(user.TwitchId);
-		//await BotIrc.RaidedBy(stream);
+		await ChatReplyService.App(Command.RaidReceived);
 
-		//var streamId = Cache.GetCurrentStreamId();
+		var incomingRaid = new IncomingRaid
+		{
+			Timestamp = DateTimeOffset.UtcNow,
+			RaidedByUserId = user.Id,
+			ViewerCount = command.args.ViewerCount
+		};
 
-		//IncomingRaid raid = new();
-		//raid.Set(streamId, user.Id, command.args.ViewerCount);
-		//await Database.AddRaid(raid);
+		await Database.UpdateEntry(incomingRaid);
 
-		//var raidVm = raid.ConvertToModel();
-		//Cache.AddStreamEvent(raidVm);
-		//await Signalr.SendStreamEvent(raidVm);
+		var vm = incomingRaid.CreateVm();
+		await Signalr.SendStreamEvent(vm);
+	}
+
+	/*══════════════════【】═════════════════*/
+	private async Task SendShoutout(string streamerId)
+	{
+		var parameters = new SendShoutoutParameters
+		{
+			FromBroadcasterId = Settings.Value.StreamerTokens.UserId,
+			ToBroadcasterId = streamerId,
+			ModeratorId = Settings.Value.StreamerTokens.UserId
+		};
+
+		await TwitchApiRequest.SendShoutout(parameters);
+	}
+
+	private async Task<StreamInfoVm?> GetStreamInfo(string userId)
+	{
+		var parameters = new GetChannelInfoQueryParameters
+		{
+			BroadcasterIds = [userId]
+		};
+
+		var response = await TwitchApiRequest.GetChannelInfo(parameters);
+		if (response.IsEmpty())
+		{
+			// do a thing
+			return null;
+		}
+		var stream = response[0];
+		return new StreamInfoVm(stream.StreamTitle, stream.CategoryName, stream.CategoryId);
 	}
 }
 
-// == ⚫ CHAT REPLY  == //
-public static class IncomingRaidChatReply
+/*═══════════════════【 COMMAND 】═══════════════════*/
+public record IncomingRaidCommand(RaidEvent args) : IRequest
 {
-	public static async Task RaidedBy(this ITwitchIrcService botIrc, StreamInfo e)
-	{
-		await botIrc.BotSend($"We've been raided by {e.Streamer.Name} who was streaming {e.StreamTitle} ({e.Category})");
-	}
+	public TwitchUserDto CreateUserDto() => new(
+		args.FromBroadcasterId,
+		args.FromBroadcasterLogin,
+		args.FromBroadcasterName);
 }
