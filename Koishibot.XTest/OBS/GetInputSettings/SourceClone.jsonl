@@ -1,0 +1,18 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "source-clone",
+      "inputSettings": {
+        "audio": false,
+        "clone": "\uD83D\uDDA4 Capture"
+      }
+    }
+  },
+  "op": 7
+}

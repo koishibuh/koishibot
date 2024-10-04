@@ -1,0 +1,25 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "text_gdiplus_v2",
+      "inputSettings": {
+        "font": {
+          "face": "Atkinson Hyperlegible",
+          "flags": 1,
+          "size": 85,
+          "style": "Bold"
+        },
+        "outline": true,
+        "outline_color": 4278190080,
+        "text": "BREAK"
+      }
+    }
+  },
+  "op": 7
+}

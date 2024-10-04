@@ -1,0 +1,17 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "image_source",
+      "inputSettings": {
+        "file": "D:/twitch/unsorted/graphics/obs/overlay/2024/20240627-snail.gif"
+      }
+    }
+  },
+  "op": 7
+}

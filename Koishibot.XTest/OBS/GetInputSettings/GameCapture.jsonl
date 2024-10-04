@@ -1,0 +1,20 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "game_capture",
+      "inputSettings": {
+        "allow_transparency": true,
+        "capture_cursor": false,
+        "capture_mode": "window",
+        "window": "veadotube mini (launched at 11#3A47#3A21 AM):UnityWndClass:veadotube mini.exe"
+      }
+    }
+  },
+  "op": 7
+}

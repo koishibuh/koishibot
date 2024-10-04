@@ -1,0 +1,18 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "wasapi_output_capture",
+      "inputSettings": {
+        "device_id": "{0.0.0.00000000}.{5fe34714-fb26-4b36-bbba-1c627638bf45}",
+        "use_device_timing": true
+      }
+    }
+  },
+  "op": 7
+}
