@@ -1,4 +1,5 @@
-﻿namespace Koishibot.Core.Services.OBS.Inputs;
+﻿namespace Koishibot.Core.Services.OBS.Sources;
+
 
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#openinputinteractdialog">Obs Documentation</see>

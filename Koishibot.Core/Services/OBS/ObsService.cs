@@ -9,8 +9,8 @@ using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.OBS.Authentication;
 using Koishibot.Core.Services.OBS.Common;
 using Koishibot.Core.Services.OBS.Enums;
-using Koishibot.Core.Services.OBS.Inputs;
 using Koishibot.Core.Services.OBS.Scenes;
+using Koishibot.Core.Services.OBS.Sources;
 using Koishibot.Core.Services.Websockets;
 
 namespace Koishibot.Core.Services.OBS;
@@ -79,20 +79,30 @@ IServiceScopeFactory ScopeFactory
 					{
 						case ObsRequests.GetCurrentProgramScene:
 							var currentScene = jsonObj["d"].Deserialize<RequestResponse<GetCurrentProgramSceneResponse>>(_options);
+							await Send(new GetCurrentProgramSceneCommand(currentScene.ResponseData)); // WIP
 							break;
 						case ObsRequests.GetSceneList:
 							var sceneList = jsonObj["d"].Deserialize<RequestResponse<GetSceneListResponse>>(_options);
-							await OnSceneReceived(sceneList.ResponseData);
+							await Send(new GetSceneListCommand(sceneList.ResponseData));
 							break;
+						// case ObsRequests.GetSceneItemList:
+						// 	var sceneList = jsonObj["d"].Deserialize<RequestResponse<GetSceneListResponse>>(_options);
+						// 	await OnSceneReceived(sceneList.ResponseData);
+						// 	break;
 						case ObsRequests.GetInputList:
 							var inputList = jsonObj["d"].Deserialize<RequestResponse<GetInputListResponse>>(_options);
+							await OnInputReceived(inputList.ResponseData);
 							break;
 						case ObsRequests.GetInputKindList:
-							//var inputKindList = jsonObj.Deserialize<ObsResponse<GetInputKindListResponse>>(_options);
+							var inputKindList = jsonObj.Deserialize<RequestResponse<GetInputKindListResponse>>(_options);
+							await Send(new GetInputKindListCommand(inputKindList.ResponseData));
 							break;
 						case ObsRequests.GetSceneItemList:
 							var sceneItems = jsonObj["d"].Deserialize<RequestResponse<GetSceneItemListResponse>>(_options);
+							await OnSourceListReceived(sceneItems.ResponseData);
 							break;
+						case ObsRequests.SceneItemTransformChanged:
+
 						default:
 							break;
 						// When Scene/Source is updated/removed/added
@@ -138,7 +148,6 @@ IServiceScopeFactory ScopeFactory
 			Type = ObsItemType.Scene.ToString()
 		}).ToList();
 
-		//var database = CreateScopedDatabase();
 		using var scope = ScopeFactory.CreateScope();
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
 
@@ -157,60 +166,64 @@ IServiceScopeFactory ScopeFactory
 		}
 
 		await database.SaveChangesAsync();
-
-
 		await Signalr.SendInfo(scenes[0].ObsName);
 	}
 
-	// private async Task OnSourceListReceived(GetSceneItemListResponse args)
-	// {
-	// 	var scenes = args.SceneItems.Select(x => new ObsItem
-	// 	{
-	// 		ObsId = x.SceneUuid ?? string.Empty,
-	// 		ObsName = x.SceneName ?? string.Empty,
-	// 		Type = ObsItemType.Scene.ToString()
-	// 	}).ToList();
-	//
-	// 	//var database = CreateScopedDatabase();
-	// 	using var scope = ScopeFactory.CreateScope();
-	// 	var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-	//
-	// 	foreach (var scene in scenes)
-	// 	{
-	// 		var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == scene.ObsId);
-	// 		if (result is null)
-	// 		{
-	// 			database.Add(scene);
-	// 		}
-	// 		else if (result.ObsName != scene.ObsName)
-	// 		{
-	// 			result.ObsName = scene.ObsName;
-	// 			database.Update(result);
-	// 		}
-	// 	}
-	//
-	// 	await database.SaveChangesAsync();
-	//
-	//
-	// 	await Signalr.SendInfo(scenes[0].ObsName);
-	// }
-
-	public async Task OnInputReceived(GetInputListResponse args)
+	private async Task OnSourceListReceived(GetSceneItemListResponse args)
 	{
-		var audio = args.Inputs
-			.Where(x => x.UnversionedInputKind is
-				InputTypes.AudioOutputCapture or InputTypes.AudioInputCapture)
-			.Select(x => new ObsItem
-			{
-				ObsId = x.InputUuid ?? string.Empty,
-				ObsName = x.InputName ?? string.Empty,
-				Type = ObsItemType.Audio.ToString()
-			});
+		var sources = args.SceneItems.Select(x => new ObsItem
+		{
+			ObsId = x.SceneItemId.ToString(),
+			ObsName = x.SourceName ?? string.Empty,
+			Type = ObsItemType.Source
+		}).ToList();
 
 		using var scope = ScopeFactory.CreateScope();
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
 
-		foreach (var item in audio)
+		foreach (var source in sources)
+		{
+			var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == source.ObsId);
+			if (result is null)
+			{
+				database.Add(source);
+			}
+			else if (result.ObsName != source.ObsName)
+			{
+				result.ObsName = source.ObsName;
+				database.Update(result);
+			}
+		}
+
+		await database.SaveChangesAsync();
+	}
+
+
+	public async Task OnInputReceived(GetInputListResponse args)
+	{
+		var sources = args.Inputs
+			.Select(x => new ObsItem
+			{
+				ObsId = x.InputUuid,
+				ObsName = x.InputName,
+				Type = x.InputKind
+			})
+			.ToList();
+
+		// var audio = args.Inputs
+		// 	.Where(x => x.UnversionedInputKind is
+		// 		InputTypes.AudioOutputCapture or InputTypes.AudioInputCapture)
+		// 	.Select(x => new ObsItem
+		// 	{
+		// 		ObsId = x.InputUuid ?? string.Empty,
+		// 		ObsName = x.InputName ?? string.Empty,
+		// 		Type = ObsItemType.Audio.ToString()
+		// 	});
+
+		using var scope = ScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+
+		foreach (var item in sources)
 		{
 			var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == item.ObsId);
 			if (result is null)
@@ -309,7 +322,7 @@ IServiceScopeFactory ScopeFactory
 	{
 		Log.LogError("Websocket error: {message}", message);
 		await Signalr.SendError(message.Message);
-		if (ObsWebSocket is not null && ObsWebSocket.IsDisposed is false)
+		if (ObsWebSocket?.IsDisposed is false)
 		{
 			await Disconnect();
 		}
@@ -317,8 +330,8 @@ IServiceScopeFactory ScopeFactory
 
 	private async Task Closed(WebSocketMessage message)
 	{
-		Log.LogInformation($"Websocket closed {message}");
-		if (ObsWebSocket is not null && ObsWebSocket.IsDisposed is false)
+		Log.LogInformation($"Obs Websocket closed {message.Message}");
+		if (ObsWebSocket?.IsDisposed is false)
 		{
 			await Disconnect();
 		}
@@ -327,8 +340,24 @@ IServiceScopeFactory ScopeFactory
 	public async Task Disconnect()
 	{
 		await Factory.Disconnect();
+		ObsWebSocket = null;
 		await Cache.UpdateServiceStatus(ServiceName.ObsWebsocket, Status.Offline);
 		await Signalr.SendInfo("OBS Websocket Disconnected");
+	}
+
+	public async Task Send<T>(T args)
+	{
+		try
+		{
+			using var scope = ScopeFactory.CreateScope();
+			var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+			await mediatr.Send(args);
+		}
+		catch (Exception ex)
+		{
+			Log.LogInformation($"{ex}");
+		}
 	}
 
 	private static string GetRequestType(JsonObject jsonObj) =>

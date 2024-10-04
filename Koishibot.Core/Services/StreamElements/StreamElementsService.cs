@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Features.Supports.Events;
-using Koishibot.Core.Services.StreamElements.Enums;
 using Koishibot.Core.Services.StreamElements.Models;
 using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Websockets;
@@ -11,12 +10,12 @@ namespace Koishibot.Core.Services.StreamElements;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
 public record StreamElementsService(
-	ILogger<StreamElementsService> Log,
-	IOptions<Settings> Settings,
-	IAppCache Cache,
-	ISignalrService Signalr,
-	IServiceScopeFactory ScopeFactory
-	) : IStreamElementsService
+ILogger<StreamElementsService> Log,
+IOptions<Settings> Settings,
+IAppCache Cache,
+ISignalrService Signalr,
+IServiceScopeFactory ScopeFactory
+) : IStreamElementsService
 {
 	public CancellationToken? Cancel { get; set; }
 	private WebSocketFactory Factory { get; set; } = new();
@@ -55,7 +54,7 @@ public record StreamElementsService(
 
 			else if (message.IsAuthenticated())
 			{
-				_eventSet.Add(new StreamElementsEvent{ CreatedAt = DateTimeOffset.UtcNow });
+				_eventSet.Add(new StreamElementsEvent { CreatedAt = DateTimeOffset.UtcNow });
 				await Cache.UpdateServiceStatus(ServiceName.StreamElements, Status.Online);
 				StartKeepaliveTimer();
 			}
@@ -117,8 +116,8 @@ public record StreamElementsService(
 
 	private async Task Closed(WebSocketMessage message)
 	{
-		Log.LogInformation($"Websocket closed {message}");
-		if (StreamElementsWebSocket is not null && StreamElementsWebSocket.IsDisposed is false)
+		Log.LogInformation($"StreamElements Websocket closed {message.Message}");
+		if (StreamElementsWebSocket?.IsDisposed is false)
 		{
 			await Disconnect();
 		}

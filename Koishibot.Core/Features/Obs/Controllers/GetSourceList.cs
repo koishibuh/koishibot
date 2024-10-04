@@ -1,3 +1,6 @@
+using Koishibot.Core.Exceptions;
+using Koishibot.Core.Features.Common;
+using Koishibot.Core.Persistence.Cache.Enums;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.OBS.Common;
 using Koishibot.Core.Services.OBS.Scenes;
@@ -9,7 +12,6 @@ namespace Koishibot.Core.Features.Obs.Controllers;
 public class GetSceneItemsController : ApiControllerBase
 {
 	[SwaggerOperation(Tags = ["Obs"])]
-	[AllowAnonymous]
 	[HttpGet("scene-items")]
 	public async Task<ActionResult> GetSceneItems()
 	{
@@ -20,12 +22,17 @@ public class GetSceneItemsController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetSourceListHandler(
-IObsService ObsService
+IObsService ObsService,
+IAppCache Cache
 ) : IRequestHandler<GetSceneItemsQuery>
 {
 	public async Task Handle(GetSceneItemsQuery query, CancellationToken cancel)
 	{
-		// TODO: Check if OBS is connected first
+		var result = Cache.GetStatusByServiceName(ServiceName.ObsWebsocket);
+		if (result is false)
+		{
+			throw new CustomException("ObsWebsocket not connected");
+		}
 
 		var request = query.CreateRequest();
 		await ObsService.SendRequest(request);
@@ -43,7 +50,7 @@ public record GetSceneItemsQuery : IRequest
 			RequestId = new Guid(),
 			RequestData = new GetSceneItemListRequest
 			{
-				SceneUuid = "bc7908df-6e98-41ec-b79b-3378d198bb12"
+				SceneUuid = ""
 			}
 		};
 

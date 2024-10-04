@@ -1,6 +1,5 @@
 ﻿using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.OBS.Common;
-
 namespace Koishibot.Core.Features.Obs.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
@@ -29,10 +28,10 @@ IObsService ObsService
 	{
 		var request = new ObsRequest
 		{
-		Data = new RequestWrapper
-		{
-		RequestType = ObsRequests.GetInputList
-		}
+			Data = new RequestWrapper
+			{
+				RequestType = ObsRequests.GetInputList
+			}
 		};
 
 		await ObsService.SendRequest(request);

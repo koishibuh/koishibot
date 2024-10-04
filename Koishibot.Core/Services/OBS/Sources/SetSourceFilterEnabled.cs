@@ -1,5 +1,6 @@
 ﻿namespace Koishibot.Core.Services.OBS.Sources;
 
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#setsourcefilterenabled">Obs Documentation</see>
 /// </summary>
