@@ -102,6 +102,11 @@ const router = createRouter({
       component: () => import('@/dandle/DandleOverlay.vue')
     },
     {
+      path: '/overlay/raidshoutout',
+      name: 'RaidShoutout',
+      component: () => import('@/raids/RaidShoutoutOverlay.vue')
+    },
+    {
       path: '/',
       name: 'Login',
       component: () => import('@/login/LoginPage.vue')
