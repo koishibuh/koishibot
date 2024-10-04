@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Koishibot.Core.Features.AdBreak.Events;
+﻿using Koishibot.Core.Features.AdBreak.Events;
 using Koishibot.Core.Features.ChannelPoints.Events;
 using Koishibot.Core.Features.ChatMessages.Events;
 using Koishibot.Core.Features.Moderation;
@@ -53,7 +52,7 @@ public record TwitchEventSubService(
 IAppCache Cache,
 IOptions<Settings> Settings,
 IServiceScopeFactory ScopeFactory,
-ISignalrService SignalrService,
+ISignalrService Signalr,
 ILogger<TwitchEventSubService> Log,
 ITwitchApiRequest TwitchApiRequest
 ) : ITwitchEventSubService
@@ -65,6 +64,8 @@ ITwitchApiRequest TwitchApiRequest
 	private int? _timeoutSeconds = 60;
 	private Timer Timer { get; } = new(TimeSpan.FromSeconds(63));
 	private bool _useCli = true; // For testing on debug
+	private TaskCompletionSource? _reconnectCompleted;
+	private readonly object _lock = new object();
 
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
 		= new(25, x => x.MessageId);
@@ -82,22 +83,16 @@ ITwitchApiRequest TwitchApiRequest
 		}
 		catch (Exception e)
 		{
-			Log.LogError("An error has occured: {e}", e);
-			await SignalrService.SendError(e.Message);
+			await Signalr.SendError(e.Message);
 			throw new CustomException(e.Message);
 		}
 	}
 
 	private async Task ProcessMessage(WebSocketMessage message)
 	{
-		// if message is event notification or keep alive, reset timer
-		// if timer has elapsed, reconnect
 		try
 		{
-			if (TwitchEventSub is null)
-			{
-				return;
-			}
+			if (TwitchEventSub is null) { return; }
 
 			if (message.IsPing())
 			{
@@ -117,63 +112,114 @@ ITwitchApiRequest TwitchApiRequest
 			switch (eventMessage.Metadata.Type)
 			{
 				case EventSubMessageType.Notification:
-					Log.LogInformation($"Twitch Notification {eventMessage.Metadata.SubscriptionType}");
-					OnEventReceived();
+					ResetKeepAliveTimer();
 					await ProcessNotificationMessage(eventMessage.Metadata.SubscriptionType, message.Message);
 					break;
+
 				case EventSubMessageType.SessionWelcome:
-					StartKeepaliveTimer();
-					await ProcessSessionWelcomeMessage(message.Message);
+					if (_reconnectCompleted is not null)
+					{
+						ResetKeepAliveTimer();
+						await WebsocketReconnected();
+					}
+					else
+					{
+						StartKeepaliveTimer();
+						await ProcessSessionWelcomeMessage(message.Message);
+					}
 					break;
+
 				case EventSubMessageType.SessionReconnect:
-					Log.LogInformation($"TwitchEventSub Reconnect Session {eventMessage.Payload.Session.ReconnectUrl}");
+					await ProcessReconnectMessage(eventMessage.Payload.Session.ReconnectUrl);
 					break;
+
 				case EventSubMessageType.SessionKeepalive:
-					// Log.LogInformation($"TwitchEventSub Keepalive {eventMessage.Metadata.Timestamp}");
-					OnEventReceived();
-					//OnKeepAliveMessage?.Invoke(eventMessage.Metadata.MessageId);
+					ResetKeepAliveTimer();
 					break;
+
 				case EventSubMessageType.Revocation:
-					Log.LogInformation($"TwitchEventSub Revoked {eventMessage.Payload.Subscription.Type}");
+					await Signalr.SendError($"TwitchEventSub Revoked {eventMessage.Payload.Subscription.Type}");
+					// TODO: Should this attempt to reconnect eventsub?
 					break;
+
 				default:
 					throw new InvalidMetadataMessageTypeException("Unsupported message type.");
 			}
 		}
 		catch (Exception e)
 		{
-			Log.LogError("An error has occured: {e}", e);
-			Log.LogError(e, "An error has occured");
-			await SignalrService.SendError(e.Message);
+			await Signalr.SendError(e.Message);
+		}
+	}
+
+	private async Task WebsocketReconnected()
+	{
+		_reconnectCompleted!.SetResult();
+		_reconnectCompleted = null;
+		await Signalr.SendLog("TwitchEventSub Websocket session reconnected");
+	}
+
+
+	private async Task ProcessReconnectMessage(string reconnectUrl)
+	{
+		await Signalr.SendLog("TwitchEventSub reconnecting Websocket session");
+
+		_reconnectCompleted = new TaskCompletionSource();
+
+		var factory = new WebSocketFactory();
+		var newWebsocket = await factory.Create(reconnectUrl, 3, ProcessMessage, Error, Closed);
+
+		await _reconnectCompleted.Task;
+
+		await DisconnectOldWebSocket();
+
+		lock (_lock)
+		{
+			TwitchEventSub = newWebsocket;
+			Factory = factory;
 		}
 	}
 
 	private async Task Error(WebSocketMessage message)
 	{
+		Timer.Stop();
+
 		Log.LogError("Websocket error: {message}", message);
-		await SignalrService.SendError(message.Message);
-		if (TwitchEventSub is not null && TwitchEventSub.IsDisposed is false)
+		await Signalr.SendError(message.Message);
+		if (TwitchEventSub?.IsDisposed is false)
 		{
 			await DisconnectWebSocket();
 		}
+
+		await CreateWebSocket();
 	}
 
 	private async Task Closed(WebSocketMessage message)
 	{
-		Log.LogInformation($"Websocket closed {message}");
-		if (TwitchEventSub is not null && TwitchEventSub.IsDisposed is false)
+		Timer.Stop();
+
+		// When websocket is closed, does not send event message
+		Log.LogInformation($"TwitchEventSub Websocket closed: {message.Message}");
+		if (TwitchEventSub?.IsDisposed is false)
 		{
 			await DisconnectWebSocket();
 		}
+
+		await CreateWebSocket();
 	}
 
 	public async Task DisconnectWebSocket()
 	{
 		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Offline);
 		await Factory.Disconnect();
-		await SignalrService.SendInfo("TwitchEventSub Websocket Disconnected");
+		await Signalr.SendLog("TwitchEventSub Websocket disconnected");
 	}
 
+	private async Task DisconnectOldWebSocket()
+	{
+		await Factory.Disconnect();
+		await Signalr.SendLog("TwitchEventSub old Websocket session disconnected");
+	}
 
 	private async Task ProcessSessionWelcomeMessage(string message)
 	{
@@ -181,7 +227,11 @@ ITwitchApiRequest TwitchApiRequest
 		var eventMessage = JsonSerializer.Deserialize<EventMessage<object>>(message);
 		var sessionId = eventMessage.Payload.Session.Id;
 
-		if (_useCli) return; // Testing
+		if (_useCli) // Testing
+		{
+			await Signalr.SendInfo($"TwitchEventSub Websocket connected {sessionId}");
+			return;
+		}
 
 		var eventsToSubscribeTo = Settings.Value.DebugMode
 			? TwitchApiHelper.DebugSubscribeToEvents()
@@ -195,8 +245,7 @@ ITwitchApiRequest TwitchApiRequest
 		_timeoutSeconds = eventMessage.Payload.Session.KeepAliveTimeoutSeconds;
 		StartKeepaliveTimer();
 		await Cache.UpdateServiceStatus(ServiceName.TwitchWebsocket, Status.Online);
-		await SignalrService.SendInfo("TwitchEventSub Websocket Connected");
-
+		await Signalr.SendInfo($"TwitchEventSub Websocket connected {sessionId}");
 	}
 
 
@@ -209,7 +258,7 @@ ITwitchApiRequest TwitchApiRequest
 				await Send(new StreamOnlineCommand(streamOnline.Payload.Event));
 				break;
 			case EventSubSubscriptionType.StreamOffline:
-				var streamOffline = JsonSerializer.Deserialize<EventMessage<StreamOfflineEvent>>(message);
+				// var streamOffline = JsonSerializer.Deserialize<EventMessage<StreamOfflineEvent>>(message);
 				await Send(new StreamOfflineCommand());
 				break;
 			case EventSubSubscriptionType.ChannelUpdate:
@@ -466,7 +515,7 @@ ITwitchApiRequest TwitchApiRequest
 		}
 	}
 
-	public async Task Send<T>(T args)
+	private async Task Send<T>(T args)
 	{
 		try
 		{
@@ -492,13 +541,13 @@ ITwitchApiRequest TwitchApiRequest
 		Timer.Start();
 	}
 
-	private void OnEventReceived()
+	private void ResetKeepAliveTimer()
 	{
 		Timer.Stop();
 		Timer.Start();
 	}
 
-	public CreateEventSubSubscriptionRequestBody CreateEventSubRequest
+	private CreateEventSubSubscriptionRequestBody CreateEventSubRequest
 		(EventSubSubscriptionType type, string sessionId)
 	{
 		var streamerId = Settings.Value.StreamerTokens.UserId;

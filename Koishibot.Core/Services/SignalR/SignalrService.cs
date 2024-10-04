@@ -1,6 +1,7 @@
 ﻿using Koishibot.Core.Features.AdBreak.Models;
 using Koishibot.Core.Features.Application.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
@@ -18,21 +19,21 @@ ILogger<SignalrService> Log
 	public async Task SendInfo(string message)
 	{
 		Log.LogInformation(message);
-		var log = new LogVm(message, "Info");
+		var log = new LogVm(message, "Info", Toolbox.CreateUITimestamp());
 		await HubContext.Clients.All.ReceiveInfo(log);
 	}
 
 	public async Task SendError(string message)
 	{
 		Log.LogError(message);
-		var log = new LogVm(message, "Error");
+		var log = new LogVm(message, "Error", Toolbox.CreateUITimestamp());
 		await HubContext.Clients.All.ReceiveError(log);
 	}
 
 	public async Task SendLog(string message)
 	{
 		Log.LogInformation(message);
-		var log = new LogVm(message, "Info");
+		var log = new LogVm(message, "Info", Toolbox.CreateUITimestamp());
 		await HubContext.Clients.All.ReceiveLog(log);
 	}
 

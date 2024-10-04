@@ -10,6 +10,7 @@ Func<WebSocketMessage, Task> onError,
 Func<WebSocketMessage, Task> onClosed
 ) : IDisposable
 {
+	public Guid Id { get; } = Guid.NewGuid();
 	public bool IsDisposed { get; private set; }
 	private CancellationTokenSource CancelSource = new();
 
@@ -35,13 +36,13 @@ Func<WebSocketMessage, Task> onClosed
 					case { MessageType: WebSocketMessageType.Text }:
 					{
 						var message = Encoding.UTF8.GetString(memoryStream.ToArray());
-						await onMessageReceived.Invoke(new WebSocketMessage(message));
+						await onMessageReceived.Invoke(new WebSocketMessage(Id, message));
 						break;
 					}
 					case { MessageType: WebSocketMessageType.Close }:
 					{
 						var message = $"{result.CloseStatus}: {result.CloseStatusDescription}";
-						await onClosed.Invoke(new WebSocketMessage(message));
+						await onClosed.Invoke(new WebSocketMessage(Id, message));
 						return;
 					}
 				}
@@ -54,14 +55,14 @@ Func<WebSocketMessage, Task> onClosed
 		catch (WebSocketException e)
 		{
 			var error = e.WebSocketErrorCode.ToString();
-			await onError.Invoke(new WebSocketMessage(error));
+			await onError.Invoke(new WebSocketMessage(Id, error));
 		}
 		catch (OperationCanceledException)
 		{
 		}
 		catch (Exception e)
 		{
-			await onError.Invoke(new WebSocketMessage($"Unexpected error: {e.Message}"));
+			await onError.Invoke(new WebSocketMessage(Id, $"Unexpected error: {e.Message}"));
 		}
 	}
 

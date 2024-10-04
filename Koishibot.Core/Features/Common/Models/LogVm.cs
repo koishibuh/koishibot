@@ -3,11 +3,14 @@
 public record LogVm(
 	string Message, 
 	string Level,
-	DateTime Timestamp
+	string Timestamp
 	)
 {
-	public LogVm(string Message, string Level, DateTime? Timestamp = null)
-		: this(Message, Level, Timestamp ?? DateTime.UtcNow) { }
+	// public LogVm(string Message, string Level, string? Timestamp = null)
+	// 	: this(Message, Level, Timestamp ?? Toolbox.CreateUITimestamp()) { }
+
+	// public LogVm(string Message, string Level, DateTime? Timestamp = null)
+	// 	: this(Message, Level, Timestamp ?? DateTime.UtcNow) { }
 };
 
 

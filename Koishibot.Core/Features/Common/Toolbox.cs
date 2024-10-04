@@ -106,4 +106,6 @@ public static class Toolbox
 
 	public static string CreateUITimestamp() =>
 		(DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm");
+
+	public static string ShortGuid(Guid id) => id.ToString().Substring(0, 4);
 }

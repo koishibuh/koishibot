@@ -21,8 +21,7 @@ IServiceScopeFactory ScopeFactory
 	private WebSocketFactory Factory { get; set; } = new();
 	public WebSocketHandler? StreamElementsWebSocket { get; set; }
 
-	private Timer _keepaliveTimer;
-	private int _keepaliveTimeoutSeconds = 25;
+	private Timer _keepaliveTimer { get; } = new(TimeSpan.FromSeconds(25));
 
 	private readonly LimitedSizeHashSet<StreamElementsEvent, string> _eventSet
 		= new(10, x => x.Id);
@@ -126,7 +125,6 @@ IServiceScopeFactory ScopeFactory
 	private async Task Disconnect()
 	{
 		_keepaliveTimer.Stop();
-		_keepaliveTimer.Dispose();
 		await Factory.Disconnect();
 		await Cache.UpdateServiceStatus(ServiceName.StreamElements, Status.Offline);
 		await Signalr.SendInfo("StreamElements Websocket Disconnected");
@@ -150,11 +148,11 @@ IServiceScopeFactory ScopeFactory
 
 	private void StartKeepaliveTimer()
 	{
-		_keepaliveTimer = new Timer(TimeSpan.FromSeconds(_keepaliveTimeoutSeconds));
 		_keepaliveTimer.Elapsed += async (_, _) =>
 		{
 			await SendPong();
 		};
+
 		_keepaliveTimer.Start();
 	}
 }
