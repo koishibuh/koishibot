@@ -12,9 +12,12 @@ int RemainingPrerollFreeTimeInSeconds
 	/// <summary>
 	/// Offset by 1 minute 
 	/// </summary>
-	public TimeSpan CalculateAdjustedTimeUntilNextAd() =>
-		NextAdScheduledAt.HasValue
-			? NextAdScheduledAt.Value - DateTimeOffset.UtcNow.AddMinutes(-1)
+	public TimeSpan CalculateAdjustedTimeUntilNextAd()
+	{
+		var time = NextAdScheduledAt.Value.AddMinutes(-1);
+
+		return NextAdScheduledAt.HasValue
+			? time - DateTimeOffset.Now
 			: throw new InvalidOperationException("NextAdScheduledAt is null");
-			// : TimeSpan.Zero;
+	}
 }
