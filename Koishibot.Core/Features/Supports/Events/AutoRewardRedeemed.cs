@@ -5,7 +5,7 @@ using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Supports.Models;
-using Koishibot.Core.Features.TwitchUsers.Interfaces;
+using Koishibot.Core.Features.TwitchUsers;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.Enums;

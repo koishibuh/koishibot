@@ -6,7 +6,7 @@ using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Enums;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.StreamInformation.ViewModels;
-using Koishibot.Core.Features.TwitchUsers.Interfaces;
+using Koishibot.Core.Features.TwitchUsers;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Raids;

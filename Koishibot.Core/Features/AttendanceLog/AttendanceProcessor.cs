@@ -11,13 +11,14 @@ using Koishibot.Core.Persistence.Cache.Enums;
 
 namespace Koishibot.Core.Features.AttendanceLog;
 
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record AttendanceProcessor(
 KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
 IAppCache Cache
 ) : IAttendanceProcessor
 {
-	public async Task Start(TwitchUser user)
+	public async Task Start(TwitchUser user, bool isFollow)
 	{
 		if (user.IsIgnored()) return;
 
@@ -38,8 +39,8 @@ IAppCache Cache
 			if (attendance.WasAlreadyRecordedToday(session.LastMandatorySessionId)) return;
 
 			attendance
-			.UpdateStreakCount(session.LastMandatorySessionId)
-			.SetLastUpdatedDate(session.LastMandatorySessionId);
+				.UpdateStreakCount(session.LastMandatorySessionId)
+				.SetLastUpdatedDate(session.LastMandatorySessionId);
 
 			await Database.UpdateAttendance(attendance);
 
@@ -50,7 +51,9 @@ IAppCache Cache
 			}
 			else if (attendance.NewStreakStarted())
 			{
-				var data = new { User = user.Name };
+				var data = isFollow
+					? new { User = user.Name }
+					: new { User = "Thanks for following, " };
 				await ChatReplyService.App(Command.StreakStarted, data);
 			}
 			else
@@ -60,4 +63,10 @@ IAppCache Cache
 			}
 		}
 	}
+}
+
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+public interface IAttendanceProcessor
+{
+	Task Start(TwitchUser user, bool isFollow);
 }

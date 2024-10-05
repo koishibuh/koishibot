@@ -1,4 +1,4 @@
-﻿using Koishibot.Core.Features.TwitchUsers.Interfaces;
+﻿using Koishibot.Core.Features.TwitchUsers;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Predictions;
 
