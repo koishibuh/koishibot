@@ -63,25 +63,29 @@ IDandleService DandleService
 
 	private async Task StartNextRound(DandleGame dandleInfo)
 	{
-		var scores = dandleInfo.UserPoints
-			.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-			.ToList();
+		var scores = dandleInfo.CreateDandleUserVmList();
 
-		foreach (var score in scores)
-		{
-			Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
-		}
+		// foreach (var score in scores)
+		// {
+		// 	Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
+		// }
 
 		await Signalr.SendDandleScore(scores);
 
-		dandleInfo.GameRound++;
+		dandleInfo.IncreaseGameRound();
 
 		Cache.UpdateDandle(dandleInfo);
-		await Task.Delay(TimeSpan.FromSeconds(5));
 
+		var timer = Toolbox.CreateTimer(5, AnnounceGuessOpen);
+		timer.Start();
+	}
 
+	private async void AnnounceGuessOpen()
+	{
 		await Signalr.SendDandleTimer(new DandleTimerVm("!Guess A Word", 0, 0));
 		Cache.OpenDandleSuggestions();
+
+		var dandleInfo = Cache.GetDandleInfo();
 
 		var data = new NumberData(dandleInfo.GameRound);
 		await ChatReplyService.App(Command.NextRound, data);
@@ -89,18 +93,15 @@ IDandleService DandleService
 
 	private async Task GameLost(DandleGame dandleInfo)
 	{
-
 		// game lost
 		// display score
 		// add bonus points
-		var scores = dandleInfo.UserPoints
-			.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-			.ToList();
+		var scores = dandleInfo.CreateDandleUserVmList();
 
-		foreach (var score in scores)
-		{
-			Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
-		}
+		// foreach (var score in scores)
+		// {
+		// 	Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
+		// }
 
 		await Signalr.SendDandleScore(scores);
 		await Signalr.SendDandleTimer(new DandleTimerVm("Better luck next time!", 0, 0));
@@ -121,14 +122,12 @@ IDandleService DandleService
 		// display score
 		// add bonus points
 
-		var scores = dandleInfo.UserPoints
-			.Select(x => new DandleUserVm(x.UserId, x.Username, x.Points, x.BonusPoints))
-			.ToList();
+		var scores = dandleInfo.CreateDandleUserVmList();
 
-		foreach (var score in scores)
-		{
-			Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
-		}
+		// foreach (var score in scores)
+		// {
+		// 	Log.LogInformation($"{score.Username}: {score.Points} | {score.BonusPoints}");
+		// }
 
 		await Signalr.SendDandleScore(scores);
 		await Signalr.SendDandleTimer(new DandleTimerVm("Solved!", 0, 0));
@@ -157,24 +156,23 @@ IDandleService DandleService
 		// for each matching letter
 		for (int i = Math.Min(guessedWord.Count, targetWord.Count) - 1; i >= 0; i--)
 		{
-			if (guessedWord[i].Letter == targetWord[i].Letter)
-			{
-				guessedWord[i].PointValue = 2;
-				targetWord[i].PointValue = 0;
+			if (guessedWord[i].Letter != targetWord[i].Letter) continue;
 
-				scoredTargetLetters.Add(targetWord[i]);
-				scoredGuessedLetters.Add(guessedWord[i]);
+			guessedWord[i].PointValue = 2;
+			targetWord[i].PointValue = 0;
 
-				guessedWord.RemoveAt(i);
-				targetWord.RemoveAt(i);
-			}
+			scoredTargetLetters.Add(targetWord[i]);
+			scoredGuessedLetters.Add(guessedWord[i]);
+
+			guessedWord.RemoveAt(i);
+			targetWord.RemoveAt(i);
 		}
 
 		// Score remaining letters
 
-		for (int k = guessedWord.Count - 1; k >= 0; k--)
+		for (var k = guessedWord.Count - 1; k >= 0; k--)
 		{
-			for (int j = targetWord.Count - 1; j >= 0; j--)
+			for (var j = targetWord.Count - 1; j >= 0; j--)
 			{
 				if (guessedWord[k].Letter == targetWord[j].Letter)
 				{
@@ -196,13 +194,10 @@ IDandleService DandleService
 					targetWord.RemoveAt(j);
 					break;
 				}
-				if (j == 0)
-				{
-					scoredGuessedLetters.Add(guessedWord[k]);
-					guessedWord.RemoveAt(k);
-					//scoredTargetLetters.Add(targetWord[j]);
-					//targetWord.RemoveAt(j);
-				}
+				if (j != 0) continue;
+
+				scoredGuessedLetters.Add(guessedWord[k]);
+				guessedWord.RemoveAt(k);
 			}
 		}
 
@@ -217,23 +212,23 @@ IDandleService DandleService
 		// for each dupeLetter
 		foreach (var dupeLetter in dupeLetterGroup)
 		{
-			for (var l = 0; l < dupeLetter.Count; l++)
+			foreach (var t in dupeLetter)
 			{
 				var yellowAssigned = false;
 				// check if there is only one letter in the target word
-				var count = scoredTargetLetters.Where(x => x.Letter == dupeLetter[l].Letter).Count();
+				var count = scoredTargetLetters.Where(x => x.Letter == t.Letter).Count();
 				if (count == 1)
 				{
 					if (yellowAssigned is false)
 					{
-						var boardColor1 = AssignColor(dupeLetter[l]);
-						var board1 = new LetterInfoVm(dupeLetter[l].Position, dupeLetter[l].Letter.ToString(), boardColor1);
+						var boardColor1 = AssignColor(t);
+						var board1 = new LetterInfoVm(t.Position, t.Letter, boardColor1);
 						boards.Add(board1);
 						yellowAssigned = true;
 					}
 					else
 					{
-						var board1 = new LetterInfoVm(dupeLetter[l].Position, dupeLetter[l].Letter.ToString(), gray);
+						var board1 = new LetterInfoVm(t.Position, t.Letter, gray);
 						boards.Add(board1);
 						yellowAssigned = true;
 					}
@@ -248,8 +243,8 @@ IDandleService DandleService
 				else
 				{
 					// assign board board
-					var boardColor = AssignColor(dupeLetter[l]);
-					var board = new LetterInfoVm(dupeLetter[l].Position, dupeLetter[l].Letter.ToString(), boardColor);
+					var boardColor = AssignColor(t);
+					var board = new LetterInfoVm(t.Position, t.Letter.ToString(), boardColor);
 					boards.Add(board);
 				}
 			}
@@ -265,11 +260,10 @@ IDandleService DandleService
 			}
 			else
 			{
-				if (keyColor != gray)
-				{
-					var key = new LetterInfoVm(0, dupeLetter[0].Letter.ToString(), keyColor);
-					keys.Add(key);
-				}
+				if (keyColor == gray) continue;
+
+				var key = new LetterInfoVm(0, dupeLetter[0].Letter.ToString(), keyColor);
+				keys.Add(key);
 			}
 		}
 
@@ -283,14 +277,14 @@ IDandleService DandleService
 			if (previousKey is not null)
 			{
 				// if target has dupes
-				var count = scoredTargetLetters.Where(x => x.Letter == letter.Letter).Count();
+				var count = scoredTargetLetters.Count(x => x.Letter == letter.Letter);
 				if (count > 1) // target word has duplicate letters but guess word only has single
 				{
 					if (previousKey.Color == blue) // if blue previously
 					{
 						if (newBoardColor == gray) // current color gray
 						{
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 							boards.Add(board);
 						}
 						else if (newBoardColor == orange) // current color orange									
@@ -298,16 +292,16 @@ IDandleService DandleService
 							var allDiscovered = scoredTargetLetters.Where(x => x.Letter == letter.Letter).Any(x => x.PointValue != 2);
 							if (!allDiscovered)
 							{
-								var key = new LetterInfoVm(letter.Position, letter.Letter.ToString(), split);
+								var key = new LetterInfoVm(letter.Position, letter.Letter, split);
 								keys.Add(key);
 							}
 
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 							boards.Add(board);
 						}
 						else // blue
 						{
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 							boards.Add(board);
 						}
 					}
@@ -315,7 +309,7 @@ IDandleService DandleService
 					{
 						if (newBoardColor == gray) // current color gray
 						{
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 							boards.Add(board);
 						}
 						else if (newBoardColor == blue) // current color blue
@@ -323,23 +317,23 @@ IDandleService DandleService
 							var allDiscovered = scoredTargetLetters.Where(x => x.Letter == letter.Letter).Any(x => x.PointValue != 2);
 							if (!allDiscovered)
 							{
-								var key = new LetterInfoVm(letter.Position, letter.Letter.ToString(), split);
+								var key = new LetterInfoVm(letter.Position, letter.Letter, split);
 								keys.Add(key);
 							}
 							else
 							{
-								var key = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+								var key = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 								keys.Add(key);
 							}
 
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 							boards.Add(board);
 
 						}
 					}
 					else if (previousKey.Color == split) // if split previously
 					{
-						var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+						var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 						boards.Add(board);
 					}
 				}
@@ -349,36 +343,36 @@ IDandleService DandleService
 					{
 						if (newBoardColor == gray) // current color gray
 						{
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), previousKey.Color);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, previousKey.Color);
 							boards.Add(board);
 						}
 						else if (newBoardColor == blue) // current color blue
 						{
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 							boards.Add(board);
 							keys.Add(board);
 						}
 						else
 						{
-							var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+							var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 							boards.Add(board);
 						}
 					}
 					else if (previousKey.Color == blue) // if blue previously
 					{
-						var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+						var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 						boards.Add(board);
 					}
 					else
 					{
-						var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+						var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 						boards.Add(board);
 					}
 				}
 			}
 			else
 			{
-				var board = new LetterInfoVm(letter.Position, letter.Letter.ToString(), newBoardColor);
+				var board = new LetterInfoVm(letter.Position, letter.Letter, newBoardColor);
 				boards.Add(board);
 				keys.Add(board);
 			}
@@ -402,7 +396,7 @@ IDandleService DandleService
 		{
 			chatWord += board.Letter.ToUpper();
 
-			if (_colorEmoji.TryGetValue(board.Color, out string? emoji))
+			if (_colorEmoji.TryGetValue(board.Color, out var emoji))
 			{
 				chatColorBlock += emoji;
 			}
@@ -437,100 +431,65 @@ IDandleService DandleService
 		return dandleInfo;
 	}
 
-	public DandleGame ProcessGuessedWord(DandleGame dandleInfo)
+	private DandleGame ProcessGuessedWord(DandleGame dandleInfo)
 	{
 		// For each user who voted for the winning suggestion guess
 		foreach (var voter in dandleInfo.CurrentGuessedWord.Voters)
 		{
 			var user = dandleInfo.GetDandleUserPoints(voter);
-
-			// target word
 			var targetWord = dandleInfo.GetTargetWord();
-
-			// guessed word
 			var guessedWord = dandleInfo.CurrentGuessedWord?.GetGuessedWord();
 
 			// for each matching letter
-			for (int i = Math.Min(guessedWord.Count, targetWord.Count) - 1; i >= 0; i--)
+			for (var i = Math.Min(guessedWord.Count, targetWord.Count) - 1; i >= 0; i--)
 			{
-				if (guessedWord[i].Letter == targetWord[i].Letter)
-				{
-					var userTargetScore = user.GetPointsForLetter(targetWord[i].Position);
-					if (userTargetScore.PointTotal == 2)
-					{
-						switch (dandleInfo.GameRound)
-						{
-							case 1:
-							case 2:
-								user.Points = user.Points + 4;
-								break;
-							case 3:
-							case 4:
-								user.Points = user.Points + 3;
-								break;
-							case 5:
-							case 6:
-							default:
-								user.Points = user.Points + 2;
-								break;
-						}
-					}
-					else if (userTargetScore.PointTotal == 1)
-					{
-						switch (dandleInfo.GameRound)
-						{
-							case 1:
-							case 2:
-							case 3:
-								user.Points = user.Points + 2;
-								break;
-							case 4:
-							case 5:
-							case 6:
-							default:
-								user.Points = user.Points + 1;
-								break;
-						}
+				if (guessedWord[i].Letter != targetWord[i].Letter) continue;
 
-					}
-					userTargetScore.PointTotal = 0;
-					guessedWord.RemoveAt(i);
-					targetWord.RemoveAt(i);
-				}
+				var userTargetScore = user.GetPointsForLetter(targetWord[i].Position);
+				user.Points = userTargetScore.PointTotal switch
+				{
+					2 => dandleInfo.GameRound switch
+					{
+						1 or 2 => user.Points + 4,
+						3 or 4 => user.Points + 3,
+						_ => user.Points + 2
+					},
+
+					1 => dandleInfo.GameRound switch
+					{
+						1 or 2 or 3 => user.Points + 2,
+						_ => user.Points + 1
+					},
+
+					_ => user.Points
+				};
+				userTargetScore.PointTotal = 0;
+				guessedWord.RemoveAt(i);
+				targetWord.RemoveAt(i);
 			}
 
 			// Score remaining letters
-			for (int j = targetWord.Count - 1; j >= 0; j--)
+			for (var j = targetWord.Count - 1; j >= 0; j--)
 			{
-				for (int k = guessedWord.Count - 1; k >= 0; k--)
+				for (var k = guessedWord.Count - 1; k >= 0; k--)
 				{
-					if (guessedWord[k].Letter == targetWord[j].Letter)
-					{
-						var userTargetScore = user.GetPointsForLetter(targetWord[j].Position);
-						if (userTargetScore.PointTotal == 2)
-						{
-							switch (dandleInfo.GameRound)
-							{
-								case 1:
-								case 2:
-								case 3:
-									user.Points = user.Points + 2;
-									break;
-								case 4:
-								case 5:
-								case 6:
-								default:
-									user.Points = user.Points + 1;
-									break;
-							}
+					if (guessedWord[k].Letter != targetWord[j].Letter) continue;
 
-							userTargetScore.PointTotal = 1;
-						}
-						// If 1, user already received 1 point for letter being in incorrect place
-						guessedWord.RemoveAt(k);
-						targetWord.RemoveAt(j);
-						break;
+					var userTargetScore = user.GetPointsForLetter(targetWord[j].Position);
+					if (userTargetScore.PointTotal == 2)
+					{
+						user.Points = dandleInfo.GameRound switch
+						{
+							1 or 2 or 3 => user.Points + 2,
+							_ => user.Points + 1
+						};
+
+						userTargetScore.PointTotal = 1;
 					}
+					// If 1, user already received 1 point for letter being in incorrect place
+					guessedWord.RemoveAt(k);
+					targetWord.RemoveAt(j);
+					break;
 				}
 			}
 		}
@@ -545,10 +504,8 @@ IDandleService DandleService
 	private DandleGame ProcessAltWords(DandleGame dandleInfo)
 	{
 		var altWords = dandleInfo.CurrentVotes;
-		// Going through alternative words
 		foreach (var word in altWords)
 		{
-			// For each voter of that word
 			foreach (var voter in word.Voters)
 			{
 				var user = dandleInfo.GetDandleUserPoints(voter);
@@ -559,50 +516,31 @@ IDandleService DandleService
 				for (var i = Math.Min(targetWord.Count, guessedWord.Count) - 1; i >= 0; i--)
 				{
 					// found match
-					if (guessedWord[i].Letter == targetWord[i].Letter)
-					{
-						var userLetterScore = user.GetPointsForLetter(targetWord[i].Position);
-						if (userLetterScore.PointTotal == 2)
-						{
-							switch (dandleInfo.GameRound)
-							{
-								case 1:
-								case 2:
-									user.BonusPoints = user.BonusPoints + 4;
-									break;
-								case 3:
-								case 4:
-									user.BonusPoints = user.BonusPoints + 3;
-									break;
-								case 5:
-								case 6:
-								default:
-									user.BonusPoints = user.BonusPoints + 2;
-									break;
-							}
-						}
-						else if (userLetterScore.PointTotal == 1)
-						{
-							switch (dandleInfo.GameRound)
-							{
-								case 1:
-								case 2:
-								case 3:
-									user.BonusPoints = user.BonusPoints + 2;
-									break;
-								case 4:
-								case 5:
-								case 6:
-								default:
-									user.BonusPoints = user.BonusPoints + 1;
-									break;
-							}
-						}
+					if (guessedWord[i].Letter != targetWord[i].Letter) continue;
 
-						userLetterScore.PointTotal = 0;
-						guessedWord.RemoveAt(i);
-						targetWord.RemoveAt(i);
-					}
+					var userLetterScore = user.GetPointsForLetter(targetWord[i].Position);
+
+					user.BonusPoints = userLetterScore.PointTotal switch
+					{
+						2 => dandleInfo.GameRound switch
+						{
+							1 or 2 => user.BonusPoints + 4,
+							3 or 4 => user.BonusPoints + 3,
+							_ => user.BonusPoints + 2
+						},
+
+						1 => dandleInfo.GameRound switch
+						{
+							1 or 2 or 3 => user.BonusPoints + 2,
+							_ => user.BonusPoints + 1
+						},
+
+						_ => user.BonusPoints
+					};
+
+					userLetterScore.PointTotal = 0;
+					guessedWord.RemoveAt(i);
+					targetWord.RemoveAt(i);
 				}
 
 				// Go through remaining letters
@@ -610,35 +548,25 @@ IDandleService DandleService
 				{
 					for (var j = guessedWord.Count - 1; j >= 0; j--)
 					{
-						if (guessedWord[j].Letter == targetWord[i].Letter)
+						if (guessedWord[j].Letter != targetWord[i].Letter) continue;
+
+						var userLetterScore = user.GetPointsForLetter(targetWord[i].Position);
+						if (userLetterScore.PointTotal == 2)
 						{
-							var userLetterScore = user.GetPointsForLetter(targetWord[i].Position);
-							if (userLetterScore.PointTotal == 2)
+							user.BonusPoints += dandleInfo.GameRound switch
 							{
-								switch (dandleInfo.GameRound)
-								{
-									case 1:
-									case 2:
-									case 3:
-										user.BonusPoints = user.BonusPoints + 2;
-										break;
-									case 4:
-									case 5:
-									case 6:
-									default:
-										user.BonusPoints = user.BonusPoints + 1;
-										break;
-								}
+								1 or 2 or 3 => 2,
+								_ => 1
+							};
 
-								userLetterScore.PointTotal = 1;
-							}
-							// If 1, user already go ta point for letter beign in incorrect place
-
-							guessedWord.RemoveAt(j);
-							targetWord.RemoveAt(i);
-
-							break;
+							userLetterScore.PointTotal = 1;
 						}
+						// If 1, user already go ta point for letter being in incorrect place
+
+						guessedWord.RemoveAt(j);
+						targetWord.RemoveAt(i);
+
+						break;
 					}
 				}
 			}
@@ -652,7 +580,7 @@ IDandleService DandleService
 	}
 
 
-	public string AssignColor(IEnumerable<LetterInfo> list)
+	private string AssignColor(IEnumerable<LetterInfo> list)
 	{
 		var hasZero = list.Any(x => x.PointValue == 0);
 		var hasOne = list.Any(x => x.PointValue == 1);
@@ -661,7 +589,7 @@ IDandleService DandleService
 		return ValueProcessor(hasZero, hasOne, hasTwo);
 	}
 
-	public string AssignColor(LetterInfo letter)
+	private string AssignColor(LetterInfo letter)
 	{
 		var hasZero = letter.PointValue.Equals(0);
 		var hasOne = letter.PointValue.Equals(1);
@@ -670,7 +598,7 @@ IDandleService DandleService
 		return ValueProcessor(hasZero, hasOne, hasTwo);
 	} // #787c7e = gray // f5793a orange // 44a8ff blue
 
-	public string ValueProcessor(bool hasZero, bool hasOne, bool hasTwo)
+	private string ValueProcessor(bool hasZero, bool hasOne, bool hasTwo)
 	{
 		if (hasZero && hasOne && hasTwo) return "54deg, #ffbc42 50%, #44a8ff 50%"; // split
 		if (hasZero && hasOne) return "#f5793a, #f5793a"; // orange
@@ -681,5 +609,4 @@ IDandleService DandleService
 		if (hasTwo) return "#44a8ff, #44a8ff"; // blue
 		return "#787c7e, #787c7e";
 	}
-
 }
