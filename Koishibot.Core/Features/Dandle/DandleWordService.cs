@@ -12,7 +12,8 @@ using Newtonsoft.Json;
 namespace Koishibot.Core.Features.Dandle;
 
 public record DandleWordService(
-KoishibotDbContext Database,
+IServiceScopeFactory ServiceScopeFactory,
+// KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
 IHttpClientFactory HttpClientFactory
 ) : IDandleWordService
@@ -34,7 +35,10 @@ IHttpClientFactory HttpClientFactory
 			return;
 		}
 
-		var result = await Database.FindDandleWord(c.Message);
+		using var scope = ServiceScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+
+		var result = await database.FindDandleWord(c.Message);
 		if (result is not null)
 		{
 			var data = new { Word = c.Message };
@@ -43,7 +47,7 @@ IHttpClientFactory HttpClientFactory
 		else
 		{
 			var dandleWord = new DandleWord().Set(c.Message);
-			await Database.UpdateEntry(dandleWord);
+			await database.UpdateEntry(dandleWord);
 
 			await ChatReplyService.App(Command.WordAdded);
 		}
@@ -52,10 +56,13 @@ IHttpClientFactory HttpClientFactory
 	/*═════════◢◣═════════*/
 	public async Task DeleteWord(ChatMessageDto c)
 	{
-		var word = await Database.FindDandleWord(c.Message);
+		using var scope = ServiceScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+
+		var word = await database.FindDandleWord(c.Message);
 		if (word is not null)
 		{
-			await Database.RemoveDandleWord(word);
+			await database.RemoveDandleWord(word);
 			var data = new { Word = word.Word };
 			await ChatReplyService.App(Command.WordRemoved, data);
 		}

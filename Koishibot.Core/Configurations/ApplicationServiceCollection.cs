@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.AdBreak;
+using Koishibot.Core.Features.Dandle;
 using Scrutor;
 
 namespace Koishibot.Core.Configurations;
@@ -19,6 +20,7 @@ public static class ApplicationServiceCollection
 		});
 
 		services.AddSingleton<IPomodoroTimer, PomodoroTimer>();
+		services.AddSingleton<IDandleTimer, DandleTimer>();
 
 		services.Scan(selector => selector.FromAssemblies(typeof(ApplicationServiceCollection).Assembly)
 		.AddClasses(false)

@@ -15,6 +15,7 @@ IDandleResultsProcessor DandleVoteProcessor
 ) : IDandleTimer
 {
 	public int VotingSeconds = 40;
+	public ATimer? Timer;
 
 	public async Task StartSuggestionTimer(int round)
 	{
@@ -37,8 +38,8 @@ IDandleResultsProcessor DandleVoteProcessor
 		}
 
 		await Signalr.SendDandleTimer(new DandleTimerVm(text, 0, SuggestionSeconds));
-		var timer = Toolbox.CreateTimer(SuggestionSeconds, CloseSuggestions);
-		timer.Start();
+		Timer = Toolbox.CreateTimer(SuggestionSeconds, CloseSuggestions);
+		Timer.Start();
 	}
 
 	private async void CloseSuggestions()
@@ -78,8 +79,8 @@ IDandleResultsProcessor DandleVoteProcessor
 
 	private void StartVotingTimer()
 	{
-		var timer = Toolbox.CreateTimer(VotingSeconds, CloseVoting);
-		timer.Start();
+		Timer = Toolbox.CreateTimer(VotingSeconds, CloseVoting);
+		Timer.Start();
 	}
 
 	private async void CloseVoting()
@@ -87,10 +88,19 @@ IDandleResultsProcessor DandleVoteProcessor
 		Cache.CloseDandleVoting();
 		await DandleVoteProcessor.DetermineScore();
 	}
+
+	public void CancelTimer()
+	{
+		if (Timer is not null)
+		{
+			Timer.Stop();
+		}
+	}
 }
 
 /*═══════════════════【 INTERFACE 】═══════════════════*/
 public interface IDandleTimer
 {
 	Task StartSuggestionTimer(int round);
+	void CancelTimer();
 }

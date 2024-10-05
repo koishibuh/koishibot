@@ -1,4 +1,8 @@
-﻿namespace Koishibot.Core.Features.Dandle.Controllers;
+﻿using Koishibot.Core.Features.ChatCommands;
+using Koishibot.Core.Features.Common.Enums;
+using Koishibot.Core.Features.Dandle.Enums;
+using Koishibot.Core.Features.Dandle.Extensions;
+namespace Koishibot.Core.Features.Dandle.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/dandle")]
@@ -18,11 +22,22 @@ public class EndDandleGameController : ApiControllerBase
 /// Ends the current game of Dandle
 /// </summary>
 public record EndDandleGameHandler(
-IDandleService DandleService
+IChatReplyService ChatReplyService,
+IDandleTimer DandleTimer,
+ISignalrService Signalr,
+IAppCache Cache
 ) : IRequestHandler<EndDandleGameCommand>
 {
 	public async Task Handle(EndDandleGameCommand c, CancellationToken cancel)
-		=> await DandleService.EndGame();
+	{
+		DandleTimer.CancelTimer();
+		Cache.ResetDandle();
+		Cache.DisableDandle();
+
+		await Signalr.ClearDandleBoard();
+		await Signalr.DisableOverlay(OverlayName.Dandle);
+		await ChatReplyService.App(Command.GameOver);
+	}
 }
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
