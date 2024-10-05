@@ -26,7 +26,7 @@ ISignalrService Signalr
 		var result = topStreaks.CreateTopStreaksList();
 
 		var data = new { Emoji = emoji, Word = word, List = result };
-		await ChatReplyService.Everyone(Command.Attendance, data);
+		await ChatReplyService.Everyone(Command.TopStreaks, data);
 	}
 
 	public async Task GetUserAttendanceCount(TwitchUser user)
