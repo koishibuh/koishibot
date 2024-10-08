@@ -1,0 +1,41 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "text_gdiplus",
+      "inputSettings": {
+        "align": "left",
+        "antialiasing": true,
+        "bk_color": 0,
+        "bk_opacity": 0,
+        "chatlog_lines": 6,
+        "color": 16777215,
+        "extents_cx": 100,
+        "extents_cy": 100,
+        "extents_wrap": true,
+        "font": {
+          "face": "Montserrat",
+          "flags": 1,
+          "size": 36,
+          "style": "Bold"
+        },
+        "gradient_color": 16777215,
+        "gradient_dir": 90,
+        "gradient_opacity": 100,
+        "opacity": 100,
+        "outline_color": 16777215,
+        "outline_opacity": 100,
+        "outline_size": 2,
+        "text": "OVERLAY GAME",
+        "transform": 0,
+        "valign": "top"
+      }
+    }
+  },
+  "op": 7
+}

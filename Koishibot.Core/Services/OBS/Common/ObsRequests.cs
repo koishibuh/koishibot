@@ -16,12 +16,15 @@ public class ObsRequests
 	public const string GetSceneList = "GetSceneList";
 	public const string GetSceneItemList = "GetSceneItemList";
 
+	public const string SceneItemTransformChanged = "SceneSourceUpdated";
+
 	public const string GetSourceScreenshot = "GetSourceScreenshot";
 
-	// INPUTS
+	// INPUTS / SOURCES
 
 	public const string GetInputList = "GetInputList";
 	public const string GetInputKindList = "GetInputKindList";
+	public const string GetInputSettings = "GetInputSettings";
 	public const string OpenInputInteractDialog = "OpenInputInteractDialog";
 
 	// STREAM

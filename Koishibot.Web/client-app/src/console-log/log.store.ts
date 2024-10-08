@@ -1,7 +1,6 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import { useSignalR } from '@/api/signalr.composable';
-import http from '@/api/http';
 import { useNotificationStore } from '@/common/notifications/notification.store';
 import { type ILog } from '@/settings/models/log-interface';
 
@@ -12,13 +11,13 @@ export const useLogStore = defineStore('logStore', () => {
   const { getConnectionByHub } = useSignalR();
   const signalRConnection = getConnectionByHub('notifications');
 
-  signalRConnection?.on('ReceiveInfo', (log: ILog) => {
-    notificationStore.displayMessage(log.message);
+  signalRConnection?.on('ReceiveInfo', async (log: ILog) => {
+    await notificationStore.displayMessage(log.message);
     logMessages.value.push(log);
   });
 
-  signalRConnection?.on('ReceiveError', (log: ILog) => {
-    notificationStore.displayErrorMessage(log.message);
+  signalRConnection?.on('ReceiveError', async (log: ILog) => {
+    await notificationStore.displayErrorMessage(log.message);
     logMessages.value.push(log);
   });
 

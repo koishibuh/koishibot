@@ -1,7 +1,7 @@
 export interface ILog {
   message: string;
-  timestamp: Date;
   level: string;
+  timestamp: string;
 }
 
 /* export enum ELevel {

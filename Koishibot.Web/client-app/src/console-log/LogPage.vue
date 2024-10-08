@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import { useSettingsStore } from '@/settings/settings.store';
-const store = useSettingsStore();
+import { useLogStore } from '@/console-log/log.store';
+const store = useLogStore();
 </script>
 
 <template>

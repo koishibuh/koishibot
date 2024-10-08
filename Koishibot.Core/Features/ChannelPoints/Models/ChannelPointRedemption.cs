@@ -1,5 +1,9 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Common.Enums;
+using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
+using Koishibot.Core.Services.Twitch.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Koishibot.Core.Features.ChannelPoints.Models;
@@ -9,23 +13,26 @@ public class ChannelPointRedemption : IEntity
 {
 	public int Id { get; set; }
 	public int ChannelPointRewardId { get; set; }
-	public DateTimeOffset RedeemedAt { get; set; }
+	public DateTimeOffset Timestamp { get; set; }
 	public int UserId { get; set; }
 	public bool WasSuccesful { get; set; }
 	public ChannelPointReward ChannelPointReward { get; set; } = null!;
-	public TwitchUser User { get; set; } = null!;
+	public TwitchUser TwitchUser { get; set; } = null!;
 
 /*══════════════════【】═════════════════*/
 	public ChannelPointRedemption Set(ChannelPointReward reward,
 			TwitchUser user, DateTimeOffset redeemedAt, bool wasSuccesful)
 	{
 		ChannelPointRewardId = reward.Id;
-		RedeemedAt = redeemedAt;
+		Timestamp = redeemedAt;
 		UserId = user.Id;
 		WasSuccesful = wasSuccesful;
 		return this;
 	}
 }
+
+
+public record ChannelPointRedemptionVm();
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/
 public class ChannelPointRedemptionConfig
@@ -41,7 +48,7 @@ public class ChannelPointRedemptionConfig
 
 		builder.Property(p => p.ChannelPointRewardId);
 
-		builder.Property(p => p.RedeemedAt);
+		builder.Property(p => p.Timestamp);
 
 		builder.Property(p => p.UserId);
 
@@ -51,7 +58,7 @@ public class ChannelPointRedemptionConfig
 		.WithMany(p => p.ChannelPointRedemptions)
 		.HasForeignKey(p => p.ChannelPointRewardId);
 
-		builder.HasOne(p => p.User)
+		builder.HasOne(p => p.TwitchUser)
 		.WithMany(p => p.RedeemedChannelPointRewards)
 		.HasForeignKey(p => p.UserId)
 		.IsRequired();

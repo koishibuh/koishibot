@@ -5,7 +5,6 @@ namespace Koishibot.Core.Features.ChatCommands;
 /*═══════════════════【 SERVICE 】═══════════════════*/
 public record ChatCommandProcessor(
 IOptions<Settings> Settings,
-IAppCache Cache,
 IGeneralCommands GeneralCommands,
 IAttendanceCommands AttendanceCommands,
 IRaidCommands RaidCommands,
@@ -18,30 +17,21 @@ IDandleCommands DandleCommands
 	{
 		if (Settings.Value.DebugMode is true)
 		{
-			Processed = await DandleCommands.Process(c);
+			if (c.CommandIsSuggestion())
+			{
+				await RaidCommands.Process(c);
+			}
+		}
+		else
+		{
+			Processed = await GeneralCommands.Process(c);
 			if (Processed is true) { return; }
 
 			Processed = await AttendanceCommands.Process(c);
 			if (Processed is true) { return; }
 
-			Processed = await GeneralCommands.Process(c);
+			Processed = await DandleCommands.Process(c);
 			if (Processed is true) { return; }
 		}
-		// else
-		// {
-		// 	Processed = await GeneralCommands.Process(c);
-		// 	if (Processed is true) { return; }
-		//
-		// 	Processed = await AttendanceCommands.Process(c);
-		// 	if (Processed is true) { return; }
-		//
-		// 	Processed = await DandleCommands.Process(c);
-		// 	if (Processed is true) { return; }
-		//
-		// 	if (c.CommandIsSuggestion())
-		// 	{
-		// 		await RaidCommands.Process(c);
-		// 	}
-		// }
 	}
 }

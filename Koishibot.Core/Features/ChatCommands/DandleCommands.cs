@@ -23,23 +23,19 @@ IDandleWordService DandleWordService
 		// if dandle is enabled and suggestions
 		if (Cache.DandleIsClosed())
 		{
-			// add or remove word 
-			// if the user is spacey
 			if (c.User.Login is "spacey3d" or "elysiagriffin")
 			{
-				if (c.Command is "addword")
+				switch (c.Command)
 				{
-					await DandleWordService.CreateWord(c);
-					return true;
-				}
+					case "addword":
+						await DandleWordService.CreateWord(c);
+						return true;
 
-				if (c.Command is "removeword")
-				{
-					await DandleWordService.DeleteWord(c);
-					return true;
+					case "removeword":
+						await DandleWordService.DeleteWord(c);
+						return true;
 				}
 			}
-
 			return false;
 		}
 
@@ -50,8 +46,6 @@ IDandleWordService DandleWordService
 			switch (c.Command)
 			{
 				case "guess" or "g":
-					// !guess
-					//if (c.User.Name != "ElysiaGriffin") { return true; }
 					c.Message = c.Message.ToLower();
 					await DandleSuggestionProcessor.Start(c);
 					return true;
@@ -67,7 +61,6 @@ IDandleWordService DandleWordService
 
 		if (Cache.DandleAcceptingVotes())
 		{
-			// !vote
 			if (c.Command is not ("vote" or "v")) return false;
 			await DandleVoteProcessor.ProcessVote(c);
 			return true;

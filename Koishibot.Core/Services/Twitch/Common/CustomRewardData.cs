@@ -130,7 +130,7 @@ public class CustomRewardData
 	///This field is null if the broadcaster’s stream isn’t live or max_per_stream_setting isn’t enabled.
 	///</summary>
 	[JsonPropertyName("redemptions_redeemed_current_stream")]
-	public int RedemptionsRedeemedCurrentStream { get; set; }
+	public int? RedemptionsRedeemedCurrentStream { get; set; }
 
 	///<summary>
 	///The timestamp of when the cooldown period expires.<br/>

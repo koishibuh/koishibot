@@ -8,5 +8,6 @@ public enum StreamEventType
 	Sub,
 	HypeTrain,
 	Kofi,
+	ChannelPoint,
 	SETip
 }

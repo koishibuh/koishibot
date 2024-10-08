@@ -4,7 +4,7 @@ using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Moderation;
 using Koishibot.Core.Features.Moderation.Enums;
-using Koishibot.Core.Features.TwitchUsers.Interfaces;
+using Koishibot.Core.Features.TwitchUsers;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatMessage;
 

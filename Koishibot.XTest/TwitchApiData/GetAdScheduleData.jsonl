@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "snooze_count": 3,
+      "snooze_refresh_at": 0,
+      "next_ad_at": 1728050100,
+      "duration": 180,
+      "last_ad_at": 0,
+      "preroll_free_time": 0
+    }
+  ]
+}

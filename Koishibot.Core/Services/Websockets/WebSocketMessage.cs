@@ -5,16 +5,17 @@ using System.Text.RegularExpressions;
 namespace Koishibot.Core.Services.Websockets;
 
 public record WebSocketMessage(
-	string Message)
+Guid Id,
+string Message)
 {
 	public bool IsNullOrEmpty()
 		=> string.IsNullOrEmpty(Message);
 
 	public bool IsPing()
-	=> Message.StartsWith("0{\"sid\"") || Message.Contains("PING");
+		=> Message.StartsWith("0{\"sid\"") || Message.Contains("PING");
 
 	public bool IsConnected()
-		=> Message.StartsWith("40");  // Message Connect
+		=> Message.StartsWith("40"); // Message Connect
 
 	public bool IsAuthenticated()
 		=> Message.Contains("authenticated");
@@ -37,7 +38,7 @@ public record WebSocketMessage(
 		return root[1].GetRawText();
 	}
 
-	public JsonObject ConvertToJsonObject() 
-		=> JsonNode.Parse(Message)?.AsObject() 
-		?? throw new Exception("cry" + Message);
+	public JsonObject ConvertToJsonObject()
+		=> JsonNode.Parse(Message)?.AsObject()
+			?? throw new Exception("cry" + Message);
 }

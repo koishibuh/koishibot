@@ -1,5 +1,4 @@
 ﻿using Koishibot.Core.Features.Supports.Events;
-using Koishibot.Core.Services.StreamElements.Enums;
 using Koishibot.Core.Services.StreamElements.Models;
 using Koishibot.Core.Services.Twitch.Common;
 using Koishibot.Core.Services.Websockets;
@@ -11,19 +10,18 @@ namespace Koishibot.Core.Services.StreamElements;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
 public record StreamElementsService(
-	ILogger<StreamElementsService> Log,
-	IOptions<Settings> Settings,
-	IAppCache Cache,
-	ISignalrService Signalr,
-	IServiceScopeFactory ScopeFactory
-	) : IStreamElementsService
+ILogger<StreamElementsService> Log,
+IOptions<Settings> Settings,
+IAppCache Cache,
+ISignalrService Signalr,
+IServiceScopeFactory ScopeFactory
+) : IStreamElementsService
 {
 	public CancellationToken? Cancel { get; set; }
 	private WebSocketFactory Factory { get; set; } = new();
 	public WebSocketHandler? StreamElementsWebSocket { get; set; }
 
-	private Timer _keepaliveTimer;
-	private int _keepaliveTimeoutSeconds = 25;
+	private Timer _keepaliveTimer { get; } = new(TimeSpan.FromSeconds(25));
 
 	private readonly LimitedSizeHashSet<StreamElementsEvent, string> _eventSet
 		= new(10, x => x.Id);
@@ -55,7 +53,7 @@ public record StreamElementsService(
 
 			else if (message.IsAuthenticated())
 			{
-				_eventSet.Add(new StreamElementsEvent{ CreatedAt = DateTimeOffset.UtcNow });
+				_eventSet.Add(new StreamElementsEvent { CreatedAt = DateTimeOffset.UtcNow });
 				await Cache.UpdateServiceStatus(ServiceName.StreamElements, Status.Online);
 				StartKeepaliveTimer();
 			}
@@ -117,8 +115,8 @@ public record StreamElementsService(
 
 	private async Task Closed(WebSocketMessage message)
 	{
-		Log.LogInformation($"Websocket closed {message}");
-		if (StreamElementsWebSocket is not null && StreamElementsWebSocket.IsDisposed is false)
+		Log.LogInformation($"StreamElements Websocket closed {message.Message}");
+		if (StreamElementsWebSocket?.IsDisposed is false)
 		{
 			await Disconnect();
 		}
@@ -127,7 +125,6 @@ public record StreamElementsService(
 	private async Task Disconnect()
 	{
 		_keepaliveTimer.Stop();
-		_keepaliveTimer.Dispose();
 		await Factory.Disconnect();
 		await Cache.UpdateServiceStatus(ServiceName.StreamElements, Status.Offline);
 		await Signalr.SendInfo("StreamElements Websocket Disconnected");
@@ -151,11 +148,11 @@ public record StreamElementsService(
 
 	private void StartKeepaliveTimer()
 	{
-		_keepaliveTimer = new Timer(TimeSpan.FromSeconds(_keepaliveTimeoutSeconds));
 		_keepaliveTimer.Elapsed += async (_, _) =>
 		{
 			await SendPong();
 		};
+
 		_keepaliveTimer.Start();
 	}
 }

@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using Koishibot.Core.Services.Twitch;
+﻿using Koishibot.Core.Services.Twitch;
+
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
 public partial record TwitchApiRequest : ITwitchApiRequest
@@ -17,7 +17,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 		const string url = "chat/shoutouts";
 		var query = parameters.ObjectQueryFormatter();
 
-		var response = await TwitchApiClient.SendRequest(method, url, query);
+		await TwitchApiClient.SendRequest(method, url, query);
 	}
 }
 
@@ -34,7 +34,7 @@ public class SendShoutoutParameters
 	///The ID of the broadcaster that’s receiving the Shoutout.
 	///</summary>
 	[JsonPropertyName("to_broadcaster_id")]
-	public string ToBroadcasterId { get; set; }  = null!;
+	public string ToBroadcasterId { get; set; } = null!;
 
 	///<summary>
 	///The ID of the broadcaster or a user that is one of the broadcaster’s moderators.<br/>

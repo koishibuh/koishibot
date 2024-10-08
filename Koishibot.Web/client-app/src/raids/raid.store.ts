@@ -50,9 +50,24 @@ export const useRaidStore = defineStore('raidStore', () => {
   // TODO: When raid is cancelled
   // TODO: Request new raid suggestion to replace streamer who is offline
 
+  const raidShoutoutUrl = ref<string>('');
+  const displayShoutoutOverlay = ref<boolean>(false);
+
+  signalRConnection?.on('ReceiveRaidShoutout', (url: string) => {
+    raidShoutoutUrl.value = url;
+    displayShoutoutOverlay.value = true;
+  });
+
+  signalRConnection?.on('ReceiveHideShoutout', () => {
+    displayShoutoutOverlay.value = false;
+    raidShoutoutUrl.value = '';
+  });
+
   return {
     displayOverlay,
     raidCandidates,
-    raidPoll
+    raidPoll,
+    displayShoutoutOverlay,
+    raidShoutoutUrl
   };
 });

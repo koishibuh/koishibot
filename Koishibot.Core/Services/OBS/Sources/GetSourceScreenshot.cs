@@ -1,5 +1,6 @@
 ﻿namespace Koishibot.Core.Services.OBS.Sources;
 
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 /// <summary>
 /// <see href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getsourcescreenshot">Obs Documentation</see>
 /// </summary>
@@ -36,7 +37,7 @@ public class GetSourceScreenshotRequest
 	public int ImageCompressionQuality { get; set; }
 }
 
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class GetSourceScreenshotResponse
 {
 	/// <summary>

@@ -1,25 +1,23 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.Supports.Extensions;
 using Koishibot.Core.Features.Supports.Models;
-using Koishibot.Core.Features.TwitchUsers.Interfaces;
+using Koishibot.Core.Features.TwitchUsers;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Subscriptions;
 namespace Koishibot.Core.Features.Supports.Events;
 
-// == ⚫ HANDLER == //
-
+/*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
 /// <para><see href=""/>Twitch Documentation</para>
 /// </summary>
 public record ResubReceivedHandler(
-	IAppCache Cache,
-	ISignalrService Signalr,
-	ITwitchUserHub TwitchUserHub,
-	KoishibotDbContext Database
-	) : IRequestHandler<ResubReceivedCommand>
+ISignalrService Signalr,
+ITwitchUserHub TwitchUserHub,
+KoishibotDbContext Database
+) : IRequestHandler<ResubReceivedCommand>
 {
 	public async Task Handle(ResubReceivedCommand command, CancellationToken cancel)
 	{
@@ -29,30 +27,38 @@ public record ResubReceivedHandler(
 		var sub = command.CreateSub(user.Id);
 		await Database.UpdateEntry(sub);
 
-		await Database.UpdateSubDurationTotal(sub, command.e.CumulativeMonths);
+		var supportTotal = await Database.GetSupportTotalByUserId(user.Id);
+		if (supportTotal.NotInDatabase())
+		{
+			supportTotal = command.CreateSupportTotal(user);
+		}
+		else
+		{
+			supportTotal!.MonthsSubscribed = supportTotal.MonthsSubscribed == 0
+				? 1
+				: supportTotal.MonthsSubscribed += 1;
+		}
+
+		await Database.UpdateEntry(supportTotal);
 
 		var resubVm = command.CreateVm();
 		await Signalr.SendStreamEvent(resubVm);
 	}
 }
 
-// == ⚫ COMMAND == //
-
+/*═══════════════════【 COMMAND 】═══════════════════*/
 public record ResubReceivedCommand(
-	ResubMessageEvent e
-	) : IRequest
+ResubMessageEvent e
+) : IRequest
 {
-	public TwitchUserDto CreateUserDto()
-	{
-		return new TwitchUserDto(
+	public TwitchUserDto CreateUserDto() =>
+		new(
 			e.ResubscriberId,
 			e.ResubscriberLogin,
 			e.ResubscriberName);
-	}
 
-	public Subscription CreateSub(int userId)
-	{
-		return new Subscription
+	public Subscription CreateSub(int userId) =>
+		new()
 		{
 			Timestamp = DateTimeOffset.UtcNow,
 			UserId = userId,
@@ -60,15 +66,21 @@ public record ResubReceivedCommand(
 			Message = e.Message?.Text ?? string.Empty,
 			Gifted = false
 		};
-	}
 
-	public StreamEventVm CreateVm()
-	{
-		return new StreamEventVm
+	public SupportTotal CreateSupportTotal(TwitchUser user) =>
+		new()
 		{
-			EventType = StreamEventType.Sub,
-			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
-			Message = $"{e.ResubscriberName} has resubscribed at {e.Tier} for {e.DurationMonths} months"
+			UserId = user.Id,
+			MonthsSubscribed = e.CumulativeMonths,
+			SubsGifted = 0,
+			BitsCheered = 0,
+			Tipped = 0
 		};
-	}
-};
+
+	public StreamEventVm CreateVm() => new()
+	{
+		EventType = StreamEventType.Sub,
+		Timestamp = Toolbox.CreateUITimestamp(),
+		Message = $"{e.ResubscriberName} has resubscribed at {e.Tier} for {e.CumulativeMonths} months"
+	};
+}

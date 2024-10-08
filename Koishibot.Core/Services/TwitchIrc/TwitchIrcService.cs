@@ -94,7 +94,7 @@ ILogger<TwitchIrcService> Log
 	{
 		Log.LogError("Websocket error: {message}", message);
 		await SignalrService.SendError(message.Message);
-		if (BotIrc is not null  && BotIrc.IsDisposed is false)
+		if (BotIrc?.IsDisposed is false)
 		{
 			await DisconnectWebSocket();
 		}
@@ -102,7 +102,7 @@ ILogger<TwitchIrcService> Log
 
 	private async Task Closed(WebSocketMessage message)
 	{
-		Log.LogInformation($"Websocket closed {message}");
+		Log.LogInformation($"TwitchIrc Websocket closed {message.Message}");
 		if (BotIrc is not null  && BotIrc.IsDisposed is false)
 		{
 			await DisconnectWebSocket();

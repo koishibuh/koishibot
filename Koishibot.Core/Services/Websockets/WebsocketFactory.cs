@@ -1,5 +1,5 @@
-﻿using System.Net.WebSockets;
-using Koishibot.Core.Exceptions;
+﻿using Koishibot.Core.Features.Common;
+using System.Net.WebSockets;
 
 namespace Koishibot.Core.Services.Websockets;
 
@@ -7,6 +7,7 @@ namespace Koishibot.Core.Services.Websockets;
 public class WebSocketFactory : IWebSocketFactory
 {
 	private WebSocketHandler? ActiveClient { get; set; }
+	public string ClientId { get; set; }
 
 	public async Task<WebSocketHandler> Create(
 	string url,
@@ -23,8 +24,10 @@ public class WebSocketFactory : IWebSocketFactory
 		var uri = new Uri(url);
 		await client.ConnectAsync(uri, default);
 
-		ActiveClient = new WebSocketHandler(client,onMessageReceived, onError, onClosed);
+		ActiveClient = new WebSocketHandler(client, onMessageReceived, onError, onClosed);
 		_ = Task.Run(ActiveClient.StartListening);
+
+		ClientId = Toolbox.ShortGuid(ActiveClient.Id);
 
 		return ActiveClient;
 	}

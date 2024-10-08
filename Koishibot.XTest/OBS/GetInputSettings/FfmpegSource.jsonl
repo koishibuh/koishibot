@@ -1,0 +1,22 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "ffmpeg_source",
+      "inputSettings": {
+        "buffering_mb": 1,
+        "clear_on_media_end": false,
+        "color_range": 0,
+        "input": "rtsp://",
+        "is_local_file": false,
+        "restart_on_activate": true
+      }
+    }
+  },
+  "op": 7
+}

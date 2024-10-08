@@ -1,0 +1,19 @@
+{
+  "d": {
+    "requestId": "00000000-0000-0000-0000-000000000000",
+    "requestStatus": {
+      "code": 100,
+      "result": true
+    },
+    "requestType": "GetInputSettings",
+    "responseData": {
+      "inputKind": "browser_source",
+      "inputSettings": {
+        "height": 1080,
+        "url": "",
+        "width": 1920
+      }
+    }
+  },
+  "op": 7
+}

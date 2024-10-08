@@ -88,7 +88,7 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.Property<int>("ChannelPointRewardId")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("RedeemedAt")
+                    b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("UserId")
@@ -939,7 +939,7 @@ namespace Koishibot.Core.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "User")
+                    b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "TwitchUser")
                         .WithMany("RedeemedChannelPointRewards")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -947,7 +947,7 @@ namespace Koishibot.Core.Persistence.Migrations
 
                     b.Navigation("ChannelPointReward");
 
-                    b.Navigation("User");
+                    b.Navigation("TwitchUser");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>

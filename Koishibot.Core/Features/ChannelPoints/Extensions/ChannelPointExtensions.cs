@@ -60,7 +60,7 @@ public static class ChannelPointExtensions
 	{
 		return await database.ChannelPointRedemptions
 			.Where(p => p.ChannelPointRewardId == rewardId
-				&& p.RedeemedAt.Date == DateTime.UtcNow.Date)
+				&& p.Timestamp.Date == DateTime.UtcNow.Date)
 			.ToListAsync();
 	}
 	public static async Task<List<ChannelPointReward>> AddRewards
