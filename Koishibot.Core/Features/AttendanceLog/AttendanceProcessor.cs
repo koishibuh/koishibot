@@ -52,8 +52,8 @@ IAppCache Cache
 			else if (attendance.NewStreakStarted())
 			{
 				var data = isFollow
-					? new { User = user.Name }
-					: new { User = "Thanks for following, " };
+					? new { User = "Thanks for following" }
+					: new { User = user.Name };
 				await ChatReplyService.App(Command.StreakStarted, data);
 			}
 			else
