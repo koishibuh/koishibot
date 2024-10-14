@@ -49,7 +49,8 @@ IHttpClientFactory HttpClientFactory
 			var dandleWord = new DandleWord().Set(c.Message);
 			await database.UpdateEntry(dandleWord);
 
-			await ChatReplyService.App(Command.WordAdded);
+			var data = new { Word = c.Message };
+			await ChatReplyService.App(Command.WordAdded, data);
 		}
 	}
 
