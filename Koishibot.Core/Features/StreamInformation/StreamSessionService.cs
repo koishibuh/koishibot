@@ -231,7 +231,7 @@ ILogger<StreamSessionService> Log
 
 	private async Task AddCurrentSessionToCache(int liveStreamId, int streamSessionId)
 	{
-		var lastMandatoryStreamId = await Database.GetLastMandatorySessionId();
+		var lastMandatoryStreamId = await Database.GetLastMandatorySessionId(streamSessionId);
 
 		var cacheSession = new CurrentSession
 		{
