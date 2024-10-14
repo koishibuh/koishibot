@@ -28,6 +28,7 @@ public class ObsAppName
 	public const string StartScene = "StartScene";
 	public const string BRBScene = "BRBScene";
 	public const string RaidScene = "RaidScene";
+	public const string ShoutoutVideo = "shoutout-video";
 }
 
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/
@@ -35,6 +36,12 @@ public static class ObsItemExtensions
 {
 	public static async Task<ObsItem?> FindObsItemByObsId(this KoishibotDbContext database, string obsId) =>
 		await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == obsId);
+
+	public static ObsItemVm CreateVm(this ObsItem obsItem) =>
+		new ObsItemVm(obsItem.Id, obsItem.Type, obsItem.ObsName, obsItem.AppName);
+
+	public static async Task<ObsItem?> FindObsItemByAppName(this KoishibotDbContext database, string appName)
+		=> await database.ObsItems.FirstOrDefaultAsync(x => x.AppName == appName);
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/

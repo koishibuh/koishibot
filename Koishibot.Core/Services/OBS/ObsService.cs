@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Koishibot.Core.Exceptions;
+using Koishibot.Core.Features.Obs.Events;
 using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
@@ -83,7 +84,7 @@ IServiceScopeFactory ScopeFactory
 							break;
 						case ObsRequests.GetSceneList:
 							var sceneList = jsonObj["d"].Deserialize<RequestResponse<GetSceneListResponse>>(_options);
-							await Send(new GetSceneListCommand(sceneList.ResponseData));
+							await Send(new SceneListReceivedCommand(sceneList.ResponseData));
 							break;
 						// case ObsRequests.GetSceneItemList:
 						// 	var sceneList = jsonObj["d"].Deserialize<RequestResponse<GetSceneListResponse>>(_options);
@@ -91,11 +92,11 @@ IServiceScopeFactory ScopeFactory
 						// 	break;
 						case ObsRequests.GetInputList:
 							var inputList = jsonObj["d"].Deserialize<RequestResponse<GetInputListResponse>>(_options);
-							await OnInputReceived(inputList.ResponseData);
+							await Send(new InputListReceivedCommand(inputList.ResponseData));
 							break;
 						case ObsRequests.GetInputKindList:
 							var inputKindList = jsonObj.Deserialize<RequestResponse<GetInputKindListResponse>>(_options);
-							await Send(new GetInputKindListCommand(inputKindList.ResponseData));
+							await Send(new InputKindListReceivedCommand(inputKindList.ResponseData));
 							break;
 						case ObsRequests.GetSceneItemList:
 							var sceneItems = jsonObj["d"].Deserialize<RequestResponse<GetSceneItemListResponse>>(_options);
@@ -198,55 +199,10 @@ IServiceScopeFactory ScopeFactory
 		await database.SaveChangesAsync();
 	}
 
-
-	public async Task OnInputReceived(GetInputListResponse args)
-	{
-		var sources = args.Inputs
-			.Select(x => new ObsItem
-			{
-				ObsId = x.InputUuid,
-				ObsName = x.InputName,
-				Type = x.InputKind
-			})
-			.ToList();
-
-		// var audio = args.Inputs
-		// 	.Where(x => x.UnversionedInputKind is
-		// 		InputTypes.AudioOutputCapture or InputTypes.AudioInputCapture)
-		// 	.Select(x => new ObsItem
-		// 	{
-		// 		ObsId = x.InputUuid ?? string.Empty,
-		// 		ObsName = x.InputName ?? string.Empty,
-		// 		Type = ObsItemType.Audio.ToString()
-		// 	});
-
-		using var scope = ScopeFactory.CreateScope();
-		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-
-		foreach (var item in sources)
-		{
-			var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == item.ObsId);
-			if (result is null)
-			{
-				database.Add(item);
-			}
-			else if (result.ObsName != item.ObsName)
-			{
-				result.ObsName = item.ObsName;
-				database.Update(result);
-			}
-		}
-
-		await database.SaveChangesAsync();
-	}
-
-
 	public async Task SendRequest<T>(ObsRequest<T> request)
 	{
 		if (ObsWebSocket is null)
-		{
 			return;
-		}
 
 		try
 		{
@@ -262,13 +218,27 @@ IServiceScopeFactory ScopeFactory
 	public async Task SendRequest(ObsRequest request)
 	{
 		if (ObsWebSocket is null)
-		{
 			return;
-		}
 
 		try
 		{
 			var message = JsonSerializer.Serialize(request, _options);
+			await ObsWebSocket.SendMessage(message);
+		}
+		catch (Exception)
+		{
+			throw;
+		}
+	}
+
+	public async Task SendBatchRequest(ObsBatchRequest batchRequests)
+	{
+		if (ObsWebSocket is null)
+			return;
+
+		try
+		{
+			var message = JsonSerializer.Serialize(batchRequests, _options);
 			await ObsWebSocket.SendMessage(message);
 		}
 		catch (Exception)
@@ -375,5 +345,6 @@ public interface IObsService
 	Task CreateWebSocket();
 	Task SendRequest<T>(ObsRequest<T> request);
 	Task SendRequest(ObsRequest request);
+	Task SendBatchRequest(ObsBatchRequest batchRequests);
 	Task Disconnect();
 }

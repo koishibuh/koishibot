@@ -3,6 +3,7 @@ using Koishibot.Core.Features.Application.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.StreamInformation.ViewModels;
@@ -75,6 +76,9 @@ ILogger<SignalrService> Log
 
 	public async Task SendAdStartedEvent(AdBreakVm adBreakVm) =>
 		await HubContext.Clients.All.ReceiveAdStartedEvent(adBreakVm);
+
+	public async Task SendObsItems(List<ObsItemVm> obsItemVm) =>
+		await HubContext.Clients.All.ReceiveObsItems(obsItemVm);
 }
 
 /*═══════════════【 SEND INTERFACE 】═══════════════*/
@@ -96,6 +100,7 @@ public partial interface ISignalrService
 	Task SendPollVote(List<PollChoiceInfo> pollChoiceInfo);
 	Task SendPollEnded(string winner);
 	Task SendAdStartedEvent(AdBreakVm adBreakVm);
+	Task SendObsItems(List<ObsItemVm> obsItemVm);
 }
 
 /*═════════════【 RECEIVE INTERFACE 】═════════════*/
@@ -117,4 +122,5 @@ public partial interface ISignalrHub
 	Task ReceivePollVote(List<PollChoiceInfo> pollChoiceInfo);
 	Task ReceivePollEnded(string winner);
 	Task ReceiveAdStartedEvent(AdBreakVm adBreakVm);
+	Task ReceiveObsItems(List<ObsItemVm> obsItemVm);
 }

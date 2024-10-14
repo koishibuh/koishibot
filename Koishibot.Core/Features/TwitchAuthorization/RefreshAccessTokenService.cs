@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Xml;
 using Koishibot.Core.Features.TwitchAuthorization.Enums;
 using Koishibot.Core.Features.TwitchAuthorization.Models;
 namespace Koishibot.Core.Features.TwitchAuthorization;

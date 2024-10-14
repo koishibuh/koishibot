@@ -1,0 +1,92 @@
+[
+  {
+    "id": 167,
+    "type": "Text",
+    "obsName": "2 Min Raid Timer",
+    "appName": null
+  },
+  {
+    "id": 47,
+    "type": "Audio",
+    "obsName": "2. Mic",
+    "appName": null
+  },
+  {
+    "id": 184,
+    "type": "FFmpeg",
+    "obsName": "Chorizo Wifi Cam",
+    "appName": null
+  },
+  {
+    "id": 198,
+    "type": "Game Capture",
+    "obsName": "Game Capture",
+    "appName": null
+  },
+  {
+    "id": 227,
+    "type": "Color",
+    "obsName": "Raid Cover",
+    "appName": null
+  },
+  {
+    "id": 238,
+    "type": "Window Capture",
+    "obsName": "Raider Stream",
+    "appName": null
+  },
+  {
+    "id": 246,
+    "type": "Source",
+    "obsName": "Source Clone Crop",
+    "appName": null
+  },
+  {
+    "id": 248,
+    "type": "Monitor Capture",
+    "obsName": "Tablet Capture",
+    "appName": null
+  },
+  {
+    "id": 257,
+    "type": "Browser",
+    "obsName": "Twitch Chat",
+    "appName": null
+  },
+  {
+    "id": 262,
+    "type": "Game Capture",
+    "obsName": "VeadoTube",
+    "appName": null
+  },
+  {
+    "id": 264,
+    "type": "Window Capture",
+    "obsName": "Window Capture",
+    "appName": null
+  },
+  {
+    "id": 266,
+    "type": "Color",
+    "obsName": "Color Source",
+    "appName": null
+  },
+  {
+    "id": 267,
+    "type": "Text",
+    "obsName": "1 Hour Timer",
+    "appName": null
+  },
+  {
+    "id": 274,
+    "type": "Image",
+    "obsName": "SnailAd",
+    "appName": null
+  },
+  {
+    "id": 280,
+    "type": "Browser",
+    "obsName": "Debug ShoutoutVideo",
+    "appName": null
+  }
+]

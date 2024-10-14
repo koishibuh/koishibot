@@ -26,6 +26,7 @@ public class ObsRequests
 	public const string GetInputKindList = "GetInputKindList";
 	public const string GetInputSettings = "GetInputSettings";
 	public const string OpenInputInteractDialog = "OpenInputInteractDialog";
+	public const string SetInputSettings = "SetInputSettings";
 
 	// STREAM
 

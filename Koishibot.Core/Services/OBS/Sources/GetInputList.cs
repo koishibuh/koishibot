@@ -1,4 +1,5 @@
-﻿namespace Koishibot.Core.Services.OBS.Sources;
+﻿using System.Text.Json;
+namespace Koishibot.Core.Services.OBS.Sources;
 
 /*═════════════【 REQUEST PARAMETERS 】═════════════*/
 /// <summary>
@@ -23,15 +24,19 @@ public class GetInputListResponse
 
 public class Input
 {
+	[JsonConverter(typeof(ObsInputKindConverter))]
 	public string InputKind { get; set; }
+
 	public string InputName { get; set; }
+
 	public string InputUuid { get; set; }
+
 	public string UnversionedInputKind { get; set; }
 }
 
 public class InputTypes
 {
-	public const string TextGdiPlus2 = "text_gdiplus"; //Text
+	public const string TextGdiPlus2 = "text_gdiplus_v2"; //Text
 	public const string AudioOutputCapture = "wasapi_output_capture"; //Audio
 	public const string AudioInputCapture = "wasapi_input_capture";
 	public const string DeviceInput = "dshow_input"; // Console
@@ -43,4 +48,37 @@ public class InputTypes
 	public const string WindowCapture = "window_capture";
 	public const string MonitorCapture = "monitor_capture";
 	public const string GameCapture = "game_capture";
+}
+
+public class ObsInputKindConverter : JsonConverter<string>
+{
+
+	public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		var inputKind = reader.GetString();
+		return inputKind switch
+		{
+			"text_gdiplus" => "Text", //Text
+			"text_gdiplus_v2" => "Text", //Text
+			"wasapi_output_capture" => "Audio Output", //Audio
+			"wasapi_input_capture" => "Audio Input",
+			"dshow_input" => "Device Input", // Console
+			"ffmpeg_source" => "FFmpeg", // WIFI cam
+			"image_source" => "Image",
+			"browser_source" => "Browser",
+			"color_source" => "Color",
+			"color_source_v3" => "Color",
+			"source-clone" => "Source",
+			"window_capture" => "Window Capture",
+			"monitor_capture" => "Monitor Capture",
+			"game_capture" => "Game Capture",
+			_ => "Unknown"
+		};
+	}
+
+
+	public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
+	{
+		throw new NotImplementedException();
+	}
 }
