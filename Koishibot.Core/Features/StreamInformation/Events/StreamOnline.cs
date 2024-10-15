@@ -3,6 +3,7 @@ using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Interfaces;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Dandle;
+using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.StreamStatus;
@@ -32,8 +33,12 @@ IDandleService DandleService
 
 		await ObsService.CreateWebSocket();
 		await InitializeTimer();
-		// await ChannelPointStatusService.Enable();
-		// await DandleService.StartGame();
+
+		await ChannelPointStatusService.Enable();
+		if (Cache.DandleIsClosed())
+		{
+			await DandleService.StartGame();
+		}
 	}
 
 	private async Task InitializeTimer()
