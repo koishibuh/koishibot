@@ -21,7 +21,7 @@ public class CurrentTimer
 	public CurrentTimer SetStartingSoon()
 	{
 		Title = "Starting Soon";
-		EndsAt = DateTimeOffset.Now + new TimeSpan(0, 5, 0);
+		EndsAt = DateTimeOffset.Now + new TimeSpan(0, 8, 0);
 		return this;
 	}
 
