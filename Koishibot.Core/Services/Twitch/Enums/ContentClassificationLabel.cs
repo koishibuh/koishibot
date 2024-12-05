@@ -10,7 +10,8 @@ public enum ContentClassificationLabel
 	MatureGame,
 	ProfanityVulgarity,
 	SexualThemes,
-	ViolentGraphic
+	ViolentGraphic,
+	DebatedSocialIssuesAndPolitics
 }
 
 // == ⚫ == //
@@ -29,6 +30,7 @@ public class ContentClassificationLabelEnumConverter : JsonConverter<ContentClas
 			"ProfanityVulgarity" => ContentClassificationLabel.ProfanityVulgarity,
 			"SexualThemes" => ContentClassificationLabel.SexualThemes,
 			"ViolentGraphic" => ContentClassificationLabel.ViolentGraphic,
+			"DebatedSocialIssuesAndPolitics" => ContentClassificationLabel.DebatedSocialIssuesAndPolitics,
 			_ => throw new JsonException()
 		};
 	}
@@ -44,6 +46,7 @@ public class ContentClassificationLabelEnumConverter : JsonConverter<ContentClas
 			ContentClassificationLabel.ProfanityVulgarity => "ProfanityVulgarity",
 			ContentClassificationLabel.SexualThemes => "SexualThemes",
 			ContentClassificationLabel.ViolentGraphic => "ViolentGraphic",
+			ContentClassificationLabel.DebatedSocialIssuesAndPolitics => "DebatedSocialIssuesAndPolitics",
 			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 		};
 		if (writer.CurrentDepth.Equals(1))
