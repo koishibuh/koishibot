@@ -20,6 +20,11 @@ IDandleWordService DandleWordService
 			await DandleWordService.DefineWord(c.Message);
 		}
 
+		if (c.Command == "findword")
+		{
+			await DandleWordService.FindWord(c);
+		}
+
 		// if dandle is enabled and suggestions
 		if (Cache.DandleIsClosed())
 		{

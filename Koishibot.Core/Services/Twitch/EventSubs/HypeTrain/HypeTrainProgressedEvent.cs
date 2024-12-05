@@ -83,4 +83,10 @@ public class HypeTrainProgressedEvent
 	[JsonPropertyName("expires_at")]
 	// [JsonConverter(typeof(DateTimeOffsetRFC3339Converter))]
 	public DateTimeOffset ExpiresAt { get; set; }
+
+	/// <summary>
+	/// Indicates if the Hype Train is a Golden Kappa Train.
+	/// </summary>
+	[JsonPropertyName("is_golden_kappa_train")]
+	public bool IsGoldenKappaTrain { get; set; }
 }

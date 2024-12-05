@@ -33,9 +33,9 @@ export const useAxios = () => {
     }
   };
 
-  const patch = async (url: string, data: any | null) => {
+  const patch = async (url: string, data: any | null, params: any | null) => {
     try {
-      const response = await axios.patch(url, data);
+      const response = await axios.patch(url, data, { params: params });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {

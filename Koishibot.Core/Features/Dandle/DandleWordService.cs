@@ -1,10 +1,8 @@
 ﻿using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatMessages.Models;
-using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
-using Koishibot.Core.Features.Dandle.Interfaces;
 using Koishibot.Core.Features.Dandle.Models;
 using Koishibot.Core.Persistence;
 using Newtonsoft.Json;
@@ -13,7 +11,6 @@ namespace Koishibot.Core.Features.Dandle;
 
 public record DandleWordService(
 IServiceScopeFactory ServiceScopeFactory,
-// KoishibotDbContext Database,
 IChatReplyService ChatReplyService,
 IHttpClientFactory HttpClientFactory
 ) : IDandleWordService
@@ -25,7 +22,7 @@ IHttpClientFactory HttpClientFactory
 	{
 		if (c.MessageCorrectLength(5) is false)
 		{
-			await ChatReplyService.App(Command.InvalidLength);
+			await ChatReplyService.App(Command.InvalidWordLength);
 			return;
 		}
 
@@ -42,14 +39,15 @@ IHttpClientFactory HttpClientFactory
 		if (result is not null)
 		{
 			var data = new { Word = c.Message };
-			await ChatReplyService.App(Command.WordExists, data);
+			await ChatReplyService.App(Command.WordAddedFailed, data);
 		}
 		else
 		{
 			var dandleWord = new DandleWord().Set(c.Message);
 			await database.UpdateEntry(dandleWord);
 
-			await ChatReplyService.App(Command.WordAdded);
+			var data = new { Word = c.Message };
+			await ChatReplyService.App(Command.WordAdded, data);
 		}
 	}
 
@@ -69,9 +67,29 @@ IHttpClientFactory HttpClientFactory
 		else
 		{
 			var data = new { Word = c.Message };
+			await ChatReplyService.App(Command.WordRemovedFailed, data);
+		}
+	}
+
+	/*═════════◢◣═════════*/
+	public async Task FindWord(ChatMessageDto c)
+	{
+		using var scope = ServiceScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+
+		var word = await database.FindDandleWord(c.Message);
+		if (word is not null)
+		{
+			var data = new { Word = word.Word };
+			await ChatReplyService.App(Command.FindWord, data);
+		}
+		else
+		{
+			var data = new { Word = c.Message };
 			await ChatReplyService.App(Command.WordNotFound, data);
 		}
 	}
+
 
 	/*═════════◢◣═════════*/
 	public async Task DefineWord(string word)
@@ -97,4 +115,13 @@ IHttpClientFactory HttpClientFactory
 			await ChatReplyService.App(Command.NoDefinition, data);
 		}
 	}
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IDandleWordService
+{
+	Task CreateWord(ChatMessageDto c);
+	Task DeleteWord(ChatMessageDto c);
+	Task FindWord(ChatMessageDto c);
+	Task DefineWord(string word);
 }

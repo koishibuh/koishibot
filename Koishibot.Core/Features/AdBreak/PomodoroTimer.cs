@@ -6,6 +6,7 @@ using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Dandle;
+using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.TwitchApi.Models;
@@ -29,7 +30,7 @@ IDandleService DandleService
 		if (Settings.Value.DebugMode) { return; }
 
 		var parameters = new GetAdScheduleRequestParameters
-		{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
+			{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
 
 		var result = await TwitchApiRequest.GetAdSchedule(parameters);
 		var adInfo = result.ConvertToDto();
@@ -59,7 +60,10 @@ IDandleService DandleService
 		await ChatReplyService.App(Command.PomodoroBreak);
 		await ObsService.StartBreak();
 
-		await DandleService.StartGame();
+		if (Cache.DandleIsClosed())
+		{
+			await DandleService.StartGame();
+		}
 
 		var breakTimer = new CurrentTimer().SetBreak();
 		Cache.AddCurrentTimer(breakTimer);
@@ -88,9 +92,9 @@ IDandleService DandleService
 }
 
 /*══════════════════【 INTERFACE 】══════════════════*/
-	public interface IPomodoroTimer
-	{
-		Task GetAdSchedule();
-		Task StartTimer(AdScheduleDto adInfo);
-		void CancelTimer();
-	}
+public interface IPomodoroTimer
+{
+	Task GetAdSchedule();
+	Task StartTimer(AdScheduleDto adInfo);
+	void CancelTimer();
+}

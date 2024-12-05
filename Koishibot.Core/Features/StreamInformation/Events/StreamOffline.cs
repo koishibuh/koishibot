@@ -1,8 +1,11 @@
 ﻿using Koishibot.Core.Exceptions;
+using Koishibot.Core.Features.AdBreak;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Persistence.Cache.Enums;
+using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.Twitch.Enums;
 using Koishibot.Core.Services.Twitch.Irc;
 using Koishibot.Core.Services.TwitchApi.Models;
@@ -10,28 +13,31 @@ namespace Koishibot.Core.Features.StreamInformation;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
-///   <para>
-///     <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamoffline">
-///       Stream Offline EventSub
-///       Documentation
-///     </see>
-///   </para>
+/// <para>
+/// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#streamoffline">
+/// Stream Offline EventSub
+/// Documentation
+/// </see>
+/// </para>
 /// </summary>
 public record StreamOfflineHandler(
 IOptions<Settings> Settings,
 IAppCache Cache,
 ITwitchApiRequest TwitchApiRequest,
 KoishibotDbContext Database, ITwitchIrcService BotIrc,
-ILogger<StreamOfflineHandler> Log
+ILogger<StreamOfflineHandler> Log,
+IObsService ObsService,
+IPomodoroTimer PomodoroTimer
 ) : IRequestHandler<StreamOfflineCommand>
 {
 	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
 	public async Task Handle(StreamOfflineCommand command, CancellationToken cancel)
 	{
-		// await Cache.UpdateServiceStatus(ServiceName.StreamOnline, Status.Offline);
+		PomodoroTimer.CancelTimer();
+		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, Status.Offline);
 
-		//await ObsService.StopWebsocket();
+		await ObsService.Disconnect();
 
 		await UpdateLiveStreamEndedAt();
 		await UpdateStreamSessionDuration();
@@ -43,9 +49,9 @@ ILogger<StreamOfflineHandler> Log
 		// 	.ClearAttendanceCache()
 		// 	.ClearRaidSuggestions();
 		//
-		// // Clear timer?
-		//
-		// await BotIrc.BotSend("Stream is over, thanks for hanging out!");
+		// Clear timer?
+
+		await BotIrc.BotSend("Stream is over, thanks for hanging out!");
 	}
 
 	private async Task UpdateLiveStreamEndedAt()

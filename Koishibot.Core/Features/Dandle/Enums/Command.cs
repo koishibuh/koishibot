@@ -18,12 +18,14 @@ public class Command
 
 	// Dandle Definition
 
-	public const string NoDefinition = "dandle-nodefinition";
 	public const string Definition = "define";
-	public const string WordNotFound = "dandle-wordnotfound";
-	public const string InvalidLength = "dandle-invalidwordlength";
-	public const string WordExists = "dandle-wordexists";
-	public const string InvalidWord = "dandle-invalidword";
+	public const string NoDefinition = "dandle-definefailed";
 	public const string WordAdded = "dandle-wordadded";
+	public const string WordAddedFailed = "dandle-wordaddedfailed";
 	public const string WordRemoved = "dandle-wordremoved";
+	public const string WordRemovedFailed = "dandle-wordremovedfailed";
+	public const string InvalidWord = "dandle-wordinvalid";
+	public const string InvalidWordLength = "dandle-wordinvalidlength";
+	public const string FindWord = "dandle-wordfind";
+	public const string WordNotFound = "dandle-wordfindfailed";
 }

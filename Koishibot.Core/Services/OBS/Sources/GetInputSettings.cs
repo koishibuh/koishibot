@@ -30,7 +30,8 @@ public class GetInputSettingsResponse
 	/// <summary>
 	/// The kind of the input
 	/// </summary>
-	public InputTypes InputKind { get; set; }
+	[JsonConverter(typeof(ObsInputKindConverter))]
+	public string InputKind { get; set; }
 }
 
 public class InputSettings

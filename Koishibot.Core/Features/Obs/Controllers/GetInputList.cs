@@ -2,6 +2,9 @@
 using Koishibot.Core.Services.OBS.Common;
 namespace Koishibot.Core.Features.Obs.Controllers;
 
+/// <summary>
+/// Requests list of input sources in OBS
+/// </summary>
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/obs")]
 public class GetInputListController : ApiControllerBase
@@ -17,12 +20,9 @@ public class GetInputListController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetInputListHandler(
-IOptions<Settings> Settings,
 IObsService ObsService
 ) : IRequestHandler<GetInputListQuery>
 {
-	public string StreamerId = Settings.Value.StreamerTokens.UserId;
-
 	public async Task Handle
 	(GetInputListQuery query, CancellationToken cancel)
 	{

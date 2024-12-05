@@ -1,20 +1,5 @@
 ﻿namespace Koishibot.Core.Services.OBS.Scenes;
 
-// Gets current scene focus
-/*═══════════════════【 HANDLER 】═══════════════════*/
-public record GetCurrentProgramSceneHandler() : IRequestHandler<GetCurrentProgramSceneCommand>
-{
-	public async Task Handle(GetCurrentProgramSceneCommand request, CancellationToken cancel)
-	{
-		await Task.CompletedTask;
-		//TODO: WIP
-	}
-}
-
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record GetCurrentProgramSceneCommand(
-GetCurrentProgramSceneResponse args
-) : IRequest;
 
 /*══════════════════【 RESPONSE 】══════════════════*/
 /// <summary>

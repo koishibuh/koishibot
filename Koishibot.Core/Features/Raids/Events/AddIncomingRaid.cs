@@ -1,6 +1,7 @@
 ﻿using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Features.Raids.Interfaces;
 using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Enums;
@@ -9,9 +10,11 @@ using Koishibot.Core.Features.StreamInformation.ViewModels;
 using Koishibot.Core.Features.TwitchUsers;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.OBS;
+using Koishibot.Core.Services.OBS.Common;
+using Koishibot.Core.Services.OBS.Sources;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Raids;
 using Koishibot.Core.Services.TwitchApi.Models;
-
 namespace Koishibot.Core.Features.Raids.Events;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
@@ -22,7 +25,8 @@ ITwitchUserHub TwitchUserHub,
 ISignalrService Signalr,
 KoishibotDbContext Database,
 IPromoVideoService PromoVideoService,
-IChatReplyService ChatReplyService
+IChatReplyService ChatReplyService,
+IObsService ObsService
 ) : IRequestHandler<IncomingRaidCommand>
 {
 	public async Task Handle(IncomingRaidCommand command, CancellationToken cancellationToken)
@@ -38,17 +42,58 @@ IChatReplyService ChatReplyService
 			await Signalr.SendPromoVideoUrl(videoUrl);
 		}
 
-		// TODO: Figure out setup in OBS
-		// Check if OBS has a way to open interact window for video
-		// Overlay have follow clicky animation after shoutout
+		var browserSource = await Database.FindObsItemByAppName(ObsAppName.ShoutoutVideo);
+		if (browserSource is null)
+		{
+			await Signalr.SendError("ShoutoutVideo ObsSource not found");
+		}
+		else
+		{
+			// update input settings
+			var browserRequest = new RequestWrapper<SetInputSettingsRequest<BrowserSourceSettings>>
+			{
+				RequestType = ObsRequests.SetInputSettings,
+				RequestId = new Guid(),
+				RequestData = new SetInputSettingsRequest<BrowserSourceSettings>
+				{
+					InputUuid = browserSource.ObsId,
+					InputSettings = new BrowserSourceSettings
+					{
+						Url = videoUrl
+					}
+				}
+			};
 
-		// Get Streamer Info for chat message
+			var inputRequest = new RequestWrapper<OpenInputInteractDialog>
+			{
+				RequestType = ObsRequests.OpenInputInteractDialog,
+				RequestId = new Guid(),
+				RequestData = new OpenInputInteractDialog
+				{
+					InputUuid = browserSource.ObsId
+				}
+			};
+
+			var batchRequest = new ObsBatchRequest
+			{
+				Data = new RequestBatchWrapper
+				{
+					RequestId = new Guid(),
+					Requests = new List<object>
+					{
+						browserRequest,
+						inputRequest
+					}
+				}
+			};
+
+			await ObsService.SendBatchRequest(batchRequest);
+		}
+
+		// TODO: Overlay have follow clicky animation after shoutout
 
 		var streamInfo = await GetStreamInfo(user.TwitchId);
-
-		// Add category to database
 		await Database.GetStreamCategoryId(streamInfo.Category, streamInfo.CategoryId);
-
 		await ChatReplyService.App(Command.RaidReceived);
 
 		var incomingRaid = new IncomingRaid

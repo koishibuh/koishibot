@@ -2,7 +2,21 @@
 
 namespace Koishibot.Core.Services.OBS.Common;
 
+public class ObsRequest
+{
+	public OpCodeType? Op { get; set; } = OpCodeType.Request;
 
+	[JsonPropertyName("d")]
+	public RequestWrapper Data { get; set; } = null!;
+}
+
+public class RequestWrapper
+{
+	public string? RequestType { get; set; }
+	public Guid RequestId { get; set; } = new Guid();
+}
+
+///
 public class ObsRequest<T> 
 {
 	public OpCodeType? Op { get; set; } = OpCodeType.Request;
@@ -18,17 +32,18 @@ public class RequestWrapper<T>
 	public T? RequestData { get; set; }
 }
 
+///
 
-public class ObsRequest
+public class ObsBatchRequest
 {
-	public OpCodeType? Op { get; set; } = OpCodeType.Request;
+	public OpCodeType? Op { get; set; } = OpCodeType.RequestBatch;
 
 	[JsonPropertyName("d")]
-	public RequestWrapper Data { get; set; } = null!;
+	public RequestBatchWrapper Data { get; set; } = null;
 }
 
-public class RequestWrapper
+public class RequestBatchWrapper
 {
-	public string? RequestType { get; set; }
-	public Guid RequestId { get; set; } = new Guid();
+	public Guid RequestId { get; set; }
+	public List<object> Requests { get; set; }
 }

@@ -1,18 +1,5 @@
 ﻿namespace Koishibot.Core.Services.OBS.Sources;
 
-/*═══════════════════【 HANDLER 】═══════════════════*/
-public record GetInputKindListHandler() : IRequestHandler<GetInputKindListCommand>
-{
-	public async Task Handle(GetInputKindListCommand request, CancellationToken cancel)
-	{
-		await Task.CompletedTask;
-		// TODO: WIP
-	}
-}
-
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record GetInputKindListCommand(GetInputKindListResponse args) : IRequest;
-
 
 /*═════════════【 REQUEST PARAMETERS 】═════════════*/
 /// <summary>
