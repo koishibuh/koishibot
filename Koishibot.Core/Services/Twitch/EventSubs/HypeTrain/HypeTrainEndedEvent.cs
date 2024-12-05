@@ -79,4 +79,10 @@ public class HypeTrainEndedEvent
 	/// </summary>
 	[JsonPropertyName("cooldown_ends_at")]
 	public DateTimeOffset CooldownEndsAt { get; set; }
+
+	/// <summary>
+	/// Indicates if the Hype Train is a Golden Kappa Train.
+	/// </summary>
+	[JsonPropertyName("is_golden_kappa_train")]
+	public bool IsGoldenKappaTrain { get; set; }
 }
