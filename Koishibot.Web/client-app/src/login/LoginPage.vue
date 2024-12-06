@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAuthenticationStore } from '@/login/authentication.store';
-import { useRouter } from 'vue-router';
+import {ref} from 'vue';
+import {useAuthenticationStore} from '@/login/authentication.store';
+import {useRouter} from 'vue-router';
 
 const store = useAuthenticationStore();
 const route = useRouter();
@@ -22,7 +22,7 @@ const formattedBuildTimestamp = ref(new Date(buildTimestamp.value).toLocaleStrin
 async function login() {
   try {
     await store.loginUser(username.value, password.value);
-    route.push({ name: 'Home' });
+    route.push({name: 'Home'});
   } catch (error) {
     console.log(error);
   }
@@ -30,17 +30,30 @@ async function login() {
 </script>
 
 <template>
-  <div class="w-1/2 mx-auto">
-    <form @submit.prevent="login" class="flex flex-col border-2 p-2 gap-2 rounded my-2">
-      <label for="username"> Username: </label>
-      <input v-model="username" type="text" name="username" class="p-2" />
+  <div class="flex flex-col h-dvh bg-secondary">
+    <div class="hidden fixed lg:block left-0 w-full fill-primary origin-center rotate-180 top-0 overflow-hidden z-10">
+      <svg class="relative w-119 h-[250px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="shape-fill"></path>
+      </svg>
+    </div>
 
-      <label for="password"> Password: </label>
-      <input v-model="password" type="password" name="password" class="p-2" />
+    <div class="hidden fixed left-0 w-full lg:block fill-primary bottom-0 overflow-hidden z-10">
+      <svg class="relative w-119 h-[250px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="shape-fill"></path>
+      </svg>
+    </div>
 
-      <button type="submit" name="button" class="login-button">Login</button>
-    </form>
+    <div class="w-[400px] m-auto">
+      <form @submit.prevent="login" class="flex flex-col p-2 gap-2 my-2 bg-background rounded border-2 border-background">
+        <label for="username" class="text-foreground"> Username: </label>
+        <input v-model="username" type="text" name="username" class="p-2"/>
+
+        <label for="password" class="text-foreground"> Password: </label>
+        <input v-model="password" type="password" name="password" class="p-2"/>
+
+        <button type="submit" name="button" class="login-button">Login</button>
+      </form>
+    <p class="text-center">{{ formattedBuildTimestamp }}</p>
+    </div>
   </div>
-
-  <p class="text-center">{{ formattedBuildTimestamp }}</p>
 </template>
