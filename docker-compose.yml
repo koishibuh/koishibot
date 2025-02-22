@@ -1,4 +1,4 @@
-version: "3.8"
+name: koishibot
 services: 
   koishibot-web:
     container_name: "koishibot-web"

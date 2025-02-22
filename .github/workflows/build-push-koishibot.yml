@@ -33,13 +33,11 @@ jobs:
 
       - name: Extract metadata (tag, labels) for Docker
         id: meta
-        # uses: docker/metadata-action@v5.5.1
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81
         with:
           images: ${{ env.REGISTRY }}/${{ env.HAMDLEBOT_WEB_IMAGE_NAME }}
 
       - name: Build and push Koishibot Web
-        # uses: docker/build-push-action@v6.6.1
         uses: docker/build-push-action@16ebe778df0e7752d2cfcbd924afdbbd89c1a755
         with:
           context: ./
@@ -55,19 +53,20 @@ jobs:
      contents: read
      packages: read
     steps:
-      - name: Excecute ssh commands to pull down repo and run docker compose
+      - name: Execute ssh commands to pull down repo and run docker compose
         uses: appleboy/ssh-action@v1.0.3
         with:
          host: ${{secrets.HOSTNAME}}
          username: ${{secrets.DEPLOY_USER}}
          key: ${{secrets.DEPLOY_SSH_KEY}}
          script: |
-            rm -rf koishibot
-            gh repo clone koishibuh/koishibot
-            docker login ghcr.io -u ${{github.actor}} --password ${{ secrets.GITHUB_TOKEN }}
-            cd koishibot
-            cp docker-compose.yml /etc/docker-env && cd /etc/docker-env
-            docker compose down
-            docker compose pull
-            docker compose up -d
-            rm -rf docker-compose.yml
+           rm -rf koishibot
+           gh auth login --with-token ${{secrets.GITHUB_TOKEN}}
+           gh repo clone koishibuh/koishibot
+           echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username ${{ github.actor }} --password-stdin ghcr.io
+           cd koishibot
+           cp docker-compose.yml /etc/docker-env && cd /etc/docker-env
+           docker compose down
+           docker compose pull
+           docker compose up -d
+           rm -rf docker-compose.yml
