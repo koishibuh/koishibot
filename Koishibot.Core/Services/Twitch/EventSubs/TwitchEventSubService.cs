@@ -74,7 +74,7 @@ ITwitchApiRequest TwitchApiRequest
 	public async Task CreateWebSocket()
 	{
 		var url = _useCli
-			? $"ws://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}"
+			? $"wss://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}"
 			: $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
 
 		try

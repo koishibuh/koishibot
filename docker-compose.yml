@@ -8,5 +8,3 @@ services:
       - /etc/docker-env/.koishibot-web-env
     ports:
       - 8789:8080
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
