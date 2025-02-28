@@ -8,3 +8,4 @@ services:
       - /etc/docker-env/.koishibot-web-env
     ports:
       - 8789:8080
+    network_mode: "host"
