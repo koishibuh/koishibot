@@ -27,7 +27,7 @@ IServiceScopeFactory ScopeFactory
 {
 	public CancellationToken? Cancel { get; set; }
 	private WebSocketFactory Factory { get; set; } = new();
-	private WebSocketHandler? ObsWebSocket { get; set; } 
+	private WebSocketHandler? ObsWebSocket { get; set; }
 
 	private readonly JsonSerializerOptions _options =
 		new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -42,7 +42,7 @@ IServiceScopeFactory ScopeFactory
 
 		try
 		{
-			var url = $"wss://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
+			var url = $"wss://{Settings.Value.ObsSettings.WebsocketUrl}/{Settings.Value.ObsSettings.Port}";
 			ObsWebSocket = await Factory.Create(url, 3, ProcessMessage, Error, Closed);
 		}
 		catch (Exception e)
