@@ -42,7 +42,7 @@ IServiceScopeFactory ScopeFactory
 
 		try
 		{
-			var url = $"wss://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
+			var url = $"ws://{Settings.Value.ObsSettings.WebsocketUrl}:{Settings.Value.ObsSettings.Port}";
 			// var url = $"wss://{Settings.Value.ObsSettings.WebsocketUrl}/{Settings.Value.ObsSettings.Port}";
 			ObsWebSocket = await Factory.Create(url, 3, ProcessMessage, Error, Closed);
 		}
