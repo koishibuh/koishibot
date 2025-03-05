@@ -13,24 +13,60 @@ ISignalrService Signalr
 	{
 		var inputList = receivedCommand.CreateInputList();
 		var obsItemVms = new List<ObsItemVm>();
+		
+		var storedObsItemIds = await Database.ObsItems.Select(x => x.Id).ToListAsync();
+
 
 		foreach (var item in inputList)
 		{
-			var result = await Database.ObsItems
+			var storedEntry = await Database.ObsItems
 				.FirstOrDefaultAsync(x => x.ObsId == item.ObsId);
-			if (result is null)
+			if (storedEntry is null)
 			{
 				Database.Add(item);
+				return;
 			}
-			else if (result.ObsName != item.ObsName)
+			
+			 if (storedEntry.ObsName != item.ObsName)
 			{
-				result.ObsName = item.ObsName;
-				Database.Update(result);
+				storedEntry.ObsName = item.ObsName;
+				Database.Update(storedEntry);
+			}
+			
+			if (storedEntry.AppName is not null && item.ObsName.Contains("🤖") is false)
+			{
+				storedEntry.ObsName = $"{storedEntry.ObsName} 🤖";
+				Database.Update(storedEntry);
 			}
 
-			var obsItem = result!.CreateVm();
+			storedObsItemIds.Remove(storedEntry.Id);
+
+			var obsItem = storedEntry!.CreateVm();
 			obsItemVms.Add(obsItem);
 		}
+		
+		// Check if the list has anything remaining
+		if (storedObsItemIds.Count != 0)
+		{
+			foreach (var obsItemId in storedObsItemIds)
+			{
+				// Check if Obj has a App Name
+				var result = await Database.FindObsItemById(obsItemId);
+
+				if (result is null)
+				{
+					// Something bork?
+					return;
+				}
+
+				if (result.AppName is not null)
+				{
+					// Need to post alert on UI that this needs to be replaced
+					// TODO: Add icon on OBS items that are used by application?
+				}
+			}
+		}
+		
 		await Database.SaveChangesAsync(cancel);
 
 		await Signalr.SendObsItems(obsItemVms);

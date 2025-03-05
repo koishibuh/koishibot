@@ -32,6 +32,8 @@ IObsService ObsService
 			throw new CustomException("Obs Port is empty");
 
 		await ObsService.CreateWebSocket();
+		
+		// TODO: Fetch list of scenes
 	}
 }
 
