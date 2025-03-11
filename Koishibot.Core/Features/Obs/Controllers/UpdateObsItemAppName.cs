@@ -1,4 +1,8 @@
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.OBS;
+using Koishibot.Core.Services.OBS.Common;
+using Koishibot.Core.Services.OBS.Enums;
+using Koishibot.Core.Services.OBS.Sources;
 namespace Koishibot.Core.Features.Obs.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
@@ -18,7 +22,8 @@ public class UpdateObsItemAppNameController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record UpdateObsItemAppNameHandler(
-KoishibotDbContext Database
+KoishibotDbContext Database,
+IObsService ObsService
 ) : IRequestHandler<UpdateObsItemAppNameCommand>
 {
 	public async Task Handle
@@ -31,6 +36,30 @@ KoishibotDbContext Database
 			throw new Exception($"ObsItem with {c.Id} not found");
 
 		obsItemDb.AppName = c.AppName;
+
+		if (obsItemDb.ObsName.Contains("🤖") is false)
+		{
+			obsItemDb.ObsName = $"{obsItemDb.ObsName} 🤖";
+			
+			var data = new RequestWrapper<SetInputNameRequest>
+			{
+				RequestType = ObsRequests.SetInputName,
+				RequestId = new Guid(),
+				RequestData = new SetInputNameRequest
+				{
+					InputUuid = obsItemDb.ObsId,
+					NewInputName = obsItemDb.ObsName
+				}
+			};
+
+			var request = new ObsRequest<SetInputNameRequest>
+			{
+				Op = OpCodeType.Request,
+				Data = data
+			};
+
+			await ObsService.SendRequest(request);
+		}
 
 		Database.Update(obsItemDb);
 		await Database.SaveChangesAsync(cancel);

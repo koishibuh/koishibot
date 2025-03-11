@@ -3,7 +3,7 @@ using Koishibot.Core.Services.OBS.Common;
 namespace Koishibot.Core.Features.Obs.Controllers;
 
 /// <summary>
-/// Requests list of input sources in OBS
+/// Requests list of sources in OBS
 /// </summary>
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/obs")]
@@ -19,6 +19,10 @@ public class GetInputListController : ApiControllerBase
 }
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
+/// <summary>
+/// https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getinputlist
+/// </summary>
+/// <param name="ObsService"></param>
 public record GetInputListHandler(
 IObsService ObsService
 ) : IRequestHandler<GetInputListQuery>

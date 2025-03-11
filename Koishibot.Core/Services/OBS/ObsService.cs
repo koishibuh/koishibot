@@ -13,6 +13,7 @@ using Koishibot.Core.Services.OBS.Enums;
 using Koishibot.Core.Services.OBS.Scenes;
 using Koishibot.Core.Services.OBS.Sources;
 using Koishibot.Core.Services.Websockets;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Koishibot.Core.Services.OBS;
 
@@ -183,17 +184,53 @@ IServiceScopeFactory ScopeFactory
 		using var scope = ScopeFactory.CreateScope();
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
 
+		// Get list of items from Database
+		var storedObsItemIds = await database.ObsItems.Select(x => x.Id).ToListAsync();
+
 		foreach (var source in sources)
 		{
 			var result = await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == source.ObsId);
 			if (result is null)
 			{
 				database.Add(source);
+				return;
 			}
-			else if (result.ObsName != source.ObsName)
+
+			if (result.ObsName != source.ObsName)
 			{
 				result.ObsName = source.ObsName;
 				database.Update(result);
+			}
+
+		// 	if (result.AppName is not null && result.ObsName.Contains("🤖") is false)
+		// 	{
+		// 		result.ObsName = $"{result.ObsName} 🤖";
+		// 		database.Update(result);
+		// 	}
+		//
+		// 	storedObsItemIds.Remove(result.Id);
+		}
+
+		// Check if the list has anything remaining
+
+		if (storedObsItemIds.Count != 0)
+		{
+			foreach (var obsItemId in storedObsItemIds)
+			{
+				// Check if Obj has a App Name
+				var result = await database.FindObsItemById(obsItemId);
+
+				if (result is null)
+				{
+					// Something bork?
+					return;
+				}
+
+				if (result.AppName is not null)
+				{
+					// Need to post alert on UI that this needs to be replaced
+					// TODO: Add icon on OBS items that are used by application?
+				}
 			}
 		}
 

@@ -32,8 +32,8 @@ IChannelPointsApi ChannelPointsApi
 {
 	public async Task Handle(DisableDragonQuestCommand command, CancellationToken cancel)
 	{
-		var alreadyDisabled = Cache.GetStatusByServiceName(ServiceName.DragonQuest);
-		if (alreadyDisabled) throw new CustomException("Dragon Quest already disabled");
+		var enabled = Cache.GetStatusByServiceName(ServiceName.DragonQuest);
+		if (enabled is false) throw new CustomException("Dragon Quest already disabled");
 
 		var reward = await Database.GetChannelRewardByName("Dragon Egg Quest");
 		if (reward is null) throw new NullException("Reward not found in database");

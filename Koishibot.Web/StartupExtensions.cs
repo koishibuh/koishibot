@@ -20,11 +20,11 @@ public static class StartupExtensions
 		var debugMode = builder.Environment.IsDevelopment();
 		if (debugMode)
 		{	
-			builder.Configuration.AddJsonFile("appsettings.json", optional: false);
+			// builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 			builder.Configuration.AddJsonFile
 				("ASettings/settings.json", optional: false);
-			// builder.Configuration.AddJsonFile
-			// 	("ASettings/dbstring.json", optional: false);
+			builder.Configuration.AddJsonFile
+				("ASettings/dbstring.json", optional: false);
 			builder.Configuration.AddUserSecrets<Program>();
 			var appSettings = builder.Configuration.GetSection("AppSettings");
 			builder.Services.Configure<Settings>(appSettings);
@@ -139,7 +139,7 @@ public static class StartupExtensions
 
 		var koishibotHubUrl = debugMode
 			? "https://localhost:7115/notifications" 
-			: "http://localhost:8080/notifications";
+			: "https://localhost:8080/notifications";
 
 		var koishibotHubConnection = new HubConnectionBuilder()
 			.WithUrl(koishibotHubUrl)

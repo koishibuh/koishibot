@@ -36,7 +36,10 @@ public static class ObsItemExtensions
 {
 	public static async Task<ObsItem?> FindObsItemByObsId(this KoishibotDbContext database, string obsId) =>
 		await database.ObsItems.FirstOrDefaultAsync(x => x.ObsId == obsId);
-
+	
+	public static async Task<ObsItem?> FindObsItemById(this KoishibotDbContext database, int id) =>
+		await database.ObsItems.FirstOrDefaultAsync(x => x.Id == id);
+	
 	public static ObsItemVm CreateVm(this ObsItem obsItem) =>
 		new ObsItemVm(obsItem.Id, obsItem.Type, obsItem.ObsName, obsItem.AppName);
 
