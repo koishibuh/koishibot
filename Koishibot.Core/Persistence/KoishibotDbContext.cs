@@ -23,7 +23,6 @@ public class KoishibotDbContext : DbContext
 	public DbSet<IncomingRaid> IncomingRaids => Set<IncomingRaid>();
 	public DbSet<PollResult> PollResults => Set<PollResult>();
 	public DbSet<ChannelFollow> ChannelFollows => Set<ChannelFollow>();
-	public DbSet<AppLogin> AppLogins => Set<AppLogin>();
 	public DbSet<AppKey> AppKeys => Set<AppKey>();
 	public DbSet<DandleResult> DandleResults => Set<DandleResult>();
 	public DbSet<DandleWord> DandleWords => Set<DandleWord>();

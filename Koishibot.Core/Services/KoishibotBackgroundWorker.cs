@@ -51,7 +51,7 @@ IStreamStatsService streamStatsService,
 		obsService.SetCancellationToken(cancel);
 
 		await refreshOAuthTokensService.Initalize();
-		if (settings.Value.StreamerTokens.AccessToken is not null)
+		if (settings.Value.StreamerTokens.AccessToken is not "")
 		{
 			await refreshOAuthTokensService.Start();
 			await startupTwitchServices.Start();
