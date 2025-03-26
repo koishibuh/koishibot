@@ -16,19 +16,21 @@ namespace Koishibot.Core.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "AppLogin",
+                name: "AppKeys",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Username = table.Column<string>(type: "longtext", nullable: false)
+                    Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    HashedPassword = table.Column<string>(type: "longtext", nullable: false)
+                    Key = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Value = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AppLogin", x => x.Id);
+                    table.PrimaryKey("PK_AppKeys", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -158,13 +160,13 @@ namespace Koishibot.Core.Persistence.Migrations
                     VoteTwo = table.Column<int>(type: "int", nullable: false),
                     ChoiceThree = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    VoteThree = table.Column<int>(type: "int", nullable: false),
+                    VoteThree = table.Column<int>(type: "int", nullable: true),
                     ChoiceFour = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    VoteFour = table.Column<int>(type: "int", nullable: false),
+                    VoteFour = table.Column<int>(type: "int", nullable: true),
                     ChoiceFive = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    VoteFive = table.Column<int>(type: "int", nullable: false),
+                    VoteFive = table.Column<int>(type: "int", nullable: true),
                     WinningChoice = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
@@ -390,7 +392,7 @@ namespace Koishibot.Core.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ChannelPointRewardId = table.Column<int>(type: "int", nullable: false),
-                    RedeemedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     WasSuccesful = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
@@ -516,6 +518,30 @@ namespace Koishibot.Core.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "KoiKinDragons",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Timestamp = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
+                    Code = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_KoiKinDragons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_KoiKinDragons_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "SETips",
                 columns: table => new
                 {
@@ -594,26 +620,6 @@ namespace Koishibot.Core.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "WordpressItemTags",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    WordPressId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WordpressItemTags", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_WordpressItemTags_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "StreamSessions",
                 columns: table => new
                 {
@@ -636,37 +642,14 @@ namespace Koishibot.Core.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "KoiKinDragons",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    WordpressId = table.Column<int>(type: "int", nullable: false),
-                    Timestamp = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
-                    Code = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ItemTagId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_KoiKinDragons", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_KoiKinDragons_WordpressItemTags_ItemTagId",
-                        column: x => x.ItemTagId,
-                        principalTable: "WordpressItemTags",
-                        principalColumn: "Id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "LiveStreams",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     TwitchId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    VideoId = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     StartedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
                     EndedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
@@ -790,9 +773,15 @@ namespace Koishibot.Core.Persistence.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_KoiKinDragons_ItemTagId",
+                name: "IX_KoiKinDragons_Code",
                 table: "KoiKinDragons",
-                column: "ItemTagId");
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_KoiKinDragons_UserId",
+                table: "KoiKinDragons",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LiveStreams_StreamSessionId",
@@ -858,19 +847,13 @@ namespace Koishibot.Core.Persistence.Migrations
                 table: "Users",
                 column: "TwitchId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_WordpressItemTags_UserId",
-                table: "WordpressItemTags",
-                column: "UserId",
-                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AppLogin");
+                name: "AppKeys");
 
             migrationBuilder.DropTable(
                 name: "Attendances");
@@ -943,9 +926,6 @@ namespace Koishibot.Core.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "DandleWords");
-
-            migrationBuilder.DropTable(
-                name: "WordpressItemTags");
 
             migrationBuilder.DropTable(
                 name: "StreamSessions");

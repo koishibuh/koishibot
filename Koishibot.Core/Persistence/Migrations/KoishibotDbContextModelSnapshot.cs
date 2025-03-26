@@ -47,27 +47,6 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.ToTable("AppKeys", (string)null);
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ApplicationAuthentication.Models.AppLogin", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("HashedPassword")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppLogin", (string)null);
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.AttendanceLog.Models.Attendance", b =>
                 {
                     b.Property<int>("Id")
