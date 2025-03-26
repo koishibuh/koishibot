@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koishibot.Core.Persistence.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
-    partial class KoishibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250325235127_AddedTwitchUserDragon")]
+    partial class AddedTwitchUserDragon
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,6 +192,9 @@ namespace Koishibot.Core.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
+                    b.Property<int?>("ItemTagId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -196,7 +202,10 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WordpressId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -204,9 +213,33 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
+                    b.HasIndex("ItemTagId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("KoiKinDragons", (string)null);
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WordPressId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("WordpressItemTags", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>
@@ -927,9 +960,24 @@ namespace Koishibot.Core.Persistence.Migrations
 
             modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>
                 {
+                    b.HasOne("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", "ItemTag")
+                        .WithMany("KoiKinDragons")
+                        .HasForeignKey("ItemTagId");
+
                     b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "TwitchUser")
                         .WithMany("KoiKinDragons")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("ItemTag");
+
+                    b.Navigation("TwitchUser");
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "TwitchUser")
+                        .WithOne("WordpressItemTag")
+                        .HasForeignKey("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", "UserId");
 
                     b.Navigation("TwitchUser");
                 });
@@ -1116,6 +1164,11 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.Navigation("ChannelPointRedemptions");
                 });
 
+            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.WordpressItemTag", b =>
+                {
+                    b.Navigation("KoiKinDragons");
+                });
+
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>
                 {
                     b.Navigation("CommandNames");
@@ -1165,6 +1218,8 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.Navigation("SupportTotal");
 
                     b.Navigation("UsersSuggestingThisRaidTarget");
+
+                    b.Navigation("WordpressItemTag");
                 });
 #pragma warning restore 612, 618
         }

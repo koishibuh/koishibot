@@ -3,6 +3,7 @@ using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.KoiKinDragons.Models;
 using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.Supports.Models;
@@ -35,7 +36,7 @@ public class TwitchUser : IEntity
 	public IList<Kofi> KofiSupport { get; set; } = [];
 	public IList<SETip> SETips { get; set; } = [];
 	public SupportTotal? SupportTotal { get; set; }
-	public WordpressItemTag? WordpressItemTag { get; set; }
+	public IList<KoiKinDragon> KoiKinDragons { get; set; } = [];
 
 	// == ⚫ == //
 	public bool IsIgnored() => Permissions == PermissionLevel.Ignore;
@@ -206,9 +207,14 @@ public class UserConfig : IEntityTypeConfiguration<TwitchUser>
 			.HasForeignKey(p => p.UserId)
 			.IsRequired(false);
 
-		builder.HasOne(p => p.WordpressItemTag)
+		// builder.HasOne(p => p.WordpressItemTag)
+		// 	.WithOne(p => p.TwitchUser)
+		// 	.HasForeignKey<WordpressItemTag>(p => p.UserId)
+		// 	.IsRequired(false);
+		
+		builder.HasMany(p => p.KoiKinDragons)
 			.WithOne(p => p.TwitchUser)
-			.HasForeignKey<WordpressItemTag>(p => p.UserId)
+			.HasForeignKey(p => p.UserId)
 			.IsRequired(false);
 	}
 }

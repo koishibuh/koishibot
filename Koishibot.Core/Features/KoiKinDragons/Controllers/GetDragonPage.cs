@@ -3,7 +3,7 @@ using Koishibot.Core.Exceptions;
 using Koishibot.Core.Features.ChannelPoints.Enums;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands;
-namespace Koishibot.Core.Features.ChannelPoints.Controllers;
+namespace Koishibot.Core.Features.KoiKinDragons.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/dragon-quest/")]

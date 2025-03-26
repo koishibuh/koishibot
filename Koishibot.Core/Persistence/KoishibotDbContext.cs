@@ -3,6 +3,7 @@ using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.Dandle.Models;
+using Koishibot.Core.Features.KoiKinDragons.Models;
 using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.Raids.Models;
@@ -35,7 +36,6 @@ public class KoishibotDbContext : DbContext
 	public DbSet<ObsItem> ObsItems => Set<ObsItem>();
 	public DbSet<StreamCategory> StreamCategories => Set<StreamCategory>();
 	public DbSet<KoiKinDragon> KoiKinDragons => Set<KoiKinDragon>();
-	public DbSet<WordpressItemTag> WordpressItemTags => Set<WordpressItemTag>();
 	public DbSet<LiveStream> LiveStreams => Set<LiveStream>();
 	public DbSet<StreamSession> StreamSessions => Set<StreamSession>();
 

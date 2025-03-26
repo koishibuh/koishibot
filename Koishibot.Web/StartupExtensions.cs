@@ -1,4 +1,5 @@
-﻿using Koishibot.Core.Common;
+﻿using AspNetCore.Authentication.ApiKey;
+using Koishibot.Core.Common;
 using Koishibot.Core.Configurations;
 using Koishibot.Core.Exceptions;
 using Koishibot.Core.Persistence;
@@ -49,7 +50,7 @@ public static class StartupExtensions
 
 			builder.Services.AddAuthorization();
 
-			builder.Services.AddAuthentication("Bearer")
+			builder.Services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
 				.AddJwtBearer(o =>
 				{
 					o.TokenValidationParameters = new()
@@ -62,6 +63,29 @@ public static class StartupExtensions
 						IssuerSigningKey = new SymmetricSecurityKey
 							(Encoding.ASCII.GetBytes
 								(auth.GetRequiredSection("Key").Value))
+					};
+				})
+				.AddApiKeyInHeaderOrQueryParams(options =>
+				{
+					options.Realm = "Bot Api";
+					options.KeyName = "API-Key";
+					options.Events = new ApiKeyEvents
+					{
+						OnValidateKey = async context =>
+						{
+							var validApiKey = auth.GetRequiredSection("EGKey").Value;
+
+							if (context.ApiKey == validApiKey)
+							{
+								context.ValidationSucceeded();
+							}
+							else
+							{
+								context.ValidationFailed();
+							}
+							
+							await Task.CompletedTask;
+						}
 					};
 				});
 		}
@@ -76,7 +100,7 @@ public static class StartupExtensions
 
 			builder.Services.AddAuthorization();
 
-			builder.Services.AddAuthentication("Bearer")
+			builder.Services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
 				.AddJwtBearer(o =>
 				{
 					o.TokenValidationParameters = new()
@@ -90,7 +114,30 @@ public static class StartupExtensions
 							(Encoding.ASCII.GetBytes
 								(auth.GetRequiredSection("Key").Value))
 					};
-				});	
+				})
+				.AddApiKeyInHeaderOrQueryParams(options =>
+				{
+					options.Realm = "Bot Api";
+					options.KeyName = "API-Key";
+					options.Events = new ApiKeyEvents
+					{
+						OnValidateKey = async context =>
+						{
+							var validApiKey = auth.GetRequiredSection("EGKey").Value;
+
+							if (context.ApiKey == validApiKey)
+							{
+								context.ValidationSucceeded();
+							}
+							else
+							{
+								context.ValidationFailed();
+							}
+							
+							await Task.CompletedTask;
+						}
+					};
+				});
 		}
 
 		builder.Services.AddHttpClient("Dictionary", httpClient =>
