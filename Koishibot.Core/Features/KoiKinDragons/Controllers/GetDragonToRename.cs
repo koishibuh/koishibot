@@ -1,13 +1,12 @@
 using Koishibot.Core.Exceptions;
-using Koishibot.Core.Features.ChannelPoints.Models;
+using Koishibot.Core.Features.KoiKinDragons.Models;
 using Koishibot.Core.Persistence;
-namespace Koishibot.Core.Features.ChannelPoints.Controllers;
+namespace Koishibot.Core.Features.KoiKinDragons.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/dragon-quest")]
 public class GetDragonToRenameController : ApiControllerBase
 {
-	[SwaggerOperation(Tags = ["Dragon Quest"])]
 	[HttpGet("rename")]
 	public async Task<ActionResult> GetDragonToRename()
 	{
@@ -18,8 +17,6 @@ public class GetDragonToRenameController : ApiControllerBase
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record GetDragonToRenameHandler(
-// IOptions<Settings> Settings,
-// ITwitchApiRequest TwitchApiRequest,
 KoishibotDbContext Database
 ) : IRequestHandler<GetDragonToRenameQuery, KoiKinDragonVm>
 {

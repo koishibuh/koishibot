@@ -21,7 +21,7 @@ const saveDragon = async () => {
     code.value = code.value.replace("https://dragcave.net/view/", "");
   }
 
-  await http.post('/api/dragon-quest/wordpress', {code: code.value});
+  await http.post('/api/dragons', {code: code.value});
   code.value = '';
   eggDescription.value = null;
 }
@@ -34,14 +34,6 @@ const getEggs = async (location: string) => {
 }
 
 const username = ref<string>('');
-
-const createUserItemTag = async () => {
-  try {
-    await http.post('/api/wordpress/item-tag', {username: username.value.toLowerCase()});
-  } catch (error) {
-    console.log('Unable to add item tag for user');
-  }
-}
 </script>
 
 <template>
@@ -62,14 +54,6 @@ const createUserItemTag = async () => {
     <form @submit.prevent="saveDragon()" class="flex flex-col gap-2 my-4">
       <label for="code">Dragon Code</label>
       <input type="text" v-model="code" id="code" class="text-black"/>
-      <button class="primary-button">Save</button>
-    </form>
-  </div>
-
-  <div>
-    <form @submit.prevent="createUserItemTag()" class="flex flex-col gap-2 my-4">
-      <label for="username">Twitch Username</label>
-      <input type="text" v-model="username" id="username" class="text-black"/>
       <button class="primary-button">Save</button>
     </form>
   </div>

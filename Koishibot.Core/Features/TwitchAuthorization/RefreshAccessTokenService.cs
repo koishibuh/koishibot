@@ -1,14 +1,29 @@
 ﻿using System.Text.Json;
 using Koishibot.Core.Features.TwitchAuthorization.Enums;
 using Koishibot.Core.Features.TwitchAuthorization.Models;
+using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.TwitchAuthorization;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
 public record RefreshAccessTokenService(
 IOptions<Settings> Settings,
-IHttpClientFactory HttpClientFactory
+IHttpClientFactory HttpClientFactory,
+IServiceScopeFactory ScopeFactory
 ) : IRefreshAccessTokenService
 {
+	public async Task Initalize()
+	{
+		using var scope = ScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+		var result = await database.AppKeys
+			.Where(x => x.Name == "StreamerToken" && x.Key == "RefreshToken").FirstOrDefaultAsync();
+
+		if (result is not null)
+		{
+			Settings.Value.StreamerTokens.RefreshToken = result.Value;
+		}
+	}
+	
 	public async Task Start()
 	{
 		var httpClient = HttpClientFactory.CreateClient("Default");
@@ -63,5 +78,7 @@ IHttpClientFactory HttpClientFactory
 /*══════════════════【 INTERFACE 】══════════════════*/
 public interface IRefreshAccessTokenService
 {
+	Task Initalize();
 	Task Start();
+	
 }

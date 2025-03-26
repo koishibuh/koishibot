@@ -1,8 +1,9 @@
-﻿using System.Text.Json;
+﻿using Koishibot.Core.Features.ApplicationAuthentication.Models;
+using Koishibot.Core.Features.ChatCommands.Extensions;
+using System.Text.Json;
 using Koishibot.Core.Features.TwitchAuthorization.Enums;
 using Koishibot.Core.Features.TwitchAuthorization.Models;
-using Koishibot.Core.Services.Twitch.EventSubs;
-using Koishibot.Core.Services.Twitch.Irc;
+using Koishibot.Core.Persistence;
 
 namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 
@@ -10,7 +11,6 @@ namespace Koishibot.Core.Features.TwitchAuthorization.Controllers;
 [Route("api/twitch-auth")]
 public class GetOAuthTokensController : ApiControllerBase
 {
-	[SwaggerOperation(Tags = ["Twitch Oauth"])]
 	[HttpPost("token")]
 	public async Task<ActionResult> GetOAuthTokens
 	([FromBody] GetOAuthTokensQuery query)
@@ -24,7 +24,8 @@ public class GetOAuthTokensController : ApiControllerBase
 public record GetOAuthTokensHandler(
 IOptions<Settings> Settings,
 IHttpClientFactory HttpClientFactory,
-IStartupTwitchServices StartupTwitchServices
+IStartupTwitchServices StartupTwitchServices,
+KoishibotDbContext database
 ) : IRequestHandler<GetOAuthTokensQuery>
 {
 	public async Task Handle(GetOAuthTokensQuery query, CancellationToken cancel)
@@ -60,11 +61,25 @@ IStartupTwitchServices StartupTwitchServices
 		]);
 	}
 
-	private void SaveTokens(ClientCredentialsTokenResponse response)
+	private async Task SaveTokens(ClientCredentialsTokenResponse response)
 	{
 		Settings.Value.StreamerTokens.SetExpirationTime(response.ExpiresIn);
 		Settings.Value.StreamerTokens.AccessToken = response.AccessToken;
 		Settings.Value.StreamerTokens.RefreshToken = response.RefreshToken;
+
+		var result = await database.AppKeys
+			.Where(x => x.Name == "StreamerToken" && x.Key == "RefreshToken").FirstOrDefaultAsync();
+
+		if (result is not null)
+		{
+			result.Value = response.RefreshToken;
+			await database.UpdateEntry(result);
+		}
+		else
+		{
+			var refreshToken = new AppKey{ Name = "StreamerToken", Key = "RefreshToken", Value = response.RefreshToken };
+			await database.UpdateEntry(refreshToken);
+		}
 	}
 }
 

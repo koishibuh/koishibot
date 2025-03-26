@@ -3,6 +3,7 @@ using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.StreamInformation;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.TwitchAuthorization;
+using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch.EventSubs;
@@ -49,13 +50,10 @@ IStreamStatsService streamStatsService,
 		streamElementsService.SetCancellationToken(cancel);
 		obsService.SetCancellationToken(cancel);
 
-		if (settings.Value.DebugMode)
+		await refreshOAuthTokensService.Initalize();
+		if (settings.Value.StreamerTokens.AccessToken is not null)
 		{
-			if (settings.Value.StreamerTokens.HasTokenExpired())
-			{
-				await refreshOAuthTokensService.Start();
-			}
-
+			await refreshOAuthTokensService.Start();
 			await startupTwitchServices.Start();
 		}
 

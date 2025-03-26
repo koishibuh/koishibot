@@ -3,6 +3,7 @@ using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChannelPoints.Models;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.Dandle.Models;
+using Koishibot.Core.Features.KoiKinDragons.Models;
 using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.Raids.Models;
@@ -23,6 +24,7 @@ public class KoishibotDbContext : DbContext
 	public DbSet<PollResult> PollResults => Set<PollResult>();
 	public DbSet<ChannelFollow> ChannelFollows => Set<ChannelFollow>();
 	public DbSet<AppLogin> AppLogins => Set<AppLogin>();
+	public DbSet<AppKey> AppKeys => Set<AppKey>();
 	public DbSet<DandleResult> DandleResults => Set<DandleResult>();
 	public DbSet<DandleWord> DandleWords => Set<DandleWord>();
 	public DbSet<ChatCommand> ChatCommands => Set<ChatCommand>();
@@ -35,7 +37,6 @@ public class KoishibotDbContext : DbContext
 	public DbSet<ObsItem> ObsItems => Set<ObsItem>();
 	public DbSet<StreamCategory> StreamCategories => Set<StreamCategory>();
 	public DbSet<KoiKinDragon> KoiKinDragons => Set<KoiKinDragon>();
-	public DbSet<WordpressItemTag> WordpressItemTags => Set<WordpressItemTag>();
 	public DbSet<LiveStream> LiveStreams => Set<LiveStream>();
 	public DbSet<StreamSession> StreamSessions => Set<StreamSession>();
 

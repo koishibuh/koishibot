@@ -1,9 +1,12 @@
-﻿using Koishibot.Core.Common;
+﻿using AspNetCore.Authentication.ApiKey;
+using Koishibot.Core.Common;
 using Koishibot.Core.Configurations;
 using Koishibot.Core.Exceptions;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services;
 using Koishibot.Core.Services.SignalR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +15,7 @@ using Serilog;
 using System.Text;
 
 namespace Koishibot.Web;
+
 public static class StartupExtensions
 {
 	public static WebApplication ConfigureServices
@@ -19,15 +23,12 @@ public static class StartupExtensions
 	{
 		var debugMode = builder.Environment.IsDevelopment();
 		if (debugMode)
-		{	
-			// builder.Configuration.AddJsonFile("appsettings.json", optional: false);
+		{
 			builder.Configuration.AddJsonFile
 				("ASettings/settings.json", optional: false);
 			builder.Configuration.AddJsonFile
 				("ASettings/dbstring.json", optional: false);
-			builder.Configuration.AddUserSecrets<Program>();
-			var appSettings = builder.Configuration.GetSection("AppSettings");
-			builder.Services.Configure<Settings>(appSettings);
+
 
 			//var googleTokens = appSettings.GetRequiredSection("GoogleTokens");
 			//builder.Services.AddSingleton(s =>
@@ -45,53 +46,62 @@ public static class StartupExtensions
 			//	});
 			//});
 
-			var auth = appSettings.GetRequiredSection("AppAuthentication");
-
-			builder.Services.AddAuthorization();
-
-			builder.Services.AddAuthentication("Bearer")
-				.AddJwtBearer(o =>
-				{
-					o.TokenValidationParameters = new()
-					{
-						ValidateIssuer = true,
-						ValidateAudience = true,
-						ValidateIssuerSigningKey = true,
-						ValidIssuer = auth.GetRequiredSection("Issuer").Value,
-						ValidAudience = auth.GetRequiredSection("Audience").Value,
-						IssuerSigningKey = new SymmetricSecurityKey
-							(Encoding.ASCII.GetBytes
-								(auth.GetRequiredSection("Key").Value))
-					};
-				});
 		}
 		else
 		{
-			builder.Configuration.AddJsonFile("appsettings.json");
-			builder.Configuration.AddEnvironmentVariables(); // SECRET
-			var appSettings = builder.Configuration.GetSection("AppSettings");
-			builder.Services.Configure<Settings>(appSettings);
-
-			var auth = appSettings.GetRequiredSection("AppAuthentication");
-
-			builder.Services.AddAuthorization();
-
-			builder.Services.AddAuthentication("Bearer")
-				.AddJwtBearer(o =>
-				{
-					o.TokenValidationParameters = new()
-					{
-						ValidateIssuer = true,
-						ValidateAudience = true,
-						ValidateIssuerSigningKey = true,
-						ValidIssuer = auth.GetRequiredSection("Issuer").Value,
-						ValidAudience = auth.GetRequiredSection("Audience").Value,
-						IssuerSigningKey = new SymmetricSecurityKey
-							(Encoding.ASCII.GetBytes
-								(auth.GetRequiredSection("Key").Value))
-					};
-				});	
+			builder.Configuration.AddEnvironmentVariables();
 		}
+
+		var appSettings = builder.Configuration.GetSection("AppSettings");
+		builder.Services.Configure<Settings>(appSettings);
+		var auth = appSettings.GetRequiredSection("AppAuthentication");
+		
+		builder.Services.AddAuthentication()
+			.AddJwtBearer(o =>
+			{
+				o.TokenValidationParameters = new()
+				{
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = auth.GetRequiredSection("Issuer").Value,
+					ValidAudience = auth.GetRequiredSection("Audience").Value,
+					IssuerSigningKey = new SymmetricSecurityKey
+						(Encoding.ASCII.GetBytes
+							(auth.GetRequiredSection("Key").Value))
+				};
+			})
+			.AddApiKeyInHeaderOrQueryParams(options =>
+			{
+				options.Realm = "Bot Api";
+				options.KeyName = "API-Key";
+				options.Events = new ApiKeyEvents
+				{
+					OnValidateKey = async context =>
+					{
+						var validApiKey = auth.GetRequiredSection("EGKey").Value;
+
+						if (context.ApiKey == validApiKey)
+						{
+							context.ValidationSucceeded();
+						}
+						else
+						{
+							context.ValidationFailed();
+						}
+
+						await Task.CompletedTask;
+					}
+				};
+			});
+
+		builder.Services.AddAuthorization(options =>
+		{
+			options.DefaultPolicy = new AuthorizationPolicyBuilder()
+				.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, ApiKeyDefaults.AuthenticationScheme)
+				.RequireAuthenticatedUser()
+				.Build();
+		});
 
 		builder.Services.AddHttpClient("Dictionary", httpClient =>
 			httpClient.BaseAddress = new Uri("https://api.dictionaryapi.dev/api/v2/entries/en/"));
@@ -100,7 +110,7 @@ public static class StartupExtensions
 			httpClient.BaseAddress = new Uri("https://wifij01us.magichue.net/app/"));
 
 		builder.Services.AddHttpClient("Twitch", httpClient =>
-			 httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/"));
+			httpClient.BaseAddress = new Uri("https://api.twitch.tv/helix/"));
 
 		builder.Services.AddHttpClient("TwitchTest", httpClient =>
 			httpClient.BaseAddress = new Uri("http://localhost:8080/"));
@@ -111,10 +121,10 @@ public static class StartupExtensions
 		builder.Services.AddHttpClient("Default");
 
 		builder.Services.AddSerilog((services, lc) => lc
-		.ReadFrom.Configuration(builder.Configuration)
-		.ReadFrom.Services(services)
-		//.Enrich.FromLogContext()
-		.WriteTo.Console());
+			.ReadFrom.Configuration(builder.Configuration)
+			.ReadFrom.Services(services)
+			//.Enrich.FromLogContext()
+			.WriteTo.Console());
 
 		builder.Services.AddHostedService<KoishibotBackgroundWorker>();
 
@@ -129,16 +139,16 @@ public static class StartupExtensions
 		builder.Services.AddCors(options =>
 		{
 			options.AddPolicy("LocalPolicy", b => b
-			.AllowAnyOrigin()
-			//.WithOrigins("http://localhost:5210", "http://localhost:5000")
-			.AllowAnyHeader()
-			.AllowAnyMethod());
+				.AllowAnyOrigin()
+				//.WithOrigins("http://localhost:5210", "http://localhost:5000")
+				.AllowAnyHeader()
+				.AllowAnyMethod());
 		});
 
 		builder.Services.AddControllers();
 
 		var koishibotHubUrl = debugMode
-			? "https://localhost:7115/notifications" 
+			? "https://localhost:7115/notifications"
 			: "http://localhost:8080/notifications";
 
 		var koishibotHubConnection = new HubConnectionBuilder()

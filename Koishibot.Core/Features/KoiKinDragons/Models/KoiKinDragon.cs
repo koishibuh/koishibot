@@ -1,35 +1,32 @@
 using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Koishibot.Core.Features.ChannelPoints.Models;
+namespace Koishibot.Core.Features.KoiKinDragons.Models;
 
 /*═════════════════【 ENTITY MODEL 】═════════════════*/
 public class KoiKinDragon : IEntity
 {
 	public int Id { get; set; }
-	public int WordpressId { get; set; }
 	public DateTimeOffset Timestamp { get; set; }
 	public string Code { get; set; }
 	public string Name { get; set; }
-
-	public int? ItemTagId { get; set; }
-	public WordpressItemTag? ItemTag { get; set; }
+	public int UserId { get; set; }
+	public TwitchUser TwitchUser { get; set; } = null!;
 }
 
-public record KoiKinDragonVm(int wordpressId, string code, string username);
+public record KoiKinDragonVm(int dragonId, string code, string username);
 
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/
 public static class KoiKinDragonExtensions
 {
-	public static async Task<KoiKinDragonVm> GetLastUnnamedAdultDragon(this KoishibotDbContext database)
+	public static async Task<KoiKinDragonVm?> GetLastUnnamedAdultDragon(this KoishibotDbContext database)
 	{
 		return await database.KoiKinDragons
 			.Where(x => x.Name == "?" && x.Timestamp <= DateTimeOffset.Now.AddDays(-14))
 			.OrderBy(x => x.Timestamp)
-			.Include(x => x.ItemTag)
-			.ThenInclude(x => x.TwitchUser)
-			.Select(x => new KoiKinDragonVm(x.WordpressId, x.Code, x.ItemTag.TwitchUser.Name ?? ""))
+			.Include(x => x.TwitchUser)
+			.Select(x => new KoiKinDragonVm(x.Id, x.Code, x.TwitchUser.Name ?? ""))
 			.AsNoTracking()
 			.FirstOrDefaultAsync();
 	}
@@ -42,8 +39,7 @@ public class KoiKinDragonConfig : IEntityTypeConfiguration<KoiKinDragon>
 	{
 		builder.ToTable("KoiKinDragons");
 		builder.HasKey(p => p.Id);
-
-		builder.Property(p => p.WordpressId);
+		
 		builder.Property(p => p.Timestamp);
 
 		builder.Property(p => p.Code);
