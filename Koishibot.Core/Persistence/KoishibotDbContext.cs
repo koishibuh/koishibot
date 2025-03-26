@@ -24,6 +24,7 @@ public class KoishibotDbContext : DbContext
 	public DbSet<PollResult> PollResults => Set<PollResult>();
 	public DbSet<ChannelFollow> ChannelFollows => Set<ChannelFollow>();
 	public DbSet<AppLogin> AppLogins => Set<AppLogin>();
+	public DbSet<AppKey> AppKeys => Set<AppKey>();
 	public DbSet<DandleResult> DandleResults => Set<DandleResult>();
 	public DbSet<DandleWord> DandleWords => Set<DandleWord>();
 	public DbSet<ChatCommand> ChatCommands => Set<ChatCommand>();

@@ -13,7 +13,6 @@ namespace Koishibot.Core.Features.ApplicationAuthentication.Controllers;
 [Route("api/login")]
 public class LoginToApplicationController : ApiControllerBase
 {
-	[SwaggerOperation(Tags = ["Application"])]
 	[HttpPost]
 	[AllowAnonymous]
 	public async Task<ActionResult> LoginToApplication
@@ -38,7 +37,7 @@ KoishibotDbContext Database
 		var result = await Database.GetLoginByUsername(command.Username)
 		             ?? throw new Exception("Invalid Login");
 
-		var validPassword = BCrypt.Net.BCrypt.Verify(command.Password, result.HashedPassword);
+		var validPassword = BCrypt.Net.BCrypt.Verify(command.Password, result.Value);
 		if (validPassword is false)
 			throw new CustomException("Invalid Login");
 
@@ -49,7 +48,7 @@ KoishibotDbContext Database
 		var jwtToken = new JwtSecurityToken(
 		appAuth.Issuer,
 		appAuth.Audience,
-		new List<Claim> { new("username", result.Username) },
+		new List<Claim> { new("username", result.Key) },
 		DateTime.UtcNow,
 		DateTime.UtcNow.AddHours(12),
 		signingCredentials
@@ -69,7 +68,11 @@ string Password
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/
 public static class LoginToApplication
 {
-	public static async Task<AppLogin?> GetLoginByUsername
+	// public static async Task<AppLogin?> GetLoginByUsername
+	// (this KoishibotDbContext database, string username)
+	// 	=> await database.AppLogins.FirstOrDefaultAsync(x => x.Username == username);
+	
+	public static async Task<AppKey?> GetLoginByUsername
 	(this KoishibotDbContext database, string username)
-		=> await database.AppLogins.FirstOrDefaultAsync(x => x.Username == username);
+		=> await database.AppKeys.FirstOrDefaultAsync(x => x.Name == "AppLogin" && x.Key == username);
 }

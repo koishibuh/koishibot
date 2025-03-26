@@ -22,6 +22,31 @@ namespace Koishibot.Core.Persistence.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("Koishibot.Core.Features.ApplicationAuthentication.Models.AppKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppKeys", (string)null);
+                });
+
             modelBuilder.Entity("Koishibot.Core.Features.ApplicationAuthentication.Models.AppLogin", b =>
                 {
                     b.Property<int>("Id")
@@ -177,38 +202,6 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.ToTable("ChannelPointRewards", (string)null);
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTimeOffset>("Timestamp")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("KoiKinDragons", (string)null);
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>
                 {
                     b.Property<int>("Id")
@@ -348,6 +341,38 @@ namespace Koishibot.Core.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("DandleWords", (string)null);
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.KoiKinDragons.Models.KoiKinDragon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("KoiKinDragons", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Obs.Models.ObsItem", b =>
@@ -925,15 +950,6 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.Navigation("TwitchUser");
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChannelPoints.Models.KoiKinDragon", b =>
-                {
-                    b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "TwitchUser")
-                        .WithMany("KoiKinDragons")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("TwitchUser");
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandName", b =>
                 {
                     b.HasOne("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", "ChatCommand")
@@ -967,6 +983,15 @@ namespace Koishibot.Core.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("DandleWord");
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.KoiKinDragons.Models.KoiKinDragon", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.TwitchUsers.Models.TwitchUser", "TwitchUser")
+                        .WithMany("KoiKinDragons")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("TwitchUser");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.RaidSuggestions.Models.OutgoingRaid", b =>
