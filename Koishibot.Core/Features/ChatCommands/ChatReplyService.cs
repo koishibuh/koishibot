@@ -37,7 +37,6 @@ public record ChatReplyService(
 		await TwitchIrc.BotSend(generatedText);
 	}
 
-
 	public async Task Start<T>(string command, T data, string permission)
 	{
 		var result = Cache.GetCommand(command, permission);

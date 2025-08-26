@@ -1,13 +1,16 @@
 ﻿using Koishibot.Core.Features.Application.Models;
+using Koishibot.Core.Features.ChatCommands.Controllers;
+using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Koishibot.Core.Persistence.Cache;
 
-
 public record AppCache(
-	IMemoryCache Cache, ISignalrService Signalr
-	) : IAppCache
+IMemoryCache Cache, ISignalrService Signalr,
+IServiceScopeFactory ScopeFactory
+) : IAppCache
 {
 	public void Add<T>(CacheName name, T item)
 	{
@@ -29,7 +32,7 @@ public record AppCache(
 		var value = Cache.Get<T>(name);
 		return value as T;
 	}
-	
+
 	public void Remove(CacheName name) => Cache.Remove(name);
 
 	// == ⚫ == //
@@ -39,6 +42,22 @@ public record AppCache(
 		var serviceStatus = new ServiceStatus();
 		Cache.Set(CacheName.ServiceStatus, serviceStatus);
 	}
+
+	public async Task LoadCommandCache()
+	{
+		using var scope = ScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+		var databaseResult = await database.GetAllCommands();
+		
+		Cache.Set(CacheName.Commands, databaseResult);
+	}
+
+	public async Task UpdateCommandCache()
+	{
+		Remove(CacheName.Commands);
+		await LoadCommandCache();
+	}
+	
 
 	public async Task UpdateServiceStatus(ServiceName name, string status)
 	{

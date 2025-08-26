@@ -7,6 +7,8 @@ namespace Koishibot.Core.Features.ChatCommands.Models;
 public class ChatCommand : IEntity
 {
 	public int Id { get; set; }
+
+	public string Category { get; set; } = CommandCategory.Misc;
 	public string Description { get; set; } = string.Empty;
 	public bool Enabled { get; set; }
 	public string Message { get; set; } = null!;
@@ -28,6 +30,7 @@ public class ChatCommandConfig : IEntityTypeConfiguration<ChatCommand>
 		builder.HasKey(p => p.Id);
 		builder.Property(p => p.Id);
 
+		builder.Property(p => p.Category);
 		builder.Property(p => p.Description);
 		builder.Property(p => p.Enabled);
 

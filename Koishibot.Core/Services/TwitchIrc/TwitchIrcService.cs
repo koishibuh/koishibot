@@ -43,6 +43,10 @@ ILogger<TwitchIrcService> Log
 		{
 			await BotIrc!.SendMessage("PONG :tmi.twitch.tv");
 		}
+		if (message.IsUnauthorized())
+		{
+			await SignalrService.SendError(message.Message);
+		}
 	}
 
 	private async Task OnConnected(string accessToken, string username)
@@ -57,6 +61,11 @@ ILogger<TwitchIrcService> Log
 		await BotIrc.SendMessage($"NICK {username}");
 
 		await Task.Delay(3000);
+		if (BotIrc.IsDisposed is true)
+		{
+			// TODO: Check if login info is correct
+			return;
+		}
 
 		await BotIrc.SendMessage($"JOIN ${streamer}");
 		// await SendMessageToChat(streamer, "Joined channel");

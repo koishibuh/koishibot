@@ -39,7 +39,7 @@ public static class GetChatCommandsExtension
 
 		var commands = await database.ChatCommands
 		.Include(x => x.CommandNames)
-		.Select(x => new ChatCommandVm(x.Id, x.Description, x.Enabled, x.Message,
+		.Select(x => new ChatCommandVm(x.Id, x.Category, x.Description, x.Enabled, x.Message,
 		x.Permissions.ToString(), x.UserCooldown, x.GlobalCooldown,
 		x.CommandNames.Select(y => new CommandNameVm(y.Id, y.Name)).ToList())).ToListAsync();
 
@@ -62,6 +62,7 @@ string Name
 
 public record ChatCommandVm(
 int Id,
+string Category,
 string Description,
 bool Enabled,
 string Message,

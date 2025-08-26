@@ -24,7 +24,8 @@ public class CreateChatCommandController : ApiControllerBase
 /// </summary>
 public record CreateChatCommandHandler(
 IOptions<Settings> Settings,
-KoishibotDbContext Database
+KoishibotDbContext Database,
+IAppCache Cache
 ) : IRequestHandler<CreateChatCommand, int>
 {
 	public async Task<int> Handle
@@ -32,6 +33,7 @@ KoishibotDbContext Database
 	{
 		var command = c.ConvertToModel();
 		var commandId = await Database.UpdateEntry(command);
+		await Cache.UpdateCommandCache();
 
 		return commandId;
 	}
@@ -44,6 +46,7 @@ CreateChatCommand Request);
 public record CreateChatCommand(
 List<CommandNameVm> CommandNames,
 string? Description,
+string Category,
 bool Enabled,
 string Message,
 string PermissionLevel,
@@ -61,6 +64,7 @@ List<int>? TimerGroupIds
 		return new ChatCommand
 		{
 		Description = Description ?? string.Empty,
+		Category = Category ?? string.Empty,
 		Enabled = Enabled,
 		Message = Message,
 		Permissions = PermissionLevel,

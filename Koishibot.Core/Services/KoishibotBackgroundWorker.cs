@@ -1,9 +1,9 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Extensions;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.StreamInformation;
 using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.TwitchAuthorization;
-using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.StreamElements;
 using Koishibot.Core.Services.Twitch.EventSubs;
@@ -41,6 +41,8 @@ IStreamStatsService streamStatsService,
 	{
 		appCache.InitializeServiceStatusCache();
 		appCache.CreateAttendanceCache();
+		appCache.CreateCommandCache();
+		await appCache.LoadCommandCache();
 		appCache.CreateTimer();
 
 		await signalrHub.StartAsync(cancel);
