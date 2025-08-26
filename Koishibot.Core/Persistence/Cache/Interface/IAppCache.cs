@@ -11,4 +11,6 @@ public interface IAppCache
 	void InitializeServiceStatusCache();
 	Task UpdateServiceStatus(ServiceName name, string status);
 	void Remove(CacheName name);
+	Task LoadCommandCache();
+	Task UpdateCommandCache();
 }

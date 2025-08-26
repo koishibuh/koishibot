@@ -27,6 +27,12 @@ public static class ChatCommandExtensions
 		await database.SaveChangesAsync();
 		return entity;
 	}
+	
+	public static IAppCache CreateCommandCache(this IAppCache cache)
+	{
+		cache.AddNoExpire(CacheName.Commands, new Dictionary<string, ChatCommand>());
+		return cache;
+	}
 
 	public static ChatCommandDto? GetCommand(this IAppCache cache, string commandName, string permissions)
 	{
@@ -51,7 +57,7 @@ public static class ChatCommandExtensions
 			: commandNames.ToDictionary(
 				item => command,
 				item => new ChatCommandDto(
-					item.Id, item.Description,
+					item.Id, item.Category, item.Description,
 					item.Enabled, item.Message,
 					item.Permissions, item.UserCooldown,
 					DateTimeOffset.UtcNow, item.GlobalCooldown,
@@ -59,12 +65,27 @@ public static class ChatCommandExtensions
 				);
 	}
 
+	public static async Task<Dictionary<string, ChatCommandDto>> GetAllCommands(this KoishibotDbContext database)
+	{
+		var result = await database.CommandNames
+			.Include(x => x.ChatCommand)
+			.ToListAsync();
+			
+			return result.ToDictionary(x => x.Name, x => new ChatCommandDto(
+				x.ChatCommand.Id, x.ChatCommand.Category, x.ChatCommand.Description,
+				x.ChatCommand.Enabled, x.ChatCommand.Message,
+				x.ChatCommand.Permissions, x.ChatCommand.UserCooldown,
+				DateTimeOffset.UtcNow, x.ChatCommand.GlobalCooldown,
+				DateTimeOffset.UtcNow));
+	
+	}
+
 	public static void AddCommand(this IAppCache cache, Dictionary<string, ChatCommandDto> command)
 	{
 		var result = cache.Get<Dictionary<string, ChatCommandDto>>(CacheName.Commands);
 		if (result is null) 
 		{
-			cache.Add(CacheName.Commands, command, TimeSpan.FromHours(1));
+			cache.AddNoExpire(CacheName.Commands, command);
 		}
 		else
 		{

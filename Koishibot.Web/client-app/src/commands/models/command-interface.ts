@@ -1,5 +1,6 @@
 export interface ICommand {
   id: number;
+  category: string;
   description: string;
   enabled: boolean;
   message: string;
@@ -21,6 +22,7 @@ export interface IChatCommandInfo {
 
 export interface ICommandRequest {
   commandNames: ICommandName[];
+  category: string;
   description: string;
   enabled: boolean;
   message: string;

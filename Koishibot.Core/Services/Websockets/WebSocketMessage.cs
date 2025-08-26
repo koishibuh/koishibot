@@ -21,7 +21,7 @@ string Message)
 		=> Message.Contains("authenticated");
 
 	public bool IsUnauthorized()
-		=> Message.Contains("unauthorized");
+		=> Message.Contains("unauthorized") || Message.Contains("authentication failed");
 
 	public bool IsEvent()
 		=> Message.StartsWith("42");
