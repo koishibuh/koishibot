@@ -11,6 +11,7 @@ const message = ref<unknown | string>();
 const store = useCommandStore();
 
 const selectedName = ref<ICommandName | null>(null);
+const category = ref('');
 const messagetext = ref('');
 const permissionstext = ref('');
 const cooldowntext = ref('');
@@ -28,6 +29,7 @@ const sendCommand = async () => {
 
     const request: ICommandRequest = {
       commandNames: list,
+      category: category.value,
       description: descriptiontext.value,
       enabled: true,
       message: messagetext.value,
@@ -115,6 +117,8 @@ onMounted(() => {
         @filter="getDropdownValues"
         disabled="false"
       />
+      <label for="description">Category:</label>
+      <input type="text" v-model="category" id="message" class="text-black" />
       <label for="description">Description:</label>
       <input type="text" v-model="descriptiontext" id="message" class="text-black" />
       <label for="message">Message:</label>

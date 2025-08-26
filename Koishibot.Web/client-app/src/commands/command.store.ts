@@ -59,6 +59,7 @@ export const useCommandStore = defineStore('command-store', () => {
 
       const newCommand: ICommand = {
         id: result,
+        category: request.category,
         description: request.description,
         enabled: request.enabled,
         message: request.message,
