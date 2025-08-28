@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import http from '@/api/http';
 import StreamInfo from '@/home/stream-info/StreamInfo.vue';
-import { useStreamInfoStore } from './stream-info/stream-info.store';
-import { useSettingsStore } from '@/settings/settings.store';
-import { useNotificationStore } from '@/common/notifications/notification.store';
+import {useStreamInfoStore} from './stream-info/stream-info.store';
+import {useSettingsStore} from '@/settings/settings.store';
+import {useNotificationStore} from '@/common/notifications/notification.store';
 
 const store = useSettingsStore();
 const notificationStore = useNotificationStore();
@@ -24,16 +24,16 @@ const bannerTest = () => {
 };
 
 watch(
-  () => checked.value,
-  async () => {
-    // await http.patch('/api/attendance/status', { ServiceName: 'Attendance', Status: checked.value });
-    await http.post('/api/attendance/status', { Status: checked.value });
-  }
+    () => checked.value,
+    async () => {
+      // await http.patch('/api/attendance/status', { ServiceName: 'Attendance', Status: checked.value });
+      await http.post('/api/attendance/status', {Status: checked.value});
+    }
 );
 </script>
 
 <template>
-  <StreamInfo :info="streamInfoStore.streamInfo" />
+  <StreamInfo :info="streamInfoStore.streamInfo"/>
 
   <h1>Test Zone</h1>
   <div class="flex gap-2 border-2 p-2 border-gray-500 rounded h-24">
@@ -42,7 +42,17 @@ watch(
   </div>
 
   <div class="p-2 mb-2 mx-auto max-w-xl">
-    <input type="checkbox" id="checkbox" v-model="checked" />
+    <input type="checkbox" id="checkbox" v-model="checked"/>
     <label for="checkbox">Attendance: {{ checked }}</label>
+  </div>
+
+  <h1>Stream Summary</h1>
+  <div class="p-2 mb-2 w-full border-gray-500 rounded  border-2">
+    <textarea v-model="streamInfoStore.streamSummary.summary" class="text-black w-full h-[250px] mb-2"/>
+    <div class="flex gap-2">
+
+      <button class="primary-button" @click="() => streamInfoStore.getStreamSummary()">Get Summary</button>
+      <button class="primary-button" @click="streamInfoStore.updateStreamSummary()">Update</button>
+    </div>
   </div>
 </template>

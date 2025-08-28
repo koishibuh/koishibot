@@ -49,7 +49,7 @@ ILogger<StreamSessionService> Log
 			};
 
 			await Database.UpdateEntry(liveStream);
-			await AddCurrentSessionToCache(liveStream.Id, streamSession.Id);
+			await AddCurrentSessionToCache(liveStream.Id, streamSession.Id, streamSession.Summary);
 			return;
 		}
 
@@ -59,7 +59,7 @@ ILogger<StreamSessionService> Log
 			Log.LogError("StreamId already logged in database");
 			streamSession = await Database.GetRecentStreamSession() ?? await CreateNewSession();
 
-			await AddCurrentSessionToCache(lastLiveStreamDb.Id, streamSession.Id);
+			await AddCurrentSessionToCache(lastLiveStreamDb.Id, streamSession.Id, streamSession.Summary);
 			await UpdateAttendanceServiceStatus(streamSession);
 			return;
 		}
@@ -83,7 +83,7 @@ ILogger<StreamSessionService> Log
 				};
 
 				await Database.UpdateEntry(liveStream);
-				await AddCurrentSessionToCache(lastLiveStreamDb.Id, streamSession.Id);
+				await AddCurrentSessionToCache(lastLiveStreamDb.Id, streamSession.Id, streamSession.Summary);
 				await UpdateAttendanceServiceStatus(streamSession);
 			}
 			else
@@ -131,7 +131,7 @@ ILogger<StreamSessionService> Log
 		};
 
 		await Database.UpdateEntry(liveStream);
-		await AddCurrentSessionToCache(lastLiveStreamDb.Id, streamSession.Id);
+		await AddCurrentSessionToCache(lastLiveStreamDb.Id, streamSession.Id, streamSession.Summary);
 		await UpdateAttendanceServiceStatus(streamSession);
 	}
 
@@ -223,13 +223,14 @@ ILogger<StreamSessionService> Log
 		{
 			Duration = TimeSpan.Zero,
 			AttendanceMandatory = attendanceStatus,
-			YearlyQuarterId = yearlyQuarterId
+			YearlyQuarterId = yearlyQuarterId,
+			Summary = ""
 		};
 
 		return await Database.UpdateEntryReturn(streamSession);
 	}
 
-	private async Task AddCurrentSessionToCache(int liveStreamId, int streamSessionId)
+	private async Task AddCurrentSessionToCache(int liveStreamId, int streamSessionId, string summary)
 	{
 		var lastMandatoryStreamId = await Database.GetLastMandatorySessionId(streamSessionId);
 
@@ -237,7 +238,8 @@ ILogger<StreamSessionService> Log
 		{
 			LiveStreamId = liveStreamId,
 			StreamSessionId = streamSessionId,
-			LastMandatorySessionId = lastMandatoryStreamId
+			LastMandatorySessionId = lastMandatoryStreamId,
+			Summary = summary
 		};
 
 		Cache.Add(CacheName.CurrentSession, cacheSession);

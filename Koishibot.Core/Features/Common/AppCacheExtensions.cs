@@ -53,6 +53,30 @@ public static class AppCacheExtensions
 		return session.StreamSessionId;
 	}
 
+	public static CurrentSession? GetCurrentSession(this IAppCache cache)
+	{
+		return cache.Get<CurrentSession>(CacheName.CurrentSession);
+	}
+	
+	public static void UpdateCurrentStreamSessionSummary(this IAppCache cache, string summary)
+	{
+		var result = cache.Get<CurrentSession>(CacheName.CurrentSession);
+		//TODO: If currentsession is not in cache
+		if (result == null)
+		{
+			return;
+		}
+		result.Summary = summary;
+		cache.Add(CacheName.CurrentSession, result);
+	}
+
+	
+	public static CurrentSession? GetCurrentStreamSessionSummary(this IAppCache cache)
+	{
+		var session = cache.Get<CurrentSession>(CacheName.CurrentSession);
+		return session;
+	}
+
 	public static StreamInfo? GetStreamInfo(this IAppCache cache)
 	{
 		return cache.Get<StreamInfo>(CacheName.StreamInfo);
