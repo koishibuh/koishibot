@@ -20,6 +20,8 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.HypeTrainBegin:
 			case EventSubSubscriptionType.HypeTrainProgress:
 			case EventSubSubscriptionType.HypeTrainEnd:
+			case EventSubSubscriptionType.AutomodMessageHold:
+			case EventSubSubscriptionType.AutomodMessageUpdate:
 				return "2";
 
 			default:
