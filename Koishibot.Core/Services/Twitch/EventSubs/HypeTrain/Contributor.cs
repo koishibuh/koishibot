@@ -29,12 +29,15 @@ public class Contributor
 	public string? UserName { get; set; }
 
 	/// <summary>
-	/// "The contribution method used.
+	/// The contribution method used.
 	/// </summary>
 	[JsonPropertyName("type")]
 	public ContributionEventSubType Type { get; set; }
+	
 	/// <summary>
-	/// The total amount contributed. If type is bits, total represents the amount of Bits used. If type is subscription, total is 500, 1000, or 2500 to represent tier 1, 2, or 3 subscriptions, respectively.
+	/// The total amount contributed.<br/>
+	/// If type is bits, total represents the amount of Bits used.<br/>
+	/// If type is subscription, total is 500, 1000, or 2500 to represent tier 1, 2, or 3 subscriptions, respectively.
 	/// </summary>
 	[JsonPropertyName("total")]
 	public int Total { get; set; }

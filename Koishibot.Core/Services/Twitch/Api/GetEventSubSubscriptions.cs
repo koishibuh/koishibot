@@ -2,7 +2,7 @@
 //public record GetEventSubSubscriptions()
 //{
 //}
-
+// https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions
 //public partial record TwitchApiRequest : ITwitchApiRequest
 //{
 //	public async Task()

@@ -17,6 +17,9 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelUpdate:
 			case EventSubSubscriptionType.ChannelFollow:
 			case EventSubSubscriptionType.ChannelModerate:
+			case EventSubSubscriptionType.HypeTrainBegin:
+			case EventSubSubscriptionType.HypeTrainProgress:
+			case EventSubSubscriptionType.HypeTrainEnd:
 				return "2";
 
 			default:

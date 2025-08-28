@@ -58,7 +58,7 @@ public class GetHypeTrainEventsRequestParameters
 		///The list is empty if the broadcaster hasn’t run a Hype Train within the last 5 days.
 		///</summary>
 		[JsonPropertyName("data")]
-		public HypeTrainEventData Data { get; set; }
+		public List<HypeTrainEventData> Data { get; set; }
 
 		///<summary>
 		///The information used to page through the list of results.<br/>
