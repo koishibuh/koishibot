@@ -15,6 +15,8 @@ public class StreamSession : IEntity
 	public int YearlyQuarterId { get; set; }
 	public YearlyQuarter YearlyQuarter { get; set; } = null!;
 
+	public string Summary { get; set; } = "";
+
 	public List<LiveStream> LiveStreams { get; set; } = [];
 	public OutgoingRaid? OutgoingRaid { get; set; }
 
@@ -48,6 +50,7 @@ public class StreamSessionConfig : IEntityTypeConfiguration<StreamSession>
 
 		builder.Property(p => p.Duration);
 		builder.Property(p => p.AttendanceMandatory);
+		builder.Property(p => p.Summary);
 
 		builder.HasMany(p => p.LiveStreams)
 			.WithOne(p => p.StreamSession)
