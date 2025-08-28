@@ -3,9 +3,7 @@ using Koishibot.Core.Services.Twitch.Common;
 using System.Text.Json.Serialization;
 namespace Koishibot.Core.Services.TwitchApi.Models;
 
-// == ⚫ GET == //
-
-
+/*════════════════【 API REQUEST 】════════════════*/
 public partial record TwitchApiRequest : ITwitchApiRequest
 {
 	/// <summary>
@@ -23,8 +21,7 @@ public partial record TwitchApiRequest : ITwitchApiRequest
 	}
 }
 
-// == ⚫ REQUEST QUERY PARAMETERS == //
-
+/*═════════════【 REQUEST PARAMETERS 】═════════════*/
 public class GetChannelChatBadgesParameters
 {
 	///<summary>
@@ -34,8 +31,7 @@ public class GetChannelChatBadgesParameters
 	public string BroadcasterId { get; set; }
 }
 
-// == ⚫ RESPONSE BODY == //
-
+/*══════════════════【 RESPONSE 】══════════════════*/
 public class GetChannelChatBadgesResponse
 {
 	///<summary>

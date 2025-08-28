@@ -321,6 +321,13 @@ ITwitchApiRequest TwitchApiRequest
 				}
 
 				break;
+			// case EventSubSubscriptionType.ChannelSharedChatBegin:
+			// break;
+			// case EventSubSubscriptionType.ChannelSharedChatUpdate:
+			// break;
+			// case EventSubSubscriptionType.ChannelSharedChatEnd:
+			// break;
+				
 			case EventSubSubscriptionType.ChannelChatSettingsUpdate:
 				var chatSettingsUpdated = JsonSerializer.Deserialize<EventMessage<ChatSettingsUpdatedEvent>>(message);
 				await Send(new ChatSettingsUpdatedCommand(chatSettingsUpdated.Payload.Event));

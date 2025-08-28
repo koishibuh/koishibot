@@ -45,6 +45,9 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelUnban:
 			case EventSubSubscriptionType.ChannelModeratorAdd:
 			case EventSubSubscriptionType.ChannelModeratorRemove:
+			case EventSubSubscriptionType.ChannelSharedChatBegin:
+			case EventSubSubscriptionType.ChannelSharedChatUpdate:
+			case EventSubSubscriptionType.ChannelSharedChatEnd:
 			case EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption:
 			case EventSubSubscriptionType.ChannelPointsCustomRewardAdd:
 			case EventSubSubscriptionType.ChannelPointsCustomRewardUpdate: // reward_id optional

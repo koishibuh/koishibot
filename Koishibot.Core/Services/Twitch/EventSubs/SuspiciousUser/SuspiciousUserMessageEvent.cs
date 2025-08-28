@@ -74,5 +74,5 @@ public class SuspiciousUserMessageEvent
     ///The structured chat message.
     ///</summary>
     [JsonPropertyName("message")]
-    public Message Message { get; set; }
+    public SuspiciousMessage Message { get; set; }
 }

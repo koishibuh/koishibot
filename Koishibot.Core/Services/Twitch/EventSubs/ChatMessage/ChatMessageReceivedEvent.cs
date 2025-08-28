@@ -23,7 +23,7 @@ public class ChatMessageReceivedEvent
 	public string BroadcasterName { get; set; } = string.Empty;
 
 	///<summary>
-	///The broadcaster login.
+	///The broadcaster login. (Lowercase)
 	///</summary>
 	[JsonPropertyName("broadcaster_user_login")]
 	public string BroadcasterLogin { get; set; } = string.Empty;
@@ -96,11 +96,48 @@ public class ChatMessageReceivedEvent
 	public string? ChannelPointsCustomRewardId { get; set; }
 
 	///<summary>
-	///Optional. An ID for the type of animation selected as part of an “animate my message” redemption.
+	///Optional. The broadcaster user ID of the channel the message was sent from. Is null when the message happens in the same channel as the broadcaster.<br/>
+	///Is not null when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster.
 	///</summary>
-	[JsonPropertyName("channel_points_animation_id")]
-	public string? ChannelPointsAnimationId { get; set; }
+	[JsonPropertyName("source_broadcaster_user_id")]
+	public string? SourceBroadcasterUserId { get; set; }
+	
+	///<summary>
+	///Optional. The user name of the broadcaster of the channel the message was sent from. Is null when the message happens in the same channel as the broadcaster.<br/>
+	///Is not null when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster.
+	///</summary>
+	[JsonPropertyName("source_broadcaster_user_name")]
+	public string? SourceBroadcasterUsername { get; set; }
+	
+	///<summary>
+	///Optional. The login of the broadcaster of the channel the message was sent from. Is null when the message happens in the same channel as the broadcaster.<br/>
+	///Is not null when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster.
+	///</summary>
+	[JsonPropertyName("source_broadcaster_user_login")]
+	public string? SourceBroadcasterUserLogin { get; set; }
+	
+	///<summary>
+	///Optional. The UUID that identifies the source message from the channel the message was sent from. Is null when the message happens in the same channel as the broadcaster.<br/>
+	///Is not null when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster.
+	///</summary>
+	[JsonPropertyName("source_message_id")]
+	public string? SourceMessageId { get; set; }
+	
+	///<summary>
+	///Optional. The list of chat badges for the chatter in the channel the message was sent from. Is null when the message happens in the same channel as the broadcaster.<br/>
+	///Is not null when in a shared chat session, and the action happens in the channel of a participant other than the broadcaster.
+	///</summary>
+	[JsonPropertyName("source_badges")]
+	public List<Badge>? SourceBadges { get; set; }
+	
+	///<summary>
+	///Optional. Determines if a message delivered during a shared chat session is only sent to the source channel.<br/>
+	///Has no effect if the message is not sent during a shared chat session.
+	///</summary>
+	[JsonPropertyName("is_source_only")]
+	public bool IsSourceOnly { get; set; }
 }
+
 
 public class Cheer
 {
