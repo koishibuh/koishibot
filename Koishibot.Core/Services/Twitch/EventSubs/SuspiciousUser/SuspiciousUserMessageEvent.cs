@@ -62,13 +62,13 @@ public class SuspiciousUserMessageEvent
     ///User types (if any) that apply to the suspicious user.
     ///</summary>
     [JsonPropertyName("types")]
-    public List<string> Types { get; set; }
+    public List<BanType> Types { get; set; }
 
     ///<summary>
     ///A ban evasion likelihood value (if any) that as been applied to the user automatically by Twitch, can be “unknown”, “possible”, or “likely”.
     ///</summary>
     [JsonPropertyName("ban_evasion_evaluation")]
-    public string BanEvasionLikelyhood { get; set; }
+    public BanLikelyhood BanEvasionLikelyhood { get; set; }
 
     ///<summary>
     ///The structured chat message.
