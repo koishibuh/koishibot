@@ -85,7 +85,7 @@ public class PowerUp
 	/// The ID that uniquely identifies this emote.
 	/// </summary>
 	[JsonPropertyName("emote")]
-	public PowerUpEmote? Emote { get; set; }
+	public RewardEmote? Emote { get; set; }
 
 	/// <summary>
 	/// Optional. The ID of the message effect.
@@ -94,17 +94,3 @@ public class PowerUp
 	public string? MessageEffectId { get; set; }
 }
 
-public class PowerUpEmote
-{
-	/// <summary>
-	/// The ID that uniquely identifies this emote.
-	/// </summary>
-	[JsonPropertyName("id")]
-	public string Id { get; set; }
-
-	/// <summary>
-	///The human readable emote token.
-	/// </summary>
-	[JsonPropertyName("name")]
-	public string Name { get; set; }
-}

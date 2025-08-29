@@ -22,6 +22,7 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.HypeTrainEnd:
 			case EventSubSubscriptionType.AutomodMessageHold:
 			case EventSubSubscriptionType.AutomodMessageUpdate:
+			case EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption:
 				return "2";
 
 			default:

@@ -11,29 +11,14 @@ public class AutoRewardInfo
 	public RewardType Type { get; set; }
 
 	/// <summary>
-	/// The reward cost.
+	/// Number of channel points used.
 	/// </summary>
-	[JsonPropertyName("cost")]
+	[JsonPropertyName("channel_points")]
 	public int Cost { get; set; }
 
 	/// <summary>
-	/// Optional. Emote that was unlocked.
+	/// Optional. Emote associated with the reward.
 	/// </summary>
 	[JsonPropertyName("unlocked_emote")]
-	public UnlockedEmote? UnlockedEmote { get; set; }
-}
-
-public class UnlockedEmote
-{
-	/// <summary>
-	/// The emote ID.
-	/// </summary>
-	[JsonPropertyName("id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>
-	/// The human readable emote token.
-	/// </summary>
-	[JsonPropertyName("name")]
-	public string Name { get; set; } = string.Empty;
+	public RewardEmote? UnlockedEmote { get; set; }
 }
