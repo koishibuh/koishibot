@@ -27,6 +27,7 @@ public enum EventSubSubscriptionType
 	ChannelSubscriptionGift,
 	ChannelSubscriptionMessage,
 	ChannelCheer,
+	ChannelBitsUsed,
 	ChannelRaid,
 	ChannelRaidSent, //custom
 	ChannelRaidReceived, //custom
@@ -124,6 +125,7 @@ public class SubscriptionTypeEnumConverter : JsonConverter<EventSubSubscriptionT
 			"channel.subscription.gift" => EventSubSubscriptionType.ChannelSubscriptionGift,
 			"channel.subscription.message" => EventSubSubscriptionType.ChannelSubscriptionMessage,
 			"channel.cheer" => EventSubSubscriptionType.ChannelCheer,
+			"channel.bits.use" => EventSubSubscriptionType.ChannelBitsUsed,
 			"channel.raid" => EventSubSubscriptionType.ChannelRaid,
 			"channel.ban" => EventSubSubscriptionType.ChannelBan,
 			"channe.unban" => EventSubSubscriptionType.ChannelUnban,
@@ -210,6 +212,7 @@ public class SubscriptionTypeEnumConverter : JsonConverter<EventSubSubscriptionT
 			EventSubSubscriptionType.ChannelSubscriptionGift => "channel.subscription.gift",
 			EventSubSubscriptionType.ChannelSubscriptionMessage => "channel.subscription.message",
 			EventSubSubscriptionType.ChannelCheer => "channel.cheer",
+			EventSubSubscriptionType.ChannelBitsUsed => "channel.bits.use",
 			EventSubSubscriptionType.ChannelRaid => "channel.raid",
 			EventSubSubscriptionType.ChannelRaidSent => "channel.raid", // custom
 			EventSubSubscriptionType.ChannelRaidReceived => "channel.raid", // custom

@@ -351,6 +351,9 @@ ITwitchApiRequest TwitchApiRequest
 				var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
 				await Send(new CheerReceivedCommand(cheer.Payload.Event));
 				break;
+			case EventSubSubscriptionType.ChannelBitsUsed:
+				//TODO
+				break;
 			case EventSubSubscriptionType.ChannelRaid:
 				var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);
 				if (raid.Payload.Event.ToBroadcasterId == "98683749")
