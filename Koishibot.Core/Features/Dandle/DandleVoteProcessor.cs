@@ -11,6 +11,7 @@ public record DandleVoteProcessor(
 	IAppCache Cache, ISignalrService Signalr
 	) : IDandleVoteProcessor
 {
+	//TODO: update responses to use database
 	public async Task ProcessVote(ChatMessageDto c)
 	{
 		int index;
@@ -21,7 +22,7 @@ public record DandleVoteProcessor(
 			var data = new { User = c.User.Name, Number = c.Message };
 			await ChatReplyService.App(Command.InvalidVote, data);
 
-			Log.LogInformation("Not a valid vote number");
+			Log.LogInformation("Not a valid vote number"); // dandle-invalidvote
 			return;
 		}
 
@@ -33,7 +34,7 @@ public record DandleVoteProcessor(
 		{
 			var data = new { User = c.User.Name };
 			await ChatReplyService.App(Command.AlreadyVoted, data);
-			Log.LogInformation("User has already voted");
+			Log.LogInformation("User has already voted"); // dandle-alreadyvoted
 			return;
 		}
 
