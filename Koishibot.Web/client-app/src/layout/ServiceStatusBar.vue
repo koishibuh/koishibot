@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import {onMounted} from 'vue';
 import { useNotificationStore } from '@/common/notifications/notification.store';
 
 const store = useNotificationStore();
@@ -11,6 +11,7 @@ onMounted(async () => {
     console.log(error);
   }
 });
+
 
 const statusColor = (status: string): string => {
   switch (status) {
@@ -27,7 +28,7 @@ const statusColor = (status: string): string => {
 </script>
 
 <template>
-  <div
+  <div v-if="store.serviceStatuses?.length != 0"
     v-for="item in store.serviceStatuses"
     :key="item.name"
     class="tooltip h-3 w-3 rounded-full"

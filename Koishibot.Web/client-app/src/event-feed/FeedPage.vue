@@ -17,7 +17,7 @@ onMounted(async () => {
 
 <template>
   <div class="p-2 flex flex-col-reverse">
-    <div v-for="(item, index) in store.streamEvents" :key="index" class="flex mb-2">
+    <div  v-if="store.streamEvents?.length != 0" v-for="(item, index) in store.streamEvents" :key="index" class="flex mb-2">
       <div class="bg-accent-one p-2 rounded-l-lg">{{ item.timestamp }}</div>
       <div class="bg-foreground text-black p-2 w-full rounded-r-lg">{{ item.message }}</div>
     </div>

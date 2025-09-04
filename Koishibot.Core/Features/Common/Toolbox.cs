@@ -41,7 +41,7 @@ public static class Toolbox
 		return !validCharacters.IsMatch(word);
 	}
 
-	public static ATimer CreateTimer(TimeSpan delay, Action onComplete)
+	public static ATimer CreateTimer(TimeSpan delay, Func<Task> onComplete)
 	{
 		var timer = new ATimer
 		{
@@ -49,11 +49,11 @@ public static class Toolbox
 			Interval = delay.TotalMilliseconds
 		};
 
-		timer.Elapsed += (_, _) => { timer.Dispose(); onComplete(); };
+		timer.Elapsed += async (_, _) => { timer.Dispose(); await onComplete(); };
 		return timer;
 	}
 
-	public static ATimer CreateTimer(int delaySeconds, Action onComplete)
+	public static ATimer CreateTimer(int delaySeconds, Func<Task> onComplete)
 	{
 		var seconds = TimeSpan.FromSeconds(delaySeconds);
 
@@ -63,7 +63,7 @@ public static class Toolbox
 		Interval = seconds.TotalMilliseconds
 		};
 
-		timer.Elapsed += (_, _) => { timer.Dispose(); onComplete(); };
+		timer.Elapsed += async (_, _) => { timer.Dispose(); await onComplete(); };
 		return timer;
 	}
 

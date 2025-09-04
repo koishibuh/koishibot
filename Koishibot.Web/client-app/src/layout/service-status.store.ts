@@ -15,7 +15,7 @@ export const useServiceStatusStore = defineStore('serviceStatus', () => {
   const obsStore = useObsStore();
   const twitchStore = useTwitchStore();
 
-  const serviceStatuses = ref<IServiceStatus[]>();
+  const serviceStatuses = ref<IServiceStatus[]>([]);
 
   signalRConnection?.on('ReceiveStatusUpdate', (status: IServiceStatus) => {
     const index = serviceStatuses.value?.findIndex((x) => x.name === status.name);
