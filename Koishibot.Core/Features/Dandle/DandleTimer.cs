@@ -38,11 +38,11 @@ IDandleResultsProcessor DandleVoteProcessor
 		}
 
 		await Signalr.SendDandleTimer(new DandleTimerVm(text, 0, SuggestionSeconds));
-		Timer = Toolbox.CreateTimer(SuggestionSeconds, CloseSuggestions);
+		Timer = Toolbox.CreateTimer(SuggestionSeconds, async () => await CloseSuggestions());
 		Timer.Start();
 	}
 
-	private async void CloseSuggestions()
+	private async Task CloseSuggestions()
 	{
 		Cache.CloseDandleSuggestions();
 		var dandleInfo = Cache.GetDandleInfo();
@@ -79,11 +79,11 @@ IDandleResultsProcessor DandleVoteProcessor
 
 	private void StartVotingTimer()
 	{
-		Timer = Toolbox.CreateTimer(VotingSeconds, CloseVoting);
+		Timer = Toolbox.CreateTimer(VotingSeconds, async () => await CloseVoting());
 		Timer.Start();
 	}
 
-	private async void CloseVoting()
+	private async Task CloseVoting()
 	{
 		Cache.CloseDandleVoting();
 		await DandleVoteProcessor.DetermineScore();

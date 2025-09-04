@@ -7,7 +7,7 @@ namespace Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Automod;
 /// When a message in the automod queue has its status changed.<br/>
 /// Required Scopes: moderator:manage:automod<br/>
 /// </summary>
-public class AutoModMessageUpdateEvent
+public class AutomodMessageUpdateEvent
 {
 	///<summary>
 	///The ID of the broadcaster specified in the request.
@@ -74,29 +74,35 @@ public class AutoModMessageUpdateEvent
 	///</summary>
 	[JsonPropertyName("message")]
 	public List<Message> Message { get; set; } = null!;
-
-	///<summary>
-	///The category of the message.
-	///</summary>
-	[JsonPropertyName("category")]
-	public string Category { get; set; } = string.Empty;
-
-	///<summary>
-	///The level of severity. Measured between 1 to 4.
-	///</summary>
-	[JsonPropertyName("level")]
-	public int Level { get; set; }
-
+	
 	///<summary>
 	///The message’s status.
 	///</summary>
 	[JsonPropertyName("status")]
 	public AutomodMessageStatus Status { get; set; }
-
+	
 	///<summary>
 	///The timestamp of when automod saved the message.<br/>
 	///(Converted to DateTimeOffset)
 	///</summary>
 	[JsonPropertyName("held_at")]
 	public DateTimeOffset HeldAt { get; set; }
+	
+	///<summary>
+	///Reason the message was held.
+	///</summary>
+	[JsonPropertyName("reason")]
+	public string Reason { get; set; } = string.Empty;
+
+	///<summary>
+	///Optional. If the message was caught by automod, this will be populated.
+	///</summary>
+	[JsonPropertyName("automod")]
+	public Automod? Automod { get; set; }
+	
+	///<summary>
+	///Optional. If the message was caught due to a blocked term, this will be populated.
+	///</summary>
+	[JsonPropertyName("blocked_term")]
+	public BlockedTerm? BlockedTerm { get; set; }
 }

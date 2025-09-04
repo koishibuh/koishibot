@@ -11,6 +11,7 @@ import { useNotificationStore } from '@/common/notifications/notification.store'
 
 const route = useRoute();
 const store = useNotificationStore();
+
 </script>
 
 <template>
@@ -44,7 +45,7 @@ const store = useNotificationStore();
           <RouterView />
         </main>
         <div class="bg-accent-two h-[24px] rounded-b flex items-center gap-2 justify-center">
-          <ServiceStatusBar />
+          <ServiceStatusBar/>
         </div>
       </div>
     </div>

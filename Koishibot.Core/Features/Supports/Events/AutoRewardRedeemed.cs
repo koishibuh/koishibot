@@ -14,8 +14,8 @@ namespace Koishibot.Core.Features.Supports.Events;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
-/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_automatic_reward_redemptionadd""/>Channel Point Auto Reward Redemption Add EventSub Documentation</para>
-/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-reference/#channel-points-automatic-reward-redemption-add-event">Event</see></para><br/>
+/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_automatic_reward_redemptionadd-v2"/>Channel Point Auto Reward Redemption Add EventSub Documentation</para>
+/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-reference/#channel-points-automatic-reward-redemption-add-v2-event">Event</see></para><br/>
 /// PowerUps: MessageEffect, GigantifyAnEmote, Celebration</br>
 /// PointRedeems: BypassSubOnly, HighlightedMessage, RandomSubEmote, ChosenSubEmote, ChosenModifySubEmote 
 /// </summary>
@@ -119,7 +119,7 @@ AutomaticRewardRedemptionEvent args
 		return new TwitchUserDto(
 			args.RedeemedById,
 			args.RedeemedByLogin,
-			args.RedeemedByName
+			args.RedeemedByUsername
 			);
 	}
 
@@ -183,7 +183,7 @@ AutomaticRewardRedemptionEvent args
 		{
 			EventType = StreamEventType.ChannelPoint,
 			Timestamp = Toolbox.CreateUITimestamp(),
-			Message = $"{args.RedeemedByName} has redeemed {args.Reward.Type.ToString()}"
+			Message = $"{args.RedeemedByUsername} has redeemed {args.Reward.Type.ToString()}"
 		};
 	}
 }

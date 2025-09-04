@@ -58,6 +58,13 @@ public class SendChatMessageRequestBody
 	///</summary>
 	[JsonPropertyName("reply_parent_message_id")]
 	public string ReplyParentMessageId { get; set; }
+	
+	///<summary>
+	///This parameter can only be set when utilizing an App Access Token.<br/>
+	///Default true to only send to source channel with shared chat.
+	///</summary>
+	[JsonPropertyName("for_source_only")]
+	public bool ForSourceOnly { get; set; }
 }
 
 // == ⚫ RESPONSE BODY == //

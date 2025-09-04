@@ -76,11 +76,11 @@ IDandleService DandleService
 
 		Cache.UpdateDandle(dandleInfo);
 
-		var timer = Toolbox.CreateTimer(5, AnnounceGuessOpen);
+		var timer = Toolbox.CreateTimer(5, async () => await AnnounceGuessOpen());
 		timer.Start();
 	}
 
-	private async void AnnounceGuessOpen()
+	private async Task AnnounceGuessOpen()
 	{
 		await Signalr.SendDandleTimer(new DandleTimerVm("!Guess A Word", 0, 0));
 		Cache.OpenDandleSuggestions();

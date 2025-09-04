@@ -10,6 +10,7 @@ using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Obs;
 using Koishibot.Core.Services.OBS;
 using Koishibot.Core.Services.TwitchApi.Models;
+using System.Timers;
 namespace Koishibot.Core.Features.AdBreak;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
@@ -51,11 +52,38 @@ IDandleService DandleService
 		await UpdateOverlayTimer(pomoTimer);
 		await SendLog(adInfo);
 
-		_timer = Toolbox.CreateTimer(adInfo.CalculateAdjustedTimeUntilNextAd(), SwitchToBreak);
+		_timer = Toolbox.CreateTimer(adInfo.CalculateAdjustedTimeUntilNextAd(), async () => await CheckForAdSnooze());
 		_timer.Start();
 	}
+	
+	private async Task CheckForAdSnooze()
+	{
+		try
+		{
+			var parameters = new GetAdScheduleRequestParameters
+				{ BroadcasterId = Settings.Value.StreamerTokens.UserId };
 
-	private async void SwitchToBreak()
+			var result = await TwitchApiRequest.GetAdSchedule(parameters);
+			var adInfo = result.ConvertToDto();
+
+			var currentTimer = Cache.GetCurrentTimer();
+			if (currentTimer.EndsAt == adInfo.NextAdScheduledAt)
+			{
+				await SwitchToBreak();
+			}
+			else
+			{
+				await StartTimer(adInfo);
+			}
+		}
+		catch (Exception e)
+		{
+			
+		}
+		
+	}
+	
+	private async Task SwitchToBreak()
 	{
 		await ChatReplyService.App(Command.PomodoroBreak);
 		await ObsService.StartBreak();

@@ -13,11 +13,11 @@ const streamTitle = ref<string>(props.info.streamTitle);
 const category = ref<string>(props.info.category);
 const categoryId = ref<string>(props.info.categoryId);
 
-/* onMounted(async () => {
+ onMounted(async () => {
    await store.getStreamInfo();
-  streamtitle.value = store.streamInfo?.streamTitle!;
+   streamTitle.value = store.streamInfo?.streamTitle!;
   category.value = store.streamInfo?.category!;
-}); */
+});
 
 const getStreamInfo = async () => {
   await store.getStreamInfo();

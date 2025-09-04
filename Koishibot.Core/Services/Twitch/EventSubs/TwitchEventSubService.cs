@@ -321,6 +321,13 @@ ITwitchApiRequest TwitchApiRequest
 				}
 
 				break;
+			// case EventSubSubscriptionType.ChannelSharedChatBegin:
+			// break;
+			// case EventSubSubscriptionType.ChannelSharedChatUpdate:
+			// break;
+			// case EventSubSubscriptionType.ChannelSharedChatEnd:
+			// break;
+				
 			case EventSubSubscriptionType.ChannelChatSettingsUpdate:
 				var chatSettingsUpdated = JsonSerializer.Deserialize<EventMessage<ChatSettingsUpdatedEvent>>(message);
 				await Send(new ChatSettingsUpdatedCommand(chatSettingsUpdated.Payload.Event));
@@ -343,6 +350,9 @@ ITwitchApiRequest TwitchApiRequest
 			case EventSubSubscriptionType.ChannelCheer:
 				var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
 				await Send(new CheerReceivedCommand(cheer.Payload.Event));
+				break;
+			case EventSubSubscriptionType.ChannelBitsUsed:
+				//TODO
 				break;
 			case EventSubSubscriptionType.ChannelRaid:
 				var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);

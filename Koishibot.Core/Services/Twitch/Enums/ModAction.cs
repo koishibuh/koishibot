@@ -32,7 +32,12 @@ public enum ModAction
 	Unmod,
 	ApproveUnbanRequest,
 	DenyUnbanRequest,
-	WarnUser
+	WarnUser,
+	SharedChatBan,
+	SharedChatTimeout,
+	SharedChatUnban,
+	SharedChatUntimeout,
+	SharedChatDeleteChatMessage
 }
 
 
@@ -75,6 +80,11 @@ public class ModActionEnumConverter : JsonConverter<ModAction>
 			"approve_unban_request" => ModAction.ApproveUnbanRequest,
 			"deny_unban_request" => ModAction.DenyUnbanRequest,
 			"warn" => ModAction.WarnUser,
+			"shared_chat_ban" => ModAction.SharedChatBan,
+			"shared_chat_timeout" => ModAction.SharedChatTimeout,
+			"shared_chat_unban" => ModAction.SharedChatUnban,
+			"shared_chat_untimeout" => ModAction.SharedChatUntimeout,
+			"shared_chat_delete" => ModAction.SharedChatDeleteChatMessage,
 			_ => throw new JsonException()
 		};
 	}
@@ -113,6 +123,11 @@ public class ModActionEnumConverter : JsonConverter<ModAction>
 			ModAction.ApproveUnbanRequest => "approve_unban_request",
 			ModAction.DenyUnbanRequest => "deny_unban_request",
 			ModAction.WarnUser => "warn",
+			ModAction.SharedChatBan => "shared_chat_ban",
+			ModAction.SharedChatTimeout => "shared_chat_timeout",
+			ModAction.SharedChatUnban => "shared_chat_unban",
+			ModAction.SharedChatUntimeout => "shared_chat_untimeout",
+			ModAction.SharedChatDeleteChatMessage => "shared_chat_delete",
 			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 		};
 		if (writer.CurrentDepth.Equals(1))

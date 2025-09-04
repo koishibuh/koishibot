@@ -22,7 +22,7 @@ const formattedBuildTimestamp = ref(new Date(buildTimestamp.value).toLocaleStrin
 async function login() {
   try {
     await store.loginUser(username.value, password.value);
-    route.push({name: 'Home'});
+    await route.push({name: 'Home'});
   } catch (error) {
     console.log(error);
   }

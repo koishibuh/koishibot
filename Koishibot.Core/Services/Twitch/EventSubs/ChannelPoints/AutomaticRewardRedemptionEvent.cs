@@ -4,7 +4,7 @@ using Koishibot.Core.Services.Twitch.Converters;
 namespace Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelPoints;
 
 /// <summary>
-/// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_automatic_reward_redemptionadd">Twitch Documentation</see><br/>
+/// <see href="https://dev.twitch.tv/docs/eventsub/eventsub-reference/#channel-points-automatic-reward-redemption-add-v2-event">Twitch Documentation</see><br/>
 /// When a viewer has redeemed an automatic channel points reward on the specified channel.<br/>
 /// Required Scopes: channel:read:redemptions OR channel:manage:redemptions
 /// </summary>
@@ -44,7 +44,7 @@ public class AutomaticRewardRedemptionEvent
 	/// The display name of the removed moderator.
 	/// </summary>
 	[JsonPropertyName("user_name")]
-	public string RedeemedByName { get; set; } = string.Empty;
+	public string RedeemedByUsername { get; set; } = string.Empty;
 
 	/// <summary>
 	/// The ID of the Redemption.
@@ -62,15 +62,8 @@ public class AutomaticRewardRedemptionEvent
 	/// An object that contains the user message and emote information needed to recreate the message.
 	/// </summary>
 	[JsonPropertyName("message")]
-	public TextEmotes? Message { get; set; }
-
-	/// <summary>
-	/// A string that the user entered if the reward requires input.<br/>
-	/// OPTIONAL
-	/// </summary>
-	[JsonPropertyName("user_input")]
-	public string? UserInput { get; set; }
-
+	public Message? Message { get; set; }
+	
 	/// <summary>
 	/// The timestamp of when the reward was redeemed.<br/>
 	/// (RFC3339 format converted to DateTimeOffset)

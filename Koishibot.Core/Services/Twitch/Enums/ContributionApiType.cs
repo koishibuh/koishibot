@@ -21,8 +21,11 @@ public class ContributionApiTypeEnumConverter : JsonConverter<ContributionApiTyp
 		return value switch
 		{
 			"BITS" => ContributionApiType.Bits,
+			"bits" => ContributionApiType.Bits,
 			"SUBS" => ContributionApiType.Subs,
+			"subscription" => ContributionApiType.Subs,
 			"OTHER" => ContributionApiType.Other,
+			"other" => ContributionApiType.Other,
 			_ => throw new JsonException()
 		};
 	}

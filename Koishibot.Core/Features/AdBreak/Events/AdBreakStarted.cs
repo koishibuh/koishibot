@@ -36,11 +36,11 @@ ISignalrService Signalr
 		AdInfo = await GetAdScheduleFromTwitch(command);
 
 		await Signalr.SendInfo($"Ad started, delaying for {AdInfo.AdDurationInSeconds}");
-		var timer = Toolbox.CreateTimer(AdInfo.AdDurationInSeconds, AdsCompleted);
+		var timer = Toolbox.CreateTimer(AdInfo.AdDurationInSeconds, async () => await AdsCompleted());
 		timer.Start();
 	}
 
-	private async void AdsCompleted()
+	private async Task AdsCompleted()
 	{
 		await ChatReplyService.App(Command.AdCompleted);
 

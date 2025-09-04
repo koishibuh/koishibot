@@ -17,6 +17,12 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelUpdate:
 			case EventSubSubscriptionType.ChannelFollow:
 			case EventSubSubscriptionType.ChannelModerate:
+			case EventSubSubscriptionType.HypeTrainBegin:
+			case EventSubSubscriptionType.HypeTrainProgress:
+			case EventSubSubscriptionType.HypeTrainEnd:
+			case EventSubSubscriptionType.AutomodMessageHold:
+			case EventSubSubscriptionType.AutomodMessageUpdate:
+			case EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption:
 				return "2";
 
 			default:
@@ -38,10 +44,14 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelSubscriptionGift:
 			case EventSubSubscriptionType.ChannelSubscriptionMessage:
 			case EventSubSubscriptionType.ChannelCheer:
+			case EventSubSubscriptionType.ChannelBitsUsed:
 			case EventSubSubscriptionType.ChannelUpdate:
 			case EventSubSubscriptionType.ChannelUnban:
 			case EventSubSubscriptionType.ChannelModeratorAdd:
 			case EventSubSubscriptionType.ChannelModeratorRemove:
+			case EventSubSubscriptionType.ChannelSharedChatBegin:
+			case EventSubSubscriptionType.ChannelSharedChatUpdate:
+			case EventSubSubscriptionType.ChannelSharedChatEnd:
 			case EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption:
 			case EventSubSubscriptionType.ChannelPointsCustomRewardAdd:
 			case EventSubSubscriptionType.ChannelPointsCustomRewardUpdate: // reward_id optional

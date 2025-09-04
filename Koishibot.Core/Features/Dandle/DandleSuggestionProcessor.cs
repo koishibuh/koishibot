@@ -16,33 +16,34 @@ public record DandleSuggestionProcessor(
 	ISignalrService Signalr
 	) : IDandleSuggestionProcessor
 {
+	//TODO: update responses to use database
 	public async Task Start(ChatMessageDto c)
 	{
 		var dandleInfo = Cache.GetDandleInfo();
 
 		if (Toolbox.StringContainsNonLetters(c.Message))
 		{
-			Log.LogInformation("Word contains numbers or punctuation");
-			await Signalr.SendDandleMessage($"{c.User.Name}, {c.Message} is not valid");
+			Log.LogInformation("Word contains numbers or punctuation"); 
+			await Signalr.SendDandleMessage($"{c.User.Name}, {c.Message} is not valid"); //dandle-invalidword
 			return;
 		}
 
 		var result = dandleInfo.ValidateWord(c.Message);
 		if (result is null)
 		{
-			Log.LogInformation("Word not valid");
+			Log.LogInformation("Word not valid"); // dandle-wordfindfailed
 			await Signalr.SendDandleMessage($"{c.User.Name}, {c.Message} is not valid");
 			return;
 		}
 
 		if (dandleInfo.WordAlreadyGuessed(c.Message))
 		{
-			Log.LogInformation("Word already guessed");
+			Log.LogInformation("Word already guessed"); // dandle-alreadyguessed
 			await Signalr.SendDandleMessage($"{c.User.Name}, {c.Message} already guessed");
 			return;
 		}
 
-		if (dandleInfo.WordAlreadySuggested(c.Message))
+		if (dandleInfo.WordAlreadySuggested(c.Message)) //dandle-alreadysuggestedbyuser
 		{
 			//// check if user suggested the word already
 			if (dandleInfo.WordAlreadySuggestedByUser(c.Message, c.User))
@@ -53,7 +54,7 @@ public record DandleSuggestionProcessor(
 
 			if (dandleInfo.WordAlreadyUpvotedByUser(c.Message, c.User))
 			{
-				await Signalr.SendDandleMessage($"{c.User.Name}, you've already suggested that word as well");
+				await Signalr.SendDandleMessage($"{c.User.Name}, you've already voted"); // dandle-alreadyvoted
 				return;
 			}
 
@@ -69,7 +70,7 @@ public record DandleSuggestionProcessor(
 
 		if (dandleInfo.UserAlreadySuggestedWord(c.User))
 		{
-			Log.LogInformation("User already suggested a word");
+			Log.LogInformation("User already suggested a word"); // dandle-alreadysuggested
 			await Signalr.SendDandleMessage($"{c.User.Name}, you've already suggested a unique word");
 			return;
 		}
@@ -82,7 +83,7 @@ public record DandleSuggestionProcessor(
 		Cache.UpdateDandle(dandleInfo);
 
 		Log.LogInformation("Word added");
-		await Signalr.SendDandleMessage($"{c.User.Name}, {result.Word} was submitted");
+		await Signalr.SendDandleMessage($"{c.User.Name}, {result.Word} was submitted"); // guess or g
 
 		if (dandleInfo.FirstGuess())
 		{
