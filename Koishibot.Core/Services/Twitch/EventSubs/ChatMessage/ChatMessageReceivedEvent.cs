@@ -135,7 +135,7 @@ public class ChatMessageReceivedEvent
 	///Has no effect if the message is not sent during a shared chat session.
 	///</summary>
 	[JsonPropertyName("is_source_only")]
-	public bool IsSourceOnly { get; set; }
+	public bool? IsSourceOnly { get; set; }
 }
 
 

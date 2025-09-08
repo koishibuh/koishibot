@@ -64,7 +64,7 @@ public class SendChatMessageRequestBody
 	///Default true to only send to source channel with shared chat.
 	///</summary>
 	[JsonPropertyName("for_source_only")]
-	public bool ForSourceOnly { get; set; }
+	public bool? ForSourceOnly { get; set; }
 }
 
 // == ⚫ RESPONSE BODY == //
