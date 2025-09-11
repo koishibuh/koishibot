@@ -11,7 +11,7 @@ public static class TwitchApiHelper
 	{
 		return [
 			EventSubSubscriptionType.ChannelUpdate
-			// EventSubSubscriptionType.ChannelChatMessage,
+			// EventSubSubscriptionType.ChannelChatMessage
 			// EventSubSubscriptionType.StreamOnline,
 			// EventSubSubscriptionType.StreamOffline,
 			// EventSubSubscriptionType.ChannelPollBegin,

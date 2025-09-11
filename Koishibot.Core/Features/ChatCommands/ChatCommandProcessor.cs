@@ -26,7 +26,9 @@ ITwitchIrcService TwitchIrcService
 			if (c.CommandIsSuggestion())
 			{
 				await RaidCommands.Process(c);
+				
 			}
+			// await DandleCommands.Process(c);
 		}
 		else
 		{
