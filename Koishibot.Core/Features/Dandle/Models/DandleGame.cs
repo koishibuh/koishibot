@@ -19,6 +19,8 @@ public class DandleGame
 	public List<DandleUser> UserPoints { get; set; } = [];
 
 	public List<DandleWord> DandleDictionary { get; set; } = [];
+	
+	public HashSet<string> LockedBlueKeys { get; set; } = new HashSet<string>();
 
 	//
 
@@ -53,7 +55,8 @@ public class DandleGame
 
 	public DandleGame SelectRandomWord()
 	{
-		//var targetWord = DandleDictionary.Find(x => x.Id == 1976);
+		// Debug
+		// var targetWord = DandleDictionary.Find(x => x.Id == 1723);
 
 		var targetWord = DandleDictionary.MinBy(x => new Random().Next())
 			?? throw new Exception("Dandle word list empty");
