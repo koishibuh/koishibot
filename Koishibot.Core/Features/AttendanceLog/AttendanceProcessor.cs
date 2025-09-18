@@ -58,7 +58,7 @@ IAppCache Cache
 			}
 			else
 			{
-				var data = new { User = user.Name, Number = attendance.AttendanceCount };
+				var data = new { User = user.Name, Number = attendance.StreakCurrentCount };
 				await ChatReplyService.App(Command.StreakContinued, data);
 			}
 		}
