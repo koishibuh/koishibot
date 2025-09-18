@@ -37,7 +37,7 @@ public class Attendance
 	// public Attendance UpdateStreakCount(DateOnly lastMandatoryStreamDate)
 	public Attendance UpdateStreakCount(int? lastMandatorySessionId)
 	{
-		if (lastMandatorySessionId == LastAttendedSessionId && StreakOptOut == false)
+		if (lastMandatorySessionId != LastAttendedSessionId && StreakOptOut is false)
 		{
 			StreakCurrentCount++;
 			AttendanceCount++;
