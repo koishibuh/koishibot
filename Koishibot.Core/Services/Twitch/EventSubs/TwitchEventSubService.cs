@@ -66,7 +66,7 @@ ITwitchApiRequest TwitchApiRequest
 	private bool _useCli = false; // For testing on debug
 	private TaskCompletionSource? _reconnectCompleted;
 	private readonly object _lock = new object();
-
+	
 	private readonly LimitedSizeHashSet<Metadata, string> _eventSet
 		= new(25, x => x.MessageId);
 
@@ -74,7 +74,7 @@ ITwitchApiRequest TwitchApiRequest
 	public async Task CreateWebSocket()
 	{
 		var url = _useCli
-			? $"wss://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}"
+			? $"ws://127.0.0.1:8080/ws?keepalive_timeout_seconds={_timeoutSeconds}"
 			: $"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds={_timeoutSeconds}";
 
 		try
@@ -104,10 +104,10 @@ ITwitchApiRequest TwitchApiRequest
 			if (eventMessage == null)
 				throw new JsonDeserializeException(message.Message);
 
-			if (!_eventSet.Contains(eventMessage.Metadata.MessageId))
-			{
-				_eventSet.Add(eventMessage.Metadata);
-			}
+			if (_eventSet.Contains(eventMessage.Metadata.MessageId)) 
+				return;
+			
+			_eventSet.Add(eventMessage.Metadata);
 
 			switch (eventMessage.Metadata.Type)
 			{
@@ -351,9 +351,10 @@ ITwitchApiRequest TwitchApiRequest
 				var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
 				await Send(new CheerReceivedCommand(cheer.Payload.Event));
 				break;
-			case EventSubSubscriptionType.ChannelBitsUsed:
-				//TODO
-				break;
+			// case EventSubSubscriptionType.ChannelBitsUsed:
+			// 	var bitsUsed = JsonSerializer.Deserialize<EventMessage<BitsUsedEvent>>(message);
+			// 	await Send(new BitEventReceivedCommand(bitsUsed.Payload.Event));
+			// 	break;
 			case EventSubSubscriptionType.ChannelRaid:
 				var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);
 				if (raid.Payload.Event.ToBroadcasterId == "98683749")
