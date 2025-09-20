@@ -37,7 +37,7 @@ public class Attendance
 	// public Attendance UpdateStreakCount(DateOnly lastMandatoryStreamDate)
 	public Attendance UpdateStreakCount(int? lastMandatorySessionId)
 	{
-		if (lastMandatorySessionId != LastAttendedSessionId && StreakOptOut is false)
+		if (lastMandatorySessionId == LastAttendedSessionId && StreakOptOut is false)
 		{
 			StreakCurrentCount++;
 			AttendanceCount++;
@@ -76,8 +76,8 @@ public class Attendance
 		return this;
 	}
 
-	public bool WasAlreadyRecordedToday(int? lastMandatorySessionId)
-		=> LastAttendedSessionId == lastMandatorySessionId;
+	public bool WasAlreadyRecordedToday(int? currentStreamSessionId)
+		=> LastAttendedSessionId == currentStreamSessionId;
 }
 
 /*═══════════════════【 EXTENSIONS 】═══════════════════*/

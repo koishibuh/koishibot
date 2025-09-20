@@ -36,11 +36,11 @@ IAppCache Cache
 		}
 		else // Attendance record found
 		{
-			if (attendance.WasAlreadyRecordedToday(session.LastMandatorySessionId)) return;
+			if (attendance.WasAlreadyRecordedToday(session.StreamSessionId)) return;
 
 			attendance
 				.UpdateStreakCount(session.LastMandatorySessionId)
-				.SetLastUpdatedDate(session.LastMandatorySessionId);
+				.SetLastUpdatedDate(session.StreamSessionId);
 
 			await Database.UpdateAttendance(attendance);
 
