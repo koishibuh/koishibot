@@ -72,6 +72,11 @@ const router = createRouter({
       ]
     },
     {
+      path: '/overlay/goals',
+      name: 'GoalsOverlay',
+      component: () => import('@/goals/GoalOverlay.vue')
+    },
+    {
       path: '/overlay/raid',
       name: 'RaidOverlay',
       component: () => import('@/raids/RaidOverlay.vue')

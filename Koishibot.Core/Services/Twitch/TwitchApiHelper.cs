@@ -10,8 +10,9 @@ public static class TwitchApiHelper
 	public static List<EventSubSubscriptionType> DebugSubscribeToEvents()
 	{
 		return [
-			EventSubSubscriptionType.ChannelUpdate
-			// EventSubSubscriptionType.ChannelChatMessage
+			// EventSubSubscriptionType.ChannelBitsUsed,
+			// EventSubSubscriptionType.ChannelUpdate,
+			// EventSubSubscriptionType.ChannelChatMessage,
 			// EventSubSubscriptionType.StreamOnline,
 			// EventSubSubscriptionType.StreamOffline,
 			// EventSubSubscriptionType.ChannelPollBegin,
@@ -22,7 +23,7 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelSubscriptionEnd,
 			// EventSubSubscriptionType.ChannelSubscriptionGift,
 			// EventSubSubscriptionType.ChannelSubscriptionMessage,
-			// EventSubSubscriptionType.ChannelCheer,
+			// EventSubSubscriptionType.ChannelCheer
 			// EventSubSubscriptionType.ChannelRaidSent,
 			// EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption,
 			// EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd
@@ -54,6 +55,7 @@ public static class TwitchApiHelper
 			EventSubSubscriptionType.ChannelSubscriptionGift,
 			EventSubSubscriptionType.ChannelSubscriptionMessage,
 			EventSubSubscriptionType.ChannelCheer,
+			// EventSubSubscriptionType.ChannelBitsUsed,
 			// EventSubSubscriptionType.ChannelRaidSent,
 			// EventSubSubscriptionType.ChannelRaidReceived,
 			// EventSubSubscriptionType.ChannelBan,

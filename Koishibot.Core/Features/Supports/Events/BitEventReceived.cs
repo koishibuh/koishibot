@@ -1,4 +1,4 @@
-﻿using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
@@ -11,24 +11,31 @@ namespace Koishibot.Core.Features.Supports.Events;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 /// <summary>
-/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelcheer">Channel Cheer EventSub Documentation</see></para>
+/// <para><see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelbitsuse">EventSub Documentation</see></para>
 /// </summary>
-public record CheerReceivedHandler(
+public record BitEventReceivedHandler(
 ISignalrService Signalr,
 ITwitchUserHub TwitchUserHub,
+IServiceScopeFactory ScopeFactory,
 KoishibotDbContext Database
-) : IRequestHandler<CheerReceivedCommand>
+) : IRequestHandler<BitEventReceivedCommand>
 {
 	public async Task Handle
-		(CheerReceivedCommand command, CancellationToken cancel)
+		(BitEventReceivedCommand command, CancellationToken cancel)
 	{
 		var userDto = command.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
 
+		// TODO: Get stream session Id
+		
 		var cheer = command.CreateCheer(user.Id);
-		await Database.UpdateEntry(cheer);
+		
+		using var scope = ScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+		
+		await database.AddEntry(cheer);
 
-		var supportTotal = await Database.GetSupportTotalByUserId(user.Id);
+		var supportTotal = await database.GetSupportTotalByUserId(user.Id);
 		if (supportTotal.NotInDatabase())
 		{
 			supportTotal = command.CreateSupportTotal(user);
@@ -38,7 +45,7 @@ KoishibotDbContext Database
 			supportTotal!.BitsCheered += cheer.BitsAmount;
 		}
 
-		await Database.UpdateEntry(supportTotal);
+		await database.UpdateEntry(supportTotal);
 
 		var cheerVm = command.CreateVm();
 		await Signalr.SendStreamEvent(cheerVm);
@@ -49,8 +56,8 @@ KoishibotDbContext Database
 }
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
-public record CheerReceivedCommand(
-CheerReceivedEvent args
+public record BitEventReceivedCommand(
+BitsUsedEvent args
 ) : IRequest
 {
 	public TwitchUserDto CreateUserDto() =>
@@ -65,7 +72,8 @@ CheerReceivedEvent args
 			Timestamp = DateTimeOffset.UtcNow,
 			UserId = userId,
 			BitsAmount = args.BitAmount,
-			Message = args.Message
+			Message = args.Message?.Text ?? ""
+			// StreamSessionId = null
 		};
 
 	public SupportTotal CreateSupportTotal(TwitchUser user) =>
@@ -85,7 +93,9 @@ CheerReceivedEvent args
 			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
 			Message = $"{args.CheererName} has cheered {args.BitAmount}"
 		};
-	
+
 	public GoalEventVm CreateGoalEventVm() =>
 		new("Bits", args.BitAmount);
 };
+
+public record GoalEventVm(string GoalType, int Amount);
