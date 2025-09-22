@@ -14,5 +14,7 @@ public enum CacheName
 	DragonQuest,
 	Raid,
 	LedLights,
-	Commands
+	Commands,
+	ChatCommands,
+	ChatResponses
 }

@@ -38,7 +38,7 @@ public record OpenRaidSuggestionsHandler(
 	{
 		Cache.EnableRaidSuggestions();
 
-		await ChatReplyService.App(Command.SuggestionsNowOpen);
+		await ChatReplyService.CreateResponse(Command.SuggestionsNowOpen);
 
 		//await TwitchApi.UpdateStreamTitle("Ending Soon! Searching for Raid Target");
 

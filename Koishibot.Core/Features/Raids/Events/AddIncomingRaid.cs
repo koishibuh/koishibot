@@ -94,7 +94,7 @@ IObsService ObsService
 
 		var streamInfo = await GetStreamInfo(user.TwitchId);
 		await Database.GetStreamCategoryId(streamInfo.Category, streamInfo.CategoryId);
-		await ChatReplyService.App(Command.RaidReceived);
+		await ChatReplyService.CreateResponse(Command.RaidReceived);
 
 		var incomingRaid = new IncomingRaid
 		{

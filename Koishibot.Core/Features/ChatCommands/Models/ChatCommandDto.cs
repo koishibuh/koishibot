@@ -2,6 +2,7 @@
 
 public record ChatCommandDto(
 	int Id,
+	string Name,
 	string Category,
 	string Description,
 	bool Enabled, 

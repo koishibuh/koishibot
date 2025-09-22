@@ -36,7 +36,7 @@ IChatReplyService ChatReplyService
 
 		var template = CreateTemplate(winner.Name, eggDescriptions);
 
-		await ChatReplyService.App(Command.DragonQuestPickEgg, template);
+		await ChatReplyService.CreateResponse(Command.DragonQuestPickEgg, template);
 		return template;
 		// TODO: display descriptions on screen?
 	}

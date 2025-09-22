@@ -22,13 +22,13 @@ IHttpClientFactory HttpClientFactory
 	{
 		if (c.MessageCorrectLength(5) is false)
 		{
-			await ChatReplyService.App(Command.InvalidWordLength);
+			await ChatReplyService.CreateResponse(Command.InvalidWordLength);
 			return;
 		}
 
 		if (c.MessageContainsNonLetters())
 		{
-			await ChatReplyService.App(Command.InvalidWord);
+			await ChatReplyService.CreateResponse(Command.InvalidWord);
 			return;
 		}
 
@@ -39,7 +39,7 @@ IHttpClientFactory HttpClientFactory
 		if (result is not null)
 		{
 			var data = new { Word = c.Message };
-			await ChatReplyService.App(Command.WordAddedFailed, data);
+			await ChatReplyService.CreateResponse(Command.WordAddedFailed, data);
 		}
 		else
 		{
@@ -47,7 +47,7 @@ IHttpClientFactory HttpClientFactory
 			await database.UpdateEntry(dandleWord);
 
 			var data = new { Word = c.Message };
-			await ChatReplyService.App(Command.WordAdded, data);
+			await ChatReplyService.CreateResponse(Command.WordAdded, data);
 		}
 	}
 
@@ -62,12 +62,12 @@ IHttpClientFactory HttpClientFactory
 		{
 			await database.RemoveDandleWord(word);
 			var data = new { Word = word.Word };
-			await ChatReplyService.App(Command.WordRemoved, data);
+			await ChatReplyService.CreateResponse(Command.WordRemoved, data);
 		}
 		else
 		{
 			var data = new { Word = c.Message };
-			await ChatReplyService.App(Command.WordRemovedFailed, data);
+			await ChatReplyService.CreateResponse(Command.WordRemovedFailed, data);
 		}
 	}
 
@@ -81,12 +81,12 @@ IHttpClientFactory HttpClientFactory
 		if (word is not null)
 		{
 			var data = new { Word = word.Word };
-			await ChatReplyService.App(Command.FindWord, data);
+			await ChatReplyService.CreateResponse(Command.FindWord, data);
 		}
 		else
 		{
 			var data = new { Word = c.Message };
-			await ChatReplyService.App(Command.WordNotFound, data);
+			await ChatReplyService.CreateResponse(Command.WordNotFound, data);
 		}
 	}
 
@@ -106,13 +106,13 @@ IHttpClientFactory HttpClientFactory
 			if (definition is not null && definition.Count > 0)
 			{
 				var data = new WordDefineData(definition[0]?.Word, definition[0]?.Meanings[0]?.Definitions[0].Definition);
-				await ChatReplyService.App(Command.Definition, data);
+				await ChatReplyService.CreateResponse(Command.Definition, data);
 			}
 		}
 		else
 		{
 			var data = new { Word = word };
-			await ChatReplyService.App(Command.NoDefinition, data);
+			await ChatReplyService.CreateResponse(Command.NoDefinition, data);
 		}
 	}
 }

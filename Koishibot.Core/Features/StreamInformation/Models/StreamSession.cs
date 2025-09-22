@@ -1,5 +1,6 @@
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.RaidSuggestions.Models;
+using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,6 +20,8 @@ public class StreamSession : IEntity
 
 	public List<LiveStream> LiveStreams { get; set; } = [];
 	public OutgoingRaid? OutgoingRaid { get; set; }
+	
+	// public List<TwitchCheer> TwitchCheers { get; set; } = [];
 
 	public StreamSession ResetDuration()
 	{
@@ -56,6 +59,11 @@ public class StreamSessionConfig : IEntityTypeConfiguration<StreamSession>
 			.WithOne(p => p.StreamSession)
 			.HasForeignKey(p => p.StreamSessionId)
 			.IsRequired();
+		
+		// builder.HasMany(p => p.TwitchCheers)
+		// 	.WithOne(p => p.StreamSession)
+		// 	.HasForeignKey(p => p.StreamSessionId)
+		// 	.IsRequired(false);
 
 		builder.HasOne(p => p.OutgoingRaid)
 			.WithOne(p => p.StreamSession)

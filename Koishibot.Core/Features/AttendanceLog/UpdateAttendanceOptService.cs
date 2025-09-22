@@ -1,9 +1,6 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Enums;
 using Koishibot.Core.Features.AttendanceLog.Extensions;
-using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.ChatCommands;
-using Koishibot.Core.Features.ChatCommands.Models;
-using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 namespace Koishibot.Core.Features.AttendanceLog;
@@ -25,13 +22,19 @@ public record UpdateAttendanceOptService(
 			attendance.UpdateOptStatus(status);
 			await Database.UpdateAttendance(attendance);
 
-			var code = status ? Command.StreakOptOut : Command.StreakOptIn;
-			await ChatReplyService.Everyone(code, data);
+			var code = status ? Response.StreakOptOut : Response.StreakOptIn;
+			await ChatReplyService.CreateResponse(code, data);
 		}
 		else
 		{
-			var code = status ? Command.OptOutError : Command.OptInError;
-			await ChatReplyService.Everyone(code, data);
+			var code = status ? Response.OptOutError : Response.OptInError;
+			await ChatReplyService.CreateResponse(code, data);
 		}
 	}
+}
+
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+public interface IUpdateAttendanceOptService
+{
+	Task Start(bool status, TwitchUser user);
 }

@@ -38,7 +38,7 @@ public record CancelRaidSuggestionHandler(
 
 		// TODO: Store previous stream title/game to revert back to?
 
-		await ChatReplyService.App(Command.RaidSuggestionsCancelled);
+		await ChatReplyService.CreateResponse(Command.RaidSuggestionsCancelled);
 
 		var timer = new CurrentTimer();
 		timer.ClearTimer();

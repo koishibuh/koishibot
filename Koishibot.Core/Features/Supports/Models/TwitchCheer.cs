@@ -2,6 +2,7 @@
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
+using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.Enums;
@@ -17,6 +18,9 @@ public class TwitchCheer : IEntity
 	public int UserId { get; set; }
 	public int BitsAmount { get; set; }
 	public string Message { get; set; } = string.Empty;
+	
+	// public int? StreamSessionId { get; set; } 
+	// public StreamSession? StreamSession { get; set; }
 
 	// == ⚫ NAVIGATION == //
 

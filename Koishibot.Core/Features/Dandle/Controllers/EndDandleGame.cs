@@ -36,7 +36,7 @@ IAppCache Cache
 
 		await Signalr.ClearDandleBoard();
 		await Signalr.DisableOverlay(OverlayName.Dandle);
-		await ChatReplyService.App(Command.GameOver);
+		await ChatReplyService.CreateResponse(Command.GameOver);
 	}
 }
 

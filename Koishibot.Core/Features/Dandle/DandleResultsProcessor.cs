@@ -82,7 +82,7 @@ IDandleService DandleService
 		var dandleInfo = Cache.GetDandleInfo();
 
 		var data = new NumberData(dandleInfo.GameRound);
-		await ChatReplyService.App(Command.NextRound, data);
+		await ChatReplyService.CreateResponse(Command.NextRound, data);
 	}
 
 	private async Task GameLost(DandleGame dandleInfo)
@@ -101,7 +101,7 @@ IDandleService DandleService
 		await Signalr.SendDandleTimer(new DandleTimerVm("Better luck next time!", 0, 0));
 
 		var data = new WordData(dandleInfo.TargetWord.Word);
-		await ChatReplyService.App(Command.GameLost, data);
+		await ChatReplyService.CreateResponse(Command.GameLost, data);
 
 		await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
 
@@ -127,7 +127,7 @@ IDandleService DandleService
 		await Signalr.SendDandleTimer(new DandleTimerVm("Solved!", 0, 0));
 
 		var data = new WordData(dandleInfo.TargetWord.Word);
-		await ChatReplyService.App(Command.SolvedWord, data);
+		await ChatReplyService.CreateResponse(Command.SolvedWord, data);
 
 		await DandleWordService.DefineWord(dandleInfo.TargetWord.Word);
 
@@ -284,7 +284,7 @@ IDandleService DandleService
 			_colorEmoji.TryGetValue(x.Color, out var emoji) ? emoji : "?"));
 
 		var data = new GuessData(dandleInfo.GameRound, chatWord, chatColorBlock);
-		await ChatReplyService.App(Command.GuessResult, data);
+		await ChatReplyService.CreateResponse(Command.GuessResult, data);
 
 		// Save current game state
 		dandleInfo.TargetWord.Letters = targetWord;

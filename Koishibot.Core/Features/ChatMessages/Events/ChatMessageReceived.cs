@@ -35,7 +35,7 @@ IChatReplyService BotIrc
 		if (chat.HasSpamLink() && chat.UserNotAllowed())
 		{
 			await TimeoutUserService.TwoSeconds(chat.User.TwitchId);
-			await BotIrc.App(Command.LinkNotPermitted, new { user = chat.User.Name });
+			await BotIrc.CreateResponse(Command.LinkNotPermitted, new { user = chat.User.Name });
 		}
 
 		if (chat.HasCommand())

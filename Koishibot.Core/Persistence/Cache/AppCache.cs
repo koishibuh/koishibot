@@ -2,6 +2,8 @@
 using Koishibot.Core.Features.ChatCommands.Controllers;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Common;
+using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence.Cache.Enums;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -12,6 +14,11 @@ IMemoryCache Cache, ISignalrService Signalr,
 IServiceScopeFactory ScopeFactory
 ) : IAppCache
 {
+	
+	public T GetOrCreate<T>(CacheName name, Func<ICacheEntry, T> factory)
+{
+    return Cache.GetOrCreate(name, factory);
+}
 	public void Add<T>(CacheName name, T item)
 	{
 		Cache.Set(name, item, TimeSpan.FromHours(6));
@@ -50,6 +57,35 @@ IServiceScopeFactory ScopeFactory
 		var databaseResult = await database.GetAllCommands();
 		
 		Cache.Set(CacheName.Commands, databaseResult);
+	}
+	
+	public async Task LoadNewCommandCache()
+	{
+		using var scope = ScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+		var command = await database.NewGetAllCommands();
+		Cache.Set(CacheName.ChatCommands, command);
+		var databaseResult = await database.GetAllChatResponses();
+		Cache.Set(CacheName.ChatResponses, databaseResult);
+	}
+
+
+	public async Task LoadRecentSessionCache()
+	{
+		using var scope = ScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+		var databaseResult = await database.GetRecentStreamSession();
+		var lastMandatorySessionId = await database.GetLastMandatorySessionId();
+
+		var cacheSession = new CurrentSession
+		{
+			LiveStreamId = databaseResult.LiveStreams[0]?.Id, // check this
+			StreamSessionId = databaseResult.Id,
+			LastMandatorySessionId = lastMandatorySessionId,
+			Summary = databaseResult.Summary,
+		};
+
+		Cache.Set(CacheName.CurrentSession, cacheSession);
 	}
 
 	public async Task UpdateCommandCache()

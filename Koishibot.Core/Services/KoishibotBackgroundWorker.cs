@@ -25,7 +25,8 @@ IObsService obsService,
 IStreamElementsService streamElementsService,
 IStartupTwitchServices startupTwitchServices,
 IStreamStatsService streamStatsService,
-[FromKeyedServices("notifications")]HubConnection signalrHub
+ILogger<KoishibotBackgroundWorker> Log,
+[FromKeyedServices("notifications")] HubConnection signalrHub
 ) : BackgroundService
 {
 	protected override Task ExecuteAsync(CancellationToken cancel)
@@ -43,6 +44,7 @@ IStreamStatsService streamStatsService,
 		appCache.CreateAttendanceCache();
 		appCache.CreateCommandCache();
 		await appCache.LoadCommandCache();
+		await appCache.LoadNewCommandCache();
 		appCache.CreateTimer();
 
 		await signalrHub.StartAsync(cancel);
@@ -76,7 +78,7 @@ IStreamStatsService streamStatsService,
 				var refreshToken = settings.Value.StreamerTokens.RefreshToken;
 				try
 				{
-					if (refreshToken is null) { return;}
+					if (refreshToken is null) { return; }
 					await refreshOAuthTokensService.Start();
 				}
 				catch (Exception)

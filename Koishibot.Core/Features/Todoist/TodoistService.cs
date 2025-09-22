@@ -3,15 +3,12 @@ using Koishibot.Core.Features.ChatCommands;
 using Koishibot.Core.Features.ChatCommands.Enums;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
-using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.Todoist.Interface;
 using Koishibot.Core.Persistence;
 using Todoist.Net;
 using Todoist.Net.Models;
 namespace Koishibot.Core.Features.Todoist;
 
-// == ⚫ SERVICE == //
-
+/*═══════════════════【 SERVICE 】═══════════════════*/
 public record TodoistService(
 	IAppCache Cache,
 	ITodoistClient TodoistClient,
@@ -32,14 +29,14 @@ public record TodoistService(
 		// Todo: Publish a message that task has been added
 
 		var data = new  { User = username };
-		await ChatReply.Start(command, data, PermissionLevel.Everyone);
+		await ChatReply.CreateResponse(command, data);
 	}
 
 	// == ⚫ == //
 
 	public async Task<string> GetTaskMessageFromStorage(string command)
 	{
-		var todoistMessage = command switch
+		var todoistCommand = command switch
 		{
 			Command.Idea => "task-idea",
 			Command.Bug => "task-bug",
@@ -47,19 +44,22 @@ public record TodoistService(
 			_ => "task-later"
 		};
 
-		var result = Cache.GetCommand(todoistMessage, PermissionLevel.Everyone);
+		var result = Cache.GetResponse(todoistCommand);
 
 		if (result is null)
 		{
-			var databaseResult = await Database.GetCommand(todoistMessage)
+			var databaseResult = await Database.GetResponseByName(todoistCommand)
 				?? throw new Exception("Command not found");
 
-			Cache.AddCommand(databaseResult);
-
-			var successful = databaseResult.TryGetValue(todoistMessage, out result);
-			if (successful is false) throw new Exception("Command not found");
+			Cache.AddResponse(databaseResult);
 		}
 
 		return result.Message;
 	}
+}
+
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+public interface ITodoistService
+{
+	Task CreateTask(string command, string username, string taskMessage);
 }

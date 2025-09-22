@@ -1,5 +1,6 @@
-﻿using Koishibot.Core.Features.AttendanceLog.Interfaces;
-using Koishibot.Core.Features.ChatCommands.Interface;
+﻿using Koishibot.Core.Features.AttendanceLog;
+using Koishibot.Core.Features.AttendanceLog.Enums;
+using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
 namespace Koishibot.Core.Features.ChatCommands;
 
@@ -12,48 +13,48 @@ public record AttendanceCommands(
 	{
 		switch (c.Command)
 		{
-			case "optout":
+			case Command.StreakOptOut:
 				await UpdateAttendanceOptService.Start(true, c.User);
 				return true;
 
-			case "optin":
+			case Command.StreakOptIn:
 				await UpdateAttendanceOptService.Start(false, c.User);
 				return true;
 
-			case "attendance":
+			case Command.Attendance:
 				await AttendanceStreakService.GetUserAttendanceCount(c.User);
 				return true;
 
-			case "streak":
-			case "streaks":
+			case Command.Streak:
+			case Command.Streaks:
 				await AttendanceStreakService.GetUsersAttendanceStreak
 							("streak", "🔥", c.User);
 				return true;
 
-			case "steak":
-			case "steaks":
+			case Command.Steak:
+			case Command.Steaks:
 				await AttendanceStreakService.GetUsersAttendanceStreak
 							("steak", "🥩", c.User);
 				return true;
 
-			case "topstreaks":
-			case "topstreak":
+			case Command.TopStreaks:
+			case Command.TopStreak:
 				await AttendanceStreakService.GetTopAttendanceStreaks
 							("Streaks", "🔥");
 				return true;
 
-			case "topsteaks":
-			case "topsteak":
+			case Command.TopSteaks:
+			case Command.TopSteak:
 				await AttendanceStreakService.GetTopAttendanceStreaks
 							("Steaks", "🥩");
 				return true;
 
-			case "pbstreak":
+			case Command.PbStreak:
 				await AttendanceStreakService.GetUsersBestStreak
 							("streak", "🔥", c.User);
 				return true;
 
-			case "pbsteak":
+			case Command.PbSteak:
 				await AttendanceStreakService.GetUsersBestStreak
 							("steak", "🥩", c.User);
 				return true;
@@ -61,4 +62,10 @@ public record AttendanceCommands(
 			default: return false;
 		}
 	}
+}
+
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+public interface IAttendanceCommands
+{
+	Task<bool> Process(ChatMessageDto c);
 }

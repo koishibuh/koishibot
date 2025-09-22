@@ -21,7 +21,7 @@ ISignalrService Signalr
 	public async Task Start()
 	{
 		Cache.UpdateStatusToVoting();
-		await ChatReplyService.App(Command.VotingSoon);
+		await ChatReplyService.CreateResponse(Command.VotingSoon);
 
 		var suggestions = Cache.GetRaidSuggestions();
 		switch (suggestions.Count)
