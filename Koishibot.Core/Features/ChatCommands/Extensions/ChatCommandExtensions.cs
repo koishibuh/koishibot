@@ -128,7 +128,7 @@ public static class ChatCommandExtensions
 	//
 	public static async Task<List<NewChatCommandDto>> NewGetAllCommands(this KoishibotDbContext database)
 	{
-	return await database.NewChatCommands
+	return await database.ChatCommands
 			.Select(x => new NewChatCommandDto(
 				x.Id, x.Name, x.Category, x.Enabled, x.PermissionLevel, 
 				x.UserCooldown, DateTimeOffset.UtcNow, x.GlobalCooldown, DateTimeOffset.UtcNow, 
