@@ -17,3 +17,10 @@ public class Command
 	public const string StreamOnline = "stream-online";
 	public const string ChannelUpdated = "channelUpdated";
 }
+
+public class Response
+{
+	public const string Later = "todoist-later";
+	public const string Bug = "todoist-bug";
+	public const string Idea = "todoist-idea";
+}

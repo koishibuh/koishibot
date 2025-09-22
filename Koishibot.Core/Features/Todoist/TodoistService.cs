@@ -29,7 +29,14 @@ public record TodoistService(
 		// Todo: Publish a message that task has been added
 
 		var data = new  { User = username };
-		await ChatReply.CreateResponse(command, data);
+		var responseName = command switch
+		{
+			Command.Later => Response.Later,
+			Command.Idea => Response.Idea,
+			Command.Bug => Response.Bug,
+			_ => Response.Later
+		};
+		await ChatReply.CreateResponse(responseName, data);
 	}
 
 	// == ⚫ == //
