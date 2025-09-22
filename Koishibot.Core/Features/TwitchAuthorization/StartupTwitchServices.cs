@@ -12,8 +12,21 @@ IValidateTokenService ValidateTokenService
 	public async Task Start()
 	{
 		await ValidateTokenService.Start();
-		await TwitchIrcService.CreateWebSocket();
-		await TwitchEventSubService.CreateWebSocket();
+
+		await Execute(() => TwitchIrcService.CreateWebSocket());
+		await Execute(() => TwitchEventSubService.CreateWebSocket());
+	}
+
+	private static async Task Execute(Func<Task> action)
+	{
+		try
+		{
+			await action();
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e);
+		}
 	}
 }
 

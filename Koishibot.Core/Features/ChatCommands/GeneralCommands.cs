@@ -1,9 +1,8 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Enums;
-using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Polls;
 using Koishibot.Core.Features.Polls.Enums;
-using Koishibot.Core.Features.Todoist.Interface;
+using Koishibot.Core.Features.Todoist;
 namespace Koishibot.Core.Features.ChatCommands;
 
 public record GeneralCommands(
@@ -38,4 +37,10 @@ ITodoistService TodoistService
 				return false;
 		}
 	}
+}
+
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+public interface IGeneralCommands
+{
+	Task<bool> Process(ChatMessageDto cc);
 }

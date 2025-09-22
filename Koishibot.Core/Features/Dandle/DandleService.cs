@@ -33,7 +33,7 @@ ISignalrService Signalr
 		Cache.EnableDandle();
 
 		await Signalr.EnableOverlay(OverlayName.Dandle);
-		await ChatReplyService.App(Command.NewGame);
+		await ChatReplyService.CreateResponse(Command.NewGame);
 	}
 
 	public async Task EndGame()
@@ -44,7 +44,7 @@ ISignalrService Signalr
 		await Signalr.ClearDandleBoard();
 
 		await Signalr.DisableOverlay(OverlayName.Dandle);
-		await ChatReplyService.App(Command.GameOver);
+		await ChatReplyService.CreateResponse(Command.GameOver);
 	}
 
 	private async Task<List<DandleWord>> GetDandleDictionary()

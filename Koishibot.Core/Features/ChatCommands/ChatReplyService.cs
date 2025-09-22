@@ -1,120 +1,55 @@
 ﻿using HandlebarsDotNet;
-using Koishibot.Core.Exceptions;
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.Common;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.Irc;
 namespace Koishibot.Core.Features.ChatCommands;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
 public record ChatReplyService(
-	IAppCache Cache,
-	ITwitchIrcService TwitchIrc,
-	IServiceScopeFactory ScopeFactory
-	) : IChatReplyService
+IAppCache Cache,
+ITwitchIrcService TwitchIrc,
+IServiceScopeFactory ScopeFactory
+) : IChatReplyService
 {
-	public async Task Everyone<T>(string command, T data)
+	public async Task CreateResponse(string command)
 	{
-		var result = Cache.GetCommand(command, PermissionLevel.Everyone);
-		if (result is null)
-		{
-			using var scope = ScopeFactory.CreateScope();
-			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-			var databaseResult = await database.GetCommand(command);
-			if (databaseResult is null)
-				throw new CustomException("Command not found");
+		var result = await GetResponse(command);
+		await TwitchIrc.BotSend(result);
+	}
 
-			Cache.AddCommand(databaseResult);
-
-			var successful = databaseResult.TryGetValue(command, out result);
-			if (successful is false)
-				throw new CustomException("Command not found");
-		}
-
-		var template = Handlebars.Compile(result!.Message);
+	public async Task CreateResponse<T>(string command, T data)
+	{
+		var result = await GetResponse(command);
+		var template = Handlebars.Compile(result);
 		var generatedText = template(data);
 
 		await TwitchIrc.BotSend(generatedText);
 	}
-
-	public async Task Start<T>(string command, T data, string permission)
+	
+	private async Task<string> GetResponse(string command)
 	{
-		var result = Cache.GetCommand(command, permission);
+		var result = Cache.GetResponse(command);
+
+		if (result is not null)
+			return result.Message;
+
+		using var scope = ScopeFactory.CreateScope();
+		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+		result = await database.GetResponse(command);
 		if (result is null)
-		{
-			using var scope = ScopeFactory.CreateScope();
-			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-			var databaseResult = await database.GetCommand(command);
-			if (databaseResult is null)
-				throw new CustomException("Command not found");
+			throw new Exception($"Command '{command}' not found.");
 
-			Cache.AddCommand(databaseResult);
+		Cache.AddResponse(result);
 
-			var successful = databaseResult.TryGetValue(command, out result);
-			if (successful is false)
-				throw new CustomException("Command not found");
-		}
-
-		var template = Handlebars.Compile(result!.Message);
-		var generatedText = template(data);
-
-		await TwitchIrc.BotSend(generatedText);
-	}
-
-	public async Task App(string command)
-	{
-		var result = Cache.GetCommand(command, PermissionLevel.App);
-		if (result is null)
-		{
-			using var scope = ScopeFactory.CreateScope();
-			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-			var databaseResult = await database.GetCommand(command);
-			if (databaseResult is null)
-			{
-				throw new Exception("Command not found");
-			}
-
-			Cache.AddCommand(databaseResult);
-
-			var successful = databaseResult.TryGetValue(command, out result);
-			if (successful is false) throw new Exception("Command not found");
-		}
-
-		await TwitchIrc.BotSend(result!.Message);
-	}
-
-	public async Task App<T>(string command, T data)
-	{
-		var result = Cache.GetCommand(command, PermissionLevel.App);
-
-		if (result is null)
-		{
-			using var scope = ScopeFactory.CreateScope();
-			var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-			var databaseResult = await database.GetCommand(command);
-			if (databaseResult is null)
-			{
-				throw new Exception("Command not found");
-			}
-
-			Cache.AddCommand(databaseResult);
-
-			var successful = databaseResult.TryGetValue(command, out result);
-			if (successful is false) throw new Exception("Command not found");
-		}
-
-		var template = Handlebars.Compile(result!.Message);
-		var generatedText = template(data);
-
-		await TwitchIrc.BotSend(generatedText);
+		return result.Message;
 	}
 }
 
 /*══════════════════【 INTERFACE 】══════════════════*/
 public interface IChatReplyService
 {
-	Task Everyone<T>(string command, T data);
-	Task Start<T>(string command, T data, string permission);
-	Task App(string command);
-	Task App<T>(string command, T data);
+	Task CreateResponse(string command);
+	Task CreateResponse<T>(string command, T data);
 }

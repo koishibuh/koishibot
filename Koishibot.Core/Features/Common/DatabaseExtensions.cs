@@ -1,10 +1,18 @@
-﻿using Koishibot.Core.Features.StreamInformation.Models;
+﻿using Koishibot.Core.Features.ChatCommands.Models;
+using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Persistence;
 
 namespace Koishibot.Core.Features.Common;
 
 public static class DatabaseExtensions
 {
+	public static async Task<ChatResponseDto?> GetResponse
+		(this KoishibotDbContext database, string commandName) =>
+		await database.ChatResponses
+			.Where(x => x.InternalName == commandName)
+			.Select(x => new ChatResponseDto(x.Id, x.InternalName, x.Description, x.Message))
+			.FirstOrDefaultAsync();
+	
 	public static async Task<LiveStream?> GetLastStream
 		(this KoishibotDbContext database)
 	{
@@ -24,6 +32,17 @@ public static class DatabaseExtensions
 
 		return result.Id;
 	}
+	
+	public static async Task<int?> GetLastMandatorySessionId(this KoishibotDbContext database)
+	{
+		var result = await database.StreamSessions
+			.OrderByDescending(x => x.Id)
+			.Where(x => x.AttendanceMandatory == true)
+			.FirstOrDefaultAsync();
+
+		return result.Id;
+	}
+
 
 	// public static async Task<DateOnly?> GetLastMandatoryStreamDate
 	// 		(this KoishibotDbContext database)

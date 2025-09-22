@@ -7,6 +7,7 @@ using Koishibot.Core.Features.Obs.Models;
 using Koishibot.Core.Features.Polls.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
 using Koishibot.Core.Features.StreamInformation.ViewModels;
+using Koishibot.Core.Features.Supports.Events;
 using Microsoft.AspNetCore.SignalR;
 namespace Koishibot.Core.Services.SignalR;
 
@@ -79,6 +80,9 @@ ILogger<SignalrService> Log
 
 	public async Task SendObsItems(List<ObsItemVm> obsItemVm) =>
 		await HubContext.Clients.All.ReceiveObsItems(obsItemVm);
+	
+	public async Task SendGoalEvent(GoalEventVm goalEventVm) =>
+		await HubContext.Clients.All.ReceiveGoalEvent(goalEventVm);
 }
 
 /*═══════════════【 SEND INTERFACE 】═══════════════*/
@@ -101,6 +105,7 @@ public partial interface ISignalrService
 	Task SendPollEnded(string winner);
 	Task SendAdStartedEvent(AdBreakVm adBreakVm);
 	Task SendObsItems(List<ObsItemVm> obsItemVm);
+	Task SendGoalEvent(GoalEventVm goalEventVm);
 }
 
 /*═════════════【 RECEIVE INTERFACE 】═════════════*/
@@ -123,4 +128,5 @@ public partial interface ISignalrHub
 	Task ReceivePollEnded(string winner);
 	Task ReceiveAdStartedEvent(AdBreakVm adBreakVm);
 	Task ReceiveObsItems(List<ObsItemVm> obsItemVm);
+	Task ReceiveGoalEvent(GoalEventVm goalEventVm);
 }

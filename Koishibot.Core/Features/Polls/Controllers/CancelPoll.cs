@@ -46,7 +46,7 @@ IChatReplyService ChatReplyService
 		await TwitchApiRequest.EndPoll(body);
 
 		await SignalrService.SendInfo("Poll was cancelled");
-		await ChatReplyService.App(Command.PollCancelled);
+		await ChatReplyService.CreateResponse(Command.PollCancelled);
 	}
 }
 

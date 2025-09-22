@@ -19,7 +19,7 @@ export const useEventFeedStore = defineStore('event-feed', () => {
   const getRecentEvents = async () => {
     streamEvents.value = await http.get('/api/event-feed');
   };
-
+  
   return {
     streamEvents,
     getRecentEvents

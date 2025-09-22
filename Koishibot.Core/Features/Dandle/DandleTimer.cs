@@ -69,7 +69,7 @@ IDandleResultsProcessor DandleVoteProcessor
 			var wordString = dandleInfo.CreateDandleWordString();
 
 			var data = new WordsTimeData(wordString, VotingSeconds);
-			await ChatReplyService.App(Command.NowVoting, data);
+			await ChatReplyService.CreateResponse(Command.NowVoting, data);
 
 			await Signalr.SendDandleGuessChoices(dandleInfo.CreatePollChoiceVm());
 			await Signalr.SendDandleTimer(new DandleTimerVm("Now Voting", 0, VotingSeconds));

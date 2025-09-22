@@ -26,7 +26,7 @@ KoishibotDbContext Database
 	public async Task Handle(HypeTrainStartedCommand command, CancellationToken cancel)
 	{
 		var data = command.CreateData();
-		await ChatReplyService.App(Command.HypeTrainStarted, data);
+		await ChatReplyService.CreateResponse(Command.HypeTrainStarted, data);
 
 		var hypeTrainVm = command.CreateVm();
 		await Signalr.SendStreamEvent(hypeTrainVm);

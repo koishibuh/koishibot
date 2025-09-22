@@ -19,7 +19,7 @@ public record TwitchUserHub(
 		{
 			if (Settings.Value.DebugMode is true) { return user; }
 			if (Cache.AttendanceDisabled()) return user;
-
+			
 			await AttendanceProcessor.Start(user, isFollow);
 		}
 

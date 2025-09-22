@@ -3,7 +3,6 @@ using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Services.Twitch.Irc;
-using System.ComponentModel;
 namespace Koishibot.Core.Features.ChatCommands;
 
 /*═══════════════════【 SERVICE 】═══════════════════*/
@@ -19,26 +18,28 @@ ITwitchIrcService TwitchIrcService
 {
 	private bool Processed { get; set; }
 
+// TODO: Check global/user timers?
+
 	public async Task Start(ChatMessageDto c)
 	{
 		if (Settings.Value.DebugMode is true)
 		{
-			if (c.CommandIsSuggestion())
-			{
-				await RaidCommands.Process(c);
-				
-			}
+			// if (c.CommandIsSuggestion()) 
+			// {
+			// 	await RaidCommands.Process(c);
+			// }
 			// await DandleCommands.Process(c);
 		}
 		else
 		{
-			var result = Cache.GetCommand(c.Command, PermissionLevel.Everyone);
+			var result = Cache.NewGetCommand(c.Command, PermissionLevel.Everyone);
 			if (result is null) return; // Command not found Todo: Post message?
 			
 			switch (result.Category)
 			{
 				case CommandCategory.Static:
-					await TwitchIrcService.BotSend(result.Message);
+					var response = GetResponse(result);
+					await TwitchIrcService.BotSend(response.Message);
 					break;
 				case CommandCategory.General:
 					await GeneralCommands.Process(c);
@@ -50,8 +51,16 @@ ITwitchIrcService TwitchIrcService
 					await DandleCommands.Process(c);
 					break;
 			}
-			
+
 			//Todo: If there is not a function for a valid Category 
 		}
+	}
+
+	private ChatResponseDto GetResponse(NewChatCommandDto dto)
+	{
+		// find response using the id from command
+		return dto.ResponseId is null 
+			? throw new Exception($"ResponseId for command {dto.Name} is null") 
+			: Cache.GetResponseById(dto.ResponseId);
 	}
 }

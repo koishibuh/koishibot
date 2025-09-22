@@ -1,9 +1,7 @@
 ﻿using Koishibot.Core.Features.AttendanceLog.Enums;
 using Koishibot.Core.Features.AttendanceLog.Extensions;
-using Koishibot.Core.Features.AttendanceLog.Interfaces;
 using Koishibot.Core.Features.AttendanceLog.Models;
 using Koishibot.Core.Features.ChatCommands;
-using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
@@ -32,34 +30,34 @@ IAppCache Cache
 			await Database.UpdateAttendance(attendance);
 
 			var data = new { User = user.Name };
-			await ChatReplyService.App(Command.StreakStarted, data);
+			await ChatReplyService.CreateResponse(Response.StreakStarted, data);
 		}
 		else // Attendance record found
 		{
-			if (attendance.WasAlreadyRecordedToday(session.LastMandatorySessionId)) return;
+			if (attendance.WasAlreadyRecordedToday(session.StreamSessionId)) return;
 
 			attendance
 				.UpdateStreakCount(session.LastMandatorySessionId)
-				.SetLastUpdatedDate(session.LastMandatorySessionId);
+				.SetLastUpdatedDate(session.StreamSessionId);
 
 			await Database.UpdateAttendance(attendance);
 
 			if (attendance.OptedOutFromStreaks())
 			{
 				var data = new { User = user.Name, Number = attendance.AttendanceCount };
-				await ChatReplyService.Start(Command.Attendance, data, PermissionLevel.Everyone);
+				await ChatReplyService.CreateResponse(Response.Attendance, data);
 			}
 			else if (attendance.NewStreakStarted())
 			{
 				var data = isFollow
 					? new { User = "Thanks for following" }
 					: new { User = user.Name };
-				await ChatReplyService.App(Command.StreakStarted, data);
+				await ChatReplyService.CreateResponse(Response.StreakStarted, data);
 			}
 			else
 			{
 				var data = new { User = user.Name, Number = attendance.StreakCurrentCount };
-				await ChatReplyService.App(Command.StreakContinued, data);
+				await ChatReplyService.CreateResponse(Response.StreakContinued, data);
 			}
 		}
 	}

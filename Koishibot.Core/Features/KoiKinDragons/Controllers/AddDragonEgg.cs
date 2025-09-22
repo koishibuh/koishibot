@@ -36,7 +36,7 @@ IChatReplyService ChatReplyService
 		var dragon = await SaveDragonToDatabase(command, dragonQuestWinner.Id);
 
 		var template = command.CreateTemplate();
-		await ChatReplyService.App(Command.DragonQuestNewestEgg, template);
+		await ChatReplyService.CreateResponse(Command.DragonQuestNewestEgg, template);
 
 		await Cache
 			.RemoveDragonQuest()

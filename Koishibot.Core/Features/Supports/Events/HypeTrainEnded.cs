@@ -26,7 +26,7 @@ KoishibotDbContext Database
 	public async Task Handle(HypeTrainEndedCommand command, CancellationToken cancel)
 	{
 		var data = command.CreateData();
-		await ChatReplyService.App(Command.HypeTrainEnded, data);
+		await ChatReplyService.CreateResponse(Command.HypeTrainEnded, data);
 
 		var hypeTrain = command.CreateModel();
 		await Database.UpdateEntry(hypeTrain);

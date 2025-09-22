@@ -28,7 +28,7 @@ ILogger<StreamSessionService> Log
 		var stream = await GetCurrentStreamTwitch();
 		await CreateOrReloadStreamSession(stream.StreamId, stream.StartedAt);
 	}
-
+	
 	public async Task CreateOrReloadStreamSession(string streamId, DateTimeOffset startedAt)
 	{
 		StreamSession? streamSession;

@@ -69,7 +69,7 @@ public class BitsUsedEvent
 	/// <summary>
 	/// Optional. Data about Power-up.
 	/// </summary>
-	[JsonPropertyName("message")]
+	[JsonPropertyName("power_up")]
 	public PowerUp? PowerUpData { get; set; }
 }
 
