@@ -37,7 +37,7 @@ IChatReplyService ChatReplyService
 		await ObsService.CreateWebSocket();
 		await InitializeTimer();
 
-		await ChatReplyService.CreateResponse(Command.StreamOnline);
+		await ChatReplyService.CreateResponse(Response.StreamOnline);
 
 		await ChannelPointStatusService.Enable();
 		if (Cache.DandleIsClosed())

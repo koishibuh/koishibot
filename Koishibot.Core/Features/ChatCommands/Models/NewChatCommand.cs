@@ -14,6 +14,8 @@ public class NewChatCommand : IEntity
 	public TimeSpan GlobalCooldown { get; set; }
 
 	public ChatResponse? Response { get; set; }
+	
+	public List<TimerGroup>? TimerGroups { get; set; } = [];
 	public int? ResponseId { get; set; }
 }
 
@@ -62,5 +64,10 @@ public class NewChatCommandConfig : IEntityTypeConfiguration<NewChatCommand>
 		builder.Property(p => p.Enabled);
 		builder.Property(p => p.UserCooldown);
 		builder.Property(p => p.GlobalCooldown);
+		
+		builder
+			.HasMany(p => p.TimerGroups)
+			.WithMany(p => p.NewChatCommands)
+			.UsingEntity<CommandTimerGroup>();
 	}
 }

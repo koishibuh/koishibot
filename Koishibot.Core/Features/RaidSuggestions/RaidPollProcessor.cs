@@ -57,7 +57,7 @@ public record RaidPollProcessor(
 
 		var data = new UserStreamerData(raidTarget.SuggestedByUser.Name, raidTarget.Streamer.Name);
 
-		await ChatReplyService.CreateResponse(Command.RaidTarget, data);
+		await ChatReplyService.CreateResponse(Response.RaidTarget, data);
 
 		await Signalr.SendRaidOverlayStatus(false);
 	}

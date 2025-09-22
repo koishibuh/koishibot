@@ -49,15 +49,6 @@ IServiceScopeFactory ScopeFactory
 		var serviceStatus = new ServiceStatus();
 		Cache.Set(CacheName.ServiceStatus, serviceStatus);
 	}
-
-	public async Task LoadCommandCache()
-	{
-		using var scope = ScopeFactory.CreateScope();
-		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
-		var databaseResult = await database.GetAllCommands();
-		
-		Cache.Set(CacheName.Commands, databaseResult);
-	}
 	
 	public async Task LoadNewCommandCache()
 	{
@@ -68,7 +59,6 @@ IServiceScopeFactory ScopeFactory
 		var databaseResult = await database.GetAllChatResponses();
 		Cache.Set(CacheName.ChatResponses, databaseResult);
 	}
-
 
 	public async Task LoadRecentSessionCache()
 	{
@@ -91,7 +81,7 @@ IServiceScopeFactory ScopeFactory
 	public async Task UpdateCommandCache()
 	{
 		Remove(CacheName.Commands);
-		await LoadCommandCache();
+		await LoadNewCommandCache();
 	}
 	
 
@@ -115,4 +105,19 @@ IServiceScopeFactory ScopeFactory
 		var statusVm = new ServiceStatusVm(name.ToString(), status);
 		await Signalr.SendStatusUpdate(statusVm);
 	}
+}
+
+public interface IAppCache
+{
+	void Add<T>(CacheName name, T item);
+	void Add<T>(CacheName name, T item, TimeSpan expireAt);
+	void AddNoExpire<T>(CacheName name, T item);
+	T? Get<T>(CacheName name) where T : class;
+	void InitializeServiceStatusCache();
+	Task UpdateServiceStatus(ServiceName name, string status);
+	void Remove(CacheName name);
+	Task LoadRecentSessionCache();
+	Task UpdateCommandCache();
+	Task LoadNewCommandCache();
+	T GetOrCreate<T>(CacheName name, Func<ICacheEntry, T> factory);
 }

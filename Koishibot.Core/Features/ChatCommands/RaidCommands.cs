@@ -19,15 +19,15 @@ public record RaidCommands(
 
 		if (Cache.RaidSuggestionDisabled())
 		{
-			await ChatReplyService.CreateResponse(Command.StreamNotOver);
+			await ChatReplyService.CreateResponse(Response.StreamNotOver);
 		}
 		else if (Cache.UpdateStatusToVoting())
 		{
-			await ChatReplyService.CreateResponse(Command.RaidSuggestionsClosed, data);
+			await ChatReplyService.CreateResponse(Response.RaidSuggestionsClosed, data);
 		}
 		else if (cc.SuggestionCommandEmpty())
 		{
-			await ChatReplyService.CreateResponse(Command.NoSuggestionMade, data);
+			await ChatReplyService.CreateResponse(Response.NoSuggestionMade, data);
 		}
 		else
 		{

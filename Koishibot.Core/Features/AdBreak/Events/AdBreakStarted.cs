@@ -31,7 +31,7 @@ ISignalrService Signalr
 
 		PomodoroService.CancelTimer();
 
-		await ChatReplyService.CreateResponse(Command.AdNowPlaying);
+		await ChatReplyService.CreateResponse(Response.AdNowPlaying);
 
 		AdInfo = await GetAdScheduleFromTwitch(command);
 
@@ -42,7 +42,7 @@ ISignalrService Signalr
 
 	private async Task AdsCompleted()
 	{
-		await ChatReplyService.CreateResponse(Command.AdCompleted);
+		await ChatReplyService.CreateResponse(Response.AdCompleted);
 
 		await PomodoroService.StartTimer(AdInfo);
 	}
