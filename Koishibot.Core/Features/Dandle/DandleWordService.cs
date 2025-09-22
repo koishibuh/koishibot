@@ -22,13 +22,13 @@ IHttpClientFactory HttpClientFactory
 	{
 		if (c.MessageCorrectLength(5) is false)
 		{
-			await ChatReplyService.CreateResponse(Command.InvalidWordLength);
+			await ChatReplyService.CreateResponse(Response.InvalidWordLength);
 			return;
 		}
 
 		if (c.MessageContainsNonLetters())
 		{
-			await ChatReplyService.CreateResponse(Command.InvalidWord);
+			await ChatReplyService.CreateResponse(Response.InvalidWord);
 			return;
 		}
 
@@ -39,7 +39,7 @@ IHttpClientFactory HttpClientFactory
 		if (result is not null)
 		{
 			var data = new { Word = c.Message };
-			await ChatReplyService.CreateResponse(Command.WordAddedFailed, data);
+			await ChatReplyService.CreateResponse(Response.WordAddedFailed, data);
 		}
 		else
 		{
@@ -47,7 +47,7 @@ IHttpClientFactory HttpClientFactory
 			await database.UpdateEntry(dandleWord);
 
 			var data = new { Word = c.Message };
-			await ChatReplyService.CreateResponse(Command.WordAdded, data);
+			await ChatReplyService.CreateResponse(Response.WordAdded, data);
 		}
 	}
 
@@ -62,12 +62,12 @@ IHttpClientFactory HttpClientFactory
 		{
 			await database.RemoveDandleWord(word);
 			var data = new { Word = word.Word };
-			await ChatReplyService.CreateResponse(Command.WordRemoved, data);
+			await ChatReplyService.CreateResponse(Response.WordRemoved, data);
 		}
 		else
 		{
 			var data = new { Word = c.Message };
-			await ChatReplyService.CreateResponse(Command.WordRemovedFailed, data);
+			await ChatReplyService.CreateResponse(Response.WordRemovedFailed, data);
 		}
 	}
 
@@ -81,12 +81,12 @@ IHttpClientFactory HttpClientFactory
 		if (word is not null)
 		{
 			var data = new { Word = word.Word };
-			await ChatReplyService.CreateResponse(Command.FindWord, data);
+			await ChatReplyService.CreateResponse(Response.FindWord, data);
 		}
 		else
 		{
 			var data = new { Word = c.Message };
-			await ChatReplyService.CreateResponse(Command.WordNotFound, data);
+			await ChatReplyService.CreateResponse(Response.WordNotFound, data);
 		}
 	}
 
@@ -106,13 +106,13 @@ IHttpClientFactory HttpClientFactory
 			if (definition is not null && definition.Count > 0)
 			{
 				var data = new WordDefineData(definition[0]?.Word, definition[0]?.Meanings[0]?.Definitions[0].Definition);
-				await ChatReplyService.CreateResponse(Command.Definition, data);
+				await ChatReplyService.CreateResponse(Response.Definition, data);
 			}
 		}
 		else
 		{
 			var data = new { Word = word };
-			await ChatReplyService.CreateResponse(Command.NoDefinition, data);
+			await ChatReplyService.CreateResponse(Response.NoDefinition, data);
 		}
 	}
 }
