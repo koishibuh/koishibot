@@ -1,6 +1,6 @@
 namespace Koishibot.Core.Features.Moderation.Enums;
 
-public class Command
+public class Reponse
 {
 	/// <summary>
 	/// Template: Username

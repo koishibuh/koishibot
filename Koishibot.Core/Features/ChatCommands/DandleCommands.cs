@@ -1,6 +1,7 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Interface;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Dandle;
+using Koishibot.Core.Features.Dandle.Enums;
 using Koishibot.Core.Features.Dandle.Extensions;
 using Koishibot.Core.Features.Dandle.Interfaces;
 
@@ -15,12 +16,12 @@ IDandleWordService DandleWordService
 {
 	public async Task<bool> Process(ChatMessageDto c)
 	{
-		if (c.Command == "define")
+		if (c.Command == Command.Definition)
 		{
 			await DandleWordService.DefineWord(c.Message);
 		}
 
-		if (c.Command == "findword")
+		if (c.Command == Command.FindWord)
 		{
 			await DandleWordService.FindWord(c);
 		}
@@ -32,11 +33,11 @@ IDandleWordService DandleWordService
 			{
 				switch (c.Command)
 				{
-					case "addword":
+					case Command.AddWord:
 						await DandleWordService.CreateWord(c);
 						return true;
 
-					case "removeword":
+					case Command.RemoveWord:
 						await DandleWordService.DeleteWord(c);
 						return true;
 				}
@@ -50,12 +51,12 @@ IDandleWordService DandleWordService
 		{
 			switch (c.Command)
 			{
-				case "guess" or "g":
+				case Command.Guess or Command.GuessShort:
 					c.Message = c.Message.ToLower();
 					await DandleSuggestionProcessor.Start(c);
 					return true;
 
-				case "vote" or "v":
+				case Command.Vote or Command.VoteShort:
 					// post in chat votes are closed?
 					return true;
 
@@ -66,7 +67,7 @@ IDandleWordService DandleWordService
 
 		if (Cache.DandleAcceptingVotes())
 		{
-			if (c.Command is not ("vote" or "v")) return false;
+			if (c.Command is not (Command.Vote or Command.VoteShort)) return false;
 			await DandleVoteProcessor.ProcessVote(c);
 			return true;
 

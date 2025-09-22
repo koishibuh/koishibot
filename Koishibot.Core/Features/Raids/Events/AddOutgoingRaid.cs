@@ -34,7 +34,7 @@ KoishibotDbContext Database
 		var raid = new OutgoingRaid().Set(streamId, raidedUser.Id, suggestedById);
 		await Database.AddRaid(raid);
 
-		await ChatReplyService.CreateResponse(Command.RaidLeftBehind);
+		await ChatReplyService.CreateResponse(Response.RaidLeftBehind);
 	}
 }
 

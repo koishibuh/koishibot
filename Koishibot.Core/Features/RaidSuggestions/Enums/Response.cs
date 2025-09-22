@@ -1,6 +1,6 @@
 ﻿namespace Koishibot.Core.Features.RaidSuggestions.Enums;
 
-public class Command
+public class Response
 {
 	// Raid
 	/// <summary> Username, Title, Category </summary>

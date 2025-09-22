@@ -85,7 +85,7 @@ IDandleService DandleService
 	
 	private async Task SwitchToBreak()
 	{
-		await ChatReplyService.CreateResponse(Command.PomodoroBreak);
+		await ChatReplyService.CreateResponse(Response.PomodoroBreak);
 		await ObsService.StartBreak();
 
 		if (Cache.DandleIsClosed())

@@ -1,6 +1,6 @@
 ﻿namespace Koishibot.Core.Features.AdBreak.Enums;
 
-public static class Command
+public static class Response
 {
 	public const string PomodoroBreak = "ad-pomdorobreak";
 	public const string AdNowPlaying = "ad-nowplaying";

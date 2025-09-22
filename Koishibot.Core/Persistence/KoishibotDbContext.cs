@@ -26,9 +26,7 @@ public class KoishibotDbContext : DbContext
 	public DbSet<AppKey> AppKeys => Set<AppKey>();
 	public DbSet<DandleResult> DandleResults => Set<DandleResult>();
 	public DbSet<DandleWord> DandleWords => Set<DandleWord>();
-	public DbSet<ChatCommand> ChatCommands => Set<ChatCommand>();
 	public DbSet<TimerGroup> TimerGroups => Set<TimerGroup>();
-	public DbSet<CommandName> CommandNames => Set<CommandName>();
 	public DbSet<TwitchCheer> Cheers => Set<TwitchCheer>();
 	public DbSet<Subscription> Subscriptions => Set<Subscription>();
 	public DbSet<GiftSubscription> GiftSubscriptions => Set<GiftSubscription>();

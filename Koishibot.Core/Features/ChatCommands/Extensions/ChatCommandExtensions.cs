@@ -49,7 +49,8 @@ public static class ChatCommandExtensions
 	
 	public static IAppCache CreateCommandCache(this IAppCache cache)
 	{
-		cache.AddNoExpire(CacheName.Commands, new Dictionary<string, ChatCommand>());
+		cache.AddNoExpire(CacheName.ChatCommands, new List<NewChatCommandDto>());
+		cache.AddNoExpire(CacheName.ChatResponses, new List<ChatResponseDto>());
 		return cache;
 	}
 
@@ -90,41 +91,41 @@ public static class ChatCommandExtensions
 		return item ?? null;
 	}
 	
-	public static async Task<Dictionary<string, ChatCommandDto>> GetCommand(this KoishibotDbContext database, string command)
-	{
-		var commandNames = await database.CommandNames
-			.Include(x => x.ChatCommand)
-			.Where(x => x.Name == command)
-			.Select(x => x.ChatCommand)
-			.ToListAsync();
-
-		return commandNames.Count == 0
-			? null
-			: commandNames.ToDictionary(
-				item => command,
-				item => new ChatCommandDto(
-					item.Id, "", item.Category, item.Description,
-					item.Enabled, item.Message,
-					item.Permissions, item.UserCooldown,
-					DateTimeOffset.UtcNow, item.GlobalCooldown,
-					DateTimeOffset.UtcNow)
-				);
-	}
-	
-	public static async Task<Dictionary<string, ChatCommandDto>> GetAllCommands(this KoishibotDbContext database)
-	{
-		var result = await database.CommandNames
-			.Include(x => x.ChatCommand)
-			.ToListAsync();
-			
-		return result.ToDictionary(x => x.Name, x => new ChatCommandDto(
-			x.ChatCommand.Id, "", x.ChatCommand.Category, x.ChatCommand.Description,
-			x.ChatCommand.Enabled, x.ChatCommand.Message,
-			x.ChatCommand.Permissions, x.ChatCommand.UserCooldown,
-			DateTimeOffset.UtcNow, x.ChatCommand.GlobalCooldown,
-			DateTimeOffset.UtcNow));
-	}
-	
+	// public static async Task<Dictionary<string, ChatCommandDto>> GetCommand(this KoishibotDbContext database, string command)
+	// {
+	// 	var commandNames = await database.CommandNames
+	// 		.Include(x => x.ChatCommand)
+	// 		.Where(x => x.Name == command)
+	// 		.Select(x => x.ChatCommand)
+	// 		.ToListAsync();
+	//
+	// 	return commandNames.Count == 0
+	// 		? null
+	// 		: commandNames.ToDictionary(
+	// 			item => command,
+	// 			item => new ChatCommandDto(
+	// 				item.Id, "", item.Category, item.Description,
+	// 				item.Enabled, item.Message,
+	// 				item.Permissions, item.UserCooldown,
+	// 				DateTimeOffset.UtcNow, item.GlobalCooldown,
+	// 				DateTimeOffset.UtcNow)
+	// 			);
+	// }
+	//
+	// public static async Task<Dictionary<string, ChatCommandDto>> GetAllCommands(this KoishibotDbContext database)
+	// {
+	// 	var result = await database.CommandNames
+	// 		.Include(x => x.ChatCommand)
+	// 		.ToListAsync();
+	// 		
+	// 	return result.ToDictionary(x => x.Name, x => new ChatCommandDto(
+	// 		x.ChatCommand.Id, "", x.ChatCommand.Category, x.ChatCommand.Description,
+	// 		x.ChatCommand.Enabled, x.ChatCommand.Message,
+	// 		x.ChatCommand.Permissions, x.ChatCommand.UserCooldown,
+	// 		DateTimeOffset.UtcNow, x.ChatCommand.GlobalCooldown,
+	// 		DateTimeOffset.UtcNow));
+	// }
+	//
 	public static async Task<List<NewChatCommandDto>> NewGetAllCommands(this KoishibotDbContext database)
 	{
 	return await database.NewChatCommands

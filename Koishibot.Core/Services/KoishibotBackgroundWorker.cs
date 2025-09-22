@@ -43,7 +43,6 @@ ILogger<KoishibotBackgroundWorker> Log,
 		appCache.InitializeServiceStatusCache();
 		appCache.CreateAttendanceCache();
 		appCache.CreateCommandCache();
-		await appCache.LoadCommandCache();
 		await appCache.LoadNewCommandCache();
 		appCache.CreateTimer();
 

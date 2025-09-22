@@ -60,7 +60,7 @@ KoishibotDbContext Database
 	private async Task PostChatResponse(PollEndedCommand command)
 	{
 		var data = command.CreateTemplate();
-		await ChatReplyService.CreateResponse(Command.PollWinner, data);
+		await ChatReplyService.CreateResponse(Response.PollWinner, data);
 	}
 
 	private void ClearPollCache() => Cache.Remove(CacheName.CurrentPoll);

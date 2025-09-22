@@ -23,7 +23,7 @@ public record RaidSuggestionValidation(
 
 		if (suggestedStreamer is "elysiagriffin")
 		{
-			await ChatReplyService.CreateResponse(Command.CantSuggestMe, data);
+			await ChatReplyService.CreateResponse(Response.CantSuggestMe, data);
 			return;
 		}
 
@@ -31,7 +31,7 @@ public record RaidSuggestionValidation(
 
 		if (raidSuggestions.StreamerAlreadySuggested(suggestedStreamer))
 		{
-			await ChatReplyService.CreateResponse(Command.DupeSuggestion, data);
+			await ChatReplyService.CreateResponse(Response.DupeSuggestion, data);
 			return;
 		}
 
@@ -43,7 +43,7 @@ public record RaidSuggestionValidation(
 
 		if (streamerInfo is null)
 		{
-			await ChatReplyService.CreateResponse(Command.NotValidUser, data);
+			await ChatReplyService.CreateResponse(Response.NotValidUser, data);
 			return;
 		}
 
@@ -55,14 +55,14 @@ public record RaidSuggestionValidation(
 		var liveStreamResponse = await TwitchApiRequest.GetLiveStreams(liveStreamParameters);
 		if (liveStreamResponse.Data.Count == 0)
 		{
-			await ChatReplyService.CreateResponse(Command.StreamerOffline, data);
+			await ChatReplyService.CreateResponse(Response.StreamerOffline, data);
 			return;
 		}
 
 		var liveStream = liveStreamResponse.Data[0].ConvertToDto();
 		if (liveStream.StreamerOverMaxViewerCount(100))
 		{
-			await ChatReplyService.CreateResponse(Command.MaxViewerCount, data);
+			await ChatReplyService.CreateResponse(Response.MaxViewerCount, data);
 			return;
 		}
 
@@ -75,7 +75,7 @@ public record RaidSuggestionValidation(
 
 		if (chatSettingsResponse.FollowerMode == true || chatSettingsResponse.SubscriberMode == true)
 		{
-			await ChatReplyService.CreateResponse(Command.RestrictedChat, data);
+			await ChatReplyService.CreateResponse(Response.RestrictedChat, data);
 			return;
 		}
 
@@ -85,6 +85,6 @@ public record RaidSuggestionValidation(
 		raidSuggestions.Add(suggestion);
 		Cache.Add(raidSuggestions);
 
-		await ChatReplyService.CreateResponse(Command.SuggestionSuccessful, data);
+		await ChatReplyService.CreateResponse(Response.SuggestionSuccessful, data);
 	}
 }
