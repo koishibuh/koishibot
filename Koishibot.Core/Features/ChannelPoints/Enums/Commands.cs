@@ -1,6 +1,11 @@
 ﻿namespace Koishibot.Core.Features.ChannelPoints.Enums;
 public class Command
 {
+	
+}
+
+public class Response
+{
 	public const string DragonQuestEnabled = "dragonquest-enabled";
 	public const string DragonQuestDisabled = "dragonquest-disabled";
 	public const string DragonQuestSuccessful = "dragonquest-successful";

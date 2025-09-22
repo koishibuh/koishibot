@@ -38,7 +38,7 @@ IChannelPointsApi ChannelPointsApi
 				.UpdateServiceStatusOnline(ServiceName.DragonQuest);
 
 			await ChannelPointsApi.EnableRedemption(reward.TwitchId);
-			await ChatReplyService.CreateResponse(Command.DragonQuestEnabled);
+			await ChatReplyService.CreateResponse(Response.DragonQuestEnabled);
 			return;
 		}
 
@@ -53,7 +53,7 @@ IChannelPointsApi ChannelPointsApi
 			var quest = new DragonQuest(reward, redemptions.Count);
 			Cache.AddDragonQuest(quest);
 
-			await ChatReplyService.CreateResponse(Command.DragonQuestEnabled);
+			await ChatReplyService.CreateResponse(Response.DragonQuestEnabled);
 		}
 	}
 
@@ -62,7 +62,7 @@ IChannelPointsApi ChannelPointsApi
 	{
 		if (Cache.DragonQuestClosed())
 		{
-			await ChatReplyService.CreateResponse(Command.DragonQuestDisabled);
+			await ChatReplyService.CreateResponse(Response.DragonQuestDisabled);
 			return;
 		}
 
@@ -81,7 +81,7 @@ IChannelPointsApi ChannelPointsApi
 			Cache.AddDragonQuest(quest);
 
 			var data = new { User = user.Name, Number = (successRange.Attempts + 1) };
-			await ChatReplyService.CreateResponse(Command.DragonQuestSuccessful, data);
+			await ChatReplyService.CreateResponse(Response.DragonQuestSuccessful, data);
 
 			var redemption = new ChannelPointRedemption()
 				.Set(reward, user, redeemedAt, true);
@@ -102,7 +102,7 @@ IChannelPointsApi ChannelPointsApi
 			await Database.UpdateEntry(redemption);
 
 			var data = new { User = user.Name, Number = successRange.Attempts };
-			await ChatReplyService.CreateResponse(Command.DragonQuestFailed, data);
+			await ChatReplyService.CreateResponse(Response.DragonQuestFailed, data);
 		}
 	}
 }

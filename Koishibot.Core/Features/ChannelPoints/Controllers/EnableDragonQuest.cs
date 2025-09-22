@@ -44,7 +44,7 @@ IChannelPointsApi ChannelPointsApi
 			.UpdateServiceStatusOnline(ServiceName.DragonQuest);
 
 		await ChannelPointsApi.EnableRedemption(reward.TwitchId);
-		await ChatReplyService.CreateResponse(Command.DragonQuestEnabled);
+		await ChatReplyService.CreateResponse(Response.DragonQuestEnabled);
 	}
 }
 

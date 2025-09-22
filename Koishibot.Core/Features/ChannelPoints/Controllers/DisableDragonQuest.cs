@@ -43,7 +43,7 @@ IChannelPointsApi ChannelPointsApi
 			.RemoveDragonQuest()
 			.UpdateServiceStatusOffline(ServiceName.DragonQuest);
 
-		await ChatReplyService.CreateResponse(Command.DragonQuestClosed);
+		await ChatReplyService.CreateResponse(Response.DragonQuestClosed);
 	}
 }
 
