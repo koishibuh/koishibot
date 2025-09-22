@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koishibot.Core.Persistence.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
-    partial class KoishibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250922194654_UpdateCommandEntity")]
+    partial class UpdateCommandEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -266,7 +269,7 @@ namespace Koishibot.Core.Persistence.Migrations
 
                     b.HasIndex("TimerGroupId");
 
-                    b.ToTable("CommandTimerGroup", (string)null);
+                    b.ToTable("CommandTimerGroup");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.TimerGroup", b =>
@@ -288,7 +291,7 @@ namespace Koishibot.Core.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimerGroups", (string)null);
+                    b.ToTable("TimerGroups");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Dandle.Models.DandleResult", b =>

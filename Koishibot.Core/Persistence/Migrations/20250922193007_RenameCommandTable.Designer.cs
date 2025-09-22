@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koishibot.Core.Persistence.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
-    partial class KoishibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250922193007_RenameCommandTable")]
+    partial class RenameCommandTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,7 +184,53 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.ToTable("ChannelPointRewards", (string)null);
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>
+            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatResponse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("InternalName")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InternalName")
+                        .IsUnique();
+
+                    b.ToTable("ChatResponses", (string)null);
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandTimerGroup", b =>
+                {
+                    b.Property<int>("NewChatCommandsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TimerGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChatCommandId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NewChatCommandsId", "TimerGroupId");
+
+                    b.HasIndex("TimerGroupId");
+
+                    b.ToTable("CommandTimerGroup");
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.NewChatCommand", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -226,49 +275,6 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.ToTable("ChatCommands", (string)null);
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatResponse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("InternalName")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InternalName")
-                        .IsUnique();
-
-                    b.ToTable("ChatResponses", (string)null);
-                });
-
-            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandTimerGroup", b =>
-                {
-                    b.Property<int>("ChatCommandId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TimerGroupId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ChatCommandId", "TimerGroupId");
-
-                    b.HasIndex("TimerGroupId");
-
-                    b.ToTable("CommandTimerGroup", (string)null);
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.TimerGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -288,7 +294,7 @@ namespace Koishibot.Core.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimerGroups", (string)null);
+                    b.ToTable("TimerGroups");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Dandle.Models.DandleResult", b =>
@@ -947,20 +953,11 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.Navigation("TwitchUser");
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", b =>
-                {
-                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.ChatResponse", "Response")
-                        .WithMany("Commands")
-                        .HasForeignKey("ResponseId");
-
-                    b.Navigation("Response");
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.CommandTimerGroup", b =>
                 {
-                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.ChatCommand", null)
+                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.NewChatCommand", null)
                         .WithMany()
-                        .HasForeignKey("ChatCommandId")
+                        .HasForeignKey("NewChatCommandsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -969,6 +966,15 @@ namespace Koishibot.Core.Persistence.Migrations
                         .HasForeignKey("TimerGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Koishibot.Core.Features.ChatCommands.Models.NewChatCommand", b =>
+                {
+                    b.HasOne("Koishibot.Core.Features.ChatCommands.Models.ChatResponse", "Response")
+                        .WithMany("Commands")
+                        .HasForeignKey("ResponseId");
+
+                    b.Navigation("Response");
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Dandle.Models.DandleResult", b =>

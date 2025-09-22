@@ -10,7 +10,7 @@ public class ChatResponse : IEntity
 	public string? InternalName { get; set; }
 	public string? Description { get; set; }
 	public string Message { get; set; }
-	public List<NewChatCommand> Commands { get; set; } = [];
+	public List<ChatCommand> Commands { get; set; } = [];
 	
 }
 
@@ -23,7 +23,7 @@ public class ChatResponseConfig : IEntityTypeConfiguration<ChatResponse>
 {
 	public void Configure(EntityTypeBuilder<ChatResponse> builder)
 	{
-		builder.ToTable("ChatResponse");
+		builder.ToTable("ChatResponses");
 
 		builder.HasKey(p => p.Id);
 		builder.Property(p => p.Id);

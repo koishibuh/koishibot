@@ -37,7 +37,7 @@ public class KoishibotDbContext : DbContext
 	public DbSet<LiveStream> LiveStreams => Set<LiveStream>();
 	public DbSet<StreamSession> StreamSessions => Set<StreamSession>();
 	public DbSet<ChatResponse> ChatResponses => Set<ChatResponse>();
-	public DbSet<NewChatCommand> NewChatCommands => Set<NewChatCommand>();
+	public DbSet<ChatCommand> ChatCommands => Set<ChatCommand>();
 
 	public KoishibotDbContext(DbContextOptions<KoishibotDbContext> options)
 		: base(options)
