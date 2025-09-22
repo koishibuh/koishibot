@@ -12,7 +12,7 @@ public class TimerGroup : IEntity
 	public TimeSpan Interval { get; set; }
 
 	// public List<ChatCommand> Commands { get; } = [];
-	public List<NewChatCommand> NewChatCommands { get; } = [];
+	public List<ChatCommand> ChatCommands { get; } = [];
 }
 
 /*══════════════════【 CONFIGURATION 】═════════════════*/
