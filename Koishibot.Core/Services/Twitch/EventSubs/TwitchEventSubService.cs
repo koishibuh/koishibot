@@ -385,14 +385,14 @@ public class TwitchEventSubService : ITwitchEventSubService
 				var resub = JsonSerializer.Deserialize<EventMessage<ResubMessageEvent>>(message);
 				await Send(new ResubReceivedCommand(resub.Payload.Event));
 				break;
-			case EventSubSubscriptionType.ChannelCheer:
-				var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
-				await Send(new CheerReceivedCommand(cheer.Payload.Event));
-				break;
-			// case EventSubSubscriptionType.ChannelBitsUsed:
-			// 	var bitsUsed = JsonSerializer.Deserialize<EventMessage<BitsUsedEvent>>(message);
-			// 	await Send(new BitEventReceivedCommand(bitsUsed.Payload.Event));
+			// case EventSubSubscriptionType.ChannelCheer:
+			// 	var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
+			// 	await Send(new CheerReceivedCommand(cheer.Payload.Event));
 			// 	break;
+			case EventSubSubscriptionType.ChannelBitsUsed:
+				var bitsUsed = JsonSerializer.Deserialize<EventMessage<BitsUsedEvent>>(message);
+				await Send(new BitEventReceivedCommand(bitsUsed.Payload.Event));
+				break;
 			case EventSubSubscriptionType.ChannelRaid:
 				var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);
 				if (raid.Payload.Event.ToBroadcasterId == "98683749")

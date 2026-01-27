@@ -91,7 +91,9 @@ BitsUsedEvent args
 		{
 			EventType = StreamEventType.Cheer,
 			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
-			Message = $"{args.CheererName} has cheered {args.BitAmount}"
+			Message = args.PowerUpData is not null
+				? $"{args.CheererName} has cheered {args.BitAmount} with {args.PowerUpData.Type}"
+				: $"{args.CheererName} has cheered {args.BitAmount}"
 		};
 
 	public GoalEventVm CreateGoalEventVm() =>

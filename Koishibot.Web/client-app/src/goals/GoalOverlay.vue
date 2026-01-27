@@ -8,6 +8,7 @@ onMounted(async () => {
   try {
     {
       await store.getBitGoal();
+      await store.getSubGoal();
     }
   } catch (error) {
     console.log(error);
@@ -70,6 +71,43 @@ const progress = computed(() => {
         class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-semibold pointer-events-none"
     >
       {{ store.bitGoal.currentAmount }} / {{ store.bitGoal.goalAmount }}
+    </div>
+  </div>
+
+
+  <div>Sub Goal: {{store.subGoal.goalAmount}}</div>
+
+  <div class="w-full max-w-xl h-6 bg-gray-300 rounded overflow-hidden relative">
+    <div
+        class="h-full  relative"
+
+    >
+      <div
+          class="h-full bg-blue-500 relative progress"
+          :style="{ width: `${progress}%` }"
+      >
+
+        <svg
+            class="absolute top-0 right-[-43px] h-[60px]"
+            :style="{ width: waveWidth * 2 + 'px' }"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 82 24"
+            preserveAspectRatio="none"
+        >
+          <path
+              fill="#3b82f6"
+              d="M0 12 Q10 0 20 12 T40 12 T60 12 T80 12 V24 H0 Z"
+              class="wave-path"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Centered floating text -->
+    <div
+        class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-semibold pointer-events-none"
+    >
+      {{ store.subGoal.currentAmount }} / {{ store.subGoal.goalAmount }}
     </div>
   </div>
 </template>

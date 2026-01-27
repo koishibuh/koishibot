@@ -9,11 +9,14 @@ export const useGoalStore = defineStore('goal', () => {
 
     const goals = ref<IGoal[]>([]);
     const bitGoal = ref<IGoal>({goalType: 'Bits', currentAmount: 0, goalAmount: 500});
+    const subGoal = ref<IGoal>({goalType: 'Subs', currentAmount: 0, goalAmount: 5});
     /*   const streamEvents = ref<IStreamEvent[]>(eventSample); */
 
     signalRConnection?.on('ReceiveGoalEvent', (goalEvent: IGoalEvent) => {
         if (goalEvent.goalType === 'Bits') {
             bitGoal.value.currentAmount = bitGoal.value?.currentAmount + goalEvent.amount;
+        } else if (goalEvent.goalType === 'Subs') {
+            subGoal.value.currentAmount = subGoal.value?.currentAmount + goalEvent.amount;
         }
         // streamEvents.value.push(streamEvent);
     });
@@ -26,9 +29,19 @@ export const useGoalStore = defineStore('goal', () => {
         }
     };
 
+    const getSubGoal = async () => {
+        const result: IGoalEvent = await http.get('/api/goals/subs');
+        if (result)
+        {
+            subGoal.value = {goalType: 'Subs', currentAmount: result.amount, goalAmount: 5};
+        }
+    };
+
     return {
         bitGoal,
-        getBitGoal
+        subGoal,
+        getBitGoal,
+        getSubGoal
     };
 });
 

@@ -43,7 +43,7 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelSubscriptionEnd:
 			case EventSubSubscriptionType.ChannelSubscriptionGift:
 			case EventSubSubscriptionType.ChannelSubscriptionMessage:
-			case EventSubSubscriptionType.ChannelCheer:
+			case EventSubSubscriptionType.ChannelCheer: // old
 			case EventSubSubscriptionType.ChannelBitsUsed:
 			case EventSubSubscriptionType.ChannelUpdate:
 			case EventSubSubscriptionType.ChannelUnban:
