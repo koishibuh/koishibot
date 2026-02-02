@@ -127,6 +127,7 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelChatUserMessageHold:
 			case EventSubSubscriptionType.ChannelChatUserMessageUpdate:
 				conditions.Add(ConvertEnum(ConditionType.BroadcasterId), streamerId);
+				// conditions.Add(ConvertEnum(ConditionType.BroadcasterId), ""); // To sub to other channels
 				conditions.Add(ConvertEnum(ConditionType.UserId), streamerId);
 				break;
 

@@ -17,15 +17,12 @@ public class StreamEventVm
 
 	public StreamEventVm CreateCheerEvent(string username, int amount)
 	{
-		EventType = StreamEventType.Follow;
+		EventType = StreamEventType.Cheer;
 		Timestamp = CurrentTime();
 		Message = $"{username} has cheered {amount}";
 		return this;
 	}
-
-	public string CurrentTime()
-	{
-		return (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm");
-	}
-
+	
+	public string CurrentTime() => 
+		(DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm");
 };
