@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koishibot.Core.Persistence.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
-    partial class KoishibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202162002_UpdateSubscriptions")]
+    partial class UpdateSubscriptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -862,38 +865,6 @@ namespace Koishibot.Core.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("SupportTotals", (string)null);
-                });
-
-            modelBuilder.Entity("Koishibot.Core.Features.Supports.Models.TipJarGoal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CurrentAmount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("EndedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("GoalAmount")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTimeOffset?>("StartedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TipJarGoals", (string)null);
                 });
 
             modelBuilder.Entity("Koishibot.Core.Features.Supports.Models.TwitchCheer", b =>

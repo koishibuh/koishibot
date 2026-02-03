@@ -32,7 +32,6 @@ using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Raids;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ShieldMode;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Shoutout;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.StreamStatus;
-using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Subscriptions;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.SuspiciousUser;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Vip;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Warning;
@@ -346,16 +345,14 @@ public class TwitchEventSubService : ITwitchEventSubService
 				//{
 				//	// send to chat?
 				//}
-				if (chatNotificationReceived.Payload.Event.NoticeType == NoticeType.Sub ||
-				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.Resub ||
-				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.SubGift ||
-				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.CommunitySubGift ||
-				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.GiftSubPaidUpgrade ||
-				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.PrimeSubPaidUpgrade ||
-				    chatNotificationReceived.Payload.Event.NoticeType == NoticeType.PayItForwardSub
+				if (chatNotificationReceived.Payload.Event.NoticeType is 
+				    NoticeType.Sub or NoticeType.Resub or
+				    NoticeType.SubGift or NoticeType.CommunitySubGift or 
+				    NoticeType.GiftSubPaidUpgrade or NoticeType.PrimeSubPaidUpgrade or
+				    NoticeType.PayItForwardSub
 				   )
 				{
-					// send to chat?
+					await Send(new ChatNotificationReceivedCommand(chatNotificationReceived.Payload.Event));
 				}
 
 				break;
@@ -370,21 +367,21 @@ public class TwitchEventSubService : ITwitchEventSubService
 				var chatSettingsUpdated = JsonSerializer.Deserialize<EventMessage<ChatSettingsUpdatedEvent>>(message);
 				await Send(new ChatSettingsUpdatedCommand(chatSettingsUpdated.Payload.Event));
 				break;
-			case EventSubSubscriptionType.ChannelSubscribe:
-				var subscriptionReceived = JsonSerializer.Deserialize<EventMessage<SubscriptionEvent>>(message);
-				await Send(new SubscriptionReceivedCommand(subscriptionReceived.Payload.Event));
-				break;
+			// case EventSubSubscriptionType.ChannelSubscribe:
+			// 	var subscriptionReceived = JsonSerializer.Deserialize<EventMessage<SubscriptionEvent>>(message);
+			// 	await Send(new SubscriptionReceivedCommand(subscriptionReceived.Payload.Event));
+			// 	break;
 			//case SubscriptionType.ChannelSubscriptionEnd:
 			//	OnChannelSubscriptionEnd?.Invoke(eventMessage);
 			//	break;
-			case EventSubSubscriptionType.ChannelSubscriptionGift:
-				var subGifted = JsonSerializer.Deserialize<EventMessage<GiftedSubEvent>>(message);
-				await Send(new GiftSubReceivedCommand(subGifted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelSubscriptionMessage:
-				var resub = JsonSerializer.Deserialize<EventMessage<ResubMessageEvent>>(message);
-				await Send(new ResubReceivedCommand(resub.Payload.Event));
-				break;
+			// case EventSubSubscriptionType.ChannelSubscriptionGift:
+			// 	var subGifted = JsonSerializer.Deserialize<EventMessage<GiftedSubEvent>>(message);
+			// 	await Send(new GiftSubReceivedCommand(subGifted.Payload.Event));
+			// 	break;
+			// case EventSubSubscriptionType.ChannelSubscriptionMessage:
+			// 	var resub = JsonSerializer.Deserialize<EventMessage<ResubMessageEvent>>(message);
+			// 	await Send(new ResubReceivedCommand(resub.Payload.Event));
+			// 	break;
 			// case EventSubSubscriptionType.ChannelCheer:
 			// 	var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
 			// 	await Send(new CheerReceivedCommand(cheer.Payload.Event));

@@ -1,6 +1,4 @@
 using Koishibot.Core.Features.ChatCommands.Extensions;
-using Koishibot.Core.Features.Common;
-using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers;
@@ -34,24 +32,23 @@ KoishibotDbContext Database
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
 		
 		await database.AddEntry(cheer);
-
-		var supportTotal = await database.GetSupportTotalByUserId(user.Id);
-		if (supportTotal.NotInDatabase())
-		{
-			supportTotal = command.CreateSupportTotal(user);
-		}
-		else
-		{
-			supportTotal!.BitsCheered += cheer.BitsAmount;
-		}
-
-		await database.UpdateEntry(supportTotal);
-
-		var cheerVm = command.CreateVm();
-		await Signalr.SendStreamEvent(cheerVm);
 		
-		var cheerGoalVm = command.CreateGoalEventVm();
-		await Signalr.SendGoalEvent(cheerGoalVm);
+		//
+		// var supportTotal = await database.GetSupportTotalByUserId(user.Id);
+		// if (supportTotal.NotInDatabase())
+		// {
+		// 	supportTotal = command.CreateSupportTotal(user);
+		// }
+		// else
+		// {
+		// 	supportTotal!.BitsCheered += cheer.BitsAmount;
+		// }
+		//
+		// await database.UpdateEntry(supportTotal);
+		var cheerVm = new StreamEventVm()
+			.CreateCheerEvent(command.args);
+		
+		await Signalr.SendStreamEvent(cheerVm);
 	}
 }
 
@@ -85,19 +82,4 @@ BitsUsedEvent args
 			BitsCheered = args.BitAmount,
 			Tipped = 0
 		};
-
-	public StreamEventVm CreateVm() =>
-		new()
-		{
-			EventType = StreamEventType.Cheer,
-			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
-			Message = args.PowerUpData is not null
-				? $"{args.CheererName} has cheered {args.BitAmount} with {args.PowerUpData.Type}"
-				: $"{args.CheererName} has cheered {args.BitAmount}"
-		};
-
-	public GoalEventVm CreateGoalEventVm() =>
-		new("Bits", args.BitAmount);
 };
-
-public record GoalEventVm(string GoalType, int Amount);

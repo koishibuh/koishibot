@@ -9,5 +9,7 @@ public enum StreamEventType
 	HypeTrain,
 	Kofi,
 	ChannelPoint,
-	SETip
+	SETip,
+	CommunityGiftSub,
+	PayItForward
 }

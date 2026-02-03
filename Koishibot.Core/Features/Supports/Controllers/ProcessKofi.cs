@@ -1,14 +1,10 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Extensions;
-using Koishibot.Core.Features.Common;
-using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Kofi;
-using Koishibot.Core.Services.StreamElements.Models;
-using Microsoft.AspNetCore.Authorization;
-using System.Globalization;
+using Koishibot.Core.Services.Kofi.Enums;
 using System.Text.Json;
 namespace Koishibot.Core.Features.Supports.Controllers;
 
@@ -19,8 +15,6 @@ KoishibotDbContext database,
 ISignalrService signalr
 ) : ApiControllerBase
 {
-	[AllowAnonymous]
-	[SwaggerOperation(Tags = ["Kofi"])]
 	[HttpPost]
 	public async Task<ActionResult> ProcessKofi([FromForm] string data)
 	{
@@ -34,26 +28,29 @@ ISignalrService signalr
 		if (kofiData.VerificationToken != settings.Value.KofiVerificationToken)
 			return new BadRequestObjectResult(new { error = "Invalid verification token" });
 
-		var user = await database.GetUserByLogin(kofiData.FromName.ToLower());
+		var user = await database.GetUserByLogin(kofiData.FromName);
 
-		var kofi = new Kofi
-		{
-			KofiTransactionId = kofiData.KofiTransactionId,
-			Timestamp = kofiData.Timestamp,
-			TransactionUrl = kofiData.Url,
-			KofiType = kofiData.Type.ToString(),
-			UserId = user?.Id,
-			Username = kofiData.FromName,
-			Message = kofiData.Message ?? string.Empty,
-			Currency = kofiData.Currency,
-			AmountInPence = Toolbox.AmountStringToPence(kofiData.Amount)
-		};
+		var kofi = new Kofi().CreateKofi(kofiData, user?.Id);
 		await database.UpdateEntry(kofi);
 
-		var kofiVm = kofi.CreateVm(kofiData.Amount);
-		await signalr.SendStreamEvent(kofiVm);
+		var tipJarGoal = await database.GetActiveTipJarGoal();
+		if (tipJarGoal is not null)
+		{
+			tipJarGoal.CurrentAmount = tipJarGoal.CurrentAmount + kofi.AmountInPence;
+			await database.UpdateEntry(tipJarGoal);
+		}
+		
+		var message = kofiData.Type switch
+		{
+			KofiType.Donation => $"{kofiData.FromName} tipped {kofiData.Amount} via Kofi",
+			KofiType.ShopOrder => $"{kofiData.FromName} purchased an item on Kofi for {kofiData.Amount}",
+			_ => $"{kofiData.FromName} Kofi subbed for {kofiData.Amount}"
+		};
 
-		// Update overlay bar
+		var kofiVm = new StreamEventVm()
+			.CreateKofiEvent(message, kofi.AmountInPence);
+		await signalr.SendStreamEvent(kofiVm);
+		
 		return Ok();
 	}
 }

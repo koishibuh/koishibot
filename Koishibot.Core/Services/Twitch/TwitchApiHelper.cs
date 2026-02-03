@@ -27,7 +27,7 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelRaidSent,
 			// EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption,
 			// EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd
-			// EventSubSubscriptionType.ChannelChatNotification
+			EventSubSubscriptionType.ChannelChatNotification
 		];
 	}
 
@@ -47,15 +47,15 @@ public static class TwitchApiHelper
 			// //EventSubSubscriptionType.ChannelChatClearUserMessages,
 			EventSubSubscriptionType.ChannelChatMessage,
 			// EventSubSubscriptionType.ChannelChatMessageDelete,
-			// EventSubSubscriptionType.ChannelChatNotification,
+			EventSubSubscriptionType.ChannelChatNotification,
 			// //EventSubSubscriptionType.ChannelChatSettingsUpdate,
 			// //EventSubSubscriptionType.ChannelChatUserMessageHold,
 			// //EventSubSubscriptionType.ChannelChatUserMessageUpdate,
-			EventSubSubscriptionType.ChannelSubscribe,
-			// EventSubSubscriptionType.ChannelSubscriptionEnd,
-			EventSubSubscriptionType.ChannelSubscriptionGift,
-			EventSubSubscriptionType.ChannelSubscriptionMessage,
-			// EventSubSubscriptionType.ChannelCheer, OLD
+			// EventSubSubscriptionType.ChannelSubscribe, // Now using ChannelChatNotification
+			// EventSubSubscriptionType.ChannelSubscriptionEnd, 
+			// EventSubSubscriptionType.ChannelSubscriptionGift, // Now using ChannelChatNotification
+			// EventSubSubscriptionType.ChannelSubscriptionMessage, // Now using ChannelChatNotification
+			// EventSubSubscriptionType.ChannelCheer, // Now using ChannelBitsUsed
 			EventSubSubscriptionType.ChannelBitsUsed,
 			// EventSubSubscriptionType.ChannelRaidSent,
 			// EventSubSubscriptionType.ChannelRaidReceived,

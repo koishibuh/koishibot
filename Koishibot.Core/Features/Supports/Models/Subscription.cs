@@ -10,9 +10,11 @@ public class Subscription : IEntity
 	public int Id { get; set; }
 	public DateTimeOffset Timestamp { get; set; }	
 	public int UserId { get; set; }
-	public string Tier { get; set; } = string.Empty;
+	public string Type { get; set; } = string.Empty;
 	public string? Message { get; set; }
-	public bool Gifted { get; set; }
+	public string? EventMessage { get; set; }
+	public string? UserMessage { get; set; }
+	
 
 	// == ⚫ NAVIGATION == //
 
@@ -31,14 +33,15 @@ public class SubscriptionConfig : IEntityTypeConfiguration<Subscription>
 		builder.HasKey(p => p.Id);
 		builder.Property(p => p.Id);
 
+		builder.HasIndex(p => p.Timestamp);
 		builder.Property(p => p.Timestamp);
 
 		builder.Property(p => p.UserId);
 
-		builder.Property(p => p.Tier);
+		builder.Property(p => p.Type);
 
 		builder.Property(p => p.Message);
-
-		builder.Property(p => p.Gifted);
+		builder.Property(p => p.EventMessage);
+		builder.Property(p => p.UserMessage);
 	}
 }
