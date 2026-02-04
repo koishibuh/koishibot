@@ -14,7 +14,7 @@ export const useEventFeedStore = defineStore('event-feed', () => {
 
   const goals = ref<IGoal[]>([]);
   const tipJarGoal = ref<IGoal>({goalType: 'TipJar', currentAmount: 0, goalAmount: 5000, title: "Bitty Tip Jar Goal: Unknown"});
-  const subGoal = ref<IGoal>({goalType: 'Subs', currentAmount: 0, goalAmount: 50, title: "Daily Sub Goal"});
+  const subGoal = ref<IGoal>({goalType: 'Subs', currentAmount: 0, goalAmount: 5, title: "Daily Sub Goal"});
   /*   const streamEvents = ref<IStreamEvent[]>(eventSample); */
   
   signalRConnection?.on('ReceiveStreamEvent', (streamEvent: IStreamEvent) => {
