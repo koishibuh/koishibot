@@ -7,6 +7,7 @@ public enum KofiType
 {
 	Donation,
 	Subscription,
+	Commission,
 	ShopOrder
 }
 
@@ -20,6 +21,7 @@ public class KofiTypeEnumConverter : JsonConverter<KofiType>
 		{
 			"Donation" => KofiType.Donation,
 			"Subscription" => KofiType.Subscription,
+			"Commission" => KofiType.Commission,
 			"Shop Order" => KofiType.ShopOrder,
 			_ => throw new JsonException()
 		};
@@ -32,6 +34,7 @@ public class KofiTypeEnumConverter : JsonConverter<KofiType>
 		{
 			KofiType.Donation => "Donation",
 			KofiType.Subscription => "Subscription",
+			KofiType.Commission => "Commission",
 			KofiType.ShopOrder => "Shop Order",
 			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 		};

@@ -44,6 +44,7 @@ ISignalrService signalr
 		{
 			KofiType.Donation => $"{kofiData.FromName} tipped {kofiData.Amount} via Kofi",
 			KofiType.ShopOrder => $"{kofiData.FromName} purchased an item on Kofi for {kofiData.Amount}",
+			KofiType.Commission => $"{kofiData.FromName} purchased a commission for {kofiData.Amount}",
 			_ => $"{kofiData.FromName} Kofi subbed for {kofiData.Amount}"
 		};
 
