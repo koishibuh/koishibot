@@ -43,7 +43,7 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelSubscriptionEnd:
 			case EventSubSubscriptionType.ChannelSubscriptionGift:
 			case EventSubSubscriptionType.ChannelSubscriptionMessage:
-			case EventSubSubscriptionType.ChannelCheer:
+			case EventSubSubscriptionType.ChannelCheer: // old
 			case EventSubSubscriptionType.ChannelBitsUsed:
 			case EventSubSubscriptionType.ChannelUpdate:
 			case EventSubSubscriptionType.ChannelUnban:
@@ -128,6 +128,7 @@ public static class SubscriptionTypeExtensions
 			case EventSubSubscriptionType.ChannelChatUserMessageUpdate:
 				conditions.Add(ConvertEnum(ConditionType.BroadcasterId), streamerId);
 				conditions.Add(ConvertEnum(ConditionType.UserId), streamerId);
+				 // conditions.Add(ConvertEnum(ConditionType.BroadcasterId), ""); // To sub to another streamers events
 				break;
 
 

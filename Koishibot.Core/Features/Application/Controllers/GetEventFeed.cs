@@ -86,22 +86,35 @@ public static class GetEventFeedExtensions
 			{
 				EventType = StreamEventType.Sub,
 				Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
-				Message = $"{f.TwitchUser.Name} has subscribed at {f.Tier} for 1 month"
+				Message = $"{f.TwitchUser.Name} has subscribed"
 			})
 			.ToListAsync();
-
-		var giftsub = await database.GiftSubscriptions
+		
+		// TODO: adjust this based on type
+		var kofi = await database.Kofis
 			.AsNoTracking()
-			.Include(x => x.TwitchUser)
 			.OrderByDescending(f => f.Timestamp)
 			.Take(50)
 			.Select(f => new StreamEventVm
 			{
 				EventType = StreamEventType.Sub,
 				Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
-				Message = $"{f.TwitchUser.Name} has gifted {f.Total} {f.Tier} subs!"
+				Message = $"{f.Username} tipped through Kofi for {f.AmountInPence}"
 			})
 			.ToListAsync();
+
+		// var giftsub = await database.GiftSubscriptions
+		// 	.AsNoTracking()
+		// 	.Include(x => x.TwitchUser)
+		// 	.OrderByDescending(f => f.Timestamp)
+		// 	.Take(50)
+		// 	.Select(f => new StreamEventVm
+		// 	{
+		// 		EventType = StreamEventType.Sub,
+		// 		Timestamp = f.Timestamp.ToString("yyyy-MM-dd HH:mm"),
+		// 		Message = $"{f.TwitchUser.Name} has gifted {f.Total} {f.Tier} subs!"
+		// 	})
+		// 	.ToListAsync();
 
 		var pointRedemption = await database.ChannelPointRedemptions
 			.AsNoTracking()
@@ -121,7 +134,8 @@ public static class GetEventFeedExtensions
 		list.AddRange(raids);
 		list.AddRange(cheers);
 		list.AddRange(subs);
-		list.AddRange(giftsub);
+		list.AddRange(kofi);
+		// list.AddRange(giftsub);
 		list.AddRange(pointRedemption);
 		var updatedList = list.OrderBy(x => x.Timestamp).ToList();
 		return updatedList;

@@ -1,81 +1,58 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Extensions;
-using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Kofi;
+using Koishibot.Core.Services.Kofi.Enums;
 using System.Text.Json;
 namespace Koishibot.Core.Features.Supports.Controllers;
 
 /*══════════════════【 CONTROLLER 】══════════════════*/
 [Route("api/kofi")]
-public class ProcessKofiController(IOptions<Settings> settings) : ApiControllerBase
+public class ProcessKofiController(IOptions<Settings> settings,
+KoishibotDbContext database,
+ISignalrService signalr
+) : ApiControllerBase
 {
-	[SwaggerOperation(Tags = ["Kofi"])]
 	[HttpPost]
 	public async Task<ActionResult> ProcessKofi([FromForm] string data)
 	{
 		var kofiData = JsonSerializer.Deserialize<KofiEvent>(data)
 			?? throw new Exception("KofiData is null");
 
-		if (kofiData.VerificationToken != settings.Value.KofiVerificationToken)
-		{
-			return new BadRequestObjectResult(new { error = "Invalid verification token" });
-		}
+		// todo: notify UI that verification token is missing
+		if (settings.Value.KofiVerificationToken is "")
+			return new BadRequestObjectResult(new { error = "Unable to verify token" });
 
-		await Mediator.Send(new ProcessKofiCommand { Data = kofiData });
+		if (kofiData.VerificationToken != settings.Value.KofiVerificationToken)
+			return new BadRequestObjectResult(new { error = "Invalid verification token" });
+
+		var user = await database.GetUserByLogin(kofiData.FromName);
+
+		var kofi = new Kofi().CreateKofi(kofiData, user?.Id);
+		await database.UpdateEntry(kofi);
+
+		var tipJarGoal = await database.GetActiveTipJarGoal();
+		if (tipJarGoal is not null)
+		{
+			tipJarGoal.CurrentAmount = tipJarGoal.CurrentAmount + kofi.AmountInPence;
+			await database.UpdateEntry(tipJarGoal);
+		}
+		
+		var message = kofiData.Type switch
+		{
+			KofiType.Donation => $"{kofiData.FromName} tipped {kofiData.Amount} via Kofi",
+			KofiType.ShopOrder => $"{kofiData.FromName} purchased an item on Kofi for {kofiData.Amount}",
+			KofiType.Commission => $"{kofiData.FromName} purchased a commission for {kofiData.Amount}",
+			_ => $"{kofiData.FromName} Kofi subbed for {kofiData.Amount}"
+		};
+
+		var kofiVm = new StreamEventVm()
+			.CreateKofiEvent(message, kofi.AmountInPence);
+		await signalr.SendStreamEvent(kofiVm);
+		
 		return Ok();
 	}
 }
-
-/*═══════════════════【 HANDLER 】═══════════════════*/
-public record ProcessKofiHandler(
-KoishibotDbContext Database,
-ISignalrService Signalr
-) : IRequestHandler<ProcessKofiCommand>
-{
-	public async Task Handle
-		(ProcessKofiCommand command, CancellationToken cancel)
-	{
-		var userLogin = command.GetUserLogin();
-		var user = await Database.GetUserByLogin(userLogin);
-
-		var kofi = command.CreateModel(user);
-		await Database.UpdateEntry(kofi);
-
-		var kofiVm = command.CreateVm();
-		await Signalr.SendStreamEvent(kofiVm);
-
-		// Update overlay bar
-	}
-}
-
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public class ProcessKofiCommand : IRequest
-{
-	public KofiEvent Data { get; set; }
-
-	public string GetUserLogin() => Data.FromName.ToLower();
-
-	public Kofi CreateModel(TwitchUser? user) => new Kofi
-	{
-		KofiTransactionId = Data.KofiTransactionId,
-		Timestamp = Data.Timestamp,
-		TransactionUrl = Data.Url,
-		KofiType = Data.Type,
-		UserId = user?.Id,
-		Username = Data.FromName,
-		Message = Data.Message ?? string.Empty,
-		Currency = Data.Currency,
-		Amount = Data.Amount
-	};
-
-
-	public StreamEventVm CreateVm() => new StreamEventVm
-	{
-		EventType = StreamEventType.Kofi,
-		Timestamp = Data.Timestamp.ToString("yyyy-MM-dd HH:mm"),
-		Message = $"{Data.FromName} tipped {Data.Amount} via Kofi"
-	};
-}
+	/*═══════════════════【】═══════════════════*/

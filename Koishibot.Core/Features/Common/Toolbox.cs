@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -108,4 +109,11 @@ public static class Toolbox
 		(DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm");
 
 	public static string ShortGuid(Guid id) => id.ToString().Substring(0, 4);
+	
+	public static int AmountStringToPence(string amount)
+	{
+		var pounds = decimal.Parse(amount, CultureInfo.InvariantCulture);
+		var pence = (int)Math.Round(pounds * 100m, MidpointRounding.AwayFromZero);
+		return pence;
+	}
 }

@@ -20,13 +20,14 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelPollEnd,
 			// EventSubSubscriptionType.ChannelFollow,
 			// EventSubSubscriptionType.ChannelSubscribe,
+			// EventSubSubscriptionType.ChannelBan,
 			// EventSubSubscriptionType.ChannelSubscriptionEnd,
 			// EventSubSubscriptionType.ChannelSubscriptionGift,
 			// EventSubSubscriptionType.ChannelSubscriptionMessage,
-			// EventSubSubscriptionType.ChannelCheer
 			// EventSubSubscriptionType.ChannelRaidSent,
 			// EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption,
 			// EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd
+			EventSubSubscriptionType.ChannelChatNotification
 		];
 	}
 
@@ -46,16 +47,16 @@ public static class TwitchApiHelper
 			// //EventSubSubscriptionType.ChannelChatClearUserMessages,
 			EventSubSubscriptionType.ChannelChatMessage,
 			// EventSubSubscriptionType.ChannelChatMessageDelete,
-			// EventSubSubscriptionType.ChannelChatNotification,
+			EventSubSubscriptionType.ChannelChatNotification,
 			// //EventSubSubscriptionType.ChannelChatSettingsUpdate,
 			// //EventSubSubscriptionType.ChannelChatUserMessageHold,
 			// //EventSubSubscriptionType.ChannelChatUserMessageUpdate,
-			EventSubSubscriptionType.ChannelSubscribe,
-			// EventSubSubscriptionType.ChannelSubscriptionEnd,
-			EventSubSubscriptionType.ChannelSubscriptionGift,
-			EventSubSubscriptionType.ChannelSubscriptionMessage,
-			EventSubSubscriptionType.ChannelCheer,
-			// EventSubSubscriptionType.ChannelBitsUsed,
+			// EventSubSubscriptionType.ChannelSubscribe, // Now using ChannelChatNotification
+			// EventSubSubscriptionType.ChannelSubscriptionEnd, 
+			// EventSubSubscriptionType.ChannelSubscriptionGift, // Now using ChannelChatNotification
+			// EventSubSubscriptionType.ChannelSubscriptionMessage, // Now using ChannelChatNotification
+			// EventSubSubscriptionType.ChannelCheer, // Now using ChannelBitsUsed
+			EventSubSubscriptionType.ChannelBitsUsed,
 			// EventSubSubscriptionType.ChannelRaidSent,
 			// EventSubSubscriptionType.ChannelRaidReceived,
 			// EventSubSubscriptionType.ChannelBan,

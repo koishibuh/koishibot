@@ -1,28 +1,77 @@
 <script setup lang="ts">
-import {ref, onMounted, watch} from 'vue';
-import http from '@/api/http';
+import {computed, nextTick, ref, watch} from 'vue';
+import {useAxios} from '@/api/newhttp';
 import StreamInfo from '@/home/stream-info/StreamInfo.vue';
 import {useStreamInfoStore} from './stream-info/stream-info.store';
 import {useSettingsStore} from '@/settings/settings.store';
 import {useNotificationStore} from '@/common/notifications/notification.store';
 
+const http = useAxios();
 const store = useSettingsStore();
 const notificationStore = useNotificationStore();
 const streamInfoStore = useStreamInfoStore();
 const test = ref();
 
+const goal = ref<{ title: string; amount: number }>({title: '', amount: 0});
+
 // have this check to whatever is received from bot on load
 const checked = ref<Boolean>();
 
 async function testFeature() {
-  console.log('Testing 1 2 3');
-  // test.value = await http.post('/api/dragon-quest');
+  // console.log('Testing 1 2 3');
+  // test.value = await http.post('/api/test', null);
+  test.value = await http.get('/api/goals/tipjar', null);
+}
+
+async function submitGoal() {
+  // console.log('Testing 1 2 3');
+  await http.post('/api/goals/tipjar', goal.value);
+  goal.value = { title: '', amount: 0 };
 }
 
 const bannerTest = () => {
   notificationStore.displayMessage('3');
-};
+}
+const isAmountFocused = ref(false)
 
+const displayAmount = computed(() => {
+    if (isAmountFocused.value) {
+      // During typing: show raw dollars (without .00)
+      return (goal.value.amount / 100).toString()
+    } else {
+      // On blur: format with .00
+      return (goal.value.amount / 100).toFixed(2)
+    }
+})
+
+const handleAmountInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const value = target.value
+
+  // Parse raw input as dollars, store as cents
+  const num = parseFloat(value.replace(/[^\d.]/g, '')) || 0
+  goal.value.amount = Math.round(num * 100)  // Convert to cents
+}
+
+const onAmountFocus = async () => {
+  isAmountFocused.value = true
+  if (goal.value.amount === 0) {
+    goal.value.amount = 0
+    await nextTick()
+    const input = document.getElementById('goalamount') as HTMLInputElement
+    input?.select()
+  }
+}
+
+const onAmountBlur = () => {
+  isAmountFocused.value = false
+  // Ensure clean cents value
+  goal.value.amount = Math.round(goal.value.amount)
+}
+
+const isFormValid = computed(() => {
+  return goal.value.title.trim() !== '' && goal.value.amount !== 0
+})
 watch(
     () => checked.value,
     async () => {
@@ -54,5 +103,30 @@ watch(
       <button class="primary-button" @click="() => streamInfoStore.getStreamSummary()">Get Summary</button>
       <button class="primary-button" @click="streamInfoStore.updateStreamSummary()">Update</button>
     </div>
+  </div>
+
+  <div>
+    <form @submit.prevent="submitGoal()" class="flex flex-col gap-2 my-4">
+      <div class="flex flex-col gap-2">
+        <label for="title">Goal Title</label>
+        <input type="text" v-model="goal.title" id="goaltitle" class="text-black "/>
+      </div>
+      <div class="flex flex-col gap-2">
+
+        <label for="goalamount">Goal Amount</label>
+        <input
+            type="text"
+            :value="displayAmount"
+            @input="handleAmountInput"
+            @focus="onAmountFocus"
+            @blur="onAmountBlur"
+            id="goalamount"
+            class="text-black"
+            inputmode="decimal"
+        />
+      </div>
+      
+      <button class="primary-button" :disabled="!isFormValid">Save</button>
+    </form>
   </div>
 </template>

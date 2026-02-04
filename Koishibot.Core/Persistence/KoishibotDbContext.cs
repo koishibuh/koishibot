@@ -38,6 +38,8 @@ public class KoishibotDbContext : DbContext
 	public DbSet<StreamSession> StreamSessions => Set<StreamSession>();
 	public DbSet<ChatResponse> ChatResponses => Set<ChatResponse>();
 	public DbSet<ChatCommand> ChatCommands => Set<ChatCommand>();
+	public DbSet<Kofi> Kofis => Set<Kofi>();
+	public DbSet<TipJarGoal> TipJarGoals => Set<TipJarGoal>();
 
 	public KoishibotDbContext(DbContextOptions<KoishibotDbContext> options)
 		: base(options)

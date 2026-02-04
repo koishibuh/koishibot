@@ -2,7 +2,6 @@
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
-using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Twitch.Enums;
@@ -76,6 +75,7 @@ public class TwitchCheerConfig : IEntityTypeConfiguration<TwitchCheer>
 		builder.Property(p => p.Id);
 
 		builder.Property(p => p.Timestamp);
+		builder.HasIndex(p => p.Timestamp);
 
 		builder.Property(p => p.UserId);
 

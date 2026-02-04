@@ -4,6 +4,7 @@ using Koishibot.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koishibot.Core.Persistence.Migrations
 {
     [DbContext(typeof(KoishibotDbContext))]
-    partial class KoishibotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202125458_UpdateKofi")]
+    partial class UpdateKofi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -753,8 +756,6 @@ namespace Koishibot.Core.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Timestamp");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Kofi", (string)null);
@@ -805,28 +806,23 @@ namespace Koishibot.Core.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("EventMessage")
-                        .HasColumnType("longtext");
+                    b.Property<bool>("Gifted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Message")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Tier")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserMessage")
-                        .HasColumnType("longtext");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Timestamp");
 
                     b.HasIndex("UserId");
 
@@ -864,38 +860,6 @@ namespace Koishibot.Core.Persistence.Migrations
                     b.ToTable("SupportTotals", (string)null);
                 });
 
-            modelBuilder.Entity("Koishibot.Core.Features.Supports.Models.TipJarGoal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CurrentAmount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("EndedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("GoalAmount")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTimeOffset?>("StartedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TipJarGoals", (string)null);
-                });
-
             modelBuilder.Entity("Koishibot.Core.Features.Supports.Models.TwitchCheer", b =>
                 {
                     b.Property<int>("Id")
@@ -918,8 +882,6 @@ namespace Koishibot.Core.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Timestamp");
 
                     b.HasIndex("UserId");
 

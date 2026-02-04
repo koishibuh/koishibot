@@ -124,11 +124,11 @@ public class SubscriptionTypeEnumConverter : JsonConverter<EventSubSubscriptionT
 			"channel.subscription.end" => EventSubSubscriptionType.ChannelSubscriptionEnd,
 			"channel.subscription.gift" => EventSubSubscriptionType.ChannelSubscriptionGift,
 			"channel.subscription.message" => EventSubSubscriptionType.ChannelSubscriptionMessage,
-			"channel.cheer" => EventSubSubscriptionType.ChannelCheer,
+			"channel.cheer" => EventSubSubscriptionType.ChannelCheer, // old
 			"channel.bits.use" => EventSubSubscriptionType.ChannelBitsUsed,
 			"channel.raid" => EventSubSubscriptionType.ChannelRaid,
 			"channel.ban" => EventSubSubscriptionType.ChannelBan,
-			"channe.unban" => EventSubSubscriptionType.ChannelUnban,
+			"channel.unban" => EventSubSubscriptionType.ChannelUnban,
 			"channel.unban_request.create" => EventSubSubscriptionType.ChannelUnbanRequestCreate,
 			"channel.unban_request.resolve" => EventSubSubscriptionType.ChannelUnbanRequestResolve,
 			"channel.moderate" => EventSubSubscriptionType.ChannelModerate,
