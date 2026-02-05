@@ -5,6 +5,7 @@ using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Services.Kofi;
 using Koishibot.Core.Services.Kofi.Enums;
+using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 namespace Koishibot.Core.Features.Supports.Controllers;
 
@@ -15,6 +16,7 @@ KoishibotDbContext database,
 ISignalrService signalr
 ) : ApiControllerBase
 {
+	[AllowAnonymous]
 	[HttpPost]
 	public async Task<ActionResult> ProcessKofi([FromForm] string data)
 	{
