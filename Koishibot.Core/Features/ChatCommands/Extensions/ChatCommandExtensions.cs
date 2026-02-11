@@ -72,6 +72,15 @@ public static class ChatCommandExtensions
 		var item = result.FirstOrDefault(x => x.Name == commandName && x.Permissions == permissions);
 		return item ?? null;
 	}
+	
+	public static NewChatCommandDto? NewGetCommand(this IAppCache cache, string commandName)
+	{
+		var result = cache.Get<List<NewChatCommandDto>>(CacheName.ChatCommands);
+		if (result is null) { return null; }
+		
+		var item = result.FirstOrDefault(x => x.Name == commandName);
+		return item ?? null;
+	}
 
 	public static ChatResponseDto? GetResponse(this IAppCache cache, string commandName)
 	{
