@@ -49,9 +49,9 @@ const updateStreamInfo = async () => {
       <div class="w-2/3">
         <form @submit.prevent="updateStreamInfo()" class="flex flex-col gap-2 my-4">
           <label for="streamtitle">Title</label>
-          <input type="text" v-model="streamTitle" id="streamtitle" class="text-black" />
+          <input type="text" v-model="store.streamInfo.streamTitle" id="streamtitle" class="text-black" />
           <label for="category">Category</label>
-          <input type="text" v-model="category" id="category" class="text-black" />
+          <input type="text" v-model="store.streamInfo.category" id="category" class="text-black" />
           <button class="primary-button">Update</button>
         </form>
       </div>
