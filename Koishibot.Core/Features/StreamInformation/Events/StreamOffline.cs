@@ -28,11 +28,11 @@ KoishibotDbContext Database, ITwitchIrcService BotIrc,
 ILogger<StreamOfflineHandler> Log,
 IObsService ObsService,
 IPomodoroTimer PomodoroTimer
-) : IRequestHandler<StreamOfflineCommand>
+) : IStreamOfflineHandler
 {
 	public string StreamerId => Settings.Value.StreamerTokens.UserId;
 
-	public async Task Handle(StreamOfflineCommand command, CancellationToken cancel)
+	public async Task Handle()
 	{
 		PomodoroTimer.CancelTimer();
 		await Cache.UpdateServiceStatus(ServiceName.StreamOnline, Status.Offline);
@@ -123,4 +123,10 @@ public record StreamOfflineCommand : IRequest
 			ItemsPerPage = "1",
 			VideoType = VideoType.Archive
 		};
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IStreamOfflineHandler
+{
+	Task Handle();
 }

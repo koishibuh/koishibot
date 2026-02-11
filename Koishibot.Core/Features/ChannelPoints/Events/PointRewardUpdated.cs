@@ -15,40 +15,43 @@ public record PointRewardUpdatedHandler(
 ILogger<PointRewardUpdatedHandler> Log,
 KoishibotDbContext Database,
 ISignalrService Signalr
-) : IRequestHandler<PointRewardUpdatedCommand>
+) : IPointRewardUpdatedHandler
 {
-	public async Task Handle
-	(PointRewardUpdatedCommand command, CancellationToken cancellationToken)
+	public async Task Handle(CustomRewardUpdatedEvent e)
 	{
-		var pointReward = command.CreateModel();
+		var pointReward = e.CreateModel();
 		await Database.UpdateReward(pointReward);
 
-		await Signalr.SendInfo($"Point Reward '{command.Args.Title}' has been updated");
+		await Signalr.SendInfo($"Point Reward '{e.Title}' has been updated");
 	}
 }
 
 /*═══════════════════【 COMMAND 】═══════════════════*/
-public record PointRewardUpdatedCommand(
-CustomRewardUpdatedEvent Args
-) : IRequest
+public static class PointRewardUpdatedHandlerExtensions
 {
-	public ChannelPointReward CreateModel()
+	public static ChannelPointReward CreateModel(this CustomRewardUpdatedEvent e)
 		=> new()
 		{
 		CreatedOn = DateTimeOffset.UtcNow,
-		TwitchId = Args.RewardId,
-		Title = Args.Title,
-		Description = Args.Description,
-		Cost = Args.Cost,
-		BackgroundColor = Args.BackgroundColor,
-		IsEnabled = Args.IsEnabled,
-		IsUserInputRequired = Args.IsUserInputRequired,
-		IsMaxPerStreamEnabled = Args.MaxPerStream.IsEnabled,
-		IsMaxPerUserPerStreamEnabled = Args.MaxPerUserPerStream.IsEnabled,
-		IsGlobalCooldownEnabled = Args.GlobalCooldown.IsEnabled,
-		GlobalCooldownSeconds = Args.GlobalCooldown.CooldownInSeconds,
-		IsPaused = Args.IsPaused,
-		ShouldRedemptionsSkipRequestQueue = Args.ShouldRedemptionsSkipRequestQueue,
-		ImageUrl = Args.CustomImage is null ? Args.DefaultImage.Url4X : Args.CustomImage.Url4X
+		TwitchId = e.RewardId,
+		Title = e.Title,
+		Description = e.Description,
+		Cost = e.Cost,
+		BackgroundColor = e.BackgroundColor,
+		IsEnabled = e.IsEnabled,
+		IsUserInputRequired = e.IsUserInputRequired,
+		IsMaxPerStreamEnabled = e.MaxPerStream.IsEnabled,
+		IsMaxPerUserPerStreamEnabled = e.MaxPerUserPerStream.IsEnabled,
+		IsGlobalCooldownEnabled = e.GlobalCooldown.IsEnabled,
+		GlobalCooldownSeconds = e.GlobalCooldown.CooldownInSeconds,
+		IsPaused = e.IsPaused,
+		ShouldRedemptionsSkipRequestQueue = e.ShouldRedemptionsSkipRequestQueue,
+		ImageUrl = e.CustomImage is null ? e.DefaultImage.Url4X : e.CustomImage.Url4X
 		};
 };
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IPointRewardUpdatedHandler
+{
+	Task Handle(CustomRewardUpdatedEvent e);
+}

@@ -23,167 +23,83 @@ public record AutoRewardRedeemedHandler(
 IAppCache Cache, ISignalrService Signalr,
 ITwitchUserHub TwitchUserHub,
 KoishibotDbContext Database
-) : IRequestHandler<AutoRewardRedeemedCommand>
+) : IAutoRewardRedeemedHandler
 {
-	public async Task Handle
-		(AutoRewardRedeemedCommand command, CancellationToken cancellationToken)
+	public async Task Handle(AutomaticRewardRedemptionEvent e)
 	{
-		var userDto = command.CreateUserDto();
+		var userDto = e.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
 
-		if (command.RedeemIsPowerUp())
+		var channelPointReward = await Database.GetChannelRewardByName(e.Reward.Type.ToString());
+		if (channelPointReward.NotInDatabase())
 		{
-			var channelPointReward = await Database.GetChannelRewardByName(command.args.Reward.Type.ToString());
-			if (channelPointReward.NotInDatabase())
+			channelPointReward = new ChannelPointReward
 			{
-				// TODO: Twitch doesn't show the correct value for cost, need to get this from DB
-				channelPointReward = new ChannelPointReward
-				{
-					CreatedOn = DateTimeOffset.UtcNow,
-					TwitchId = command.args.Reward.Type.ToString(),
-					Title = command.args.Reward.Type.ToString(),
-					Cost = 30,
-					IsEnabled = true,
-					IsUserInputRequired = false,
-					IsMaxPerStreamEnabled = false,
-					IsMaxPerUserPerStreamEnabled = false,
-					IsGlobalCooldownEnabled = false,
-					IsPaused = false,
-					ShouldRedemptionsSkipRequestQueue = true
-				};
+				CreatedOn = DateTimeOffset.UtcNow,
+				TwitchId = e.Reward.Type.ToString(),
+				Title = e.Reward.Type.ToString(),
+				Cost = e.Reward.Cost,
+				IsEnabled = true,
+				IsUserInputRequired = false,
+				IsMaxPerStreamEnabled = false,
+				IsMaxPerUserPerStreamEnabled = false,
+				IsGlobalCooldownEnabled = false,
+				IsPaused = false,
+				ShouldRedemptionsSkipRequestQueue = true
+			};
 
-				await Database.UpdateEntry(channelPointReward);
-
-			}
-
-			var cheer = command.CreateCheer(user.Id, channelPointReward!.Cost);
-			await Database.UpdateEntry(cheer);
-
-
-			var supportTotal = await Database.GetSupportTotalByUserId(user.Id);
-			if (supportTotal.NotInDatabase())
-			{
-				supportTotal = command.CreateSupportTotal(user);
-			}
-			else
-			{
-				supportTotal!.BitsCheered += cheer.BitsAmount;
-			}
-
-			await Database.UpdateEntry(supportTotal);
-
-			var vm = cheer.CreateVm(user.Name, command.args.Reward.Type);
-			await Signalr.SendStreamEvent(vm);
-
-			// TODO: Do thing to chat message? Like with large emotes
+			await Database.UpdateEntry(channelPointReward);
 		}
-		else
-		{
-			var channelPointReward = await Database.GetChannelRewardByName(command.args.Reward.Type.ToString());
-			if (channelPointReward.NotInDatabase())
-			{
-				channelPointReward = new ChannelPointReward
-				{
-					CreatedOn = DateTimeOffset.UtcNow,
-					TwitchId = command.args.Reward.Type.ToString(),
-					Title = command.args.Reward.Type.ToString(),
-					Cost = command.args.Reward.Cost,
-					IsEnabled = true,
-					IsUserInputRequired = false,
-					IsMaxPerStreamEnabled = false,
-					IsMaxPerUserPerStreamEnabled = false,
-					IsGlobalCooldownEnabled = false,
-					IsPaused = false,
-					ShouldRedemptionsSkipRequestQueue = true
-				};
 
-				await Database.UpdateEntry(channelPointReward);
-			}
+		var redemption = e.CreateRedemption(channelPointReward.Id, user);
+		await Database.UpdateEntry(redemption);
 
-			var redemption = command.CreateRedemption(channelPointReward.Id, user);
-			await Database.UpdateEntry(redemption);
-
-			var vm = command.CreateVm();
-			await Signalr.SendStreamEvent(vm);
-		}
+		var vm = e.CreateVm();
+		await Signalr.SendStreamEvent(vm);
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record AutoRewardRedeemedCommand(
-AutomaticRewardRedemptionEvent args
-) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class AutomaticRewardRedemptionEventExtensions
 {
-	public TwitchUserDto CreateUserDto()
-	{
-		return new TwitchUserDto(
-			args.RedeemedById,
-			args.RedeemedByLogin,
-			args.RedeemedByUsername
-			);
-	}
+	public static TwitchUserDto CreateUserDto(this AutomaticRewardRedemptionEvent e) =>
+		new(
+			e.BroadcasterId,
+			e.BroadcasterLogin,
+			e.BroadcasterName);
 
+	public static RedeemedRewardDto ConvertToDto(this AutomaticRewardRedemptionEvent e) => new(
+		new TwitchUserDto(e.RedeemedById, e.RedeemedByLogin, e.RedeemedById),
+		e.Message.Text,
+		e.RedeemedAt,
+		e.Reward?.Type.ToString(),
+		"0",
+		e.Reward.Type.ToString(),
+		true.ToString(),
+		e.Reward?.Cost);
 
-	public RedeemedRewardDto ConvertToDto()
-		=> new(
-			new TwitchUserDto(args.RedeemedById, args.RedeemedByLogin, args.RedeemedById),
-			args.Message.Text,
-			args.RedeemedAt,
-			args.Reward?.Type.ToString(),
-			"0",
-			args.Reward.Type.ToString(),
-			true.ToString(),
-			args.Reward?.Cost);
-
-	public ChannelPointRedemption CreateRedemption(int id, TwitchUser user) =>
+	public static ChannelPointRedemption CreateRedemption(this AutomaticRewardRedemptionEvent e, int id, TwitchUser user) =>
 		new()
 		{
 			ChannelPointRewardId = id,
-			Timestamp = args.RedeemedAt,
+			Timestamp = e.RedeemedAt,
 			UserId = user.Id,
 			WasSuccesful = true
 		};
 
-	public bool RedeemIsPowerUp() =>
-		args.Reward?.Type switch
-		{
-			RewardType.SingleMessageBypassSubMode => false,
-			RewardType.SendHighlightedMessage => false,
-			RewardType.RandomSubEmoteUnlock => false,
-			RewardType.ChosenSubEmoteUnlock => false,
-			RewardType.ChosenModifiedSubEmoteUnlock => false,
-			RewardType.MessageEffect => true,
-			RewardType.GigantifyAnEmote => true,
-			RewardType.Celebration => true,
-			_ => false
-		};
-
-	public TwitchCheer CreateCheer(int userId, int cost) =>
-		new()
-		{
-			Timestamp = DateTimeOffset.UtcNow,
-			UserId = userId,
-			BitsAmount = cost,
-			Message = args.Message?.Text ?? string.Empty
-		};
-
-	public SupportTotal CreateSupportTotal(TwitchUser user) =>
-		new()
-		{
-			UserId = user.Id,
-			MonthsSubscribed = 0,
-			SubsGifted = 0,
-			BitsCheered = args.Reward.Cost,
-			Tipped = 0
-		};
-
-	public StreamEventVm CreateVm()
+	public static StreamEventVm CreateVm(this AutomaticRewardRedemptionEvent e)
 	{
 		return new StreamEventVm
 		{
 			EventType = StreamEventType.ChannelPoint,
 			Timestamp = Toolbox.CreateUITimestamp(),
-			Message = $"{args.RedeemedByUsername} has redeemed {args.Reward.Type.ToString()}"
+			Message = $"{e.RedeemedByUsername} has redeemed {e.Reward.Type.ToString()}"
 		};
 	}
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IAutoRewardRedeemedHandler
+{
+	Task Handle(AutomaticRewardRedemptionEvent e);
 }

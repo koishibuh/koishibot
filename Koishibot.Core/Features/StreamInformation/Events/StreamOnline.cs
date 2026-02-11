@@ -24,11 +24,11 @@ IObsService ObsService,
 IChannelPointStatusService ChannelPointStatusService,
 IDandleService DandleService,
 IChatReplyService ChatReplyService
-) : IRequestHandler<StreamOnlineCommand>
+) : IStreamOnlineHandler
 {
-	public async Task Handle(StreamOnlineCommand command, CancellationToken cancel)
+	public async Task Handle(StreamOnlineEvent command)
 	{
-		await StreamSessionService.CreateOrReloadStreamSession(command.e.StreamId, command.e.StartedAt);
+		await StreamSessionService.CreateOrReloadStreamSession(command.StreamId, command.StartedAt);
 
 		await Cache
 			.ClearAttendanceCache()
@@ -44,7 +44,6 @@ IChatReplyService ChatReplyService
 		{
 			await DandleService.StartGame();
 		}
-
 	}
 
 	private async Task InitializeTimer()
@@ -56,5 +55,8 @@ IChatReplyService ChatReplyService
 	}
 }
 
-/*════════════════════【 COMMAND 】════════════════════*/
-public record StreamOnlineCommand(StreamOnlineEvent e) : IRequest;
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IStreamOnlineHandler
+{
+	Task Handle(StreamOnlineEvent e);
+}

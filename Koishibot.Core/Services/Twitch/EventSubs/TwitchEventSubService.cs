@@ -65,7 +65,7 @@ public class TwitchEventSubService : ITwitchEventSubService
 		TwitchApiRequest = twitchApiRequest;
 
 		Timer.Elapsed += TimerElapsed;
-		Timer.AutoReset = false; 
+		Timer.AutoReset = false;
 	}
 	public CancellationToken? Cancel { get; set; }
 
@@ -288,293 +288,306 @@ public class TwitchEventSubService : ITwitchEventSubService
 
 	private async Task ProcessNotificationMessage(EventSubSubscriptionType type, string message)
 	{
-		switch (type)
-		{
-			case EventSubSubscriptionType.StreamOnline:
-				var streamOnline = JsonSerializer.Deserialize<EventMessage<StreamOnlineEvent>>(message);
-				await Send(new StreamOnlineCommand(streamOnline.Payload.Event));
-				break;
-			case EventSubSubscriptionType.StreamOffline:
-				// var streamOffline = JsonSerializer.Deserialize<EventMessage<StreamOfflineEvent>>(message);
-				await Send(new StreamOfflineCommand());
-				break;
-			case EventSubSubscriptionType.ChannelUpdate:
-				var channelUpdate = JsonSerializer.Deserialize<EventMessage<ChannelUpdatedEvent>>(message);
-				await Send(new StreamUpdatedCommand(channelUpdate.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelFollow:
-				var follow = JsonSerializer.Deserialize<EventMessage<FollowEvent>>(message);
-				await Send(new ChannelFollowedCommand(follow.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelAdBreakBegin:
-				var adBreakBegin = JsonSerializer.Deserialize<EventMessage<AdBreakBeginEvent>>(message);
-				await Send(new AdBreakStartedCommand(adBreakBegin.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelChatClear:
-				var chatCleared = JsonSerializer.Deserialize<EventMessage<ChatClearedEvent>>(message);
-				await Send(new ChatClearedCommand(chatCleared.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelChatClearUserMessages:
-				var userChatHistoryCleared = JsonSerializer.Deserialize<EventMessage<UserMessagesClearedEvent>>(message);
-				await Send(new UserChatHistoryClearedCommand(userChatHistoryCleared.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelChatMessage:
-				var chatMessageReceived = JsonSerializer.Deserialize<EventMessage<ChatMessageReceivedEvent>>(message);
-				await Send(new ChatMessageReceivedCommand(chatMessageReceived.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelChatMessageDelete:
-				var chatMessageDeleted = JsonSerializer.Deserialize<EventMessage<MessageDeletedEvent>>(message);
-				await Send(new ChatMessageDeletedCommand(chatMessageDeleted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelChatNotification:
-				var chatNotificationReceived = JsonSerializer.Deserialize<EventMessage<ChatNotificationEvent>>(message);
-				//if (args.Payload.Event.NoticeType == NoticeType.Announcement)
-				//{
-				//	// send to chat?
-				//}
-				if (chatNotificationReceived.Payload.Event.NoticeType == NoticeType.BitsBadgeTierUpgrade)
-				{
-					// Upgraded bit tier
-				}
-
-				//if (args.Payload.Event.NoticeType == NoticeType.CharityDonation)
-				//{
-				//	// send to chat?
-				//}
-				//if (args.Payload.Event.NoticeType == NoticeType.Raid)
-				//{
-				//	// send to chat?
-				//}
-				if (chatNotificationReceived.Payload.Event.NoticeType is 
-				    NoticeType.Sub or NoticeType.Resub or
-				    NoticeType.SubGift or NoticeType.CommunitySubGift or 
-				    NoticeType.GiftSubPaidUpgrade or NoticeType.PrimeSubPaidUpgrade or
-				    NoticeType.PayItForwardSub
-				   )
-				{
-					await Send(new ChatNotificationReceivedCommand(chatNotificationReceived.Payload.Event));
-				}
-
-				break;
-			// case EventSubSubscriptionType.ChannelSharedChatBegin:
-			// break;
-			// case EventSubSubscriptionType.ChannelSharedChatUpdate:
-			// break;
-			// case EventSubSubscriptionType.ChannelSharedChatEnd:
-			// break;
-
-			case EventSubSubscriptionType.ChannelChatSettingsUpdate:
-				var chatSettingsUpdated = JsonSerializer.Deserialize<EventMessage<ChatSettingsUpdatedEvent>>(message);
-				await Send(new ChatSettingsUpdatedCommand(chatSettingsUpdated.Payload.Event));
-				break;
-			// case EventSubSubscriptionType.ChannelSubscribe:
-			// 	var subscriptionReceived = JsonSerializer.Deserialize<EventMessage<SubscriptionEvent>>(message);
-			// 	await Send(new SubscriptionReceivedCommand(subscriptionReceived.Payload.Event));
-			// 	break;
-			//case SubscriptionType.ChannelSubscriptionEnd:
-			//	OnChannelSubscriptionEnd?.Invoke(eventMessage);
-			//	break;
-			// case EventSubSubscriptionType.ChannelSubscriptionGift:
-			// 	var subGifted = JsonSerializer.Deserialize<EventMessage<GiftedSubEvent>>(message);
-			// 	await Send(new GiftSubReceivedCommand(subGifted.Payload.Event));
-			// 	break;
-			// case EventSubSubscriptionType.ChannelSubscriptionMessage:
-			// 	var resub = JsonSerializer.Deserialize<EventMessage<ResubMessageEvent>>(message);
-			// 	await Send(new ResubReceivedCommand(resub.Payload.Event));
-			// 	break;
-			// case EventSubSubscriptionType.ChannelCheer:
-			// 	var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
-			// 	await Send(new CheerReceivedCommand(cheer.Payload.Event));
-			// 	break;
-			case EventSubSubscriptionType.ChannelBitsUsed:
-				var bitsUsed = JsonSerializer.Deserialize<EventMessage<BitsUsedEvent>>(message);
-				await Send(new BitEventReceivedCommand(bitsUsed.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelRaid:
-				var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);
-				if (raid.Payload.Event.ToBroadcasterId == "98683749")
-				{
-					await Send(new IncomingRaidCommand(raid.Payload.Event));
-				}
-				else
-				{
-					await Send(new OutgoingRaidCommand(raid.Payload.Event));
-				}
-
-				break;
-			case EventSubSubscriptionType.ChannelBan:
-				var userBanned = JsonSerializer.Deserialize<EventMessage<BannedUserEvent>>(message);
-				await Send(new UserBannedCommand(userBanned.Payload.Event));
-				break;
-			//case EventSubSubscriptionType.ChannelUnban:
-			//	var userUnbanned = JsonSerializer.Deserialize<EventMessage<UnbannedUserEvent>>(message);
-			//	await Send(new UserUnbannedCommand(userUnbanned.Payload.Event));
-			// break;
-			//case EventSubSubscriptionType.ChannelModeratorAdd:
-			//	var moderatorAdded = JsonSerializer.Deserialize<EventMessage<ModAddedEvent>>(message);
-			//	await Send(new ModeratorAddedCommand(moderatorAdded.Payload.Event));
-			//	break;
-			//case EventSubSubscriptionType.ChannelModeratorRemove:
-			//	var moderatorRemoved = JsonSerializer.Deserialize<EventMessage<ModRemovedEvent>>(message);
-			//	await Send(new ModeratorRemovedCommand(moderatorRemoved.Payload.Event));
-			//	break;
-
-			//case SubscriptionType.ChannelModerate:
-			//	OnModeratorAction?.Invoke(eventMessage);
-			//	break;
-			case EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption:
-				var powerup = JsonSerializer.Deserialize<EventMessage<AutomaticRewardRedemptionEvent>>(message);
-				await Send(new AutoRewardRedeemedCommand(powerup.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPointsCustomRewardAdd:
-				var customRewardCreated = JsonSerializer.Deserialize<EventMessage<CustomRewardCreatedEvent>>(message);
-				await Send(new PointRewardCreatedCommand(customRewardCreated.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPointsCustomRewardUpdate:
-				var customRewardUpdated = JsonSerializer.Deserialize<EventMessage<CustomRewardUpdatedEvent>>(message);
-				await Send(new PointRewardUpdatedCommand(customRewardUpdated.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPointsCustomRewardRemove:
-				var customRewardDeleted = JsonSerializer.Deserialize<EventMessage<CustomRewardRemovedEvent>>(message);
-				await Send(new PointRewardDeletedCommand(customRewardDeleted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd:
-				var rewardRedemptionAdded = JsonSerializer.Deserialize<EventMessage<RewardRedemptionAddedEvent>>(message);
-				await Send(new RedeemedRewardCommand(rewardRedemptionAdded.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionUpdate:
-				var rewardRedemptionUpdated = JsonSerializer.Deserialize<EventMessage<RewardRedemptionUpdatedEvent>>(message);
-				await Send(new RedeemedRewardUpdatedCommand(rewardRedemptionUpdated.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPollBegin:
-				var pollStarted = JsonSerializer.Deserialize<EventMessage<PollBeginEvent>>(message);
-				await Send(new PollStartedCommand(pollStarted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPollProgress:
-				var pollProgress = JsonSerializer.Deserialize<EventMessage<PollProgressEvent>>(message);
-				await Send(new PollVoteReceivedCommand(pollProgress.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPollEnd:
-				var pollEnded = JsonSerializer.Deserialize<EventMessage<PollEndedEvent>>(message);
-				await Send(new PollEndedCommand(pollEnded.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPredictionBegin:
-				var predictionStarted = JsonSerializer.Deserialize<EventMessage<PredictionBeginEvent>>(message);
-				await Send(new PredictionStartedCommand(predictionStarted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPredictionProgress:
-				var predictionProgressed = JsonSerializer.Deserialize<EventMessage<PredictionProgressEvent>>(message);
-				await Send(new PredictionReceivedCommand(predictionProgressed.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPredictionLock:
-				var predictionLocked = JsonSerializer.Deserialize<EventMessage<PredictionLockedEvent>>(message);
-				await Send(new PredictionLockedCommand(predictionLocked.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelPredictionEnd:
-				var predictionEnded = JsonSerializer.Deserialize<EventMessage<PredictionEndedEvent>>(message);
-				await Send(new PredictionEndedCommand(predictionEnded.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelSuspiciousUserMessage:
-				var suspiciousUserAlert = JsonSerializer.Deserialize<EventMessage<SuspiciousUserMessageEvent>>(message);
-				await Send(new SuspiciousUserAlertCommand(suspiciousUserAlert.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelSuspiciousUserUpdate:
-				var suspicousUserUpdated = JsonSerializer.Deserialize<EventMessage<SuspiciousUserUpdatedEvent>>(message);
-				await Send(new SuspiciousUserUpdatedCommand(suspicousUserUpdated.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelVipAdd:
-				var vipAdded = JsonSerializer.Deserialize<EventMessage<VipEvent>>(message);
-				await Send(new VipAddedCommand(vipAdded.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelVipRemove:
-				var vipRemoved = JsonSerializer.Deserialize<EventMessage<VipEvent>>(message);
-				await Send(new VipRemovedCommand(vipRemoved.Payload.Event));
-				break;
-			case EventSubSubscriptionType.UserWarningAcknowledgement:
-				var userWarningAcknowledged = JsonSerializer.Deserialize<EventMessage<UserWarningAcknowledgedEvent>>(message);
-				await Send(new UserWarningAcknowledgedCommand(userWarningAcknowledged.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelWarningSend:
-				var userWarningSent = JsonSerializer.Deserialize<EventMessage<UserWarningSentEvent>>(message);
-				await Send(new UserWarningSentCommand(userWarningSent.Payload.Event));
-				break;
-			//case SubscriptionType.CharityDonation:
-			//	OnCharityDonation?.Invoke(eventMessage);
-			//	break;
-			//case SubscriptionType.CharityCampaignStart:
-			//	OnCharityCampaignStart?.Invoke(eventMessage);
-			//	break;
-			//case SubscriptionType.CharityCampaignProgress:
-			//	OnCharityCampaignProgress?.Invoke(eventMessage);
-			//	break;
-			//case SubscriptionType.CharityCampaignStop:
-			//	OnCharityCampaignStop?.Invoke(eventMessage);
-			//	break;
-			case EventSubSubscriptionType.ChannelGoalBegin:
-				var channelGoalStarted = JsonSerializer.Deserialize<EventMessage<ChannelGoalStartedEvent>>(message);
-				await Send(new ChannelGoalStartedCommand(channelGoalStarted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelGoalProgress:
-				var channelGoalProgress = JsonSerializer.Deserialize<EventMessage<ChannelGoalProgressEvent>>(message);
-				await Send(new ChannelGoalProgressCommand(channelGoalProgress.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ChannelGoalEnd:
-				var channelGoalEnded = JsonSerializer.Deserialize<EventMessage<ChannelGoalEndedEvent>>(message);
-				await Send(new ChannelGoalEndedCommand(channelGoalEnded.Payload.Event));
-				break;
-			case EventSubSubscriptionType.HypeTrainBegin:
-				var hypeTrainStarted = JsonSerializer.Deserialize<EventMessage<HypeTrainStartedEvent>>(message);
-				await Send(new HypeTrainStartedCommand(hypeTrainStarted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.HypeTrainProgress:
-				var hypeTrainProgressed = JsonSerializer.Deserialize<EventMessage<HypeTrainProgressedEvent>>(message);
-				await Send(new HypeTrainProgressedCommand(hypeTrainProgressed.Payload.Event));
-				break;
-			case EventSubSubscriptionType.HypeTrainEnd:
-				var hypeTrainEnded = JsonSerializer.Deserialize<EventMessage<HypeTrainEndedEvent>>(message);
-				await Send(new HypeTrainEndedCommand(hypeTrainEnded.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ShieldModeBegin:
-				var shieldModeStarted = JsonSerializer.Deserialize<EventMessage<ShieldModeBeginEvent>>(message);
-				await Send(new ShieldModeStartedCommand(shieldModeStarted.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ShieldModeEnd:
-				var shieldModeEnded = JsonSerializer.Deserialize<EventMessage<ShieldModeEndedEvent>>(message);
-				await Send(new ShieldModeEndedCommand(shieldModeEnded.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ShoutoutCreate:
-				var shoutoutCreated = JsonSerializer.Deserialize<EventMessage<ShoutoutCreatedEvent>>(message);
-				await Send(new ShoutoutSentCommand(shoutoutCreated.Payload.Event));
-				break;
-			case EventSubSubscriptionType.ShoutoutReceive:
-				var shoutoutReceived = JsonSerializer.Deserialize<EventMessage<ShoutoutReceivedEvent>>(message);
-				await Send(new ShoutoutReceivedCommand(shoutoutReceived.Payload.Event));
-				break;
-			//case SubscriptionType.WhisperReceived:
-			//	OnWhisperReceived?.Invoke(eventMessage);
-			//	break;
-			case EventSubSubscriptionType.NotSupported:
-				throw new SubscriptionEventNotSupportedException("Subscription event not supported.");
-			default:
-				// create new exception type here
-				throw new InvalidSubscriptionTypeException($"Invalid subscription type: {type}");
-		}
-	}
-
-	private async Task Send<T>(T args)
-	{
 		try
 		{
 			using var scope = ScopeFactory.CreateScope();
-			var mediatr = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-			await mediatr.Send(args);
+			switch (type)
+			{
+				case EventSubSubscriptionType.StreamOnline:
+					var streamOnline = JsonSerializer.Deserialize<EventMessage<StreamOnlineEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IStreamOnlineHandler>()
+						.Handle(streamOnline.Payload.Event);
+					break;
+				case EventSubSubscriptionType.StreamOffline:
+					await scope.ServiceProvider.GetRequiredService<IStreamOfflineHandler>()
+						.Handle();
+					break;
+				case EventSubSubscriptionType.ChannelUpdate:
+					var channelUpdate = JsonSerializer.Deserialize<EventMessage<ChannelUpdatedEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IStreamUpdatedHandler>()
+						.Handle(channelUpdate.Payload.Event);
+					break;
+				case EventSubSubscriptionType.ChannelFollow:
+					var follow = JsonSerializer.Deserialize<EventMessage<FollowEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IChannelFollowedHandler>()
+						.Handle(follow.Payload.Event);
+					break;
+				case EventSubSubscriptionType.ChannelAdBreakBegin:
+					var adBreakBegin = JsonSerializer.Deserialize<EventMessage<AdBreakBeginEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IAdBreakStartedHandler>()
+						.Handle(adBreakBegin.Payload.Event);
+					break;
+				// case EventSubSubscriptionType.ChannelChatClear:
+				// 	var chatCleared = JsonSerializer.Deserialize<EventMessage<ChatClearedEvent>>(message);
+				// 	await Send(new ChatClearedCommand(chatCleared.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelChatClearUserMessages:
+				// 	var userChatHistoryCleared = JsonSerializer.Deserialize<EventMessage<UserMessagesClearedEvent>>(message);
+				// 	await Send(new UserChatHistoryClearedCommand(userChatHistoryCleared.Payload.Event));
+				// 	break;
+				case EventSubSubscriptionType.ChannelChatMessage:
+					var chatMessageReceived = JsonSerializer.Deserialize<EventMessage<ChatMessageReceivedEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IChatMessageReceivedHandler>()
+						.Handle(chatMessageReceived.Payload.Event);
+					break;
+				// case EventSubSubscriptionType.ChannelChatMessageDelete:
+				// 	var chatMessageDeleted = JsonSerializer.Deserialize<EventMessage<MessageDeletedEvent>>(message);
+				// 	await Send(new ChatMessageDeletedCommand(chatMessageDeleted.Payload.Event));
+				// 	break;
+				case EventSubSubscriptionType.ChannelChatNotification:
+					var chatNotificationReceived = JsonSerializer.Deserialize<EventMessage<ChatNotificationEvent>>(message);
+					//if (args.Payload.Event.NoticeType == NoticeType.Announcement)
+					//{
+					//	// send to chat?
+					//}
+					if (chatNotificationReceived.Payload.Event.NoticeType == NoticeType.BitsBadgeTierUpgrade)
+					{
+						// Upgraded bit tier
+					}
+
+					//if (args.Payload.Event.NoticeType == NoticeType.CharityDonation)
+					//{
+					//	// send to chat?
+					//}
+					//if (args.Payload.Event.NoticeType == NoticeType.Raid)
+					//{
+					//	// send to chat?
+					//}
+					if (chatNotificationReceived.Payload.Event.NoticeType is
+					    NoticeType.Sub or
+					    NoticeType.Resub or
+					    NoticeType.SubGift or
+					    NoticeType.CommunitySubGift or
+					    NoticeType.GiftSubPaidUpgrade or
+					    NoticeType.PrimeSubPaidUpgrade or
+					    NoticeType.PayItForwardSub
+					   )
+					{
+						await scope.ServiceProvider.GetRequiredService<IChatNotificationReceivedEventHandler>()
+							.Handle(chatNotificationReceived.Payload.Event);
+					}
+
+					break;
+				// case EventSubSubscriptionType.ChannelSharedChatBegin:
+				// break;
+				// case EventSubSubscriptionType.ChannelSharedChatUpdate:
+				// break;
+				// case EventSubSubscriptionType.ChannelSharedChatEnd:
+				// break;
+
+				// case EventSubSubscriptionType.ChannelChatSettingsUpdate:
+				// 	var chatSettingsUpdated = JsonSerializer.Deserialize<EventMessage<ChatSettingsUpdatedEvent>>(message);
+				// 	await Send(new ChatSettingsUpdatedCommand(chatSettingsUpdated.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelSubscribe:
+				// 	var subscriptionReceived = JsonSerializer.Deserialize<EventMessage<SubscriptionEvent>>(message);
+				// 	await Send(new SubscriptionReceivedCommand(subscriptionReceived.Payload.Event));
+				// 	break;
+				//case SubscriptionType.ChannelSubscriptionEnd:
+				//	OnChannelSubscriptionEnd?.Invoke(eventMessage);
+				//	break;
+				// case EventSubSubscriptionType.ChannelSubscriptionGift:
+				// 	var subGifted = JsonSerializer.Deserialize<EventMessage<GiftedSubEvent>>(message);
+				// 	await Send(new GiftSubReceivedCommand(subGifted.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelSubscriptionMessage:
+				// 	var resub = JsonSerializer.Deserialize<EventMessage<ResubMessageEvent>>(message);
+				// 	await Send(new ResubReceivedCommand(resub.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelCheer:
+				// 	var cheer = JsonSerializer.Deserialize<EventMessage<CheerReceivedEvent>>(message);
+				// 	await Send(new CheerReceivedCommand(cheer.Payload.Event));
+				// 	break;
+				case EventSubSubscriptionType.ChannelBitsUsed:
+					var bitsUsed = JsonSerializer.Deserialize<EventMessage<BitsUsedEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IBitEventReceivedHandler>()
+						.Handle(bitsUsed.Payload.Event);
+					break;
+				// case EventSubSubscriptionType.ChannelRaid:
+				// 	var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);
+				// 	if (raid.Payload.Event.ToBroadcasterId == "98683749")
+				// 	{
+				// 		await Send(new IncomingRaidCommand(raid.Payload.Event));
+				// 	}
+				// 	else
+				// 	{
+				// 		await Send(new OutgoingRaidCommand(raid.Payload.Event));
+				// 	}
+				//
+				// 	break;
+				// case EventSubSubscriptionType.ChannelBan:
+				// 	var userBanned = JsonSerializer.Deserialize<EventMessage<BannedUserEvent>>(message);
+				// 	await Send(new UserBannedCommand(userBanned.Payload.Event));
+				// 	break;
+				//case EventSubSubscriptionType.ChannelUnban:
+				//	var userUnbanned = JsonSerializer.Deserialize<EventMessage<UnbannedUserEvent>>(message);
+				//	await Send(new UserUnbannedCommand(userUnbanned.Payload.Event));
+				// break;
+				//case EventSubSubscriptionType.ChannelModeratorAdd:
+				//	var moderatorAdded = JsonSerializer.Deserialize<EventMessage<ModAddedEvent>>(message);
+				//	await Send(new ModeratorAddedCommand(moderatorAdded.Payload.Event));
+				//	break;
+				//case EventSubSubscriptionType.ChannelModeratorRemove:
+				//	var moderatorRemoved = JsonSerializer.Deserialize<EventMessage<ModRemovedEvent>>(message);
+				//	await Send(new ModeratorRemovedCommand(moderatorRemoved.Payload.Event));
+				//	break;
+
+				//case SubscriptionType.ChannelModerate:
+				//	OnModeratorAction?.Invoke(eventMessage);
+				//	break;
+				case EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption:
+					var autoReward = JsonSerializer.Deserialize<EventMessage<AutomaticRewardRedemptionEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IAutoRewardRedeemedHandler>()
+						.Handle(autoReward.Payload.Event);
+					break;
+				case EventSubSubscriptionType.ChannelPointsCustomRewardAdd:
+					var customRewardCreated = JsonSerializer.Deserialize<EventMessage<CustomRewardCreatedEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IPointRewardCreatedHandler>()
+						.Handle(customRewardCreated.Payload.Event);
+					break;
+				case EventSubSubscriptionType.ChannelPointsCustomRewardUpdate:
+					var customRewardUpdated = JsonSerializer.Deserialize<EventMessage<CustomRewardUpdatedEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IPointRewardUpdatedHandler>()
+						.Handle(customRewardUpdated.Payload.Event);
+					break;
+				// case EventSubSubscriptionType.ChannelPointsCustomRewardRemove:
+				// 	var customRewardDeleted = JsonSerializer.Deserialize<EventMessage<CustomRewardRemovedEvent>>(message);
+				// 	await Send(new PointRewardDeletedCommand(customRewardDeleted.Payload.Event));
+				// 	break;
+				case EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd:
+					var rewardRedemptionAdded = JsonSerializer.Deserialize<EventMessage<RewardRedemptionAddedEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IRewardRedeemedHandler>()
+						.Handle(rewardRedemptionAdded.Payload.Event);
+					break;
+				// case EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionUpdate:
+				// 	var rewardRedemptionUpdated = JsonSerializer.Deserialize<EventMessage<RewardRedemptionUpdatedEvent>>(message);
+				// 	await scope.ServiceProvider.GetRequiredService<IRewardRedeemUpdateHandler>()
+				// 		.Handle(rewardRedemptionUpdated.Payload.Event);
+				// 	break;
+				case EventSubSubscriptionType.ChannelPollBegin:
+					var pollStarted = JsonSerializer.Deserialize<EventMessage<PollBeginEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IPollStartedHandler>()
+						.Handle(pollStarted.Payload.Event);
+					break;
+				case EventSubSubscriptionType.ChannelPollProgress:
+					var pollProgress = JsonSerializer.Deserialize<EventMessage<PollProgressEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IVoteReceivedHandler>()
+						.Handle(pollProgress.Payload.Event);
+					break;
+				case EventSubSubscriptionType.ChannelPollEnd:
+					var pollEnded = JsonSerializer.Deserialize<EventMessage<PollEndedEvent>>(message);
+					await scope.ServiceProvider.GetRequiredService<IPollEndedHandler>()
+						.Handle(pollEnded.Payload.Event);
+					break;
+				// case EventSubSubscriptionType.ChannelPredictionBegin:
+				// 	var predictionStarted = JsonSerializer.Deserialize<EventMessage<PredictionBeginEvent>>(message);
+				// 	await Send(new PredictionStartedCommand(predictionStarted.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelPredictionProgress:
+				// 	var predictionProgressed = JsonSerializer.Deserialize<EventMessage<PredictionProgressEvent>>(message);
+				// 	await Send(new PredictionReceivedCommand(predictionProgressed.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelPredictionLock:
+				// 	var predictionLocked = JsonSerializer.Deserialize<EventMessage<PredictionLockedEvent>>(message);
+				// 	await Send(new PredictionLockedCommand(predictionLocked.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelPredictionEnd:
+				// 	var predictionEnded = JsonSerializer.Deserialize<EventMessage<PredictionEndedEvent>>(message);
+				// 	await Send(new PredictionEndedCommand(predictionEnded.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelSuspiciousUserMessage:
+				// 	var suspiciousUserAlert = JsonSerializer.Deserialize<EventMessage<SuspiciousUserMessageEvent>>(message);
+				// 	await Send(new SuspiciousUserAlertCommand(suspiciousUserAlert.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelSuspiciousUserUpdate:
+				// 	var suspicousUserUpdated = JsonSerializer.Deserialize<EventMessage<SuspiciousUserUpdatedEvent>>(message);
+				// 	await Send(new SuspiciousUserUpdatedCommand(suspicousUserUpdated.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelVipAdd:
+				// 	var vipAdded = JsonSerializer.Deserialize<EventMessage<VipEvent>>(message);
+				// 	await Send(new VipAddedCommand(vipAdded.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelVipRemove:
+				// 	var vipRemoved = JsonSerializer.Deserialize<EventMessage<VipEvent>>(message);
+				// 	await Send(new VipRemovedCommand(vipRemoved.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.UserWarningAcknowledgement:
+				// 	var userWarningAcknowledged = JsonSerializer.Deserialize<EventMessage<UserWarningAcknowledgedEvent>>(message);
+				// 	await Send(new UserWarningAcknowledgedCommand(userWarningAcknowledged.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelWarningSend:
+				// 	var userWarningSent = JsonSerializer.Deserialize<EventMessage<UserWarningSentEvent>>(message);
+				// 	await Send(new UserWarningSentCommand(userWarningSent.Payload.Event));
+				// 	break;
+				//case SubscriptionType.CharityDonation:
+				//	OnCharityDonation?.Invoke(eventMessage);
+				//	break;
+				//case SubscriptionType.CharityCampaignStart:
+				//	OnCharityCampaignStart?.Invoke(eventMessage);
+				//	break;
+				//case SubscriptionType.CharityCampaignProgress:
+				//	OnCharityCampaignProgress?.Invoke(eventMessage);
+				//	break;
+				//case SubscriptionType.CharityCampaignStop:
+				//	OnCharityCampaignStop?.Invoke(eventMessage);
+				//	break;
+				// case EventSubSubscriptionType.ChannelGoalBegin:
+				// 	var channelGoalStarted = JsonSerializer.Deserialize<EventMessage<ChannelGoalStartedEvent>>(message);
+				// 	await Send(new ChannelGoalStartedCommand(channelGoalStarted.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelGoalProgress:
+				// 	var channelGoalProgress = JsonSerializer.Deserialize<EventMessage<ChannelGoalProgressEvent>>(message);
+				// 	await Send(new ChannelGoalProgressCommand(channelGoalProgress.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ChannelGoalEnd:
+				// 	var channelGoalEnded = JsonSerializer.Deserialize<EventMessage<ChannelGoalEndedEvent>>(message);
+				// 	await Send(new ChannelGoalEndedCommand(channelGoalEnded.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.HypeTrainBegin:
+				// 	var hypeTrainStarted = JsonSerializer.Deserialize<EventMessage<HypeTrainStartedEvent>>(message);
+				// 	await Send(new HypeTrainStartedCommand(hypeTrainStarted.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.HypeTrainProgress:
+				// 	var hypeTrainProgressed = JsonSerializer.Deserialize<EventMessage<HypeTrainProgressedEvent>>(message);
+				// 	await Send(new HypeTrainProgressedCommand(hypeTrainProgressed.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.HypeTrainEnd:
+				// 	var hypeTrainEnded = JsonSerializer.Deserialize<EventMessage<HypeTrainEndedEvent>>(message);
+				// 	await Send(new HypeTrainEndedCommand(hypeTrainEnded.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ShieldModeBegin:
+				// 	var shieldModeStarted = JsonSerializer.Deserialize<EventMessage<ShieldModeBeginEvent>>(message);
+				// 	await Send(new ShieldModeStartedCommand(shieldModeStarted.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ShieldModeEnd:
+				// 	var shieldModeEnded = JsonSerializer.Deserialize<EventMessage<ShieldModeEndedEvent>>(message);
+				// 	await Send(new ShieldModeEndedCommand(shieldModeEnded.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ShoutoutCreate:
+				// 	var shoutoutCreated = JsonSerializer.Deserialize<EventMessage<ShoutoutCreatedEvent>>(message);
+				// 	await Send(new ShoutoutSentCommand(shoutoutCreated.Payload.Event));
+				// 	break;
+				// case EventSubSubscriptionType.ShoutoutReceive:
+				// 	var shoutoutReceived = JsonSerializer.Deserialize<EventMessage<ShoutoutReceivedEvent>>(message);
+				// 	await Send(new ShoutoutReceivedCommand(shoutoutReceived.Payload.Event));
+				// 	break;
+				//case SubscriptionType.WhisperReceived:
+				//	OnWhisperReceived?.Invoke(eventMessage);
+				//	break;
+				case EventSubSubscriptionType.NotSupported:
+					throw new SubscriptionEventNotSupportedException("Subscription event not supported.");
+				default:
+					// create new exception type here
+					throw new InvalidSubscriptionTypeException($"Invalid subscription type: {type}");
+			}
 		}
 		catch (Exception ex)
 		{
 			Log.LogInformation($"{ex}");
 		}
 	}
+	
 
 	private async void TimerElapsed(object? sender, ElapsedEventArgs e)
 	{

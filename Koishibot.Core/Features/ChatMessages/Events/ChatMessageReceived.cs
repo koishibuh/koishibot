@@ -14,23 +14,23 @@ namespace Koishibot.Core.Features.ChatMessages.Events;
 /// Processes chat messages: <br/>
 /// Publish to UI, Log User, Save Attendance if Enabled, Check Command
 /// </summary>
-public record ChatMessageReceived(
+public record ChatMessageReceivedHandler(
 ISignalrService Signalr,
 IChatCommandProcessor ChatCommandProcessor,
 ITwitchUserHub TwitchUserHub,
 ITimeoutUserService TimeoutUserService,
 IChatReplyService BotIrc
-) : IRequestHandler<ChatMessageReceivedCommand>
+) : IChatMessageReceivedHandler
 {
 	public async Task Handle
-	(ChatMessageReceivedCommand command, CancellationToken cancel)
+	(ChatMessageReceivedEvent e)
 	{
-		var chatVm = command.CreateVm();
+		var chatVm = e.CreateVm();
 		await Signalr.SendChatMessage(chatVm);
 
-		var userDto = command.CreateUserDto();
+		var userDto = e.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
-		var chat = command.CreateChatMessageDto(user);
+		var chat = e.CreateChatMessageDto(user);
 
 		if (chat.HasSpamLink() && chat.UserNotAllowed())
 		{
@@ -45,7 +45,7 @@ IChatReplyService BotIrc
 	}
 
 /*════════════════════【 🐌 DEBUG 】════════════════════*/
-	private async Task DebugProcess(ChatMessageReceivedCommand command)
+	private async Task DebugProcess(ChatMessageReceivedEvent command)
 	{
 		//if (e.TwitchUserDto.Name is not "ElysiaGriffin") { return; }
 		var userDto = command.CreateUserDto();
@@ -65,7 +65,7 @@ IChatReplyService BotIrc
 	}
 
 /*════════════════════【 🟣 LIVE 】════════════════════*/
-	private async Task Process(ChatMessageReceivedCommand e)
+	private async Task Process(ChatMessageReceivedEvent e)
 	{
 		var userDto = e.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
@@ -78,28 +78,26 @@ IChatReplyService BotIrc
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public partial record ChatMessageReceivedCommand(
-ChatMessageReceivedEvent E
-) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static partial class ChatMessageReceivedEventExtensions
 {
-	public ChatMessageVm CreateVm() =>
-	new ChatMessageVm(E.ChatterId, E.ChatterName, new List<KeyValuePair<string, string>>(),
-	E.Color, E.Message.Text ?? string.Empty);
-
-	public TwitchUserDto CreateUserDto() =>
-	new(E.ChatterId, E.ChatterLogin, E.ChatterName);
-
-	public ChatMessageDto CreateChatMessageDto(TwitchUser user)
+	public static ChatMessageVm CreateVm(this ChatMessageReceivedEvent e) =>
+		new ChatMessageVm(e.ChatterId, e.ChatterName, new List<KeyValuePair<string, string>>(), 
+			e.Color, e.Message.Text ?? string.Empty);
+	
+	public static TwitchUserDto CreateUserDto(this ChatMessageReceivedEvent e) =>
+		new(e.ChatterId, e.ChatterLogin, e.ChatterName);
+	
+	public static ChatMessageDto CreateChatMessageDto(this ChatMessageReceivedEvent e, TwitchUser user)
 	{
 		string? command = null;
 		var message = "";
 
-		var trimmed = E.Message.Text;
+		var trimmed = e.Message.Text;
 
 		if (trimmed.StartsWith("!"))
 		{
-			var match = MessageContainsExclamation().Match(E.Message.Text);
+			var match = MessageContainsExclamation().Match(e.Message.Text);
 			if (match.Success)
 			{
 				command = match.Groups["command"].Value.ToLower();
@@ -113,14 +111,20 @@ ChatMessageReceivedEvent E
 
 		return new ChatMessageDto
 		{
-		User = user,
-		Badges = E.Badges,
-		Color = E.Color,
-		Message = message,
-		Command = command
+			User = user,
+			Badges = e.Badges,
+			Color = e.Color,
+			Message = message,
+			Command = command
 		};
 	}
 
 	[GeneratedRegex(@"^\s*!+(?<command>\w+)(?:\s+(?<message>.+))?$")]
 	public static partial Regex MessageContainsExclamation();
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IChatMessageReceivedHandler
+{
+	Task Handle(ChatMessageReceivedEvent e);
 }

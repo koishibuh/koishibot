@@ -19,21 +19,21 @@ IChatReplyService ChatReplyService,
 IPomodoroTimer PomodoroService,
 ITwitchApiRequest TwitchApiRequest,
 ISignalrService Signalr
-) : IRequestHandler<AdBreakStartedCommand>
+) : IAdBreakStartedHandler
 {
 	private AdScheduleDto? AdInfo { get; set; }
 
 	public async Task Handle
-		(AdBreakStartedCommand command, CancellationToken cancel)
+		(AdBreakBeginEvent e)
 	{
-		await UpdateOverlayTimer(command);
+		await UpdateOverlayTimer(e);
 		// TODO: Post to UI Add started?
 
 		PomodoroService.CancelTimer();
 
 		await ChatReplyService.CreateResponse(Response.AdNowPlaying);
 
-		AdInfo = await GetAdScheduleFromTwitch(command);
+		AdInfo = await GetAdScheduleFromTwitch(e);
 
 		await Signalr.SendInfo($"Ad started, delaying for {AdInfo.AdDurationInSeconds}");
 		var timer = Toolbox.CreateTimer(AdInfo.AdDurationInSeconds, async () => await AdsCompleted());
@@ -48,26 +48,34 @@ ISignalrService Signalr
 	}
 
 /*═════════◣ ◢═════════*/
-	private async Task UpdateOverlayTimer(AdBreakStartedCommand command)
+	private async Task UpdateOverlayTimer(AdBreakBeginEvent command)
 	{
-		var totalMilliseconds = (int)command.Args.DurationInSeconds.TotalMilliseconds;
+		var totalMilliseconds = (int)command.DurationInSeconds.TotalMilliseconds;
 		var adBreakVm = new AdBreakVm(totalMilliseconds, DateTime.Now);
 		await Signalr.SendAdStartedEvent(adBreakVm);
 	}
 
 /*═════════◣ ◢═════════*/
-	private async Task<AdScheduleDto> GetAdScheduleFromTwitch(AdBreakStartedCommand command)
+	private async Task<AdScheduleDto> GetAdScheduleFromTwitch(AdBreakBeginEvent command)
 	{
 		var streamerId = Settings.Value.StreamerTokens.UserId;
-		var parameters = command.CreateParameters(streamerId);
+		var parameters = command.CreateParameters();
 		var result = await TwitchApiRequest.GetAdSchedule(parameters);
 		return result.ConvertToDto();
 	}
 }
 
-/*════════════════════【 COMMAND 】════════════════════*/
-public record AdBreakStartedCommand(AdBreakBeginEvent Args) : IRequest
+/*════════════════════【 EXTENSIONS 】════════════════════*/
+
+public static class AdBreakStartedEventExtensions
 {
-	public GetAdScheduleRequestParameters CreateParameters(string streamerId)
-		=> new() { BroadcasterId = streamerId };
-};
+	public static GetAdScheduleRequestParameters CreateParameters(this AdBreakBeginEvent e)
+		=> new() { BroadcasterId = e.BroadcasterId };
+}
+
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IAdBreakStartedHandler
+{
+	Task Handle(AdBreakBeginEvent e);
+}

@@ -13,9 +13,9 @@ public record PollStartedHandler(
 IAppCache Cache,
 ITwitchIrcService BotIrc,
 ISignalrService Signalr
-) : IRequestHandler<PollStartedCommand>
+) : IPollStartedHandler
 {
-	public async Task Handle(PollStartedCommand command, CancellationToken cancel)
+	public async Task Handle(PollBeginEvent command)
 	{
 		var poll = command.CreateDto();
 		Cache.AddPoll(poll);
@@ -41,10 +41,10 @@ ISignalrService Signalr
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record PollStartedCommand(PollBeginEvent e) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class PollStartedExtensions
 {
-	public CurrentPoll CreateDto()
+	public static CurrentPoll CreateDto(this PollBeginEvent e)
 	{
 		var pollChoices = e.Choices?
 			.GroupBy(choice => choice.Title)
@@ -62,7 +62,7 @@ public record PollStartedCommand(PollBeginEvent e) : IRequest
 		};
 	}
 
-	public PollVm CreateVm()
+	public static PollVm CreateVm(this PollBeginEvent e)
 	{
 		var pollChoices = e.Choices?
 			.GroupBy(choice => choice.Title)
@@ -79,7 +79,7 @@ public record PollStartedCommand(PollBeginEvent e) : IRequest
 			);
 	}
 
-	public CurrentTimer CreateTimerDto()
+	public static CurrentTimer CreateTimerDto(this PollBeginEvent e)
 	{
 		return new CurrentTimer
 		{
@@ -88,5 +88,12 @@ public record PollStartedCommand(PollBeginEvent e) : IRequest
 		};
 	}
 
-	public bool IsRaidPoll() => e.Title == "Who should we raid?";
-};
+	public static bool IsRaidPoll(this PollBeginEvent e) =>
+		e.Title == "Who should we raid?";
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IPollStartedHandler
+{
+	Task Handle(PollBeginEvent e);
+}
