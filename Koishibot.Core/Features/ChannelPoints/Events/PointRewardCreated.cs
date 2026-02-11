@@ -15,36 +15,42 @@ namespace Koishibot.Core.Features.ChannelPoints.Events;
 public record PointRewardCreatedHandler(
 KoishibotDbContext Database,
 ISignalrService Signalr
-) : IRequestHandler<PointRewardCreatedCommand>
+) : IPointRewardCreatedHandler
 {
-	public async Task Handle
-	(PointRewardCreatedCommand command, CancellationToken cancel)
+	public async Task Handle(CustomRewardCreatedEvent e)
 	{
-		var pointReward = command.ConvertToModel();
+		var pointReward = e.ConvertToModel();
 		await Database.UpdateReward(pointReward);
-		await Signalr.SendInfo($"Point Reward '{command.args.Title}' has been added");
+		await Signalr.SendInfo($"Point Reward '{e.Title}' has been added");
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record PointRewardCreatedCommand(CustomRewardCreatedEvent args) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+
+public static class StreamUpdatedEventExtensions
 {
-	public ChannelPointReward ConvertToModel() =>
-	new() {
-		CreatedOn = DateTimeOffset.UtcNow,
-		TwitchId = args.RewardId,
-		Title = args.Title,
-		Description = args.Description,
-		Cost = args.Cost,
-		BackgroundColor = args.BackgroundColor,
-		IsEnabled = args.IsEnabled,
-		IsUserInputRequired = args.IsUserInputRequired,
-		IsMaxPerStreamEnabled = args.MaxPerStream.IsEnabled,
-		IsMaxPerUserPerStreamEnabled = args.MaxPerUserPerStream.IsEnabled,
-		IsGlobalCooldownEnabled = args.GlobalCooldown.IsEnabled,
-		GlobalCooldownSeconds = args.GlobalCooldown.CooldownInSeconds,
-		IsPaused = args.IsPaused,
-		ShouldRedemptionsSkipRequestQueue = args.ShouldRedemptionsSkipRequestQueue,
-		ImageUrl = args.CustomImage is null ? args.DefaultImage.Url4X : args.CustomImage.Url4X
+	public static ChannelPointReward ConvertToModel(this CustomRewardCreatedEvent e) =>
+		new() {
+			CreatedOn = DateTimeOffset.UtcNow,
+			TwitchId = e.RewardId,
+			Title = e.Title,
+			Description = e.Description,
+			Cost = e.Cost,
+			BackgroundColor = e.BackgroundColor,
+			IsEnabled = e.IsEnabled,
+			IsUserInputRequired = e.IsUserInputRequired,
+			IsMaxPerStreamEnabled = e.MaxPerStream.IsEnabled,
+			IsMaxPerUserPerStreamEnabled = e.MaxPerUserPerStream.IsEnabled,
+			IsGlobalCooldownEnabled = e.GlobalCooldown.IsEnabled,
+			GlobalCooldownSeconds = e.GlobalCooldown.CooldownInSeconds,
+			IsPaused = e.IsPaused,
+			ShouldRedemptionsSkipRequestQueue = e.ShouldRedemptionsSkipRequestQueue,
+			ImageUrl = e.CustomImage is null ? e.DefaultImage.Url4X : e.CustomImage.Url4X
 		};
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IPointRewardCreatedHandler
+{
+	Task Handle(CustomRewardCreatedEvent e);
 }

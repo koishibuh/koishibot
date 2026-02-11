@@ -3,6 +3,7 @@ using Koishibot.Core.Features.StreamInformation.Extensions;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
+using Koishibot.Core.Services.Twitch.EventSubs;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChannelUpdate;
 
 namespace Koishibot.Core.Features.StreamInformation.Events;
@@ -17,15 +18,14 @@ public record StreamUpdatedHandler(
 IAppCache Cache,
 ISignalrService Signalr,
 KoishibotDbContext Database
-) : IRequestHandler<StreamUpdatedCommand>
+) : IStreamUpdatedHandler
 {
-	public async Task Handle
-		(StreamUpdatedCommand command, CancellationToken cancellationToken)
+	public async Task Handle(ChannelUpdatedEvent e)
 	{
-		var category = command.CreateModel();
+		var category = e.CreateModel();
 		await Database.UpsertCategory(category);
 
-		var streamInfo = command.ConvertToDto();
+		var streamInfo = e.ConvertToDto();
 		Cache.UpdateStreamInfo(streamInfo);
 
 		var infoVm = streamInfo.ConvertToVm();
@@ -34,10 +34,10 @@ KoishibotDbContext Database
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record StreamUpdatedCommand(ChannelUpdatedEvent e) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class StreamUpdatedEventExtensions
 {
-	public StreamInfo ConvertToDto() =>
+	public static StreamInfo ConvertToDto(this ChannelUpdatedEvent e) =>
 		new(
 			new TwitchUserDto(
 				e.BroadcasterId,
@@ -47,9 +47,15 @@ public record StreamUpdatedCommand(ChannelUpdatedEvent e) : IRequest
 			e.CategoryName,
 			e.CategoryId);
 
-	public StreamCategory CreateModel() => new()
+	public static StreamCategory CreateModel(this ChannelUpdatedEvent e) => new()
 	{
 		Name = e.CategoryName,
 		TwitchId = e.CategoryId
 	};
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IStreamUpdatedHandler
+{
+	Task Handle(ChannelUpdatedEvent e);
 }

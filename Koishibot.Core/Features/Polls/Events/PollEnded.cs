@@ -25,13 +25,13 @@ ISignalrService Signalr,
 IRaidPollProcessor RaidPollProcessor,
 IChatReplyService ChatReplyService,
 KoishibotDbContext Database
-) : IRequestHandler<PollEndedCommand>
+) : IPollEndedHandler
 {
-	public async Task Handle(PollEndedCommand command, CancellationToken cancel)
+	public async Task Handle(PollEndedEvent e)
 	{
 		ClearPollCache();
 
-		if (command.PollStatusIsArchived())
+		if (e.PollStatusIsArchived())
 		{
 			// When poll is cancelled or hides from Twitch chat
 			await Signalr.SendPollCancelled();
@@ -44,84 +44,75 @@ KoishibotDbContext Database
 		// 	return;
 		// }
 
-		command.RankChoices();
-		command.DetermineWinner();
+		var rankedChoices = e.RankChoices();
+		var winner = rankedChoices.FirstOrDefault();
 
-		await PostChatResponse(command);
+		var template = new { Title = e.Title, Winner = winner };
+		await ChatReplyService.CreateResponse(Response.PollWinner, template);
 
 		// var pollVm = poll.ConvertToVm();
 		// await Signalr.SendPoll(pollVm);
 
-		await AddResultToDatabase(command);
+		var pollResult = new PollResult()
+		{
+			StartedAt = e.StartedAt,
+			Title = e.Title,
+			ChoiceOne = rankedChoices[0].Choice,
+			VoteOne = rankedChoices[0].VoteCount,
+			ChoiceTwo = rankedChoices[1].Choice,
+			VoteTwo = rankedChoices[1].VoteCount,
+			ChoiceThree = rankedChoices.Count >= 3 ? rankedChoices[2].Choice : null,
+			VoteThree = rankedChoices.Count >= 3 ? rankedChoices[2].VoteCount : null,
+			ChoiceFour = rankedChoices.Count >= 4 ? rankedChoices[3].Choice : null,
+			VoteFour = rankedChoices.Count >= 4 ? rankedChoices[3].VoteCount : null,
+			ChoiceFive = rankedChoices.Count >= 5 ? rankedChoices[4].Choice : null,
+			VoteFive = rankedChoices.Count >= 5 ? rankedChoices[4].VoteCount : null,
+			WinningChoice = winner.Choice
+		};
 
-		await Signalr.SendPollEnded(command.winner.Choice);
-	}
-
-	private async Task PostChatResponse(PollEndedCommand command)
-	{
-		var data = command.CreateTemplate();
-		await ChatReplyService.CreateResponse(Response.PollWinner, data);
+		await Database.UpdateEntry(pollResult);
+		await Signalr.SendPollEnded(winner.Choice);
 	}
 
 	private void ClearPollCache() => Cache.Remove(CacheName.CurrentPoll);
-
-	private async Task AddResultToDatabase(PollEndedCommand command)
-	{
-		var pollResult = command.CreateEntity();
-		await Database.UpdateEntry(pollResult);
-	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record PollEndedCommand(PollEndedEvent args) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class PollEndedEventExtensions
 {
-	public List<PollChoiceInfo> rankedChoices = [];
-	public PollChoiceInfo? winner;
+	public static bool PollStatusIsArchived(this PollEndedEvent e) =>
+		e.Status == PollStatus.Archived;
 
-	public bool PollStatusIsArchived() => args.Status == PollStatus.Archived;
-	public bool PollIsRaid() => args.Title == "Who should we raid?";
+	public static bool PollIsRaid(this PollEndedEvent e) =>
+		e.Title == "Who should we raid?";
 
-	public void RankChoices()
+	public static List<PollChoiceInfo> RankChoices(this PollEndedEvent e)
 	{
 		var random = new Random();
-		rankedChoices = args.Choices
+		return e.Choices
 			.OrderByDescending(x => x.Votes)
 			.ThenBy(x => random.Next())
 			.Select(x => new PollChoiceInfo(x.Title, x.Votes))
 			.ToList();
 	}
 
-	public void DetermineWinner() =>
-		winner = rankedChoices.FirstOrDefault();
-
-	public CurrentPoll CreatePoll() =>
+	public static CurrentPoll CreatePoll(this PollEndedEvent e, List<PollChoiceInfo> rankedChoices) =>
 		new()
 		{
-			Id = args.PollId,
-			Title = args.Title,
-			StartedAt = args.StartedAt,
-			EndingAt = args.EndedAt,
-			Duration = (args.StartedAt - args.EndedAt),
+			Id = e.PollId,
+			Title = e.Title,
+			StartedAt = e.StartedAt,
+			EndingAt = e.EndedAt,
+			Duration = (e.StartedAt - e.EndedAt),
 			Choices = rankedChoices
 		};
 
-	public PollResult CreateEntity() => new()
-	{
-		StartedAt = args.StartedAt,
-		Title = args.Title,
-		ChoiceOne = rankedChoices[0].Choice,
-		VoteOne = rankedChoices[0].VoteCount,
-		ChoiceTwo = rankedChoices[1].Choice,
-		VoteTwo = rankedChoices[1].VoteCount,
-		ChoiceThree = rankedChoices.Count >= 3 ? rankedChoices[2].Choice : null,
-		VoteThree = rankedChoices.Count >= 3 ? rankedChoices[2].VoteCount : null,
-		ChoiceFour = rankedChoices.Count >= 4 ? rankedChoices[3].Choice : null,
-		VoteFour = rankedChoices.Count >= 4 ? rankedChoices[3].VoteCount : null,
-		ChoiceFive = rankedChoices.Count >= 5 ? rankedChoices[4].Choice : null,
-		VoteFive = rankedChoices.Count >= 5 ? rankedChoices[4].VoteCount : null,
-		WinningChoice = winner.Choice
-	};
+	public static object CreateTemplate(this PollEndedEvent e, string winner)
+		=> new { Title = e.Title, Winner = winner };
+}
 
-
-	public object CreateTemplate() => new { Title = args.Title, Winner = winner.Choice };
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IPollEndedHandler
+{
+	Task Handle(PollEndedEvent e);
 }

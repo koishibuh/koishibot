@@ -25,12 +25,11 @@ KoishibotDbContext Database,
 ITwitchApiRequest TwitchApiRequest,
 IOptions<Settings> Settings,
 ISignalrService Signalr
-) : IRequestHandler<RedeemedRewardCommand>
+) : IRewardRedeemedHandler
 {
-	public async Task Handle
-		(RedeemedRewardCommand command, CancellationToken cancellationToken)
+	public async Task Handle(RewardRedemptionAddedEvent e)
 	{
-		var reward = command.ConvertToDto();
+		var reward = e.ConvertToDto();
 		var user = await TwitchUserHub.Start(reward.User);
 
 		if (reward.Title == "Dragon Egg Quest")
@@ -40,14 +39,14 @@ ISignalrService Signalr
 		}
 
 		// Find Id
-		var channelPointReward = await Database.GetChannelRewardByName(command.E.Reward.Title);
+		var channelPointReward = await Database.GetChannelRewardByName(e.Reward.Title);
 		if (channelPointReward.NotInDatabase())
 		{
 			// query the api for custom reward
 			var parameters = new GetCustomRewardsParameters
 			{
 				BroadcasterId = Settings.Value.StreamerTokens.UserId,
-				Id = command.E.Reward.Id
+				Id = e.Reward.Id
 			};
 
 			var response = await TwitchApiRequest.GetCustomRewards(parameters);
@@ -57,9 +56,9 @@ ISignalrService Signalr
 				channelPointReward = new ChannelPointReward
 				{
 					CreatedOn = DateTimeOffset.UtcNow,
-					TwitchId = command.E.Reward.Id,
-					Title = command.E.Reward.Title,
-					Cost = command.E.Reward.Cost,
+					TwitchId = e.Reward.Id,
+					Title = e.Reward.Title,
+					Cost = e.Reward.Cost,
 					IsEnabled = true,
 					IsUserInputRequired = false,
 					IsMaxPerStreamEnabled = false,
@@ -104,36 +103,42 @@ ISignalrService Signalr
 		var redemption = new ChannelPointRedemption()
 		{
 			ChannelPointRewardId = channelPointReward.Id,
-			Timestamp = command.E.RedeemedAt,
+			Timestamp = e.RedeemedAt,
 			UserId = user.Id,
 			WasSuccesful = true
 		};
 		await Database.UpdateEntry(redemption);
 
-		var vm = command.CreateVm();
+		var vm = e.CreateVm();
 		await Signalr.SendStreamEvent(vm);
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record RedeemedRewardCommand(RewardRedemptionAddedEvent E) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class RewardRedemptionAddedEventExtensions
 {
-	public RedeemedRewardDto ConvertToDto()
+	public static RedeemedRewardDto ConvertToDto(this RewardRedemptionAddedEvent e)
 		=> new(
-			new TwitchUserDto(E.ViewerId, E.ViewerLogin, E.ViewerName),
-			E.UserInput,
-			E.RedeemedAt,
-			E.Reward?.Title,
-			E.Reward?.Id,
-			E.Reward?.Description,
-			E.Status.ToString(),
-			E.Reward?.Cost);
+			new TwitchUserDto(e.ViewerId, e.ViewerLogin, e.ViewerName),
+			e.UserInput,
+			e.RedeemedAt,
+			e.Reward?.Title,
+			e.Reward?.Id,
+			e.Reward?.Description,
+			e.Status.ToString(),
+			e.Reward?.Cost);
 
-	public StreamEventVm CreateVm() =>
+	public static StreamEventVm CreateVm(this RewardRedemptionAddedEvent e) =>
 		new()
 		{
 			EventType = StreamEventType.ChannelPoint,
 			Timestamp = Toolbox.CreateUITimestamp(),
-			Message = $"{E.ViewerName} has redeemed {E.Reward.Title}"
+			Message = $"{e.ViewerName} has redeemed {e.Reward.Title}"
 		};
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IRewardRedeemedHandler
+{
+	Task Handle(RewardRedemptionAddedEvent e);
 }

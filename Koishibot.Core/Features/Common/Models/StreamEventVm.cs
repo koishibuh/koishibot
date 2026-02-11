@@ -19,17 +19,7 @@ public class StreamEventVm
 		Message = $"{username} has followed";
 		return this;
 	}
-
-	public StreamEventVm CreateCheerEvent(BitsUsedEvent args)
-	{
-		EventType = StreamEventType.Cheer;
-		Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm");
-		Message = args.PowerUpData is not null
-			? $"{args.CheererName} has cheered {args.BitAmount} with {args.PowerUpData.Type}"
-			: $"{args.CheererName} has cheered {args.BitAmount}";
-		Amount = args.BitAmount;
-		return this;
-	}
+	
 
 	public StreamEventVm CreateKofiEvent(string message, int amount)
 	{

@@ -17,35 +17,40 @@ public record ChannelFollowedHandler(
 ISignalrService Signalr,
 ITwitchUserHub TwitchUserHub,
 KoishibotDbContext Database
-) : IRequestHandler<ChannelFollowedCommand>
+) : IChannelFollowedHandler
 {
-	public async Task Handle
-		(ChannelFollowedCommand command, CancellationToken cancellationToken)
+	public async Task Handle(FollowEvent e)
 	{
-		var userDto = command.CreateUserDto();
+		var userDto = e.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto, true);
 
 		var follow = new ChannelFollow(user.Id);
 		await Database.UpdateEntry(follow);
 
-		var eventVm = command.CreateVm();
+		var eventVm = e.CreateVm();
 		await Signalr.SendStreamEvent(eventVm);
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record ChannelFollowedCommand(FollowEvent args) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class StreamUpdatedEventExtensions
 {
-	public TwitchUserDto CreateUserDto() =>
+	public static TwitchUserDto CreateUserDto(this FollowEvent e) =>
 		new(
-			args.FollowerId,
-			args.FollowerLogin,
-			args.FollowerName);
+			e.FollowerId,
+			e.FollowerLogin,
+			e.FollowerName);
 
-	public StreamEventVm CreateVm() => new()
+	public static StreamEventVm CreateVm(this FollowEvent e) => new()
 	{
 		EventType = StreamEventType.Follow,
 		Timestamp = Toolbox.CreateUITimestamp(),
-		Message = $"{args.FollowerName} has followed"
+		Message = $"{e.FollowerName} has followed"
 	};
-};
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IChannelFollowedHandler
+{
+	Task Handle(FollowEvent e);
+}

@@ -6,7 +6,6 @@ using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers;
 using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
-using Koishibot.Core.Services.StreamElements.Enums;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatNotifications;
 using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.ChatNotifications.Enums;
 using Subscription = Koishibot.Core.Features.Supports.Models.Subscription;
@@ -21,14 +20,14 @@ public record ChatNotificationReceivedEventHandler(
 ISignalrService Signalr,
 ITwitchUserHub TwitchUserHub,
 KoishibotDbContext Database
-) : IRequestHandler<ChatNotificationReceivedCommand>
+) : IChatNotificationReceivedEventHandler
 {
-	public async Task Handle(ChatNotificationReceivedCommand command, CancellationToken cancel)
+	public async Task Handle(ChatNotificationEvent command)
 	{
 		var userDto = command.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
 
-		if (command.e.NoticeType == NoticeType.CommunitySubGift)
+		if (command.NoticeType == NoticeType.CommunitySubGift)
 		{
 			var supportTotal = await Database.GetSupportTotalByUserId(user.Id);
 
@@ -38,7 +37,7 @@ KoishibotDbContext Database
 			}
 			else
 			{
-				supportTotal!.SubsGifted = command.e.SubGift?.CumulativeTotal ?? 0;
+				supportTotal!.SubsGifted = command.SubGift?.CumulativeTotal ?? 0;
 			}
 
 			await Database.UpdateEntry(supportTotal);
@@ -46,7 +45,7 @@ KoishibotDbContext Database
 			var subVm = command.CreateVm(StreamEventType.CommunityGiftSub);
 			await Signalr.SendStreamEvent(subVm);
 		}
-		else if (command.e.NoticeType == NoticeType.PayItForwardSub)
+		else if (command.NoticeType == NoticeType.PayItForwardSub)
 		{
 			var subVm = command.CreateVm(StreamEventType.PayItForward);
 			await Signalr.SendStreamEvent(subVm);
@@ -62,19 +61,16 @@ KoishibotDbContext Database
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record ChatNotificationReceivedCommand(
-ChatNotificationEvent e
-) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class ChatNotificationEventExtensions
 {
-	public TwitchUserDto CreateUserDto() =>
+	public static TwitchUserDto CreateUserDto(this ChatNotificationEvent e) =>
 		new(
 			e.ChatterId,
 			e.ChatterLogin,
 			e.ChatterName);
-
-
-	public Subscription CreateSub(int userId) =>
+	
+	public static Subscription CreateSub(this ChatNotificationEvent e, int userId) =>
 		new()
 		{
 			Timestamp = DateTimeOffset.UtcNow,
@@ -84,7 +80,7 @@ ChatNotificationEvent e
 			UserMessage = e.Message?.Text
 		};
 
-	public SupportTotal CreateSupportTotal(TwitchUser user) =>
+	public static SupportTotal CreateSupportTotal(this ChatNotificationEvent e, TwitchUser user) =>
 		new()
 		{
 			UserId = user.Id,
@@ -94,12 +90,18 @@ ChatNotificationEvent e
 			Tipped = 0
 		};	
 	
-
-	public StreamEventVm CreateVm(StreamEventType type) =>
+	public static StreamEventVm CreateVm(this ChatNotificationEvent e, StreamEventType type) =>
 		new()
 		{
 			EventType = type,
 			Timestamp = Toolbox.CreateUITimestamp(),
 			Message = $"{e.SystemMessage}: {e.Message?.Text}"
 		};
+}
+
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IChatNotificationReceivedEventHandler
+{
+	Task Handle(ChatNotificationEvent e);
 }

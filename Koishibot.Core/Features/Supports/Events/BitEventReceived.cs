@@ -1,4 +1,5 @@
 using Koishibot.Core.Features.ChatCommands.Extensions;
+using Koishibot.Core.Features.Common.Enums;
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Supports.Models;
 using Koishibot.Core.Features.TwitchUsers;
@@ -14,25 +15,30 @@ namespace Koishibot.Core.Features.Supports.Events;
 public record BitEventReceivedHandler(
 ISignalrService Signalr,
 ITwitchUserHub TwitchUserHub,
-IServiceScopeFactory ScopeFactory,
-KoishibotDbContext Database
-) : IRequestHandler<BitEventReceivedCommand>
+IServiceScopeFactory ScopeFactory
+) : IBitEventReceivedHandler
 {
-	public async Task Handle
-		(BitEventReceivedCommand command, CancellationToken cancel)
+	public async Task Handle(BitsUsedEvent e)
 	{
-		var userDto = command.CreateUserDto();
+		var userDto = e.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
 
 		// TODO: Get stream session Id
-		
-		var cheer = command.CreateCheer(user.Id);
-		
+
+		var cheer = e.CreateCheer(user.Id);
+
 		using var scope = ScopeFactory.CreateScope();
 		var database = scope.ServiceProvider.GetRequiredService<KoishibotDbContext>();
+
+		database.Cheers.Add(cheer);
 		
-		await database.AddEntry(cheer);
-		
+		var tipJarGoal = await database.GetActiveTipJarGoal();
+		if (tipJarGoal is not null)
+		{
+			tipJarGoal.CurrentAmount = tipJarGoal.CurrentAmount + cheer.BitsAmount;
+		}
+
+		await database.SaveChangesAsync();
 		//
 		// var supportTotal = await database.GetSupportTotalByUserId(user.Id);
 		// if (supportTotal.NotInDatabase())
@@ -45,41 +51,57 @@ KoishibotDbContext Database
 		// }
 		//
 		// await database.UpdateEntry(supportTotal);
-		var cheerVm = new StreamEventVm()
-			.CreateCheerEvent(command.args);
 		
+		var cheerVm = e.CreateCheerVm();
 		await Signalr.SendStreamEvent(cheerVm);
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record BitEventReceivedCommand(
-BitsUsedEvent args
-) : IRequest
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
+public static class BitsUsedEventExtensions
 {
-	public TwitchUserDto CreateUserDto() =>
+	public static TwitchUserDto CreateUserDto(this BitsUsedEvent e) =>
 		new(
-			args.CheererId,
-			args.CheererLogin,
-			args.CheererName);
+			e.BroadcasterId,
+			e.BroadcasterLogin,
+			e.BroadcasterName);
 
-	public TwitchCheer CreateCheer(int userId) =>
-		new()
-		{
-			Timestamp = DateTimeOffset.UtcNow,
-			UserId = userId,
-			BitsAmount = args.BitAmount,
-			Message = args.Message?.Text ?? ""
-			// StreamSessionId = null
-		};
+	public static StreamEventVm CreateCheerVm(this BitsUsedEvent e)
+	{
+		var message = e.PowerUpData is not null
+			? $"{e.CheererName} has cheered {e.BitAmount} with {e.PowerUpData.Type}"
+			: $"{e.CheererName} has cheered {e.BitAmount}";
 
-	public SupportTotal CreateSupportTotal(TwitchUser user) =>
-		new()
+		return new StreamEventVm()
 		{
-			UserId = user.Id,
-			MonthsSubscribed = 0,
-			SubsGifted = 0,
-			BitsCheered = args.BitAmount,
-			Tipped = 0
+			EventType = StreamEventType.Cheer,
+			Timestamp = (DateTimeOffset.UtcNow).ToString("yyyy-MM-dd HH:mm"),
+			Message = message,
+			Amount = e.BitAmount,
 		};
-};
+	}
+	
+	public static TwitchCheer CreateCheer(this BitsUsedEvent e, int userId) => new()
+	{
+		Timestamp = DateTimeOffset.UtcNow,
+		UserId = userId,
+		BitsAmount = e.BitAmount,
+		Message = e.Message?.Text ?? ""
+		// StreamSessionId = null
+	};
+
+	public static SupportTotal CreateSupportTotal(this BitsUsedEvent e, TwitchUser user) => new()
+	{
+		UserId = user.Id,
+		MonthsSubscribed = 0,
+		SubsGifted = 0,
+		BitsCheered = e.BitAmount,
+		Tipped = 0
+	};
+}
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IBitEventReceivedHandler
+{
+	Task Handle(BitsUsedEvent e);
+}

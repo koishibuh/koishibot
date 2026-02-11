@@ -11,18 +11,18 @@ namespace Koishibot.Core.Features.Polls.Events;
 public record VoteReceivedHandler(
 IAppCache Cache,
 ISignalrService Signalr
-) : IRequestHandler<PollVoteReceivedCommand>
+) : IVoteReceivedHandler
 {
-	public async Task Handle(PollVoteReceivedCommand command, CancellationToken cancel)
+	public async Task Handle(PollProgressEvent e)
 	{
-		var poll = command.CreateDto();
+		var poll = e.CreateDto();
 		Cache.AddPoll(poll);
 
 		// var pollVm = poll.ConvertToVm();
 		// await Signalr.SendPoll(pollVm);
 
 		//Update Overlay that vote was received
-		if (command.IsRaidPoll())
+		if (e.IsRaidPoll())
 		{
 			// var raidPollVm = new PollVotesVm().Set(poll.Choices);
 			// await Signalr.SendRaidPollVote(raidPollVm);
@@ -33,11 +33,11 @@ ISignalrService Signalr
 		}
 	}
 }
+/*═══════════════════【 EXTENSIONS 】═══════════════════*/
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record PollVoteReceivedCommand(PollProgressEvent e) : IRequest
+public static class PollProgressEventExtensions
 {
-	public CurrentPoll CreateDto()
+	public static CurrentPoll CreateDto(this PollProgressEvent e)
 	{
 		var pollChoices = e.Choices?
 			.GroupBy(choice => choice.Title)
@@ -55,5 +55,13 @@ public record PollVoteReceivedCommand(PollProgressEvent e) : IRequest
 		};
 	}
 
-	public bool IsRaidPoll() => e.Title == "Who should we raid?";
+	public static  bool IsRaidPoll(this PollProgressEvent e) =>
+		e.Title == "Who should we raid?";
+}
+
+
+/*══════════════════【 INTERFACE 】══════════════════*/
+public interface IVoteReceivedHandler
+{
+	Task Handle(PollProgressEvent e);
 }
