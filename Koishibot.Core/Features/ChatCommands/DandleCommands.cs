@@ -1,4 +1,5 @@
 ﻿using Koishibot.Core.Features.ChatCommands.Interface;
+using Koishibot.Core.Features.ChatCommands.Models;
 using Koishibot.Core.Features.ChatMessages.Models;
 using Koishibot.Core.Features.Dandle;
 using Koishibot.Core.Features.Dandle.Enums;
@@ -29,7 +30,7 @@ IDandleWordService DandleWordService
 		// if dandle is enabled and suggestions
 		if (Cache.DandleIsClosed())
 		{
-			if (c.User.Login is "spacey3d" or "elysiagriffin")
+			if (c.User.Permissions is PermissionLevel.Mod or PermissionLevel.Broadcaster)
 			{
 				switch (c.Command)
 				{
@@ -42,7 +43,9 @@ IDandleWordService DandleWordService
 						return true;
 				}
 			}
-			return false;
+			
+			else
+				return false;
 		}
 
 		var dandleInfo = Cache.GetDandleInfo();

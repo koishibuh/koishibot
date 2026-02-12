@@ -29,10 +29,13 @@ ITwitchIrcService TwitchIrcService
 			// 	await RaidCommands.Process(c);
 			// }
 			// await DandleCommands.Process(c);
+			
+			await DandleCommands.Process(c);
 		}
 		else
 		{
-			var result = Cache.NewGetCommand(c.Command, PermissionLevel.Everyone);
+			// Reminder for future: need a check for mod vs everyone
+			var result = Cache.NewGetCommand(c.Command);
 			if (result is null) return; // Command not found Todo: Post message?
 			
 			switch (result.Category)
