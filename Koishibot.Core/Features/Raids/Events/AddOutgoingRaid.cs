@@ -11,15 +11,14 @@ namespace Koishibot.Core.Features.Raids.Events;
 
 /*═══════════════════【 HANDLER 】═══════════════════*/
 public record AddOutgoingRaidHandler(
-IAppCache Cache, ITwitchApiRequest TwitchApiRequest,
+IAppCache Cache,
 IChatReplyService ChatReplyService,
 KoishibotDbContext Database
-) : IRequestHandler<OutgoingRaidCommand>
+) : IOutgoingRaidHandler
 {
-	public async Task Handle
-		(OutgoingRaidCommand command, CancellationToken cancel)
+	public async Task Handle(RaidEvent e)
 	{
-		var user = command.CreateDto();
+		var user = e.CreateUserDto();
 
 		var raidedUser = await Database.GetUserByTwitchId(user.TwitchId);
 		if (raidedUser is null)
@@ -38,9 +37,9 @@ KoishibotDbContext Database
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record OutgoingRaidCommand(RaidEvent args) : IRequest
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+
+public interface IOutgoingRaidHandler
 {
-	public TwitchUserDto CreateDto()
-		=> new(args.ToBroadcasterId, args.ToBroadcasterLogin, args.ToBroadcasterName);
+	public Task Handle(RaidEvent e);
 }

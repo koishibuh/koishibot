@@ -2,13 +2,21 @@
 using Koishibot.Core.Features.Common.Models;
 using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Models;
+using Koishibot.Core.Features.TwitchUsers.Models;
 using Koishibot.Core.Persistence;
 using Koishibot.Core.Persistence.Cache.Enums;
+using Koishibot.Core.Services.Twitch.EventSubs.ResponseModels.Raids;
 
 namespace Koishibot.Core.Features.Raids.Extensions;
 public static class RaidExtensions
 {
-
+	// EVENT
+	public static TwitchUserDto CreateUserDto(this RaidEvent e) =>
+		new(
+			e.FromBroadcasterId,
+			e.FromBroadcasterLogin,
+			e.FromBroadcasterName);
+	
 	// MODEL
 
 	public static StreamEventVm ConvertToModel(this IncomingRaid raid)

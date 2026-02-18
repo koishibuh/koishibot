@@ -404,18 +404,19 @@ public class TwitchEventSubService : ITwitchEventSubService
 					await scope.ServiceProvider.GetRequiredService<IBitEventReceivedHandler>()
 						.Handle(bitsUsed.Payload.Event);
 					break;
-				// case EventSubSubscriptionType.ChannelRaid:
-				// 	var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);
-				// 	if (raid.Payload.Event.ToBroadcasterId == "98683749")
-				// 	{
-				// 		await Send(new IncomingRaidCommand(raid.Payload.Event));
-				// 	}
-				// 	else
-				// 	{
-				// 		await Send(new OutgoingRaidCommand(raid.Payload.Event));
-				// 	}
-				//
-				// 	break;
+				case EventSubSubscriptionType.ChannelRaid:
+					var raid = JsonSerializer.Deserialize<EventMessage<RaidEvent>>(message);
+					if (raid.Payload.Event.ToBroadcasterId == "98683749")
+					{
+						await scope.ServiceProvider.GetRequiredService<IAddIncomingRaidHandler>()
+							.Handle(raid.Payload.Event);
+					}
+					// else
+					// {
+					// 	await Send(new OutgoingRaidCommand(raid.Payload.Event));
+					// }
+				
+					break;
 				// case EventSubSubscriptionType.ChannelBan:
 				// 	var userBanned = JsonSerializer.Deserialize<EventMessage<BannedUserEvent>>(message);
 				// 	await Send(new UserBannedCommand(userBanned.Payload.Event));

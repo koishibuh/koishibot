@@ -2,9 +2,11 @@
 using Koishibot.Core.Features.ChatCommands.Extensions;
 using Koishibot.Core.Features.Common;
 using Koishibot.Core.Features.Obs.Models;
+using Koishibot.Core.Features.Raids.Extensions;
 using Koishibot.Core.Features.Raids.Interfaces;
 using Koishibot.Core.Features.Raids.Models;
 using Koishibot.Core.Features.RaidSuggestions.Enums;
+using Koishibot.Core.Features.Shoutouts;
 using Koishibot.Core.Features.StreamInformation.Models;
 using Koishibot.Core.Features.StreamInformation.ViewModels;
 using Koishibot.Core.Features.TwitchUsers;
@@ -27,68 +29,70 @@ KoishibotDbContext Database,
 IPromoVideoService PromoVideoService,
 IChatReplyService ChatReplyService,
 IObsService ObsService
-) : IRequestHandler<IncomingRaidCommand>
+) : IAddIncomingRaidHandler
 {
-	public async Task Handle(IncomingRaidCommand command, CancellationToken cancellationToken)
+	public async Task Handle(RaidEvent e)
 	{
-		var userDto = command.CreateUserDto();
+		var userDto = e.CreateUserDto();
 		var user = await TwitchUserHub.Start(userDto);
 
 		await SendShoutout(user.TwitchId);
-
+		
 		var videoUrl = await PromoVideoService.Start(user);
 		if (videoUrl is not null)
 		{
 			await Signalr.SendPromoVideoUrl(videoUrl);
 		}
-
-		var browserSource = await Database.FindObsItemByAppName(ObsAppName.ShoutoutVideo);
-		if (browserSource is null)
-		{
-			await Signalr.SendError("ShoutoutVideo ObsSource not found");
-		}
-		else
-		{
-			// update input settings
-			var browserRequest = new RequestWrapper<SetInputSettingsRequest<BrowserSourceSettings>>
-			{
-				RequestType = ObsRequests.SetInputSettings,
-				RequestId = new Guid(),
-				RequestData = new SetInputSettingsRequest<BrowserSourceSettings>
-				{
-					InputUuid = browserSource.ObsId,
-					InputSettings = new BrowserSourceSettings
-					{
-						Url = videoUrl
-					}
-				}
-			};
-
-			var inputRequest = new RequestWrapper<OpenInputInteractDialog>
-			{
-				RequestType = ObsRequests.OpenInputInteractDialog,
-				RequestId = new Guid(),
-				RequestData = new OpenInputInteractDialog
-				{
-					InputUuid = browserSource.ObsId
-				}
-			};
-
-			var batchRequest = new ObsBatchRequest
-			{
-				Data = new RequestBatchWrapper
-				{
-					RequestId = new Guid(),
-					Requests = new List<object>
-					{
-						browserRequest,
-						inputRequest
-					}
-				}
-			};
-
-			await ObsService.SendBatchRequest(batchRequest);
-		}
+		
+		// TODO: Reimplement this
+		//
+		// var browserSource = await Database.FindObsItemByAppName(ObsAppName.ShoutoutVideo);
+		// if (browserSource is null)
+		// {
+		// 	await Signalr.SendError("ShoutoutVideo ObsSource not found");
+		// }
+		// else
+		// {
+		// 	// update input settings
+		// 	var browserRequest = new RequestWrapper<SetInputSettingsRequest<BrowserSourceSettings>>
+		// 	{
+		// 		RequestType = ObsRequests.SetInputSettings,
+		// 		RequestId = new Guid(),
+		// 		RequestData = new SetInputSettingsRequest<BrowserSourceSettings>
+		// 		{
+		// 			InputUuid = browserSource.ObsId,
+		// 			InputSettings = new BrowserSourceSettings
+		// 			{
+		// 				Url = videoUrl
+		// 			}
+		// 		}
+		// 	};
+		//
+		// 	var inputRequest = new RequestWrapper<OpenInputInteractDialog>
+		// 	{
+		// 		RequestType = ObsRequests.OpenInputInteractDialog,
+		// 		RequestId = new Guid(),
+		// 		RequestData = new OpenInputInteractDialog
+		// 		{
+		// 			InputUuid = browserSource.ObsId
+		// 		}
+		// 	};
+		//
+		// 	var batchRequest = new ObsBatchRequest
+		// 	{
+		// 		Data = new RequestBatchWrapper
+		// 		{
+		// 			RequestId = new Guid(),
+		// 			Requests = new List<object>
+		// 			{
+		// 				browserRequest,
+		// 				inputRequest
+		// 			}
+		// 		}
+		// 	};
+		//
+		// 	await ObsService.SendBatchRequest(batchRequest);
+		// }
 
 		// TODO: Overlay have follow clicky animation after shoutout
 
@@ -100,7 +104,7 @@ IObsService ObsService
 		{
 			Timestamp = DateTimeOffset.UtcNow,
 			RaidedByUserId = user.Id,
-			ViewerCount = command.args.ViewerCount
+			ViewerCount = e.ViewerCount
 		};
 
 		await Database.UpdateEntry(incomingRaid);
@@ -140,11 +144,9 @@ IObsService ObsService
 	}
 }
 
-/*═══════════════════【 COMMAND 】═══════════════════*/
-public record IncomingRaidCommand(RaidEvent args) : IRequest
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+
+public interface IAddIncomingRaidHandler
 {
-	public TwitchUserDto CreateUserDto() => new(
-		args.FromBroadcasterId,
-		args.FromBroadcasterLogin,
-		args.FromBroadcasterName);
+	public Task Handle(RaidEvent e);
 }

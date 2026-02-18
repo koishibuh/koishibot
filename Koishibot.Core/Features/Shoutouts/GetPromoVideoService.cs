@@ -8,7 +8,6 @@ namespace Koishibot.Core.Features.Shoutouts;
 
 public record PromoVideoService(
 ITwitchApiRequest TwitchApiRequest
-//IPromoVideoApi PromoVideoApi
 ) : IPromoVideoService
 {
 	public async Task<string?> Start(TwitchUser user)
@@ -89,4 +88,11 @@ ITwitchApiRequest TwitchApiRequest
 			? clip.Data[0].ClipUrl
 			: null;
 	}
+}
+
+/*═══════════════════【 INTERFACE 】═══════════════════*/
+
+public interface IPromoVideoService
+{
+	Task<string?> Start(TwitchUser user);
 }
