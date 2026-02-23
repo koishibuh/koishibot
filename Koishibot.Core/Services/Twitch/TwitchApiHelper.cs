@@ -11,8 +11,8 @@ public static class TwitchApiHelper
 	{
 		return [
 			// EventSubSubscriptionType.ChannelBitsUsed,
-			EventSubSubscriptionType.ChannelUpdate,
-			EventSubSubscriptionType.ChannelChatMessage,
+			// EventSubSubscriptionType.ChannelUpdate,
+			// EventSubSubscriptionType.ChannelChatMessage,
 			// EventSubSubscriptionType.StreamOnline,
 			// EventSubSubscriptionType.StreamOffline,
 			// EventSubSubscriptionType.ChannelPollBegin,
@@ -27,7 +27,8 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelRaidSent,
 			// EventSubSubscriptionType.ChannelPointsAutomaticRewardRedemption,
 			// EventSubSubscriptionType.ChannelPointsCustomRewardRedemptionAdd
-			EventSubSubscriptionType.ChannelChatNotification
+			// EventSubSubscriptionType.ChannelRaidReceived,
+			// EventSubSubscriptionType.ChannelChatNotification
 		];
 	}
 
@@ -58,7 +59,7 @@ public static class TwitchApiHelper
 			// EventSubSubscriptionType.ChannelCheer, // Now using ChannelBitsUsed
 			EventSubSubscriptionType.ChannelBitsUsed,
 			// EventSubSubscriptionType.ChannelRaidSent,
-			// EventSubSubscriptionType.ChannelRaidReceived,
+			EventSubSubscriptionType.ChannelRaidReceived,
 			// EventSubSubscriptionType.ChannelBan,
 			// EventSubSubscriptionType.ChannelUnban,
 			// //EventSubSubscriptionType.ChannelUnbanRequestCreate,

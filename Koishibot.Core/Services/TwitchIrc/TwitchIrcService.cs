@@ -17,9 +17,15 @@ ILogger<TwitchIrcService> Log
 	public CancellationToken? Cancel { get; set; }
 	private WebSocketFactory Factory { get; set; } = new();
 	private WebSocketHandler? BotIrc { get; set; }
+	
+	private bool DebugChat { get; set; }
+	private string StreamerLoginName { get; set; } 
 
 	public async Task CreateWebSocket()
 	{
+		DebugChat = Settings.Value.DebugMode;
+		StreamerLoginName = Settings.Value.StreamerTokens.UserLogin;
+		
 		const string url = "wss://irc-ws.chat.twitch.tv:443";
 
 		try
@@ -68,7 +74,6 @@ ILogger<TwitchIrcService> Log
 		}
 
 		await BotIrc.SendMessage($"JOIN ${streamer}");
-		// await SendMessageToChat(streamer, "Joined channel");
 
 		await Task.Delay(3000);
 
@@ -86,8 +91,14 @@ ILogger<TwitchIrcService> Log
 	{
 		try
 		{
-			var streamer = Settings.Value.StreamerTokens.UserLogin;
-			await SendMessageToChat(streamer, message);
+			if (DebugChat)
+			{
+				await SendMessageToChat("koishibuh", message);
+			}
+			else
+			{
+				await SendMessageToChat(StreamerLoginName, message);
+			}
 		}
 		catch (Exception ex)
 		{

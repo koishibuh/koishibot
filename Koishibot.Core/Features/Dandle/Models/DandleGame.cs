@@ -293,7 +293,7 @@ public class DandleGame
 	}
 
 	// if (dandleInfo.GameRound < 6)
-	public bool WasFinalRound() => GameRound > 6;
+	public bool WasFinalRound() => GameRound >= 6;
 
 	public List<PollChoiceInfo> CreatePollChoiceVm() =>
 		CurrentVotes.Select(x => new PollChoiceInfo(x.Word, 0)).ToList();
